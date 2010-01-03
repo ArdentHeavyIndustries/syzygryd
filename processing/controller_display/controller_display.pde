@@ -4,8 +4,6 @@
  * Meant to go directly on tv screen eventually.
  */
 
-
-
 /* Osc business */
 import oscP5.*;
 import netP5.*;
@@ -24,15 +22,13 @@ HashMap buttonsByRow = new HashMap();
 //ArrayList particleSystemsSimple;
 
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
-MasterHue masterHue;
+int masterHue = 1;
 
 void setup() {
   size(1280,720); // 16:9 window
-
-
-
-  //  particleSystemsSimple = new ArrayList();   // for storing particles
-
+  
+//  particleSystemsSimple = new ArrayList();   // for storing particles
+  
   /* dunno why there's a framerate specified, there usually isn't, 
    * but all the osc examples had one. */
   frameRate(30); 
@@ -46,14 +42,18 @@ void setup() {
    * max needs to  be set up to send out to this patch with a 
    * port different from the listen port for the controllers
    * if you're running it on the same machine. */
-  oscP5 = new OscP5(this,8001);
+  oscP5 = new OscP5(this,9000);
 
 
   /* myRemoteLocation is a NetAddress. a NetAddress takes 2 parameters,
    * an ip address and a port number. Currently not used at all. 
    * Probably should route to Max rather than direct to controller.
    */
-  myRemoteLocation = new NetAddress("192.168.1.138",9000);
+  myRemoteLocation = new NetAddress("172.30.1.13",8000);
+
+  // Connect to the server
+  OscMessage connect = new OscMessage("/server/connect");
+  oscP5.send(connect, myRemoteLocation);
 
   /* Set the total number of button objects here. 
    * total per layer by number of layers */
@@ -75,7 +75,7 @@ void setup() {
 
       /* panel 1 */
       thisButton = new Button(
-      //     particleSystemsSimple,
+ //     particleSystemsSimple,
       buttonSpacing*i, // button X
       (buttonSpacing*j)-((buttonSize)), //button Y
       buttonSize, // button length
@@ -88,7 +88,7 @@ void setup() {
 
       /* panel 2 */
       thisButton = new Button(
-      //   particleSystemsSimple,
+   //   particleSystemsSimple,
       buttonSpacing*i,
       (buttonSpacing*j)-((buttonSize)),
       buttonSize,
@@ -102,7 +102,7 @@ void setup() {
 
       /* panel 3 */
       thisButton = new Button(
-      //   particleSystemsSimple,
+   //   particleSystemsSimple,
       buttonSpacing*i,
       buttonSpacing*j-((buttonSize)),
       buttonSize,
@@ -119,12 +119,6 @@ void setup() {
   temposweep = new Temposweep(buttonSize, buttonSpacing, buttonsByRow);
   objectMapOSC.put ("/temposlider/step", temposweep);
   typeMapOSC.put ("/temposlider/step", "temposweep");
-
-  masterHue = new MasterHue();
-
-  objectMapOSC.put ("/masterHue/baseHue", masterHue);
-  typeMapOSC.put ("/masterHue/baseHue", "masterhue");
-
 }
 
 
@@ -132,26 +126,32 @@ int curSecond = 0;
 
 void draw() {
 
-
-
   background (0);
   for(int i = 0; i < buttons.length; i++){
     buttons[i].draw(false);
-    buttons[i].setHue(masterHue.getValue());
-    println(masterHue.getValue() + " masterhue");
+    buttons[i].setHue(masterHue);
   }
 
-  temposweep.draw();
 
+  if(second() % 5 == 0 && second() != curSecond){ //does changing the modulo here make color cycle faster or slower?
+    masterHue+=1;
+    if(masterHue > 100){
+      masterHue -=100; 
+    }
+    curSecond = second();
+  }
+  
+  temposweep.draw();
+  
   // Cycle through all particle systems, run them and delete old ones
-  /*  for (int i = particleSystemsSimple.size()-1; i >= 0; i--) {
-   ParticleSystemSimple psys = (ParticleSystemSimple) particleSystemsSimple.get(i);
-   psys.run();
-   if (psys.dead()) {
-   particleSystemsSimple.remove(i);
-   }
-   }
-   */
+/*  for (int i = particleSystemsSimple.size()-1; i >= 0; i--) {
+    ParticleSystemSimple psys = (ParticleSystemSimple) particleSystemsSimple.get(i);
+    psys.run();
+    if (psys.dead()) {
+      particleSystemsSimple.remove(i);
+    }
+  }
+*/
   for(int i = 0; i < buttons.length; i++){
     buttons[i].draw(true);
   }
@@ -186,10 +186,6 @@ void oscEvent(OscMessage theOscMessage) {
       Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(theOscMessage.addrPattern());
       thisOSCObject.setValue(int(firstValue));
     }
-    else if (typeMapOSC.get(theOscMessage.addrPattern())=="masterhue") {
-      MasterHue thisOSCObject = (MasterHue) objectMapOSC.get(theOscMessage.addrPattern());
-      thisOSCObject.setValue(int(firstValue));
-    }
   } 
   else if(theOscMessage.checkTypetag("i")) {
     int firstValue =0;
@@ -208,12 +204,8 @@ void oscEvent(OscMessage theOscMessage) {
       Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(theOscMessage.addrPattern());
       thisOSCObject.setValue(firstValue);
     }
-    else if (typeMapOSC.get(theOscMessage.addrPattern())=="masterhue") {
-      MasterHue thisOSCObject = (MasterHue) objectMapOSC.get(theOscMessage.addrPattern());
-      thisOSCObject.setValue(firstValue);
-    }
   }
-  //println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
+  println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
 
 
 
@@ -227,26 +219,19 @@ void mousePressed() {
   thisButton = (Button) objectMapOSC.get("/2/multitoggle1/3/3");
   if(thisButton.getValue()) {
     thisButton.setValue(0);
-  } 
-  else {
+  } else {
     thisButton.setValue(1);
   }
-
+  
 }
 
-class MasterHue
-{
-  int masterHue = 1;
 
-  int getValue() {
-    return masterHue;
-  }
 
-  void setValue(int _masterHue) {
-    masterHue = _masterHue;
-  }
 
-}
+
+
+
+
 
 
 

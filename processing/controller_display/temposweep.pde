@@ -1,5 +1,3 @@
-
-
 class Temposweep
 {
   int step=6;
@@ -62,7 +60,7 @@ class Temposweep
     followButtons = (Button[]) buttonsByRow.get(follow);
 
     if (buttonsByRow.containsKey(step)) {
-      //println(step);
+      println(step);
       for (int j =1; j<stepButtons.length; j++) {
         stepButtons[j].activeButton();
       }
@@ -70,7 +68,7 @@ class Temposweep
     }
 
     if (buttonsByRow.containsKey(follow)){
-      //println(follow);
+      println(follow);
       for (int j =1; j<followButtons.length; j++) {
         followButtons[j].inactiveButton();
       }
