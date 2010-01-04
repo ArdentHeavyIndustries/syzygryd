@@ -49,7 +49,7 @@ void setup() {
    * an ip address and a port number. Currently not used at all. 
    * Probably should route to Max rather than direct to controller.
    */
-  myRemoteLocation = new NetAddress("172.30.1.13",8000);
+  myRemoteLocation = new NetAddress("localhost",8000);
 
   // Connect to the server
   OscMessage connect = new OscMessage("/server/connect");
