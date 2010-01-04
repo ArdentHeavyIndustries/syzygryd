@@ -32,14 +32,10 @@ class V2Button {
     return "multitoggle1/"+(panelHeight - row)+"/"+(column + 1);
   }
   
-  String touchOSCAddress(int panelNumber) {
-    return  "/"+(panelNumber + 1)+"/multitoggle1/"+(panelHeight - row)+"/"+(column + 1);
-  }
-  
   void addToBundle(OscBundle theBundle, OscMessage theMessage)
   {
     theMessage.clear();
-    theMessage.setAddrPattern(this.touchOSCAddress(0));
+    theMessage.setAddrPattern(owner.oscAddressForButton(this));
     theMessage.add(this.getState());
     theBundle.add(theMessage);
   }

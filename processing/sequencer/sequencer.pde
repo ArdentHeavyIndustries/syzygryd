@@ -33,8 +33,7 @@ MatrixButton [][][] buttonGrid;
 //sets up the current available tones
 // 60,62,64,67,69,72,74,76,79,81 is C major pentatonic scale, i believe
 int[] toneMap = {
-  60,62,64,67,69,72,74,76,79,81
-};
+  60,62,64,67,69,72,74,76,79,81};
 
 
 /** 
@@ -52,7 +51,7 @@ void setup() {
 
   // So this assumes you've set up the IAC Driver (on OS X, under /Apps/Utilities/Audio Midi Setup.app, 
   // click the "MIDI Devices" tab, double-click the "IAC Driver", add a port, and name it "GridSequencer")
-  // Then in Live, on each of the three instruments, MIDI From should be "GridSequencer", and channel should be 1, 2,  and 3 respectively
+  // Then in Live, on each of the three instruments, MIDI From should be "GridSequencer", and channel should be 1, 2, and 3 respectively
   myBus = new MidiBus(this, "GridSequencer", "GridSequencer");
 
   //start oscP5 listening for incoming messages from controllers.
@@ -148,6 +147,9 @@ void updatePanelSlider() {
     fader.add(pos);
     myBundle.add(fader);
   }
+  OscMessage temposlider = new OscMessage("/temposlider/step");
+  temposlider.add(currentRow+1);
+  myBundle.add(temposlider);
   oscP5.send(myBundle, myNetAddressList);    
 }
 
@@ -214,7 +216,7 @@ private void connect(String theIPaddress) {
     println("### adding "+theIPaddress+" to the list.");
   } 
   else {
-    println("### "+theIPaddress+" is already connected.");
+    println("### controller at "+theIPaddress+" is already connected.");
   }
   println("### currently there are "+myNetAddressList.list().size()+" controllers connected.");
   /* Since we've got a newly connected client, let's get them up to date with what's already in the matrix */
@@ -228,12 +230,12 @@ private void connect(String theIPaddress) {
 private void disconnect(String theIPaddress) {
   if (myNetAddressList.contains(theIPaddress, myBroadcastPort)) {
     myNetAddressList.remove(theIPaddress, myBroadcastPort);
-    println("### removing "+theIPaddress+" from the list.");
+    println("### disconnecting controller at "+theIPaddress);
   } 
   else {
-    println("### "+theIPaddress+" is not connected.");
+    println("### controller from "+theIPaddress+" was not connected.");
   }
-  println("### currently there are "+myNetAddressList.list().size());
+  println("### currently there are "+myNetAddressList.list().size()+" controllers connected");
 }
 
 

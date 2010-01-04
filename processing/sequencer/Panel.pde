@@ -19,9 +19,9 @@ class Panel {
     buttonGrid = new V2Button[pWidth][pHeight];
     for(int row = 0; row < panelHeight; row++){
       for (int column = 0; column < panelWidth; column++) {
-        V2Button foo = new V2Button(row, column, this);
-        buttonGrid[column][row] = foo;
-        osc.plug(foo, "setState", foo.touchOSCAddress(id));
+        V2Button newButton = new V2Button(row, column, this);
+        buttonGrid[column][row] = newButton;
+        osc.plug(newButton, "setState", oscAddressForButton(newButton));
       }
     }
     osc.plug(this, "clear", "/4/push"+id);
