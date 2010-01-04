@@ -189,40 +189,29 @@ void beat() {
 void oscEvent(OscMessage theOscMessage) {
   /* check if the address pattern fits any of our patterns */
   if (theOscMessage.addrPattern().equals(myConnectPattern)) {
-    connect(theOscMessage.netAddress().address());
+    connect(theOscMessage.netAddress().address(), true);
   }
   else if (theOscMessage.addrPattern().equals(myDisconnectPattern)) {
     disconnect(theOscMessage.netAddress().address());
-  }
-  /**
-   * if pattern matching was not successful, then broadcast the incoming
-   * message to all addresses in the netAddresList. 
-   */
-  else {
-    if(theOscMessage.isPlugged()==false) {
-      /* print the address pattern and the typetag of the received OscMessage 
-      println("### received an osc message.");
-      println("### addrpattern\t"+theOscMessage.addrPattern());
-      println("### typetag\t"+theOscMessage.typetag());
-      */
-    }
+  } else {
+    // Just in case we're hearing for the first time from a non-connected client, we'll implicitly connect them now
+    // (this will not send a refresh of panel state, but will ensure the tempo sliders update)
+    connect(theOscMessage.netAddress().address(), false);
   }
 }
 
 
-private void connect(String theIPaddress) {
+private void connect(String theIPaddress, Boolean explicit) {
   if (!myNetAddressList.contains(theIPaddress, myBroadcastPort)) {
     myNetAddressList.add(new NetAddress(theIPaddress, myBroadcastPort));
     println("### adding "+theIPaddress+" to the list.");
+    if (explicit) { // (implicit connections will not trigger broadcast)
+      /* Since we've got a newly connected client, let's get them up to date with what's already in the matrix */
+      for (int i = 0; i < 3; i++) {
+        broadcastPanel(i);
+      }
+    }
   } 
-  else {
-    println("### controller at "+theIPaddress+" is already connected.");
-  }
-  println("### currently there are "+myNetAddressList.list().size()+" controllers connected.");
-  /* Since we've got a newly connected client, let's get them up to date with what's already in the matrix */
-  for (int i = 0; i < 3; i++) {
-    broadcastPanel(i);
-  }
 }
 
 
