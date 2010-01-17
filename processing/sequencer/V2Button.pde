@@ -1,9 +1,9 @@
-class V2Button {
+class Button {
   int row, column;
   float state;
   Panel owner;
   
-  V2Button(int _row, int _column, Panel _owner) {
+  Button(int _row, int _column, Panel _owner) {
     owner = _owner;
     row = _row;
     column = _column;

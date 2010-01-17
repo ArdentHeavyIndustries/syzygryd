@@ -7,7 +7,7 @@ class Panel {
   OscP5 osc;
   MidiBus midiBus;
   NetAddressList clients;
-  V2Button[][] buttonGrid;
+  Button[][] buttonGrid;
   int[] toneMap;
   boolean initialized;
 
@@ -20,7 +20,7 @@ class Panel {
     osc = anOsc;
     midiBus = aMidiBus;
     clients = someClients;
-    buttonGrid = new V2Button[pWidth][pHeight];
+    buttonGrid = new Button[pWidth][pHeight];
   }
   
   void setupOsc()
@@ -28,7 +28,7 @@ class Panel {
     if (!initialized) {      
       for(int row = 0; row < panelHeight; row++){
         for (int column = 0; column < panelWidth; column++) {
-          V2Button newButton = new V2Button(row, column, this);
+          Button newButton = new Button(row, column, this);
           buttonGrid[column][row] = newButton;
           osc.plug(newButton, "setState", oscAddressForButton(newButton));
         }
@@ -39,11 +39,11 @@ class Panel {
     initialized = true;
   }
   
-  String oscAddressForButton(V2Button theButton) {
+  String oscAddressForButton(Button theButton) {
     return "/"+id+"/"+theButton.oscAddress();
   }
   
-  void buttonStateUpdated(V2Button theButton, float newState) {
+  void buttonStateUpdated(Button theButton, float newState) {
     OscMessage mirrorMessage = new OscMessage(this.oscAddressForButton(theButton));
     mirrorMessage.add(newState);
     osc.send(mirrorMessage, clients);
