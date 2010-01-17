@@ -21,6 +21,7 @@ class Panel {
     midiBus = aMidiBus;
     clients = someClients;
     buttonGrid = new Button[pWidth][pHeight];
+    setupOsc();
   }
   
   void setupOsc()
@@ -30,9 +31,14 @@ class Panel {
         for (int column = 0; column < panelWidth; column++) {
           Button newButton = new Button(row, column, this);
           buttonGrid[column][row] = newButton;
+          // This is the magic connection between the multitoggle and the button. oscP5 will route the 
+          // message to the appropriate button and call its setState method.
           osc.plug(newButton, "setState", oscAddressForButton(newButton));
         }
       }
+      // And this is the magic connection between the panel's clear and send buttons (on page 4 of the TouchOSC 
+      // interface). Works similar magic to above routing code for the buttons, but instead calls this panel's 
+      // "clear" or "send" methods as appropriate
       osc.plug(this, "clear", "/4/clear"+id);
       osc.plug(this, "send", "/4/send"+id);
     }
@@ -50,7 +56,6 @@ class Panel {
   }
   
   int[] playNotesForBeat(int beat) {
-    this.setupOsc();
     int[] notesPlayed = new int[pHeight];
     for (int i = 0; i < panelHeight; i++) {
       if (buttonGrid[beat][i].getState() != 0.0) {
@@ -63,9 +68,12 @@ class Panel {
     return notesPlayed;
   }
   
+  /*
+   * This guy sends the panel's current state to whatever controllers happen to be connected at the moment
+   * (the argument doesn't do anything. Don't blame Moto, blame oscP5. it's not the best library ever written)
+   */
   void send(float theA)
   {
-    this.setupOsc();
     OscMessage theMessage = new OscMessage("/foo");
     for (int row = 0; row < panelHeight; row++) {
       OscBundle theBundle = new OscBundle();
@@ -76,9 +84,13 @@ class Panel {
     }
   }
   
+  /*
+   * This guy clears all buttons and then sends the cleared field of buttons to whatever controllers happen 
+   * to be connected at the moment
+   * (the argument doesn't do anything. Don't blame Moto, blame oscP5. it's not the best library ever written)
+   */
   void clear(float theA)
   {
-    this.setupOsc();
     for (int row = 0; row < panelHeight; row++) {
       for (int column = 0; column < panelWidth; column++) {
         buttonGrid[column][row].state = 0.0;

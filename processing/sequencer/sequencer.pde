@@ -30,14 +30,10 @@ float bpm = 90.0;
 
 Panel[] panels;
 
-//sets up the current available tones
-// 60,62,64,67,69,72,74,76,79,81 is C major pentatonic scale, i believe
-//int[] toneMap = {
-//  60,62,64,67,69,72,74,76,79,81};
-
+// Scales for each panel
 int[][] toneMap = {
-  {81,79,76,74,72,69,67,65,63,60},
-  {81,79,76,74,72,69,67,65,63,60},
+  {81,79,76,74,72,69,67,64,62,60},
+  {81,79,76,74,72,69,67,64,62,60},
   {81,79,76,74,72,69,67,64,62,60}};
 
 /** 
@@ -55,14 +51,14 @@ void setup() {
 
   // So this assumes you've set up the IAC Driver (on OS X, under /Apps/Utilities/Audio Midi Setup.app, 
   // click the "MIDI Devices" tab, double-click the "IAC Driver", add a port, and name it "GridSequencer")
-  // Then in Live, on each of the three instruments, MIDI From should be "GridSequencer", and channel should be 1, 2, and 3 respectively
+  // Then in Live, on each of the three instruments, MIDI From should be "GridSequencer", and channel should
+  // be 1, 2, and 3 respectively
   myBus = new MidiBus(this, "GridSequencer", "GridSequencer");
 
   //start oscP5 listening for incoming messages from controllers.
   oscP5 = new OscP5(this, myListeningPort);
   panels = new Panel[3];
-  //Sets up our layered grid as a bunch of MatrixButtons
-  //buttonGrid = new MatrixButton[numPanels][panelWidth][panelHeight];
+  // Create Panel objects. These will intercept OSC messages and serve as our primary abstraction when dealing with the controllers.
   for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
     panels[panelNumber] = new Panel(panelNumber + 1, panelWidth, panelHeight, oscP5, myBus, myNetAddressList, toneMap[panelNumber]);
   }
@@ -79,6 +75,7 @@ void draw() {
 }
 
 void updatePanelSlider() {
+  // this function really should be part of the Panel. Moto will fix eventually.
   OscBundle myBundle = new OscBundle();
   OscMessage fader = new OscMessage("/1/fader1");
   float pos = ((float)currentRow) / 15.0;
@@ -95,13 +92,19 @@ void updatePanelSlider() {
 
 void playPanelNotes() {
   int [][] notesToKill = new int [3][];
-  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {    
+  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
+    // This method currently makes Moto sad. The Panel object starts the note playing ...
     notesToKill[panelNumber] = panels[panelNumber].playNotesForBeat(currentRow);
+    // and returns an array of ints that tell us where to send the noteOff MIDI messages
   }
+  // let the notes we struck ring for 200ms ...
   delay(200);
   for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {    
     for (int i = 0; i < panelHeight; i++) {
       if (notesToKill[panelNumber][i] != 0) {
+        // now we turn off the notes we had the Panels strike earlier. This is bad bad bad
+        // programming practice. Moto should be restrained and flogged. Repeatedly. Maybe 
+        // he should be gagged too. He's a naughty, naughty programmer.
         myBus.sendNoteOff(panelNumber,notesToKill[panelNumber][i],128);
       }
     }
