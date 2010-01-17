@@ -29,12 +29,17 @@ int currentRow = 0;
 float bpm = 90.0;
 
 MatrixButton [][][] buttonGrid;
+Panel[] panels;
 
 //sets up the current available tones
 // 60,62,64,67,69,72,74,76,79,81 is C major pentatonic scale, i believe
-int[] toneMap = {
-  60,62,64,67,69,72,74,76,79,81};
+//int[] toneMap = {
+//  60,62,64,67,69,72,74,76,79,81};
 
+int[][] toneMap = {
+  {81,79,76,74,72,69,67,65,63,60},
+  {81,79,76,74,72,69,67,65,63,60},
+  {81,79,76,74,72,69,67,64,62,60}};
 
 /** 
  * I think the point here is to get the connect/recieve messages 
@@ -56,86 +61,22 @@ void setup() {
 
   //start oscP5 listening for incoming messages from controllers.
   oscP5 = new OscP5(this, myListeningPort);
-  
+  panels = new Panel[3];
+  //Sets up our layered grid as a bunch of MatrixButtons
+  //buttonGrid = new MatrixButton[numPanels][panelWidth][panelHeight];
+  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
+    panels[panelNumber] = new Panel(panelNumber + 1, panelWidth, panelHeight, oscP5, myBus, myNetAddressList, toneMap[panelNumber]);
+  }
+
   //since we're hooking the draw() method as our loop routine, we want to update the frame an appropriate number of times per second.
   //if each of the 16 columns represented a quarter note in a 4/4 measure, we'd set framerate to (bpm/60) i.e. (beats / minute) / (seconds / minute)
   // but in fact it represents a 16th note, so we update four times as often. Hence the bpm/15 figure.
   frameRate(bpm / 15.0);
   
-  //Sets up our layered grid as a bunch of MatrixButtons
-  buttonGrid = new MatrixButton[numPanels][panelWidth][panelHeight];
-  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
-    for(int row = 0; row < panelHeight; row++){
-      for (int column = 0; column < panelWidth; column++) {
-        MatrixButton foo = new MatrixButton(panelNumber, row, column, toneMap[row], oscP5, myNetAddressList);
-        buttonGrid[panelNumber][column][row] = foo;
-        oscP5.plug(foo, "setState", foo.touchOSCAddress());
-      }
-    }
-  }
-  // upon receiving a specified OSC message, a named function can be called.
-  oscP5.plug(this, "clearPanel1", "/4/clear1");
-  oscP5.plug(this, "clearPanel2", "/4/clear2");
-  oscP5.plug(this, "clearPanel3", "/4/clear3");
-  oscP5.plug(this, "sendPanel1", "/4/send1");
-  oscP5.plug(this, "sendPanel2", "/4/send2");
-  oscP5.plug(this, "sendPanel3", "/4/send3");
 }
 
 void draw() {
   beat();
-}
-
-void broadcastPanel(int panelNumber)
-{
-  OscMessage theMessage = new OscMessage("/foo");
-  for (int row = 0; row < panelHeight; row++) {
-    OscBundle theBundle = new OscBundle();
-    for (int column = 0; column < panelWidth; column++) {
-      buttonGrid[panelNumber][column][row].addToBundle(theBundle, theMessage);
-    }
-    oscP5.send(theBundle, myNetAddressList);
-  }
-}
-
-void clearPanel1(float theA)
-{
-  clearPanel(0);
-}
-
-void clearPanel2(float theA)
-{
-  clearPanel(1);
-}
-
-void clearPanel3(float theA)
-{
-  clearPanel(2);
-}
-
-void sendPanel1(float theA)
-{
-  broadcastPanel(0);
-}
-
-void sendPanel2(float theA)
-{
-  broadcastPanel(1);
-}
-
-void sendPanel3(float theA)
-{
-  broadcastPanel(2);
-}
-
-void clearPanel(int panelNumber)
-{
-  for (int row = 0; row < panelHeight; row++) {
-    for (int column = 0; column < panelWidth; column++) {
-      buttonGrid[panelNumber][column][row].setState(0);
-    }
-  }  
-  broadcastPanel(panelNumber);
 }
 
 void updatePanelSlider() {
@@ -154,25 +95,15 @@ void updatePanelSlider() {
 }
 
 void playPanelNotes() {
-  int [][] notesToKill = new int [3][panelHeight];
-  for (int panel = 0; panel < numPanels; panel++) {    
-    MatrixButton[] row = buttonGrid[panel][currentRow];
-    for (int i = 0; i < panelHeight; i++) {
-      if (row[i].getState() != 0.0) {
-        notesToKill[panel][i] = 1;
-        myBus.sendNoteOn(panel,row[i].note,128);
-      } 
-      else {
-        notesToKill[panel][i] = 0;
-      }
-    }
+  int [][] notesToKill = new int [3][];
+  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {    
+    notesToKill[panelNumber] = panels[panelNumber].playNotesForBeat(currentRow);
   }
   delay(200);
-  for (int panel = 0; panel < numPanels; panel++) {    
-    MatrixButton[] row = buttonGrid[panel][currentRow];
+  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {    
     for (int i = 0; i < panelHeight; i++) {
-      if (notesToKill[panel][i] != 0) {
-        myBus.sendNoteOff(panel,row[i].note,128);
+      if (notesToKill[panelNumber][i] != 0) {
+        myBus.sendNoteOff(panelNumber,notesToKill[panelNumber][i],128);
       }
     }
   }
@@ -208,7 +139,7 @@ private void connect(String theIPaddress, Boolean explicit) {
     if (explicit) { // (implicit connections will not trigger broadcast)
       /* Since we've got a newly connected client, let's get them up to date with what's already in the matrix */
       for (int i = 0; i < 3; i++) {
-        broadcastPanel(i);
+        //broadcastPanel(i);
       }
     }
   } 

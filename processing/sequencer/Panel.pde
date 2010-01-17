@@ -8,8 +8,12 @@ class Panel {
   MidiBus midiBus;
   NetAddressList clients;
   V2Button[][] buttonGrid;
+  int[] toneMap;
+  boolean initialized;
 
-  Panel(int anId, int aWidth, int aHeight, OscP5 anOsc, MidiBus aMidiBus, NetAddressList someClients) {
+  Panel(int anId, int aWidth, int aHeight, OscP5 anOsc, MidiBus aMidiBus, NetAddressList someClients, int[] aToneMap) {
+    initialized = false;
+    toneMap = aToneMap;
     id = anId;
     pWidth = aWidth;
     pHeight = aHeight;
@@ -17,15 +21,22 @@ class Panel {
     midiBus = aMidiBus;
     clients = someClients;
     buttonGrid = new V2Button[pWidth][pHeight];
-    for(int row = 0; row < panelHeight; row++){
-      for (int column = 0; column < panelWidth; column++) {
-        V2Button newButton = new V2Button(row, column, this);
-        buttonGrid[column][row] = newButton;
-        osc.plug(newButton, "setState", oscAddressForButton(newButton));
+  }
+  
+  void setupOsc()
+  {
+    if (!initialized) {      
+      for(int row = 0; row < panelHeight; row++){
+        for (int column = 0; column < panelWidth; column++) {
+          V2Button newButton = new V2Button(row, column, this);
+          buttonGrid[column][row] = newButton;
+          osc.plug(newButton, "setState", oscAddressForButton(newButton));
+        }
       }
+      osc.plug(this, "clear", "/4/clear"+id);
+      osc.plug(this, "send", "/4/send"+id);
     }
-    osc.plug(this, "clear", "/4/push"+id);
-    osc.plug(this, "send", "/4/send"+id);
+    initialized = true;
   }
   
   String oscAddressForButton(V2Button theButton) {
@@ -36,6 +47,44 @@ class Panel {
     OscMessage mirrorMessage = new OscMessage(this.oscAddressForButton(theButton));
     mirrorMessage.add(newState);
     osc.send(mirrorMessage, clients);
+  }
+  
+  int[] playNotesForBeat(int beat) {
+    this.setupOsc();
+    int[] notesPlayed = new int[pHeight];
+    for (int i = 0; i < panelHeight; i++) {
+      if (buttonGrid[beat][i].getState() != 0.0) {
+        notesPlayed[i] = toneMap[i];
+        midiBus.sendNoteOn(id - 1,toneMap[i],128);
+      } else {
+        notesPlayed[i] = 0;
+      }
+    }
+    return notesPlayed;
+  }
+  
+  void send(float theA)
+  {
+    this.setupOsc();
+    OscMessage theMessage = new OscMessage("/foo");
+    for (int row = 0; row < panelHeight; row++) {
+      OscBundle theBundle = new OscBundle();
+      for (int column = 0; column < panelWidth; column++) {
+        buttonGrid[column][row].addToBundle(theBundle, theMessage);
+      }
+      oscP5.send(theBundle, clients);
+    }
+  }
+  
+  void clear(float theA)
+  {
+    this.setupOsc();
+    for (int row = 0; row < panelHeight; row++) {
+      for (int column = 0; column < panelWidth; column++) {
+        buttonGrid[column][row].state = 0.0;
+      }
+    }  
+    send(1.0);
   }
 }
 
