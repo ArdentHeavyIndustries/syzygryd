@@ -28,7 +28,6 @@ int currentRow = 0;
 //sets the main tempo
 float bpm = 90.0;
 
-MatrixButton [][][] buttonGrid;
 Panel[] panels;
 
 //sets up the current available tones
