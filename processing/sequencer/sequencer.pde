@@ -23,10 +23,10 @@ int numPanels = 3;
 int panelWidth = 16;
 int panelHeight = 10;
 
-int currentRow = 0;
+int currentBeat = 0;
 
 //sets the main tempo
-float bpm = 90.0;
+float bpm = 140.0;
 
 Panel[] panels;
 
@@ -67,25 +67,51 @@ void setup() {
   //if each of the 16 columns represented a quarter note in a 4/4 measure, we'd set framerate to (bpm/60) i.e. (beats / minute) / (seconds / minute)
   // but in fact it represents a 16th note, so we update four times as often. Hence the bpm/15 figure.
   frameRate(bpm / 15.0);
-  
+  size(170,80);
+  textFont(createFont("Helvetica", 32));
+  background(255,255,255);
+  fill(0, 102, 153);
+  text(bpm, 15, 50);
+  oscP5.plug(this, "bpmWheel", "/4/bpm");
 }
 
 void draw() {
   beat();
 }
 
+void bpmWheel(float val) {
+  setBpm(40.0+260.0*val);
+}
+
+void setBpm(float newBpm) {
+    fill(255,255,255);
+    text(bpm,15,50);
+    bpm = newBpm;
+    fill(0, 102, 153);
+    text(bpm, 15, 50);
+    frameRate(bpm / 15.0);
+}
+
+void keyPressed() {
+  if (key == '+') {
+    setBpm(bpm + 1);
+  } else if (key == '-') {
+    setBpm(bpm - 1);
+  }
+}
+
 void updatePanelSlider() {
   // this function really should be part of the Panel. Moto will fix eventually.
   OscBundle myBundle = new OscBundle();
   OscMessage fader = new OscMessage("/1/fader1");
-  float pos = ((float)currentRow) / 15.0;
+  float pos = ((float)currentBeat) / 15.0;
   for (int panel = 0; panel < numPanels; panel++) {
     fader.setAddrPattern("/"+(panel+1)+"/fader1");
     fader.add(pos);
     myBundle.add(fader);
   }
   OscMessage temposlider = new OscMessage("/temposlider/step");
-  temposlider.add(currentRow+1);
+  temposlider.add(currentBeat+1);
   myBundle.add(temposlider);
   oscP5.send(myBundle, myNetAddressList);    
 }
@@ -94,7 +120,7 @@ void playPanelNotes() {
   int [][] notesToKill = new int [3][];
   for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
     // This method currently makes Moto sad. The Panel object starts the note playing ...
-    notesToKill[panelNumber] = panels[panelNumber].playNotesForBeat(currentRow);
+    notesToKill[panelNumber] = panels[panelNumber].playNotesForBeat(currentBeat);
     // and returns an array of ints that tell us where to send the noteOff MIDI messages
   }
   // let the notes we struck ring for 200ms ...
@@ -114,8 +140,8 @@ void playPanelNotes() {
 void beat() {
   updatePanelSlider();
   playPanelNotes();
-  if (++currentRow >=panelWidth) {
-    currentRow = 0;
+  if (++currentBeat >=panelWidth) {
+    currentBeat = 0;
   }
 }
 
