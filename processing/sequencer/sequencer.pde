@@ -18,6 +18,9 @@ int myListeningPort = 8000;
 /* the broadcast port is the port the clients should listen for incoming messages from the server*/
 int myBroadcastPort = 9000;
 
+float minBpm = 40.0;
+float maxBpm = 300.0;
+
 //Sets up the physical panels
 int numPanels = 3;
 int panelWidth = 16;
@@ -80,7 +83,7 @@ void draw() {
 }
 
 void bpmWheel(float val) {
-  setBpm(40.0+260.0*val);
+  setBpm(minBpm+maxBpm*val);
 }
 
 void setBpm(float newBpm) {
@@ -90,6 +93,13 @@ void setBpm(float newBpm) {
     fill(0, 102, 153);
     text(bpm, 15, 50);
     frameRate(bpm / 15.0);
+}
+
+void updateBpmWheel() {
+  OscMessage bpmMsg = new OscMessage("/4/bpm");
+  float val = (bpm - minBpm) / (maxBpm - minBpm);
+  bpmMsg.add(val);
+  oscP5.send(bpmMsg, myNetAddressList);
 }
 
 void keyPressed() {
