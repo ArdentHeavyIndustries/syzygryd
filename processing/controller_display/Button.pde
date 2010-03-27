@@ -1,3 +1,4 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 class Button
 {
   float x,y, sqLength;

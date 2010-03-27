@@ -1,3 +1,4 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
  * Project PKM Display Layer
  * Recieves osc from Max patch, displays it in a 16:9 window. 
@@ -13,6 +14,7 @@ NetAddress myRemoteLocation;
 
 /* Button Array for buttoning also tempo objects maybe more*/
 HashMap objectMapOSC = new HashMap();
+Panel[] panels;
 Button[] buttons;
 Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
@@ -23,6 +25,67 @@ HashMap buttonsByRow = new HashMap();
 
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
 int masterHue = 1;
+
+class Panel {
+  int id;
+  int buttonSize;
+  int buttonSpacing;
+  int buttonCount;
+  Button[] buttons;
+
+  int panelWidth = 16;
+  int panelHeight = 10;
+  
+  Panel(int _id, int _buttonSize, int _buttonSpacing) {
+    id = _id;
+    buttonSize = _buttonSize;
+    buttonSpacing = _buttonSpacing;
+    buttonCount = 0;
+    buttons = new Button[panelWidth * panelHeight];
+  }
+
+  /**
+   * addButton adds a button to this panel
+   */
+  void addButton(Button b) {
+    buttons[buttonCount] = b;
+    buttonCount++;
+  }
+
+  /**
+   * getButtonFromMouseCoords returns the button located at the
+   * specified mouse coordinates.
+   *
+   * @return null if no button exists at the specified coordinates.
+   */
+  Button getButtonFromMouseCoords(int x, int y) {
+    int row = y / buttonSpacing;
+    int col = (x - buttonSpacing) / buttonSpacing;
+    println("mouseX: " + x + ", mouseY: " + y);
+    println("row: " + row + ", col: " + col);
+
+    return getButtonFromPanelCoords(row, col);
+  }
+
+  /**
+   * getButtonFromPanelCoords returns the button at the specified
+   * row and column in this panel.
+   *
+   * @return null if row or col are out of range.
+   */
+  Button getButtonFromPanelCoords(int row, int col) {
+    if (row < 0 || col < 0 || row >= panelHeight || col >= panelWidth) {
+      return null;
+    }
+
+    println("Returning index: " + ((row * panelWidth) + col));
+    // This is what we want if we create buttons one row at a time:
+    // return buttons[(row * panelWidth) + col];
+    // This is what we want if we create buttons one col at a time:
+    // (this is the way things are currently implemented)
+    return buttons[(col * panelHeight) + row];
+  }
+}
 
 void setup() {
   size(1280,720); // 16:9 window
@@ -55,6 +118,8 @@ void setup() {
   OscMessage connect = new OscMessage("/server/connect");
   oscP5.send(connect, myRemoteLocation);
 
+  panels = new Panel[3];
+
   /* Set the total number of button objects here. 
    * total per layer by number of layers */
   buttons = new Button[160*3];
@@ -66,12 +131,44 @@ void setup() {
   int panelWidth = 16;
   int panelHeight = 10;
 
+  for (int i = 0; i < panels.length; i++) {
+    panels[i] = new Panel(i, buttonSize, buttonSpacing);
+  }
+
   /* sets up array and defines which osc messages apply to which panel */
   for(int i = 1; i <= panelWidth; i++){ // set
     Button[] thisRowButtons;
     thisRowButtons = new Button[panelHeight + 1];
     for(int j = 1; j <= panelHeight; j++){
       Button thisButton;
+
+      /*
+        I believe the button creation code can be shortened to the for
+        loop below, except for the line:
+        thisRowButtons[j] = thisButton;
+        which exists only in the panel 2 block.  The intent of
+        thisRowButtons is unclear to me.
+
+      for (int k = 0; k < panels.length; k++) {
+        thisButton = new Button(
+          //     particleSystemsSimple,
+          buttonSpacing*i, // button X
+          (buttonSpacing*j)-((buttonSize)), //button Y
+          buttonSize, // button length
+          k + 1 //button panel #
+        ); 
+
+        // put current button into hashmap of all buttons from osc
+        objectMapOSC.put (
+          "/" + (k + 1) + "/multitoggle1/" + (11 - j) + "/" + i, thisButton);
+        typeMapOSC.put (
+          "/" + (k + 1) + "/multitoggle1/" + (11 - j) + "/" + i, "button");
+        // put current button into array of stored buttons
+        buttons[buttonCounter] = thisButton;
+        panels[k].addButton(thisButton);
+        buttonCounter++;
+      }
+      */
 
       /* panel 1 */
       thisButton = new Button(
@@ -84,6 +181,7 @@ void setup() {
       objectMapOSC.put ("/1/multitoggle1/"+(11-j)+"/"+i,   thisButton); //put current button into hashmap of all buttons from osc
       typeMapOSC.put ("/1/multitoggle1/"+(11-j)+"/"+i, "button");
       buttons[buttonCounter] = thisButton; // put current button into array of stored buttons
+      panels[0].addButton(thisButton);
       buttonCounter++;
 
       /* panel 2 */
@@ -98,6 +196,7 @@ void setup() {
       typeMapOSC.put ("/2/multitoggle1/"+(11-j)+"/"+i, "button");
       thisRowButtons[j] = thisButton;
       buttons[buttonCounter] = thisButton; // put current button into array of stored buttons
+      panels[1].addButton(thisButton);
       buttonCounter++;
 
       /* panel 3 */
@@ -111,6 +210,7 @@ void setup() {
       objectMapOSC.put ("/3/multitoggle1/"+(11-j)+"/"+i, thisButton); //put current button into hashmap of all buttons from osc
       typeMapOSC.put ("/3/multitoggle1/"+(11-j)+"/"+i, "button");
       buttons[buttonCounter] = thisButton; // put current button into array of stored buttons
+      panels[2].addButton(thisButton);
       buttonCounter++;
     }
     buttonsByRow.put(i, thisRowButtons);
@@ -212,17 +312,18 @@ void oscEvent(OscMessage theOscMessage) {
 
 }
 
-void mousePressed() {
+void mouseClicked() {
+  // println("mouseX: " + mouseX + ", mouseY: " + mouseY);
   // turn a button on and off on mouse clicks
   // useful for developing without the max iphone craziness running
-  Button thisButton;
-  thisButton = (Button) objectMapOSC.get("/2/multitoggle1/3/3");
-  if(thisButton.getValue()) {
-    thisButton.setValue(0);
-  } else {
-    thisButton.setValue(1);
+  Button b = panels[1].getButtonFromMouseCoords(mouseX, mouseY);
+  if (b != null) {
+    if(b.getValue()) {
+      b.setValue(0);
+    } else {
+      b.setValue(1);
+    }
   }
-  
 }
 
 
