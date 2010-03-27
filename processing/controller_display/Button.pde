@@ -1,13 +1,43 @@
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+
+// NB: The following static methods ideally would be part of the
+// Button class, but processing turns classes into inner classes so
+// that's not possible.
+// See: http://processing.org/reference/environment/index.html#Tabs
+// for details.
+
+/**
+ * getRow returns the row a button is in
+ * @param y   the y coordinate of the button's top left pixel
+ * @param buttonSpacing   the size of the button plus a fudge factor
+ *    for space between buttons
+ * @return the row a button is in
+ */
+static int getRow(int y, int buttonSpacing) {
+  return y / buttonSpacing;
+}
+
+/**
+ * getCol returns the column a button is in
+ * @param x   the x coordinate of the button's top left pixel
+ * @param buttonSpacing   the size of the button plus a fudge factor
+ *    for space between buttons
+ * @return the column a button is in
+ */
+static int getCol(int x, int buttonSpacing) {
+  return (x - buttonSpacing) / buttonSpacing;
+}
+
 class Button
 {
-  float x,y, sqLength;
-  float sqWidth, sqXPos;
+  int x,y, sqLength;
+  int buttonSpacing;
+  int row, col;
   int sqHue = 100;
   int sqBright = 100;
   int sqAlphaDefault = 30;
   int sqAlpha = sqAlphaDefault;
-  int identity;
+  Panel parent; // Will eventually become a tab
   boolean setPressed;
   boolean setActive;
   
@@ -22,12 +52,17 @@ class Button
   PShape fullButton;
   PShape fullButtonActive, middleOnActive, middleActive, rightActive, leftActive;
 
-  Button(/*ArrayList _particleSystems,*/ float _x, float _y, float _sqLength, int _identity){
+  Button(/*ArrayList _particleSystems,*/ int _x, int _y, float _sqLength, int _buttonSpacing, Panel _parent){
  //   particleSystemsSimple = _particleSystems;
     x=_x;
     y=_y;
     sqLength=_sqLength;
-    identity=_identity;
+
+    buttonSpacing = _buttonSpacing;
+    row = getRow(y, buttonSpacing);
+    col = getCol(x, buttonSpacing);
+
+    parent = _parent;
     float scaleFactor, scaleFactorActive;
 
     /*set up svg layers as objects*/
@@ -61,7 +96,6 @@ class Button
     sqHue = _newHue;
   }
 
-
   void draw(boolean pressedOnly){
     
     if(pressedOnly && !setPressed) {
@@ -69,13 +103,13 @@ class Button
     }
     
     noStroke();
-    int thisHue = sqHue + 33*identity - 1;
+    int thisHue = sqHue + 33 * parent.id;
     if(thisHue > 100) {
       thisHue -= 100;
     }
 
-    switch(identity){
-    case 1:
+    switch(parent.id){
+    case 0:
       if(setPressed==true){
         left.disableStyle();
         noStroke();
@@ -83,7 +117,7 @@ class Button
         shape(left,x,y);
       }
       break;
-    case 2:
+    case 1:
       middle.disableStyle();
       noStroke();
       fill(thisHue,50,sqBright,sqAlpha);
@@ -104,7 +138,7 @@ class Button
 
       }
       break;
-    case 3:
+    case 2:
       if(setPressed==true){
         right.disableStyle();
         noStroke();
@@ -113,31 +147,63 @@ class Button
       }
       break;
     }
-
-
   }
 
   void setValue( int _value) {
-    sqAlpha = (100-sqAlphaDefault)*_value+sqAlphaDefault;
+    OscMessage m = new OscMessage(getOscAddress());
+    sqAlpha = (100 - sqAlphaDefault) * _value + sqAlphaDefault;
+
     if (_value==1) {
       setPressed = true;
-      //particleSystemsSimple.add(new ParticleSystemSimple(100,new PVector(x+30,y+30)));    
-    }
-    else {
+      //particleSystemsSimple.add(new ParticleSystemSimple(100,new PVector(x+30,y+30)));
+      // println(getOscAddress() + " on");
+      m.add(1.0);
+    } else {
       setPressed = false;
+      // println(getOscAddress() + " off");
+      m.add(0.0);
     }
+
+    oscP5.send(m, myRemoteLocation);
   }
 
   boolean getValue() {
      return setPressed;
   }
-  
+
+  /**
+   * getOscRow returns this button's row for use in an OSC address.
+   * This handles the fact that OSC is indexed from 1 not 0, and has
+   * an inverted y-axis vs. processing.
+   */
+  int getOscRow() {
+    return (row * -1) + parent.height;
+  }
+
+  /**
+   * getOscCol returns this button's column for use in an OSC
+   * address.  This handles the fact that OSC is indexed from 1 not 0.
+   */
+  int getOscCol() {
+    return col + 1;
+  }
+
+  String getOscAddress() {
+    // Tab tab = xxxx;
+    // Panel = tab.parent;
+    Panel panel = parent;
+    return "/" + panel.id + "/tab1/panel/" + getOscRow() + "/" + getOscCol();
+  }
+
+  /**
+   * NB, we can probably delete the getX and getY functions.
+   */
   int getX() {
-     return (int)x;
+     return x;
   }
   
   int getY() {
-    return (int)y;
+    return y;
   }
 
   void activeButton() {
@@ -145,26 +211,9 @@ class Button
     setActive = true;
 
   }
+
   void inactiveButton() {
     //sqHue = sqHue-10;
     setActive = false;
   }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

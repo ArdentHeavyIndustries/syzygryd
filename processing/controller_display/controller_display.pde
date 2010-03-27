@@ -28,20 +28,19 @@ int masterHue = 1;
 
 class Panel {
   int id;
-  int buttonSize;
-  int buttonSpacing;
+  int width, height;
+  int buttonSize, buttonSpacing;
   int buttonCount;
   Button[] buttons;
 
-  int panelWidth = 16;
-  int panelHeight = 10;
-  
-  Panel(int _id, int _buttonSize, int _buttonSpacing) {
+  Panel(int _id, int _width, int _height, int _buttonSize, int _buttonSpacing) {
     id = _id;
+    width = _width;
+    height = _height;
     buttonSize = _buttonSize;
     buttonSpacing = _buttonSpacing;
     buttonCount = 0;
-    buttons = new Button[panelWidth * panelHeight];
+    buttons = new Button[width * height];
   }
 
   /**
@@ -59,10 +58,12 @@ class Panel {
    * @return null if no button exists at the specified coordinates.
    */
   Button getButtonFromMouseCoords(int x, int y) {
-    int row = y / buttonSpacing;
-    int col = (x - buttonSpacing) / buttonSpacing;
+    int row = getRow(y, buttonSpacing);
+    int col = getCol(x, buttonSpacing);
+    /*
     println("mouseX: " + x + ", mouseY: " + y);
     println("row: " + row + ", col: " + col);
+    */
 
     return getButtonFromPanelCoords(row, col);
   }
@@ -74,16 +75,16 @@ class Panel {
    * @return null if row or col are out of range.
    */
   Button getButtonFromPanelCoords(int row, int col) {
-    if (row < 0 || col < 0 || row >= panelHeight || col >= panelWidth) {
+    if (row < 0 || col < 0 || row >= height || col >= width) {
       return null;
     }
 
-    println("Returning index: " + ((row * panelWidth) + col));
+    // println("Returning index: " + ((row * width) + col));
     // This is what we want if we create buttons one row at a time:
-    // return buttons[(row * panelWidth) + col];
+    // return buttons[(row * width) + col];
     // This is what we want if we create buttons one col at a time:
     // (this is the way things are currently implemented)
-    return buttons[(col * panelHeight) + row];
+    return buttons[(col * height) + row];
   }
 }
 
@@ -132,7 +133,7 @@ void setup() {
   int panelHeight = 10;
 
   for (int i = 0; i < panels.length; i++) {
-    panels[i] = new Panel(i, buttonSize, buttonSpacing);
+    panels[i] = new Panel(i, panelWidth, panelHeight, buttonSize, buttonSpacing);
   }
 
   /* sets up array and defines which osc messages apply to which panel */
@@ -155,7 +156,7 @@ void setup() {
           buttonSpacing*i, // button X
           (buttonSpacing*j)-((buttonSize)), //button Y
           buttonSize, // button length
-          k + 1 //button panel #
+          panels[k] //button panel #
         ); 
 
         // put current button into hashmap of all buttons from osc
@@ -172,11 +173,12 @@ void setup() {
 
       /* panel 1 */
       thisButton = new Button(
- //     particleSystemsSimple,
-      buttonSpacing*i, // button X
-      (buttonSpacing*j)-((buttonSize)), //button Y
-      buttonSize, // button length
-      1 //button panel #
+ //       particleSystemsSimple,
+        buttonSpacing*i, // button X
+        (buttonSpacing*j)-((buttonSize)), //button Y
+        buttonSize, // button length
+        buttonSpacing,
+        panels[0] //button panel
       ); 
       objectMapOSC.put ("/1/multitoggle1/"+(11-j)+"/"+i,   thisButton); //put current button into hashmap of all buttons from osc
       typeMapOSC.put ("/1/multitoggle1/"+(11-j)+"/"+i, "button");
@@ -186,12 +188,13 @@ void setup() {
 
       /* panel 2 */
       thisButton = new Button(
-   //   particleSystemsSimple,
-      buttonSpacing*i,
-      (buttonSpacing*j)-((buttonSize)),
-      buttonSize,
-      2
-        );
+   //     particleSystemsSimple,
+        buttonSpacing*i,
+        (buttonSpacing*j)-((buttonSize)),
+        buttonSize,
+        buttonSpacing,
+        panels[1]
+      );
       objectMapOSC.put ("/2/multitoggle1/"+(11-j)+"/"+i, thisButton); //put current button into hashmap of all buttons from osc
       typeMapOSC.put ("/2/multitoggle1/"+(11-j)+"/"+i, "button");
       thisRowButtons[j] = thisButton;
@@ -201,12 +204,13 @@ void setup() {
 
       /* panel 3 */
       thisButton = new Button(
-   //   particleSystemsSimple,
-      buttonSpacing*i,
-      buttonSpacing*j-((buttonSize)),
-      buttonSize,
-      3
-        );
+   //     particleSystemsSimple,
+        buttonSpacing*i,
+        buttonSpacing*j-((buttonSize)),
+        buttonSize,
+        buttonSpacing,
+        panels[2]
+      );
       objectMapOSC.put ("/3/multitoggle1/"+(11-j)+"/"+i, thisButton); //put current button into hashmap of all buttons from osc
       typeMapOSC.put ("/3/multitoggle1/"+(11-j)+"/"+i, "button");
       buttons[buttonCounter] = thisButton; // put current button into array of stored buttons
@@ -313,7 +317,6 @@ void oscEvent(OscMessage theOscMessage) {
 }
 
 void mouseClicked() {
-  // println("mouseX: " + mouseX + ", mouseY: " + mouseY);
   // turn a button on and off on mouse clicks
   // useful for developing without the max iphone craziness running
   Button b = panels[1].getButtonFromMouseCoords(mouseX, mouseY);
