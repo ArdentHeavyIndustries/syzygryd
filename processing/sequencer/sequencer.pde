@@ -1,3 +1,4 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
  * Syzygryd sequencer
  */
@@ -7,197 +8,159 @@ import oscP5.*;
 import netP5.*;
 import themidibus.*;
 
-MidiBus myBus;
-OscP5 oscP5;
+interface OscCommunicationsProvider {
+  OscP5 osc(); // returns an OSC object
+  NetAddressList clients(); // returns a list of clients
+}
 
-//This is a list of addresses of the controllers that have connected
-NetAddressList myNetAddressList = new NetAddressList();
+interface MidiBusProvider {
+  MidiBus midiBus(); // returns a MidiBus object
+}
 
-/* listeningPort is the port the server is listening for incoming messages */
-int myListeningPort = 8000;
-/* the broadcast port is the port the clients should listen for incoming messages from the server*/
-int myBroadcastPort = 9000;
+class Sequencer implements OscCommunicationsProvider, MidiBusProvider {
+  // needed by OSC and MidiBus objects
+  sequencer parentApp;
+  
+  // The OSC object which will handle our OSC messages
+  OscP5 osc;
+  
+  // A list of connected clients
+  NetAddressList clientAddresses = new NetAddressList();
+  
+  // The MIDI bus object
+  MidiBus midiBus;
+  
+  // The thingamabobber what will make the sounds play via the MIDI bus and handle incoming MIDI beats
+  MusicMaker musicMaker;
+  
+  // Your basic configurable parameters which will never ever actually change (3 panels, 16 columns, 10 rows each)
+  int numPanels = 3, columns = 16, rows = 10;
+  
+  // An array in which to store our Panel objects
+  Panel[] panels;
+  
+  // A map of notes to play
+  int[] scale = {
+    60,62,64,67,69,72,74,76,79,81 };
 
-float minBpm = 40.0;
-float maxBpm = 300.0;
+  /* listeningPort is the port the server is listening for incoming messages */
+  int myListeningPort = 8000;
+  
+  /* the broadcast port is the port the clients should listen for incoming messages from the server*/
+  int myBroadcastPort = 9000;
 
-//Sets up the physical panels
-int numPanels = 3;
-int panelWidth = 16;
-int panelHeight = 10;
+  //sets the main tempo
+  float minBpm = 40.0;
+  float maxBpm = 300.0;
+  float bpm = 140.0;
 
-int currentBeat = 0;
+  Sequencer(sequencer aParentApp) {
+    parentApp = aParentApp;
+    osc = new OscP5(parentApp, myListeningPort);
+    MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
+    // So this assumes you've set up the IAC Driver (on OS X, under /Apps/Utilities/Audio Midi Setup.app, 
+    // click the "MIDI Devices" tab, double-click the "IAC Driver", add a port, and name it "GridSequencer")
+    // Then in Live, on each of the three instruments, MIDI From should be "GridSequencer", and channel should
+    // be 1, 2, and 3 respectively
+    midiBus = new MidiBus(parentApp, "GridSequencer", "GridSequencer");
+    musicMaker = new MusicMaker(this, midiBus);
+    midiBus.addMidiListener(musicMaker);
 
-//sets the main tempo
-float bpm = 140.0;
-
-Panel[] panels;
-
-// Scales for each panel
-int[][] toneMap = {
-  {81,79,76,74,72,69,67,64,62,60},
-  {81,79,76,74,72,69,67,64,62,60},
-  {81,79,76,74,72,69,67,64,62,60}};
-
-/** 
- * I think the point here is to get the connect/recieve messages 
- * into the osc parser, but yknow. maybe. It seems to see my page 
- * switches no matter what anyway, and nothing really seems to 
- * see buttons no matter what.
- */
-
-String myConnectPattern = "/server/connect";
-String myDisconnectPattern = "/server/disconnect";
-
-void setup() {
-  MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
-
-  // So this assumes you've set up the IAC Driver (on OS X, under /Apps/Utilities/Audio Midi Setup.app, 
-  // click the "MIDI Devices" tab, double-click the "IAC Driver", add a port, and name it "GridSequencer")
-  // Then in Live, on each of the three instruments, MIDI From should be "GridSequencer", and channel should
-  // be 1, 2, and 3 respectively
-  myBus = new MidiBus(this, "GridSequencer", "GridSequencer");
-
-  //start oscP5 listening for incoming messages from controllers.
-  oscP5 = new OscP5(this, myListeningPort);
-  panels = new Panel[3];
-  // Create Panel objects. These will intercept OSC messages and serve as our primary abstraction when dealing with the controllers.
-  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
-    panels[panelNumber] = new Panel(panelNumber + 1, panelWidth, panelHeight, oscP5, myBus, myNetAddressList, toneMap[panelNumber]);
+    panels = new Panel[numPanels];
+    // Create Panel objects. These will intercept OSC messages and serve as our primary abstraction when dealing with the controllers.
+    for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
+      panels[panelNumber] = new ButtonPanel(panelNumber + 1, this);
+    }
   }
 
-  //since we're hooking the draw() method as our loop routine, we want to update the frame an appropriate number of times per second.
-  //if each of the 16 columns represented a quarter note in a 4/4 measure, we'd set framerate to (bpm/60) i.e. (beats / minute) / (seconds / minute)
-  // but in fact it represents a 16th note, so we update four times as often. Hence the bpm/15 figure.
-  frameRate(bpm / 15.0);
+  void sendOSC(OscMessage aMessage) {
+    osc.send(aMessage, clientAddresses);
+  }
+
+
+  OscP5 osc() {
+    return osc;
+  }
+
+
+  NetAddressList clients() {
+    return clientAddresses;
+  }
+
+
+  MidiBus midiBus() {
+    return midiBus;
+  }
+
+  void gotBeat(int beatNumber) {
+    for (int i = 0; i < numPanels; i++) {
+      // Update displays (for now, this means move the tempo slider)
+      panels[i].gotBeat(beatNumber);
+      // Query the panel to find out which buttons are lit for this beat
+      boolean[] column = ((ButtonPanel)panels[i]).columnDataForBeat(beatNumber);
+      // Now use that information to fill in a vector (like an array) of tones to play
+      Vector n = new Vector();
+      for (int j = 0; j < rows; j++) {
+        if (column[j]) {
+          n.add(new Integer(scale[j]));
+        }
+      }
+      // Now play that set of notes on the appropriate MIDI channel
+      musicMaker.playNotes(i, n);
+    }
+  }
+
+
+  String songPosition() {
+    return musicMaker.songPosition();
+  }
+
+
+  /* incoming osc message are forwarded to the oscEvent method. */
+  void oscEvent(OscMessage theOscMessage) {
+    /*
+    println("#### received osc message");
+    println("#### addrPattern: " + theOscMessage.addrPattern());
+    println("#### typetag: " + theOscMessage.typetag());
+    Object[] args = theOscMessage.arguments();
+    for (int i = 0; i < args.length; i++) {
+      println("#### arg " + i + ": " + args[i]);
+    }
+    */
+
+    String[] patternParts = theOscMessage.addrPattern().split("/",-1);
+    int panelNumber = new Integer(patternParts[1]).intValue();
+    int panelIndex = panelNumber - 1;
+    if (panelNumber < numPanels) {
+      panels[panelIndex].connectClient(theOscMessage.netAddress().address());
+    }
+    if (!theOscMessage.isPlugged()) {
+      panels[panelIndex].oscEvent(theOscMessage);
+    }
+  }
+}
+
+Sequencer s;
+
+void setup() {
+  s = new Sequencer(this);
+  frameRate(60);
   size(170,80);
   textFont(createFont("Helvetica", 32));
-  background(255,255,255);
   fill(0, 102, 153);
-  text(bpm, 15, 50);
-  oscP5.plug(this, "bpmWheel", "/4/bpm");
 }
 
 void draw() {
-  beat();
-}
-
-void bpmWheel(float val) {
-  setBpm(minBpm+maxBpm*val);
-}
-
-void setBpm(float newBpm) {
-    fill(255,255,255);
-    text(bpm,15,50);
-    bpm = newBpm;
-    fill(0, 102, 153);
-    text(bpm, 15, 50);
-    frameRate(bpm / 15.0);
-}
-
-void updateBpmWheel() {
-  OscMessage bpmMsg = new OscMessage("/4/bpm");
-  float val = (bpm - minBpm) / (maxBpm - minBpm);
-  bpmMsg.add(val);
-  oscP5.send(bpmMsg, myNetAddressList);
+  background(0);
+  if (s != null) {
+    text(s.songPosition(), 15, 50);
+  }
 }
 
 void keyPressed() {
-  if (key == '+') {
-    setBpm(bpm + 1);
-  } else if (key == '-') {
-    setBpm(bpm - 1);
-  }
-}
-
-void updatePanelSlider() {
-  // this function really should be part of the Panel. Moto will fix eventually.
-  OscBundle myBundle = new OscBundle();
-  OscMessage fader = new OscMessage("/1/fader1");
-  float pos = ((float)currentBeat) / 15.0;
-  for (int panel = 0; panel < numPanels; panel++) {
-    fader.setAddrPattern("/"+(panel+1)+"/fader1");
-    fader.add(pos);
-    myBundle.add(fader);
-  }
-  OscMessage temposlider = new OscMessage("/temposlider/step");
-  temposlider.add(currentBeat+1);
-  myBundle.add(temposlider);
-  oscP5.send(myBundle, myNetAddressList);    
-}
-
-void playPanelNotes() {
-  int [][] notesToKill = new int [3][];
-  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {
-    // This method currently makes Moto sad. The Panel object starts the note playing ...
-    notesToKill[panelNumber] = panels[panelNumber].playNotesForBeat(currentBeat);
-    // and returns an array of ints that tell us where to send the noteOff MIDI messages
-  }
-  // let the notes we struck ring for 200ms ...
-  delay(200);
-  for (int panelNumber = 0; panelNumber < numPanels; panelNumber++) {    
-    for (int i = 0; i < panelHeight; i++) {
-      if (notesToKill[panelNumber][i] != 0) {
-        // now we turn off the notes we had the Panels strike earlier. This is bad bad bad
-        // programming practice. Moto should be restrained and flogged. Repeatedly. Maybe 
-        // he should be gagged too. He's a naughty, naughty programmer.
-        myBus.sendNoteOff(panelNumber,notesToKill[panelNumber][i],128);
-      }
-    }
-  }
-}
-
-void beat() {
-  updatePanelSlider();
-  playPanelNotes();
-  if (++currentBeat >=panelWidth) {
-    currentBeat = 0;
-  }
 }
 
 void oscEvent(OscMessage theOscMessage) {
-  /* check if the address pattern fits any of our patterns */
-  if (theOscMessage.addrPattern().equals(myConnectPattern)) {
-    connect(theOscMessage.netAddress().address(), true);
-  }
-  else if (theOscMessage.addrPattern().equals(myDisconnectPattern)) {
-    disconnect(theOscMessage.netAddress().address());
-  } else {
-    // Just in case we're hearing for the first time from a non-connected client, we'll implicitly connect them now
-    // (this will not send a refresh of panel state, but will ensure the tempo sliders update)
-    connect(theOscMessage.netAddress().address(), false);
-  }
+  s.oscEvent(theOscMessage);
 }
-
-
-private void connect(String theIPaddress, Boolean explicit) {
-  if (!myNetAddressList.contains(theIPaddress, myBroadcastPort)) {
-    myNetAddressList.add(new NetAddress(theIPaddress, myBroadcastPort));
-    println("### adding "+theIPaddress+" to the list.");
-    if (explicit) { // (implicit connections will not trigger broadcast)
-      /* Since we've got a newly connected client, let's get them up to date with what's already in the matrix */
-      for (int i = 0; i < 3; i++) {
-        //broadcastPanel(i);
-      }
-    }
-  } 
-}
-
-
-
-private void disconnect(String theIPaddress) {
-  if (myNetAddressList.contains(theIPaddress, myBroadcastPort)) {
-    myNetAddressList.remove(theIPaddress, myBroadcastPort);
-    println("### disconnecting controller at "+theIPaddress);
-  } 
-  else {
-    println("### controller from "+theIPaddress+" was not connected.");
-  }
-  println("### currently there are "+myNetAddressList.list().size()+" controllers connected");
-}
-
-
-
-
-
 
