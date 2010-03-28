@@ -1,4 +1,7 @@
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+/**
+ * Button
+ */
 
 // NB: The following static methods ideally would be part of the
 // Button class, but processing turns classes into inner classes so
@@ -52,7 +55,7 @@ class Button
   PShape fullButton;
   PShape fullButtonActive, middleOnActive, middleActive, rightActive, leftActive;
 
-  Button(/*ArrayList _particleSystems,*/ int _x, int _y, float _sqLength, int _buttonSpacing, Panel _parent){
+  Button(/*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength, int _buttonSpacing, Panel _parent){
  //   particleSystemsSimple = _particleSystems;
     x=_x;
     y=_y;

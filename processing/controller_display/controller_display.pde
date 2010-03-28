@@ -26,68 +26,6 @@ HashMap buttonsByRow = new HashMap();
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
 int masterHue = 1;
 
-class Panel {
-  int id;
-  int width, height;
-  int buttonSize, buttonSpacing;
-  int buttonCount;
-  Button[] buttons;
-
-  Panel(int _id, int _width, int _height, int _buttonSize, int _buttonSpacing) {
-    id = _id;
-    width = _width;
-    height = _height;
-    buttonSize = _buttonSize;
-    buttonSpacing = _buttonSpacing;
-    buttonCount = 0;
-    buttons = new Button[width * height];
-  }
-
-  /**
-   * addButton adds a button to this panel
-   */
-  void addButton(Button b) {
-    buttons[buttonCount] = b;
-    buttonCount++;
-  }
-
-  /**
-   * getButtonFromMouseCoords returns the button located at the
-   * specified mouse coordinates.
-   *
-   * @return null if no button exists at the specified coordinates.
-   */
-  Button getButtonFromMouseCoords(int x, int y) {
-    int row = getRow(y, buttonSpacing);
-    int col = getCol(x, buttonSpacing);
-    /*
-    println("mouseX: " + x + ", mouseY: " + y);
-    println("row: " + row + ", col: " + col);
-    */
-
-    return getButtonFromPanelCoords(row, col);
-  }
-
-  /**
-   * getButtonFromPanelCoords returns the button at the specified
-   * row and column in this panel.
-   *
-   * @return null if row or col are out of range.
-   */
-  Button getButtonFromPanelCoords(int row, int col) {
-    if (row < 0 || col < 0 || row >= height || col >= width) {
-      return null;
-    }
-
-    // println("Returning index: " + ((row * width) + col));
-    // This is what we want if we create buttons one row at a time:
-    // return buttons[(row * width) + col];
-    // This is what we want if we create buttons one col at a time:
-    // (this is the way things are currently implemented)
-    return buttons[(col * height) + row];
-  }
-}
-
 void setup() {
   size(1280,720); // 16:9 window
   
@@ -131,9 +69,10 @@ void setup() {
 
   int panelWidth = 16;
   int panelHeight = 10;
+  int numTabs = 4;
 
   for (int i = 0; i < panels.length; i++) {
-    panels[i] = new Panel(i, panelWidth, panelHeight, buttonSize, buttonSpacing);
+    panels[i] = new Panel(i, panelWidth, panelHeight, numTabs, buttonSize, buttonSpacing);
   }
 
   /* sets up array and defines which osc messages apply to which panel */
