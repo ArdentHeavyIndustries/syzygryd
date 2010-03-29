@@ -128,8 +128,14 @@ class Sequencer implements OscCommunicationsProvider, MidiBusProvider {
     }
     */
 
+    /**
+     * FYI this parsing is probably not as robust as we might desire
+     * I leave it to the maintainers of the sequencer code to make it
+     * suck less. -cubes
+     */
     String[] patternParts = theOscMessage.addrPattern().split("/",-1);
-    int panelNumber = new Integer(patternParts[1]).intValue();
+    String[] panelTab = patternParts[1].split("_", -1);
+    int panelNumber = new Integer(panelTab[0]).intValue();
     int panelIndex = panelNumber - 1;
     if (panelNumber < numPanels) {
       panels[panelIndex].connectClient(theOscMessage.netAddress().address());

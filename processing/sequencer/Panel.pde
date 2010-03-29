@@ -1,3 +1,4 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 import oscP5.*;
 import netP5.*;
 import themidibus.*;
@@ -59,7 +60,7 @@ class ButtonPanel extends Panel {
     OscBundle bundle = new OscBundle();
     float pos = ((float)beatNumber) / 16.0 + 0.03125;
     for (int i = 0; i < numPatterns; i++) {
-      String pattern = "/"+id+"/tab"+(i+1)+"/tempo";
+      String pattern = "/"+id+"_tab"+(i+1)+"/tempo";
       OscMessage m = new OscMessage(pattern);
       m.add(pos);
       bundle.add(m);

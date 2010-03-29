@@ -1,3 +1,4 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 class Pattern implements ButtonManager {
   // width and height of the pattern, id numbers for the panel and tab
   int panelId, tabId, pWidth, pHeight;
@@ -37,7 +38,7 @@ class Pattern implements ButtonManager {
   
   
   String oscAddressForButton(Button theButton) {
-    return "/"+panelId+"/tab"+tabId+"/"+theButton.oscAddress();
+    return "/"+panelId+"_tab"+tabId+"/"+theButton.oscAddress();
   }
 
 
