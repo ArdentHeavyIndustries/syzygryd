@@ -1,3 +1,7 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+/**
+ * Temposweep
+ */
 class Temposweep
 {
   int step=6;

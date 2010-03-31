@@ -40,7 +40,8 @@ class Button
   int sqBright = 100;
   int sqAlphaDefault = 30;
   int sqAlpha = sqAlphaDefault;
-  Panel parent; // Will eventually become a tab
+  Tab tab;
+  Panel panel;
   boolean setPressed;
   boolean setActive;
   
@@ -55,17 +56,17 @@ class Button
   PShape fullButton;
   PShape fullButtonActive, middleOnActive, middleActive, rightActive, leftActive;
 
-  Button(/*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength, int _buttonSpacing, Panel _parent){
+  Button(/*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength, Tab _tab){
  //   particleSystemsSimple = _particleSystems;
     x=_x;
     y=_y;
     sqLength=_sqLength;
+    tab = _tab;
+    panel = _tab.panel;
 
-    buttonSpacing = _buttonSpacing;
-    row = getRow(y, buttonSpacing);
-    col = getCol(x, buttonSpacing);
+    row = getRow(y, tab.buttonSpacing);
+    col = getCol(x, tab.buttonSpacing);
 
-    parent = _parent;
     float scaleFactor, scaleFactorActive;
 
     /*set up svg layers as objects*/
@@ -92,27 +93,84 @@ class Button
     middleActive.scale(scaleFactorActive);
 
     smooth();
+  }
 
+  Button getLeftSibling() {
+    Panel leftPanel = panel.getPrevPanel();
+    return leftPanel.selectedTab.getButtonFromTabCoords(row, col);
+  }
+
+  Button getRightSibling() {
+    Panel rightPanel = panel.getNextPanel();
+    return rightPanel.selectedTab.getButtonFromTabCoords(row, col);
   }
 
   void setHue(int _newHue){
     sqHue = _newHue;
   }
 
-  void draw(boolean pressedOnly){
-    
+  void draw(boolean pressedOnly) {
     if(pressedOnly && !setPressed) {
       return;
     }
     
     noStroke();
-    int thisHue = sqHue + 33 * parent.id;
-    if(thisHue > 100) {
+    int thisHue = sqHue + 33 * panel.id;
+    // TODO: Instead of this if statement can we just take this mod 100?
+    if (thisHue > 100) {
       thisHue -= 100;
     }
 
-    switch(parent.id){
+    int leftHue = sqHue + 33 * panel.getPrevPanel().id;
+    // TODO: Instead of this if statement can we just take this mod 100?
+    if (leftHue > 100) {
+      leftHue -= 100;
+    }
+
+    int rightHue = sqHue + 33 * panel.getNextPanel().id;
+    // TODO: Instead of this if statement can we just take this mod 100?
+    if (rightHue > 100) {
+      rightHue -= 100;
+    }
+
+    // Draw this panel's buttons
+    middle.disableStyle();
+    noStroke();
+    fill(thisHue,50,sqBright,sqAlpha);
+    shape(middle,x,y);
+
+    // Draw the outlines of the left panel's buttons
+    if (getLeftSibling().setPressed) {
+      left.disableStyle();
+      // Do we need these noStroke and fill calls?
+      // Yes, we probably need the fill call, not sure about noStroke
+      // as it is called above.
+      noStroke();
+      fill(leftHue,100,sqBright,sqAlpha);
+      shape(left,x,y);
+    }
+
+    // Draw the outlines of the right panel's buttons
+    if(getRightSibling().setPressed==true){
+      right.disableStyle();
+      // Do we need the noStroke and fill calls?
+      // Yes, we probably need the fill call, not sure about noStroke
+      // as it is called above.
+      noStroke();
+      fill(rightHue,100,sqBright,sqAlpha);
+      shape(right,x,y);
+    }
+
+
+    /*
+    switch(panel.id) {
     case 0:
+      // Test code
+      middle.disableStyle();
+      noStroke();
+      fill(thisHue,50,sqBright,sqAlpha);
+      shape(middle,x,y);
+      // End test code
       if(setPressed==true){
         left.disableStyle();
         noStroke();
@@ -131,8 +189,7 @@ class Button
           noStroke();
           fill(thisHue+5,100,sqBright,sqAlpha-30);
           shape(middleOnActive,x-10,y-10);
-        }
-        else {
+        } else {
           middleOn.disableStyle();
           noStroke();
           fill(thisHue,100,sqBright,sqAlpha);
@@ -150,13 +207,34 @@ class Button
       }
       break;
     }
+    */
   }
 
-  void setValue( int _value) {
-    OscMessage m = new OscMessage(getOscAddress());
-    sqAlpha = (100 - sqAlphaDefault) * _value + sqAlphaDefault;
+  /**
+   * toggle toggles button state from on to off or off to on.
+   */
+  void toggle() {
+    // TODO: remove this debug code
+    // println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + row + ", " + col + " toggle called.");
+    if (setPressed) {
+      setValue(0.0, true);
+    } else {
+      setValue(1.0, true);
+    }
+  }
 
-    if (_value==1) {
+  /**
+   * Do we want to make this private, and make toggle the public
+   * interface?  I'm guessing no since processing generally doesn't
+   * use access control.
+   */
+  void setValue(float _value, boolean sendMessage) {
+    // TODO: remove this debug code
+    // println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + row + ", " + col + " set to " + _value);
+    OscMessage m = new OscMessage(getOscAddress());
+    sqAlpha = (100 - sqAlphaDefault) * (int) _value + sqAlphaDefault;
+
+    if (_value != 0) {
       setPressed = true;
       //particleSystemsSimple.add(new ParticleSystemSimple(100,new PVector(x+30,y+30)));
       // println(getOscAddress() + " on");
@@ -167,46 +245,13 @@ class Button
       m.add(0.0);
     }
 
-    oscP5.send(m, myRemoteLocation);
+    if (sendMessage) {
+      oscP5.send(m, myRemoteLocation);
+    }
   }
 
   boolean getValue() {
      return setPressed;
-  }
-
-  /**
-   * getOscRow returns this button's row for use in an OSC address.
-   * This handles the fact that OSC is indexed from 1 not 0, and has
-   * an inverted y-axis vs. processing.
-   */
-  int getOscRow() {
-    return (row * -1) + parent.height;
-  }
-
-  /**
-   * getOscCol returns this button's column for use in an OSC
-   * address.  This handles the fact that OSC is indexed from 1 not 0.
-   */
-  int getOscCol() {
-    return col + 1;
-  }
-
-  String getOscAddress() {
-    // Tab tab = xxxx;
-    // Panel = tab.parent;
-    Panel panel = parent;
-    return "/" + panel.id + "/tab1/panel/" + getOscRow() + "/" + getOscCol();
-  }
-
-  /**
-   * NB, we can probably delete the getX and getY functions.
-   */
-  int getX() {
-     return x;
-  }
-  
-  int getY() {
-    return y;
   }
 
   void activeButton() {
@@ -218,5 +263,26 @@ class Button
   void inactiveButton() {
     //sqHue = sqHue-10;
     setActive = false;
+  }
+
+  /**
+   * getOscRow returns this button's row for use in an OSC address.
+   * This handles the fact that OSC is indexed from 1 not 0, and has
+   * an inverted y-axis vs. processing.
+   */
+  int getOscRow() {
+    return (row * -1) + panel.height;
+  }
+
+  /**
+   * getOscCol returns this button's column for use in an OSC
+   * address.  This handles the fact that OSC is indexed from 1 not 0.
+   */
+  int getOscCol() {
+    return col + 1;
+  }
+
+  String getOscAddress() {
+    return "/" + panel.getOscId() + "_" + tab.getOscId() + "/panel/" + getOscRow() + "/" + getOscCol(); // e.g. /1/tab1/panel/1/1
   }
 }

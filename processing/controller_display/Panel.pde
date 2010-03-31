@@ -5,69 +5,57 @@
 
 class Panel {
   int id;
+  Panel[] allPanels;
   int width, height;
   int buttonSize, buttonSpacing;
-  int buttonCount;
-  Button[] buttons;
-  Tab[] tabs;
 
-  Panel(int _id, int _width, int _height, int _ntabs, int _buttonSize, int _buttonSpacing) {
+  Tab[] tabs;
+  Tab selectedTab;
+  Tab nextPanelSelectedTab;
+  Tab prevPanelSelectedTab;
+
+  Panel(int _id, Panel[] _allPanels, int _width, int _height, int _ntabs, int _buttonSize, int _buttonSpacing) {
     id = _id;
     width = _width;
     height = _height;
+    allPanels = _allPanels;
+
     buttonSize = _buttonSize;
     buttonSpacing = _buttonSpacing;
-    buttonCount = 0;
-    buttons = new Button[width * height];
 
     tabs = new Tab[_ntabs];
     for (int i = 0; i < tabs.length; i++) {
       tabs[i] = new Tab(i, this, _buttonSize, _buttonSpacing);
     }
+    selectTab(0);
   }
 
-  /**
-   * addButton adds a button to this panel
-   */
-  void addButton(Button b) {
-    buttons[buttonCount] = b;
-    buttonCount++;
+  void selectTab(int id) {
+    selectedTab = tabs[id];
   }
 
-  /**
-   * getButtonFromMouseCoords returns the button located at the
-   * specified mouse coordinates.
-   *
-   * @return null if no button exists at the specified coordinates.
-   */
-  Button getButtonFromMouseCoords(int x, int y) {
-    int row = getRow(y, buttonSpacing);
-    int col = getCol(x, buttonSpacing);
-    /*
-    println("mouseX: " + x + ", mouseY: " + y);
-    println("row: " + row + ", col: " + col);
-    */
-
-    return getButtonFromPanelCoords(row, col);
+  Panel getNextPanel() {
+    return allPanels[(id + 1) % allPanels.length];
   }
 
-  /**
-   * getButtonFromPanelCoords returns the button at the specified
-   * row and column in this panel.
-   *
-   * @return null if row or col are out of range.
-   */
-  Button getButtonFromPanelCoords(int row, int col) {
-    if (row < 0 || col < 0 || row >= height || col >= width) {
-      return null;
+  Panel getPrevPanel() {
+    int prevId = (id - 1) % allPanels.length;
+    if (prevId < 0) {
+      // Fuck you java.  This is why we can't have nice things!
+      prevId = prevId + allPanels.length;
     }
 
-    // println("Returning index: " + ((row * width) + col));
-    // This is what we want if we create buttons one row at a time:
-    // return buttons[(row * width) + col];
-    // This is what we want if we create buttons one col at a time:
-    // (this is the way things are currently implemented)
-    return buttons[(col * height) + row];
+    return allPanels[prevId];
+  }
+
+  int getOscId() {
+    return id + 1;
+  }
+
+  void draw() {
+    nextPanelSelectedTab = getNextPanel().selectedTab;
+    prevPanelSelectedTab = getPrevPanel().selectedTab;
+    selectedTab.draw();
   }
 }
 

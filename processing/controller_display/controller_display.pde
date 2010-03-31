@@ -15,6 +15,7 @@ NetAddress myRemoteLocation;
 /* Button Array for buttoning also tempo objects maybe more*/
 HashMap objectMapOSC = new HashMap();
 Panel[] panels;
+Panel selectedPanel;
 Button[] buttons;
 Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
@@ -44,24 +45,17 @@ void setup() {
    * max needs to  be set up to send out to this patch with a 
    * port different from the listen port for the controllers
    * if you're running it on the same machine. */
-  oscP5 = new OscP5(this,9000);
-
+  oscP5 = new OscP5(this, 9000);
 
   /* myRemoteLocation is a NetAddress. a NetAddress takes 2 parameters,
    * an ip address and a port number. Currently not used at all. 
    * Probably should route to Max rather than direct to controller.
    */
-  myRemoteLocation = new NetAddress("localhost",8000);
+  myRemoteLocation = new NetAddress("localhost", 8000);
 
   // Connect to the server
   OscMessage connect = new OscMessage("/server/connect");
   oscP5.send(connect, myRemoteLocation);
-
-  panels = new Panel[3];
-
-  /* Set the total number of button objects here. 
-   * total per layer by number of layers */
-  buttons = new Button[160*3];
 
   int buttonCounter = 0;
   int buttonSize = height/11; // size of button based on real estate
@@ -69,96 +63,20 @@ void setup() {
 
   int panelWidth = 16;
   int panelHeight = 10;
+  int numPanels = 3;
   int numTabs = 4;
 
+  panels = new Panel[numPanels];
+
   for (int i = 0; i < panels.length; i++) {
-    panels[i] = new Panel(i, panelWidth, panelHeight, numTabs, buttonSize, buttonSpacing);
+    panels[i] = new Panel(i, panels, panelWidth, panelHeight, numTabs, buttonSize, buttonSpacing);
   }
+  selectPanel(0);
 
-  /* sets up array and defines which osc messages apply to which panel */
-  for(int i = 1; i <= panelWidth; i++){ // set
-    Button[] thisRowButtons;
-    thisRowButtons = new Button[panelHeight + 1];
-    for(int j = 1; j <= panelHeight; j++){
-      Button thisButton;
+  /* FOO This is where the initialization code was */
 
-      /*
-        I believe the button creation code can be shortened to the for
-        loop below, except for the line:
-        thisRowButtons[j] = thisButton;
-        which exists only in the panel 2 block.  The intent of
-        thisRowButtons is unclear to me.
-
-      for (int k = 0; k < panels.length; k++) {
-        thisButton = new Button(
-          //     particleSystemsSimple,
-          buttonSpacing*i, // button X
-          (buttonSpacing*j)-((buttonSize)), //button Y
-          buttonSize, // button length
-          panels[k] //button panel #
-        ); 
-
-        // put current button into hashmap of all buttons from osc
-        objectMapOSC.put (
-          "/" + (k + 1) + "/multitoggle1/" + (11 - j) + "/" + i, thisButton);
-        typeMapOSC.put (
-          "/" + (k + 1) + "/multitoggle1/" + (11 - j) + "/" + i, "button");
-        // put current button into array of stored buttons
-        buttons[buttonCounter] = thisButton;
-        panels[k].addButton(thisButton);
-        buttonCounter++;
-      }
-      */
-
-      /* panel 1 */
-      thisButton = new Button(
- //       particleSystemsSimple,
-        buttonSpacing*i, // button X
-        (buttonSpacing*j)-((buttonSize)), //button Y
-        buttonSize, // button length
-        buttonSpacing,
-        panels[0] //button panel
-      ); 
-      objectMapOSC.put ("/1/multitoggle1/"+(11-j)+"/"+i,   thisButton); //put current button into hashmap of all buttons from osc
-      typeMapOSC.put ("/1/multitoggle1/"+(11-j)+"/"+i, "button");
-      buttons[buttonCounter] = thisButton; // put current button into array of stored buttons
-      panels[0].addButton(thisButton);
-      buttonCounter++;
-
-      /* panel 2 */
-      thisButton = new Button(
-   //     particleSystemsSimple,
-        buttonSpacing*i,
-        (buttonSpacing*j)-((buttonSize)),
-        buttonSize,
-        buttonSpacing,
-        panels[1]
-      );
-      objectMapOSC.put ("/2/multitoggle1/"+(11-j)+"/"+i, thisButton); //put current button into hashmap of all buttons from osc
-      typeMapOSC.put ("/2/multitoggle1/"+(11-j)+"/"+i, "button");
-      thisRowButtons[j] = thisButton;
-      buttons[buttonCounter] = thisButton; // put current button into array of stored buttons
-      panels[1].addButton(thisButton);
-      buttonCounter++;
-
-      /* panel 3 */
-      thisButton = new Button(
-   //     particleSystemsSimple,
-        buttonSpacing*i,
-        buttonSpacing*j-((buttonSize)),
-        buttonSize,
-        buttonSpacing,
-        panels[2]
-      );
-      objectMapOSC.put ("/3/multitoggle1/"+(11-j)+"/"+i, thisButton); //put current button into hashmap of all buttons from osc
-      typeMapOSC.put ("/3/multitoggle1/"+(11-j)+"/"+i, "button");
-      buttons[buttonCounter] = thisButton; // put current button into array of stored buttons
-      panels[2].addButton(thisButton);
-      buttonCounter++;
-    }
-    buttonsByRow.put(i, thisRowButtons);
-  }
-
+  // Where should this go?  Should it go in to the Panel, Tab or
+  // Button class?
   temposweep = new Temposweep(buttonSize, buttonSpacing, buttonsByRow);
   objectMapOSC.put ("/temposlider/step", temposweep);
   typeMapOSC.put ("/temposlider/step", "temposweep");
@@ -170,11 +88,13 @@ int curSecond = 0;
 void draw() {
 
   background (0);
+  selectedPanel.draw();
+  /*
   for(int i = 0; i < buttons.length; i++){
     buttons[i].draw(false);
     buttons[i].setHue(masterHue);
   }
-
+  */
 
   if(second() % 5 == 0 && second() != curSecond){ //does changing the modulo here make color cycle faster or slower?
     masterHue+=1;
@@ -184,7 +104,8 @@ void draw() {
     curSecond = second();
   }
   
-  temposweep.draw();
+  // TODO: reenable this
+  // temposweep.draw();
   
   // Cycle through all particle systems, run them and delete old ones
 /*  for (int i = particleSystemsSimple.size()-1; i >= 0; i--) {
@@ -195,76 +116,74 @@ void draw() {
     }
   }
 */
+  /*
   for(int i = 0; i < buttons.length; i++){
     buttons[i].draw(true);
   }
-
+  */
 }
 
+void selectPanel(int id) {
+  selectedPanel = panels[id];
+}
 
-
-void oscEvent(OscMessage theOscMessage) {
-  /* check if theOscMessage has the address pattern we are looking for. */
-
-  if(! objectMapOSC.containsKey(theOscMessage.addrPattern())){
+void oscEvent(OscMessage m) {
+  /* TODO: remove this debug code
+  if(!m.addrPattern().endsWith("/tempo")) {
+      println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+  }
+  */
+  /* check if m has the address pattern we are looking for. */
+  if(objectMapOSC == null || !objectMapOSC.containsKey(m.addrPattern())){
     return;
   }
 
-
   /* check if the typetag is the right one. */
-  if(theOscMessage.checkTypetag("f")) {
-    float firstValue =0;
-    /* parse theOscMessage and extract the values from the osc message arguments. */
-    //  println(theOscMessage);
-    //theOscMessage.print();
-    firstValue = theOscMessage.get(0).floatValue();  
+  if(m.checkTypetag("f")) {
+    float firstValue = 0;
+    /* parse m and extract the values from the osc message arguments. */
+    //  println(m);
+    //m.print();
+    firstValue = m.get(0).floatValue();  
     // print("### received an osc message /test with typetag ifs.");
 
 
-    if(typeMapOSC.get(theOscMessage.addrPattern())=="button") {
-      Button thisOSCObject = (Button) objectMapOSC.get(theOscMessage.addrPattern());
-      thisOSCObject.setValue(int(firstValue));
-    } 
-    else if (typeMapOSC.get(theOscMessage.addrPattern())=="temposweep") {
-      Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(theOscMessage.addrPattern());
+    if(typeMapOSC.get(m.addrPattern())=="button") {
+      Button thisOSCObject = (Button) objectMapOSC.get(m.addrPattern());
+      thisOSCObject.setValue(firstValue, false);
+    } else if (typeMapOSC.get(m.addrPattern())=="temposweep") {
+      Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(m.addrPattern());
       thisOSCObject.setValue(int(firstValue));
     }
-  } 
-  else if(theOscMessage.checkTypetag("i")) {
+  } else if(m.checkTypetag("i")) {
     int firstValue =0;
-    /* parse theOscMessage and extract the values from the osc message arguments. */
-    //  println(theOscMessage);
-    //theOscMessage.print();
-    firstValue = theOscMessage.get(0).intValue();  
+    /* parse m and extract the values from the osc message arguments. */
+    //  println(m);
+    //m.print();
+    firstValue = m.get(0).intValue();  
     // print("### received an osc message /test with typetag ifs.");
 
 
-    if(typeMapOSC.get(theOscMessage.addrPattern())=="button") {
-      Button thisOSCObject = (Button) objectMapOSC.get(theOscMessage.addrPattern());
-      thisOSCObject.setValue(firstValue);
+    if(typeMapOSC.get(m.addrPattern())=="button") {
+      Button thisOSCObject = (Button) objectMapOSC.get(m.addrPattern());
+      thisOSCObject.setValue(float(firstValue), false);
     } 
-    else if (typeMapOSC.get(theOscMessage.addrPattern())=="temposweep") {
-      Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(theOscMessage.addrPattern());
+    else if (typeMapOSC.get(m.addrPattern())=="temposweep") {
+      Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(m.addrPattern());
       thisOSCObject.setValue(firstValue);
     }
   }
-  println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
-
-
-
-
+  /* TODO: remove this debug
+  println("### received an osc message. with address pattern "+m.addrPattern());
+  */
 }
 
 void mouseClicked() {
   // turn a button on and off on mouse clicks
   // useful for developing without the max iphone craziness running
-  Button b = panels[1].getButtonFromMouseCoords(mouseX, mouseY);
+  Button b = selectedPanel.selectedTab.getButtonFromMouseCoords(mouseX, mouseY);
   if (b != null) {
-    if(b.getValue()) {
-      b.setValue(0);
-    } else {
-      b.setValue(1);
-    }
+    b.toggle();
   }
 }
 
