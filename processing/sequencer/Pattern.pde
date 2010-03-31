@@ -16,6 +16,7 @@ class Pattern implements ButtonManager {
     tabId = aTabId;
     pWidth = aWidth;
     pHeight = aHeight;
+    parent = (Panel) anOscProvider;
     oscProvider = anOscProvider;
     patternData = new boolean[pWidth][pHeight];
     buttonGrid = new Button[pWidth][pHeight];
@@ -44,14 +45,18 @@ class Pattern implements ButtonManager {
 
   void buttonStateUpdated(Button theButton, boolean newState) {
     setState(theButton.column, theButton.row, newState);
+    println("clients: " + parent.parentSequencer.clients().list());
     OscMessage mirrorMessage = new OscMessage(this.oscAddressForButton(theButton));
     mirrorMessage.add(theButton.oscData());
-    oscProvider.osc().send(mirrorMessage, oscProvider.clients());
+    oscProvider.osc().send(mirrorMessage, parent.parentSequencer.clients());
     println("Panel "+panelId+", pattern "+tabId+" just updated button state from " + oscAddressForButton(theButton) + ": "+theButton.column+","+theButton.row+" = "+newState);
   }
 
 
   void setState(int column, int row, boolean state) {
+    println("setState called");
+    println("setState column: " + column + ", row: " + row);
+    println("patternData[column][row]: " + patternData[column][row]);
     patternData[column][row] = state;
   }
 

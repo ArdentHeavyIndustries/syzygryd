@@ -74,7 +74,7 @@ class Sequencer implements OscCommunicationsProvider, MidiBusProvider {
   }
 
   void sendOSC(OscMessage aMessage) {
-    osc.send(aMessage, clientAddresses);
+    osc.send(aMessage, clients());
   }
 
 
@@ -82,11 +82,9 @@ class Sequencer implements OscCommunicationsProvider, MidiBusProvider {
     return osc;
   }
 
-
   NetAddressList clients() {
     return clientAddresses;
   }
-
 
   MidiBus midiBus() {
     return midiBus;
@@ -115,9 +113,18 @@ class Sequencer implements OscCommunicationsProvider, MidiBusProvider {
     return musicMaker.songPosition();
   }
 
+  void connectClient(String clientAddress) {
+    if (!clients().contains(clientAddress, myBroadcastPort)) {
+      clients().add(new NetAddress(clientAddress, myBroadcastPort));
+      // TODO: ... and we should probably transmit a copy of all the
+      // patterns we have so far, since this is apparently a newly
+      // connected client.
+    }
+  }
 
   /* incoming osc message are forwarded to the oscEvent method. */
   void oscEvent(OscMessage theOscMessage) {
+    println("sequencer.oscEvent: addrPattern: " + theOscMessage.addrPattern());
     /*
     println("#### received osc message");
     println("#### addrPattern: " + theOscMessage.addrPattern());
@@ -128,6 +135,8 @@ class Sequencer implements OscCommunicationsProvider, MidiBusProvider {
     }
     */
 
+    connectClient(theOscMessage.netAddress().address());
+
     /**
      * FYI this parsing is probably not as robust as we might desire
      * I leave it to the maintainers of the sequencer code to make it
@@ -137,9 +146,11 @@ class Sequencer implements OscCommunicationsProvider, MidiBusProvider {
     String[] panelTab = patternParts[1].split("_", -1);
     int panelNumber = new Integer(panelTab[0]).intValue();
     int panelIndex = panelNumber - 1;
-    if (panelNumber < numPanels) {
+
+    if (panelIndex < numPanels) {
       panels[panelIndex].connectClient(theOscMessage.netAddress().address());
     }
+
     if (!theOscMessage.isPlugged()) {
       panels[panelIndex].oscEvent(theOscMessage);
     }

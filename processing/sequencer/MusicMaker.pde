@@ -1,3 +1,4 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 class NoteOffTask extends java.util.TimerTask {
   MidiBus midiBus;
   int channel;

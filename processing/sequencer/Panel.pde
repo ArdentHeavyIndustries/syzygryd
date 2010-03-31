@@ -23,16 +23,14 @@ class Panel implements OscCommunicationsProvider {
   void connectClient(String clientAddress) {
     if (!myClients.contains(clientAddress, myBroadcastPort)) {
       myClients.add(new NetAddress(clientAddress, myBroadcastPort));
-      // ... and we should probably transmit a copy of all the patterns we have so far, since 
-      // this is apparently a newly connected client. TODO.
+      // No need to transmit pattern copies here.  That should happen in
+      // Sequencer.connectClient
     }
   }
-
 
   NetAddressList clients() {
     return myClients;
   }
-
 
   void gotBeat(int beatNumber) {
     // does nothing in the base class
@@ -65,6 +63,7 @@ class ButtonPanel extends Panel {
       m.add(pos);
       bundle.add(m);
     }
+
     osc().send(bundle, myClients);
   }
 
