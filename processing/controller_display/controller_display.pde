@@ -5,6 +5,8 @@
  * Meant to go directly on tv screen eventually.
  */
 
+import syzygryd.*;
+
 /* Osc business */
 import oscP5.*;
 import netP5.*;
@@ -14,8 +16,8 @@ NetAddress myRemoteLocation;
 
 /* Button Array for buttoning also tempo objects maybe more*/
 HashMap objectMapOSC = new HashMap();
-Panel[] panels;
-Panel selectedPanel;
+DrawablePanel[] panels;
+DrawablePanel selectedPanel;
 Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
 HashMap buttonsByRow = new HashMap();
@@ -60,15 +62,15 @@ void setup() {
   int buttonSize = height/11; // size of button based on real estate
   int buttonSpacing = buttonSize+4; // spacing btwn buttons based on buttonSize
 
-  int panelWidth = 16;
-  int panelHeight = 10;
+  int gridWidth = 16;
+  int gridHeight = 10;
   int numPanels = 3;
   int numTabs = 4;
 
-  panels = new Panel[numPanels];
+  panels = new DrawablePanel[numPanels];
 
   for (int i = 0; i < panels.length; i++) {
-    panels[i] = new Panel(i, panels, panelWidth, panelHeight, numTabs, buttonSize, buttonSpacing);
+    panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
   selectPanel(0);
 
@@ -148,7 +150,7 @@ void oscEvent(OscMessage m) {
 
 
     if(typeMapOSC.get(m.addrPattern())=="button") {
-      Button thisOSCObject = (Button) objectMapOSC.get(m.addrPattern());
+      DrawableButton thisOSCObject = (DrawableButton) objectMapOSC.get(m.addrPattern());
       thisOSCObject.setValue(firstValue, false);
     } else if (typeMapOSC.get(m.addrPattern())=="temposweep") {
       Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(m.addrPattern());
@@ -164,7 +166,7 @@ void oscEvent(OscMessage m) {
 
 
     if(typeMapOSC.get(m.addrPattern())=="button") {
-      Button thisOSCObject = (Button) objectMapOSC.get(m.addrPattern());
+      DrawableButton thisOSCObject = (DrawableButton) objectMapOSC.get(m.addrPattern());
       thisOSCObject.setValue(float(firstValue), false);
     } 
     else if (typeMapOSC.get(m.addrPattern())=="temposweep") {
@@ -180,7 +182,7 @@ void oscEvent(OscMessage m) {
 void mouseClicked() {
   // turn a button on and off on mouse clicks
   // useful for developing without the max iphone craziness running
-  Button b = selectedPanel.selectedTab.getButtonFromMouseCoords(mouseX, mouseY);
+  DrawableButton b = (DrawableButton) ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
   if (b != null) {
     b.toggle();
   }

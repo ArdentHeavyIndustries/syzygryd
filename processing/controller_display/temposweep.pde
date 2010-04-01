@@ -57,11 +57,11 @@ class Temposweep
       follow += 16;
     }
 
-    Button[] stepButtons;
-    stepButtons = (Button[]) buttonsByRow.get(step);
+    DrawableButton[] stepButtons;
+    stepButtons = (DrawableButton[]) buttonsByRow.get(step);
 
-    Button[] followButtons;
-    followButtons = (Button[]) buttonsByRow.get(follow);
+    DrawableButton[] followButtons;
+    followButtons = (DrawableButton[]) buttonsByRow.get(follow);
 
     if (buttonsByRow.containsKey(step)) {
       println(step);
