@@ -16,7 +16,6 @@ NetAddress myRemoteLocation;
 HashMap objectMapOSC = new HashMap();
 Panel[] panels;
 Panel selectedPanel;
-Button[] buttons;
 Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
 HashMap buttonsByRow = new HashMap();
@@ -187,17 +186,12 @@ void mouseClicked() {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void keyPressed() {
+  if (key == '1') {
+    selectPanel(0);
+  } else if (key == '2') {
+    selectPanel(1);
+  } else if (key == '3') {
+    selectPanel(2);
+  }
+}
