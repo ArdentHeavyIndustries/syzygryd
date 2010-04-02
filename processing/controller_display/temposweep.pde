@@ -66,7 +66,7 @@ class Temposweep
 
 
   void setValue(int _value){
-    step = _value;
+    step = _value + 1;
 
     //clearly this is wrong... doesn't work at all.  
     /*
