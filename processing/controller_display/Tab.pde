@@ -3,7 +3,10 @@
  * DrawableTab
  */
 
-class DrawableTab extends GridPatternTab {
+/**
+ * The DrawableTab class is a Tab that knows how to draw itself.
+ */
+class DrawableTab extends syzygryd.GridPatternTab {
   int buttonSize, buttonSpacing;
 
   DrawableTab(int _id, Panel _panel, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing) {

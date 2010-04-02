@@ -37,21 +37,14 @@ void setup() {
    * but all the osc examples had one. */
   frameRate(30); 
 
-  /* changing color mode to hsb for ease of getting at the color wheel. */
+  // changing color mode to hsb for ease of getting at the color wheel.
   colorMode(HSB, 100); 
 
-
-  /* start oscP5, listening for incoming messages at port 8001
-   * this isn't the port from touchosc, it's a port out of max.
-   * max needs to  be set up to send out to this patch with a 
-   * port different from the listen port for the controllers
-   * if you're running it on the same machine. */
+  // start oscP5, listening for incoming messages at port 9000
   oscP5 = new OscP5(this, 9000);
 
-  /* myRemoteLocation is a NetAddress. a NetAddress takes 2 parameters,
-   * an ip address and a port number. Currently not used at all. 
-   * Probably should route to Max rather than direct to controller.
-   */
+  // myRemoteLocation is set to the address and port the sequencer
+  // listens on
   myRemoteLocation = new NetAddress("localhost", 8000);
 
   // Connect to the server

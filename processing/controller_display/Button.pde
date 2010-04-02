@@ -31,7 +31,10 @@ static int getCol(int x, int buttonSpacing) {
   return (x - buttonSpacing) / buttonSpacing;
 }
 
-class DrawableButton extends ToggleButton {
+/**
+ * The DrawableButton class is a Button that knows how to draw itself.
+ */
+class DrawableButton extends syzygryd.ToggleButton {
   int x,y, sqLength;
   int sqHue = 100;
   int sqBright = 100;
@@ -202,13 +205,21 @@ class DrawableButton extends ToggleButton {
     setValue(isOn ? ON : OFF, true);
   }
 
-  void setValue(float _value, boolean sendMessage) {
+  /**
+   * setValue turns this button on or off, and optionally sends a
+   * message indicating the state change.
+   *
+   * @param value one of the constants Button.ON or Button.OFF
+   * @param sendMessage if true, setValue will send out a message to
+   * announce the state change
+   */
+  void setValue(float value, boolean sendMessage) {
     // TODO: remove this debug code
-    // println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + row + ", " + col + " set to " + _value);
+    // println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + row + ", " + col + " set to " + value);
     OscMessage m = new OscMessage(getOscAddress());
-    sqAlpha = (100 - sqAlphaDefault) * (int) _value + sqAlphaDefault;
+    sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 
-    if (_value != OFF) {
+    if (value != OFF) {
       isOn = true;
       //particleSystemsSimple.add(new ParticleSystemSimple(100,new PVector(x+30,y+30)));
       // println(getOscAddress() + " on");
