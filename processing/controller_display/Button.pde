@@ -200,7 +200,7 @@ class DrawableButton extends syzygryd.ToggleButton {
    */
   void toggle() {
     // TODO: remove this debug code
-    println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + row + ", " + col + " toggle called.");
+    println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " toggle called.");
     super.toggle();
     setValue(isOn ? ON : OFF, true);
   }
@@ -215,7 +215,8 @@ class DrawableButton extends syzygryd.ToggleButton {
    */
   void setValue(float value, boolean sendMessage) {
     // TODO: remove this debug code
-    println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + row + ", " + col + " set to " + value);
+    println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " set to " + value);
+    println("setValue: getOscAddress returns: " + getOscAddress());
     OscMessage m = new OscMessage(getOscAddress());
     sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 
