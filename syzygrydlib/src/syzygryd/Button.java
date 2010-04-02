@@ -79,7 +79,6 @@ public abstract class Button {
 	 */
 	public int getOscRow() {
 		return (row * -1) + tab.gridHeight;
-		// return row + 1;
 	}
 
 	/**
@@ -88,7 +87,6 @@ public abstract class Button {
 	 * @return this button's column for use in an OSC address
 	 */
 	public int getOscCol() {
-		// return (col * -1) + tab.gridHeight;
 		return col + 1;
 	}
 
