@@ -72,8 +72,11 @@ void setup() {
   // Where should this go?  Should it go in to the Panel, Tab or
   // Button class?
   temposweep = new Temposweep(buttonSize, buttonSpacing, buttonsByRow);
+  /*
+  temposweep = new Temposweep(buttonSize, buttonSpacing, buttonsByRow);
   objectMapOSC.put ("/temposlider/step", temposweep);
   typeMapOSC.put ("/temposlider/step", "temposweep");
+  */
 }
 
 
@@ -90,6 +93,7 @@ void draw() {
   }
   */
 
+  /*
   if(second() % 5 == 0 && second() != curSecond){ //does changing the modulo here make color cycle faster or slower?
     masterHue+=1;
     if(masterHue > 100){
@@ -97,9 +101,10 @@ void draw() {
     }
     curSecond = second();
   }
-  
+  */
+
   // TODO: reenable this
-  // temposweep.draw();
+  temposweep.draw();
   
   // Cycle through all particle systems, run them and delete old ones
 /*  for (int i = particleSystemsSimple.size()-1; i >= 0; i--) {
@@ -122,14 +127,16 @@ void selectPanel(int id) {
 }
 
 void oscEvent(OscMessage m) {
-  /* TODO: remove this debug code
   if(!m.addrPattern().endsWith("/tempo")) {
       println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+      // m.print();
   }
-  */
+
   /* check if m has the address pattern we are looking for. */
-  if(objectMapOSC == null || !objectMapOSC.containsKey(m.addrPattern())){
-    return;
+  if (!m.addrPattern().endsWith("/tempo")) {
+    if(objectMapOSC == null || !objectMapOSC.containsKey(m.addrPattern())){
+      return;
+    }
   }
 
   /* check if the typetag is the right one. */
@@ -145,10 +152,17 @@ void oscEvent(OscMessage m) {
     if(typeMapOSC.get(m.addrPattern())=="button") {
       DrawableButton thisOSCObject = (DrawableButton) objectMapOSC.get(m.addrPattern());
       thisOSCObject.setValue(firstValue, false);
+    } else if (m.addrPattern().endsWith("/tempo")) {
+      float v = (firstValue - 0.03125) * 16;
+      // println(v);
+      temposweep.setValue(int(v));
+    }
+    /*
     } else if (typeMapOSC.get(m.addrPattern())=="temposweep") {
       Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(m.addrPattern());
       thisOSCObject.setValue(int(firstValue));
     }
+    */
   } else if(m.checkTypetag("i")) {
     int firstValue =0;
     /* parse m and extract the values from the osc message arguments. */

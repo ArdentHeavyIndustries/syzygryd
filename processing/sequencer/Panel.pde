@@ -56,6 +56,8 @@ class ButtonPanel extends Panel {
 
   void gotBeat(int beatNumber) {
     OscBundle bundle = new OscBundle();
+    // 0.03125 = ((1 / 16) / 2).  This puts the temposweep in the middle
+    // of the step on TouchOSC.
     float pos = ((float)beatNumber) / 16.0 + 0.03125;
     for (int i = 0; i < numPatterns; i++) {
       String pattern = "/"+id+"_tab"+(i+1)+"/tempo";
