@@ -91,7 +91,7 @@ public abstract class Button {
 	}
 
 	public String getOscAddress() {
-		return "/" + panel.getOscId() + "_" + tab.getOscId() + "/panel/" + getOscRow() + "/" + getOscCol(); // e.g. /1_tab1/panel/1/1
+		return "/" + panel.getOscId() + "_" + tab.getOscId() + "/panel/" + getOscCol() + "/" + getOscRow(); // e.g. /1_tab1/panel/1/1
 	}
 	
 	public abstract OscMessage serializeToOsc();
