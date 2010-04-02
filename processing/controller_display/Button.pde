@@ -121,28 +121,30 @@ class DrawableButton extends syzygryd.ToggleButton {
     // Draw this panel's buttons
     middle.disableStyle();
     noStroke();
-    fill(thisHue,50,sqBright,sqAlpha);
+    fill(thisHue, 50, sqBright, sqAlpha);
     shape(middle,x,y);
 
     // Draw the outlines of the left panel's buttons
-    if (((DrawableButton) getLeftSibling()).isOn) {
+    DrawableButton leftSibling = (DrawableButton) getLeftSibling();
+    if (leftSibling.isOn) {
       left.disableStyle();
       // Do we need these noStroke and fill calls?
       // Yes, we probably need the fill call, not sure about noStroke
       // as it is called above.
       noStroke();
-      fill(leftHue,100,sqBright,sqAlpha);
+      fill(leftHue, 100, sqBright, leftSibling.sqAlpha);
       shape(left,x,y);
     }
 
     // Draw the outlines of the right panel's buttons
-    if(((DrawableButton) getRightSibling()).isOn==true){
+    DrawableButton rightSibling = (DrawableButton) getRightSibling();
+    if(rightSibling.isOn){
       right.disableStyle();
       // Do we need the noStroke and fill calls?
       // Yes, we probably need the fill call, not sure about noStroke
       // as it is called above.
       noStroke();
-      fill(rightHue,100,sqBright,sqAlpha);
+      fill(rightHue, 100, sqBright, rightSibling.sqAlpha);
       shape(right,x,y);
     }
 
