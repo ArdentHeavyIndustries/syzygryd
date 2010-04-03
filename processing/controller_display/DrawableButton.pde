@@ -54,9 +54,9 @@ class DrawableButton extends syzygryd.ToggleButton {
   PShape fullButton;
   PShape fullButtonActive, middleOnActive, middleActive, rightActive, leftActive;
 
-  DrawableButton(int _row, int _col, DrawableTab _tab, /*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength){
+  DrawableButton(int _col, int _row, DrawableTab _tab, /*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength){
  //   particleSystemsSimple = _particleSystems;
-    super(_row, _col, _tab);
+    super(_col, _row, _tab);
 
     x=_x;
     y=_y;
