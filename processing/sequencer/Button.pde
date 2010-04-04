@@ -1,44 +1,33 @@
-interface ButtonManager {
-  void buttonStateUpdated(Button theButton, boolean newState);
-  int gridHeight();
-}
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 
-class Button {
-  int row, column;
-  boolean state;
-  ButtonManager manager;
-
-  Button(int aColumn, int aRow, ButtonManager aManager) {
-    manager = aManager;
-    row = aRow;
-    column = aColumn;
+/**
+ * The SequencerButton class tracks pattern state required by the
+ * sequencer, and sends notifications when the state of a button is
+ * updated.
+ */
+class SequencerButton extends ToggleButton {
+  SequencerButton(int _col, int _row, SequencerPatternTab _tab) {
+    super(_col, _row, _tab);
   }
 
-  // This is the function that OSC will call if we get an updated state from a controller
-  void setState(float theA) {
-    // if the osc data is 0.0, that corresponds to the toggle being off; otherwise it's on
-    state = (theA == 0.0) ? false : true; 
-    manager.buttonStateUpdated(this, state);
-  }
-  
-  // This version of the function allows us to programatically update the state of a button
-  // NOTE: it does not inform the manager of its new status (with buttonStateUpdated) because 
-  //       we presume that the manager is in fact the actor updating the status
-  void setState(boolean newState) {
-    state = newState;
-  }
+  /**
+   * setValue turns the button on or off, and broadcasts a message
+   * indicating the state change.  This method is intended to be
+   * hooked up via osc.plug
+   *
+   * @param value one of the constants Button.ON or Button.OFF
+   */
+  void setValue(float value) {
+    OscMessage m = new OscMessage(getOscAddress());
 
-  float oscData() {
-    // if the button is on, we send a 1.0; otherwise send a 0.0
-    return state ? 1.0 : 0.0;
-  }
+    if (value != OFF) {
+      isOn = true;
+      m.add(ON);
+    } else {
+      isOn = false;
+      m.add(OFF);
+    }
 
-  String oscAddress() {
-    return "panel/"+ (row + 1) +"/"+(column + 1);
+    oscP5.send(m, globalClients);
   }
 }
-
-
-
-
-

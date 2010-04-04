@@ -4,10 +4,10 @@ class NoteOffTask extends java.util.TimerTask {
   int channel;
   Vector notes;
 
-  NoteOffTask(MidiBus aBus, int aChannel, Vector someNotes) {
-    midiBus = aBus;
-    channel = aChannel;
-    notes = someNotes;
+  NoteOffTask(MidiBus _bus, int _channel, Vector _notes) {
+    midiBus = _bus;
+    channel = _channel;
+    notes = _notes;
   }
 
   void run() {
@@ -20,16 +20,18 @@ class NoteOffTask extends java.util.TimerTask {
 }
 
 class MusicMaker implements StandardMidiListener {
-  int clock = 0, sixteenthNote = 1, quarterNote = 1, measure = 1;
-  OscP5 oscP5 = null;
-  Sequencer owner = null;
-  Timer noteOffTimer = new Timer();
-  MidiBus midiBus = null;
-  long noteDuration = 200;
+  int clock, sixteenthNote, quarterNote, measure;
+  Sequencer sequencer;
+  Timer noteOffTimer;
+  MidiBus midiBus;
+  long noteDuration;
 
-  MusicMaker(Sequencer anOwner, MidiBus aBus) {
-    owner = anOwner;
-    midiBus = aBus;
+  MusicMaker(Sequencer _sequencer, MidiBus _bus) {
+    sequencer = _sequencer;
+    midiBus = _bus;
+    resetCounters();
+    noteOffTimer = new Timer();
+    noteDuration = 200; // TODO: Should the value 200 be a constant?
   }
 
   void playNotes(int channel, Vector notes) {
@@ -52,7 +54,7 @@ class MusicMaker implements StandardMidiListener {
 
   void handleClockPulse() {
     if (clock == 1) {
-      owner.gotBeat(currentSixteenthNoteIndex());
+      sequencer.gotBeat(currentSixteenthNoteIndex());
     }
     if (++clock > 6) {
       clock = 1;
@@ -110,7 +112,3 @@ class MusicMaker implements StandardMidiListener {
     }
   }
 }
-
-
-
-

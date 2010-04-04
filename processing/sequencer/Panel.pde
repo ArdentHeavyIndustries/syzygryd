@@ -1,81 +1,49 @@
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
-import oscP5.*;
-import netP5.*;
-import themidibus.*;
 
-class Panel implements OscCommunicationsProvider {
-  int id;
-  Sequencer parentSequencer;
-  NetAddressList myClients = new NetAddressList();
-  int myBroadcastPort = 9000;
+/**
+ * The SequencerPanel class maintains a list of network clients which it
+ * broadcasts status updates to.
+ */
+class SequencerPanel extends Panel {
+  NetAddressList clients;
+  int broadcastPort;
 
-  Panel(int anId, Sequencer theSequencer) {
-    id = anId;
-    parentSequencer = theSequencer;
+  SequencerPanel(int _id, SequencerPanel[] _allPanels, int _ntabs, int _gridWidth, int _gridHeight, int _broadcastPort) {
+    super(_id, _allPanels, _ntabs);
+
+    clients = new NetAddressList();
+    broadcastPort = _broadcastPort;
+    for (int i = 0; i < tabs.length; i++) {
+      tabs[i] = new SequencerPatternTab(i, this, _gridWidth, _gridHeight);
+    }
+    selectTab(0);
   }
-
-
-  OscP5 osc() {
-    return parentSequencer.osc();
-  }
-
 
   void connectClient(String clientAddress) {
-    if (!myClients.contains(clientAddress, myBroadcastPort)) {
-      myClients.add(new NetAddress(clientAddress, myBroadcastPort));
+    if (!clients.contains(clientAddress, broadcastPort)) {
+      clients.add(new NetAddress(clientAddress, broadcastPort));
       // No need to transmit pattern copies here.  That should happen in
       // Sequencer.connectClient
     }
   }
 
-  NetAddressList clients() {
-    return myClients;
-  }
-
-  void gotBeat(int beatNumber) {
-    // does nothing in the base class
-  }
-
-
-  void oscEvent(OscMessage theOscMessage) {
-    println("Got an unhandled osc message: "+theOscMessage);
-  }
-}
-
-class ButtonPanel extends Panel {
-  int currentPattern = 0;
-  int numPatterns = 4;
-  Pattern[] patterns = new Pattern[numPatterns];
-
-  ButtonPanel(int anId, Sequencer theSequencer) {
-    super(anId, theSequencer);
-    for (int i = 0; i < numPatterns; i++) {
-      patterns[i] = new Pattern(id, i + 1, parentSequencer.columns, parentSequencer.rows, this);
-    }
-  }
-
   void gotBeat(int beatNumber) {
     OscBundle bundle = new OscBundle();
-    // 0.03125 = ((1 / 16) / 2).  This puts the temposweep in the middle
-    // of the step on TouchOSC.
-    float pos = ((float)beatNumber) / 16.0 + 0.03125;
-    for (int i = 0; i < numPatterns; i++) {
-      String pattern = "/"+id+"_tab"+(i+1)+"/tempo";
+    float pos = ((float) beatNumber) / 16.0 + 0.03125;
+    for (int i = 0; i < tabs.length; i++) {
+      String pattern = "/" + getOscId() + "_" + tabs[i].getOscId() + "/tempo";
       OscMessage m = new OscMessage(pattern);
       m.add(pos);
       bundle.add(m);
     }
 
-    osc().send(bundle, myClients);
+    oscP5.send(bundle, clients);
   }
 
-
-  boolean[] columnDataForBeat(int beat) {
-    return patterns[currentPattern].getColumn(beat);
-  }
-
-  void oscEvent(OscMessage theOscMessage) {
-    String[] patternParts = theOscMessage.addrPattern().split("/",-1);
+  // TODO: Fix this up to, you know actually switch tabs. :)
+  void oscEvent(OscMessage m) {
+    /*
+    String[] patternParts = m.addrPattern().split("/",-1);
     if (patternParts.length > 2) {
       //println("patternParts = "+patternParts);
       String tabPart = patternParts[2];
@@ -88,14 +56,6 @@ class ButtonPanel extends Panel {
         println("panel "+id+", currentPattern = "+currentPattern);
       }
     }
+    */
   }
 }
-
-
-
-
-
-
-
-
-
