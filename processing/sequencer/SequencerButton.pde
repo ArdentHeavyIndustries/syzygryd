@@ -8,12 +8,13 @@
 class SequencerButton extends ToggleButton {
   SequencerButton(int _col, int _row, SequencerPatternTab _tab) {
     super(_col, _row, _tab);
+    oscP5.plug(this, "setValue", getOscAddress());
   }
 
   /**
    * setValue turns the button on or off, and broadcasts a message
    * indicating the state change.  This method is intended to be
-   * hooked up via osc.plug
+   * hooked up via osc.plug.
    *
    * @param value one of the constants Button.ON or Button.OFF
    */

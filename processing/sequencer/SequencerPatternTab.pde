@@ -11,7 +11,6 @@ class SequencerPatternTab extends GridPatternTab {
     for (int i = 0; i < gridWidth; i++) {
       for (int j = 0; j < gridHeight; j++) {
         SequencerButton b = new SequencerButton(i, j, this);
-        oscP5.plug(b, "setValue", b.getOscAddress());
         buttons[i][j] = b;
       }
     }
