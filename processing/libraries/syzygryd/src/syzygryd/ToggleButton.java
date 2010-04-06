@@ -37,12 +37,12 @@ public class ToggleButton extends Button {
 	/**
 	 * ToggleButton constructor
 	 * 
-	 * @param _row int, the row this button resides in
 	 * @param _col int, the column this button resides in
+	 * @param _row int, the row this button resides in
 	 * @param _tab int, the tab this button resides in
 	 */
-	public ToggleButton(int _row, int _col, GridPatternTab _tab) {
-		super(_row, _col, _tab);
+	public ToggleButton(int _col, int _row, GridPatternTab _tab) {
+		super(_col, _row, _tab);
 		isOn = false;
 	}
 	
