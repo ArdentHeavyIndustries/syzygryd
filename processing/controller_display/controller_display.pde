@@ -52,8 +52,8 @@ void setup() {
   oscP5.send(connect, myRemoteLocation);
 
   int buttonCounter = 0;
-  int buttonSize = height/11; // size of button based on real estate
-  int buttonSpacing = buttonSize+4; // spacing btwn buttons based on buttonSize
+  int buttonSize = height / 11; // size of button based on real estate
+  int buttonSpacing = buttonSize + 4; // spacing btwn buttons based on buttonSize
 
   int gridWidth = 16;
   int gridHeight = 10;
@@ -61,7 +61,6 @@ void setup() {
   int numTabs = 4;
 
   panels = new DrawablePanel[numPanels];
-
   for (int i = 0; i < panels.length; i++) {
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
@@ -83,43 +82,11 @@ void setup() {
 int curSecond = 0;
 
 void draw() {
-
   background (0);
   selectedPanel.draw();
-  /*
-  for(int i = 0; i < buttons.length; i++){
-    buttons[i].draw(false);
-    buttons[i].setHue(masterHue);
-  }
-  */
 
-  /*
-  if(second() % 5 == 0 && second() != curSecond){ //does changing the modulo here make color cycle faster or slower?
-    masterHue+=1;
-    if(masterHue > 100){
-      masterHue -=100; 
-    }
-    curSecond = second();
-  }
-  */
-
-  // TODO: reenable this
+  // TODO: Probably want to move temposweep object into the tabs...
   temposweep.draw();
-  
-  // Cycle through all particle systems, run them and delete old ones
-/*  for (int i = particleSystemsSimple.size()-1; i >= 0; i--) {
-    ParticleSystemSimple psys = (ParticleSystemSimple) particleSystemsSimple.get(i);
-    psys.run();
-    if (psys.dead()) {
-      particleSystemsSimple.remove(i);
-    }
-  }
-*/
-  /*
-  for(int i = 0; i < buttons.length; i++){
-    buttons[i].draw(true);
-  }
-  */
 }
 
 void selectPanel(int id) {
