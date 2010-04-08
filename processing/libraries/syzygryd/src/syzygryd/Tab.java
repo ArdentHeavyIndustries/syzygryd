@@ -59,4 +59,8 @@ public abstract class Tab {
 	public String getOscId() {
 		return "tab" + (id + 1);
 	}
+	
+	public String getOscAddress() {
+		return "/" + panel.getOscId() + "_" + getOscId(); // e.g. /1_tab1
+	}
 }
