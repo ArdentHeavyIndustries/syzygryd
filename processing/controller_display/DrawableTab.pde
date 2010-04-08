@@ -8,7 +8,8 @@
  */
 class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
   int buttonSize, buttonSpacing;
-  MiniDrawableTab miniTab;
+  DrawableMiniTab miniTab;
+  DrawableClearButton clearButton;
   HashMap onButtons;
 
   int miniTabX, miniTabY;
@@ -26,7 +27,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
     int miniTabButtonSpacing = min(miniTabWidth / gridWidth, miniTabHeight / gridHeight);
     int miniTabButtonSize = miniTabButtonSpacing - 2;
 
-    miniTab = new MiniDrawableTab(this, miniTabX, miniTabY, miniTabWidth, miniTabHeight, miniTabButtonSize, miniTabButtonSpacing);
+    miniTab = new DrawableMiniTab(this, miniTabX, miniTabY, miniTabWidth, miniTabHeight, miniTabButtonSize, miniTabButtonSpacing);
+    clearButton = new DrawableClearButton(this, miniTabX, height - (miniTabHeight + (buttonSpacing - buttonSize)), miniTabWidth, miniTabHeight);
 
     onButtons = new HashMap();
 
@@ -73,6 +75,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
       if (tabIndex < panel.tabs.length) {
         // println("returning tabIndex: " + tabIndex);
         return ((DrawableTab) panel.tabs[tabIndex]).miniTab;
+      } else if (y > clearButton.y) {
+        return clearButton;
       }
     }
 
@@ -103,6 +107,17 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
     return panel.selectedTab == this;
   }
 
+  /**
+   * clear clears the current pattern on this tab
+   */
+  void clear() {
+    for (int i = 0; i < gridWidth; i++) {
+      for (int j = 0; j < gridHeight; j++) {
+        ((DrawableButton) buttons[i][j]).setValue(ToggleButton.OFF, false);
+      }
+    }
+  }
+
   void draw() {
     if(second() % 5 == 0 && second() != curSecond){ //does changing the modulo here make color cycle faster or slower?
       masterHue++;
@@ -121,6 +136,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
           ((DrawableButton) buttons[i][j]).draw();
         }
       }
+
+      clearButton.draw();
     }
   }
 }

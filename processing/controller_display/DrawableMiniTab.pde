@@ -6,14 +6,14 @@
 /**
  * DrawableMiniTab class is a miniature representation of a Tab.
  */
-class MiniDrawableTab implements Drawable, Pressable {
+class DrawableMiniTab implements Drawable, Pressable {
   DrawableTab tab;
   int x, y;
   int myWidth, myHeight;
   int originX, originY;
   int buttonSize, buttonSpacing;
 
-  MiniDrawableTab(DrawableTab _tab, int _x, int _y, int _width, int _height, int _buttonSize, int _buttonSpacing) {
+  DrawableMiniTab(DrawableTab _tab, int _x, int _y, int _width, int _height, int _buttonSize, int _buttonSpacing) {
     tab = _tab;
     x = _x;
     y = _y;
