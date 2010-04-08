@@ -37,8 +37,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
           buttonSpacing * (i + 1) - buttonSize, // button X
           (buttonSpacing * (j + 1)) - buttonSize, //button Y
           buttonSize, // button length
-          (miniTab.buttonSpacing * (i + 1)) - miniTab.buttonSize + miniTab.x,
-          (miniTab.buttonSpacing * (j + 1)) - miniTab.buttonSize + miniTab.y,
+          (miniTab.buttonSpacing * (i + 1)) - miniTab.buttonSize + miniTab.originX,
+          (miniTab.buttonSpacing * (j + 1)) - miniTab.buttonSize + miniTab.originY,
           miniTabButtonSize
         );
 
