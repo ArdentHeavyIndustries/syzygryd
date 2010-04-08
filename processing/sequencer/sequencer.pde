@@ -25,6 +25,8 @@ class Sequencer {
   float bpm = 140.0;
 
   Sequencer(PApplet parent, int _numPanels, int _numTabs, int _gridWidth, int _gridHeight, int _broadcastPort) {
+    // Look at availableInputs and availableOutputs
+    // "IAC Driver - GridSequencer"
     midiBus = new MidiBus(parent, "GridSequencer", "GridSequencer");
 
     musicMaker = new MusicMaker(this, midiBus);
