@@ -55,9 +55,9 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength){
     super(_col, _row, _tab);
 
-    x=_x;
-    y=_y;
-    sqLength=_sqLength;
+    x = _x;
+    y = _y;
+    sqLength = _sqLength;
 
     miniX = _miniX;
     miniY = _miniY;
