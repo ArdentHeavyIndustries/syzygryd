@@ -6,14 +6,9 @@
 /**
  * The DrawableTab class is a Tab that knows how to draw itself.
  */
-class DrawableTab extends syzygryd.GridPatternTab {
+class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
   int buttonSize, buttonSpacing;
-
-  int miniTabX, miniTabY;
-  int miniTabWidth, miniTabHeight;
-  int miniTabButtonSize, miniTabButtonSpacing;
-  int miniTabOriginX, miniTabOriginY;
-
+  MiniDrawableTab miniTab;
   HashMap onButtons;
 
   DrawableTab(int _id, Panel _panel, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing) {
@@ -21,14 +16,14 @@ class DrawableTab extends syzygryd.GridPatternTab {
     buttonSize = _buttonSize;
     buttonSpacing = _buttonSpacing;
 
-    miniTabX = buttonSpacing * gridWidth;
-    miniTabWidth = width - (miniTabX + (buttonSpacing - buttonSize));
-    miniTabHeight = (int) ((miniTabWidth * height) / (float) width);
-    miniTabY = (miniTabHeight * id) + ((buttonSpacing - buttonSize) * (id + 1));
-    miniTabButtonSpacing = min(miniTabWidth / gridWidth, miniTabHeight / gridHeight);
-    miniTabButtonSize = miniTabButtonSpacing - 2;
-    miniTabOriginX = ((miniTabWidth - (miniTabButtonSpacing * gridWidth)) / 2) + miniTabX;
-    miniTabOriginY = ((miniTabHeight - (miniTabButtonSpacing * gridHeight)) / 2) + miniTabY;
+    int miniTabX = buttonSpacing * gridWidth;
+    int miniTabWidth = width - (miniTabX + (buttonSpacing - buttonSize));
+    int miniTabHeight = (int) ((miniTabWidth * height) / (float) width);
+    int miniTabY = (miniTabHeight * id) + ((buttonSpacing - buttonSize) * (id + 1));
+    int miniTabButtonSpacing = min(miniTabWidth / gridWidth, miniTabHeight / gridHeight);
+    int miniTabButtonSize = miniTabButtonSpacing - 2;
+
+    miniTab = new MiniDrawableTab(this, miniTabX, miniTabY, miniTabWidth, miniTabHeight, miniTabButtonSize, miniTabButtonSpacing);
 
     onButtons = new HashMap();
 
@@ -42,8 +37,8 @@ class DrawableTab extends syzygryd.GridPatternTab {
           buttonSpacing * (i + 1) - buttonSize, // button X
           (buttonSpacing * (j + 1)) - buttonSize, //button Y
           buttonSize, // button length
-          (miniTabButtonSpacing * (i + 1)) - miniTabButtonSize + miniTabOriginX,
-          (miniTabButtonSpacing * (j + 1)) - miniTabButtonSize + miniTabOriginY,
+          (miniTab.buttonSpacing * (i + 1)) - miniTab.buttonSize + miniTab.x,
+          (miniTab.buttonSpacing * (j + 1)) - miniTab.buttonSize + miniTab.y,
           miniTabButtonSize
         );
 
@@ -96,27 +91,6 @@ class DrawableTab extends syzygryd.GridPatternTab {
     return panel.selectedTab == this;
   }
 
-  /**
-   * Draws the miniature tab representing this tab
-   */
-  void drawMiniTab() {
-    // TODO: Figure out minitab coloration
-    // println("x: " + miniTabX + ", y: " + miniTabY + ", width: " + miniTabWidth + ", height: " + miniTabHeight);
-    if (isSelected()) {
-      stroke(0, 0, 100);
-      noFill();
-      rect(miniTabX, miniTabY, miniTabWidth, miniTabHeight);
-    } else {
-      stroke(0, 100, 100);
-      noFill();
-      rect(miniTabX, miniTabY, miniTabWidth, miniTabHeight);
-    }
-
-    for (Iterator i = onButtons.values().iterator(); i.hasNext(); ) {
-      ((DrawableButton) i.next()).drawMiniTabButton();
-    }
-  }
-
   void draw() {
     if(second() % 5 == 0 && second() != curSecond){ //does changing the modulo here make color cycle faster or slower?
       masterHue++;
@@ -126,13 +100,13 @@ class DrawableTab extends syzygryd.GridPatternTab {
       curSecond = second();
     }
 
-    drawMiniTab();
+    miniTab.draw();
 
     if (isSelected()) {
       for (int i = 0; i < gridWidth; i++) {
         for (int j = 0; j < gridHeight; j++) {
           ((DrawableButton) buttons[i][j]).setBaseHue(masterHue);
-          ((DrawableButton) buttons[i][j]).draw(false);
+          ((DrawableButton) buttons[i][j]).draw();
         }
       }
     }

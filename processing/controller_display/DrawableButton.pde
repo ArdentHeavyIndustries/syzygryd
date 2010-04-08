@@ -1,6 +1,6 @@
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
- * Button
+ * DrawableButton
  */
 
 // NB: The following static methods ideally would be part of the
@@ -34,7 +34,7 @@ static int getCol(int x, int buttonSpacing) {
 /**
  * The DrawableButton class is a Button that knows how to draw itself.
  */
-class DrawableButton extends syzygryd.ToggleButton {
+class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressable {
   int x, y, sqLength;
   int miniX, miniY, miniLength;
   int sqHue = 100;
@@ -111,13 +111,13 @@ class DrawableButton extends syzygryd.ToggleButton {
 
   /**
    * draw draws this button
-   *
-   * @param onlyIfOn if true, will only draw this button if it is set to ON.
    */
-  void draw(boolean onlyIfOn) {
+  void draw() {
+    /*
     if(onlyIfOn && !isOn) {
       return;
     }
+    */
     
     // Draw this panel's buttons
     middle.disableStyle();
@@ -200,6 +200,10 @@ class DrawableButton extends syzygryd.ToggleButton {
     noStroke();
     fill(getHue(), 50, sqBright, sqAlpha);
     rect(miniX, miniY, miniLength, miniLength);
+  }
+
+  void press() {
+    toggle();
   }
 
   /**
