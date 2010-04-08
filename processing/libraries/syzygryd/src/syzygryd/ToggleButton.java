@@ -29,7 +29,7 @@ import oscP5.OscMessage;
  * 
  * @author Daniel C. Silverstein
  */
-public class ToggleButton extends Button {
+public class ToggleButton extends GridButton {
 	public boolean isOn;
 	public static final float ON = (float) 1.0;
 	public static final float OFF = (float) 0.0;

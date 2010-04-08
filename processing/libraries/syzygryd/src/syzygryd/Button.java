@@ -30,69 +30,18 @@ import oscP5.OscMessage;
  * @author Daniel C. Silverstein
  */
 public abstract class Button {
-	public int col;
-	public int row;
 	public GridPatternTab tab;
 	public Panel panel;
 
 	/**
 	 * Button constructor
 	 * 
-	 * @param col int, the column this button resides in
-	 * @param row int, the row this button resides in
 	 * @param tab int, the tab this button resides in
 	 */
-	public Button(int _col, int _row, GridPatternTab _tab) {
-		col = _col;
-		row = _row;
+	public Button(GridPatternTab _tab) {
 		tab = _tab;
 		panel = _tab.panel;
 	}
-	
-	/**
-	 * getLeftSibling
-	 * 
-	 * @return the corresponding button on the panel to the left of
-	 * this one.
-	 */
-	public Button getLeftSibling() {
-		Panel leftPanel = panel.getPrevPanel();
-		return ((GridPatternTab) leftPanel.selectedTab).buttons[col][row];
-	}
-
-	/**
-	 * getRightSibling
-	 * 
-	 * @return the corresponding button on the panel to the right of
-	 * this one.
-	 */	
-	public Button getRightSibling() {
-		Panel rightPanel = panel.getNextPanel();
-		return ((GridPatternTab) rightPanel.selectedTab).buttons[col][row];
-	}
-	
-	/**
-	 * getOscRow handles the fact that OSC is indexed from 1 not 0,
-	 * and has an inverted y-axis vs. processing.
-	 * 
-	 * @return this button's row for use in an OSC address
-	 */
-	public int getOscRow() {
-		return (row * -1) + tab.gridHeight;
-	}
-
-	/**
-	 * getOscCol Handles the fact that OSC is indexed from 1 not 0.
-	 * 
-	 * @return this button's column for use in an OSC address
-	 */
-	public int getOscCol() {
-		return col + 1;
-	}
-
-	public String getOscAddress() {
-		return "/" + panel.getOscId() + "_" + tab.getOscId() + "/panel/" + getOscRow() + "/" + getOscCol(); // e.g. /1_tab1/panel/1/1
-	}
-	
+		
 	public abstract OscMessage serializeToOsc();
 }
