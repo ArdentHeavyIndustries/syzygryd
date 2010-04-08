@@ -44,5 +44,10 @@ class MiniDrawableTab implements Drawable, Pressable {
   }
 
   void press() {
+    if (tab.isSelected()) {
+      return;
+    }
+
+    tab.panel.selectTab(tab.id);
   }
 }

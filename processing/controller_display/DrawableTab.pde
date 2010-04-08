@@ -11,15 +11,18 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
   MiniDrawableTab miniTab;
   HashMap onButtons;
 
+  int miniTabX, miniTabY;
+  int miniTabWidth, miniTabHeight;
+
   DrawableTab(int _id, Panel _panel, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing) {
     super(_id, _panel, _gridWidth, _gridHeight);
     buttonSize = _buttonSize;
     buttonSpacing = _buttonSpacing;
 
-    int miniTabX = buttonSpacing * gridWidth;
-    int miniTabWidth = width - (miniTabX + (buttonSpacing - buttonSize));
-    int miniTabHeight = (int) ((miniTabWidth * height) / (float) width);
-    int miniTabY = (miniTabHeight * id) + ((buttonSpacing - buttonSize) * (id + 1));
+    miniTabX = buttonSpacing * gridWidth;
+    miniTabWidth = width - (miniTabX + (buttonSpacing - buttonSize));
+    miniTabHeight = (int) ((miniTabWidth * height) / (float) width);
+    miniTabY = (miniTabHeight * id) + ((buttonSpacing - buttonSize) * (id + 1));
     int miniTabButtonSpacing = min(miniTabWidth / gridWidth, miniTabHeight / gridHeight);
     int miniTabButtonSize = miniTabButtonSpacing - 2;
 
@@ -57,14 +60,24 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
    * @return The button located at the specified mouse coordinates,
    * null if no button exists at the specified coordinates.
    */
-  Button getButtonFromMouseCoords(int x, int y) {
+  Pressable getButtonFromMouseCoords(int x, int y) {
     int row = getRow(y, buttonSpacing);
     int col = getCol(x, buttonSpacing);
 
-      println("mouseX: " + x + ", mouseY: " + y);
-      println("row: " + row + ", col: " + col);
+    Pressable button = getButtonFromTabCoords(row, col);
+    if (button != null) {
+      return button;
+    }
 
-    return getButtonFromTabCoords(row, col);
+    if (x > miniTabX && x < miniTabX + miniTabWidth) {
+      int tabIndex = y / miniTabHeight;
+      if (tabIndex < panel.tabs.length) {
+        // println("returning tabIndex: " + tabIndex);
+        return ((DrawableTab) panel.tabs[tabIndex]).miniTab;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -73,12 +86,12 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
    * @return The button at the specified row and column in this tab,
    * null if row or col are out of range.
    */
-  Button getButtonFromTabCoords(int row, int col) {
+  Pressable getButtonFromTabCoords(int row, int col) {
     if (row < 0 || col < 0 || row >= gridHeight || col >= gridWidth) {
       return null;
     }
 
-    return buttons[col][row];
+    return (DrawableButton) buttons[col][row];
   }
 
   /**

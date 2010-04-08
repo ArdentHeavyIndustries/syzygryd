@@ -154,11 +154,9 @@ void oscEvent(OscMessage m) {
 }
 
 void mouseClicked() {
-  // turn a button on and off on mouse clicks
-  // useful for developing without the max iphone craziness running
-  DrawableButton b = (DrawableButton) ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
-  if (b != null) {
-    b.toggle();
+  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
+  if (p != null) {
+    p.press();
   }
 }
 

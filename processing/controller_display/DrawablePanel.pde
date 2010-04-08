@@ -16,6 +16,12 @@ class DrawablePanel extends syzygryd.Panel implements Drawable {
     selectTab(0);
   }
 
+  void selectTab(int id) {
+    super.selectTab(id);
+    OscMessage m = new OscMessage(selectedTab.getOscAddress());
+    oscP5.send(m, myRemoteLocation);
+  }
+
   void draw() {
     for (int i = 0; i < tabs.length; i++) {
       ((DrawableTab) tabs[i]).draw();
