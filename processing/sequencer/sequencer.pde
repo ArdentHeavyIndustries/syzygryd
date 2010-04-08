@@ -9,12 +9,15 @@ import oscP5.*;
 import netP5.*;
 import themidibus.*;
 
-class Sequencer {
+import com.apple.dnssd.*;
+
+class Sequencer implements com.apple.dnssd.RegisterListener {
   MidiBus midiBus;
   MusicMaker musicMaker;
   int broadcastPort;
   int gridWidth;
   int gridHeight;
+  Vector myFullNames = new Vector();
   SequencerPanel[] panels;
 
   int[] scale = { 81, 79, 76, 74, 72, 69, 67, 64, 62, 60 };
@@ -23,6 +26,20 @@ class Sequencer {
   float minBpm = 40.0;
   float maxBpm = 300.0;
   float bpm = 140.0;
+  
+  void operationFailed(DNSSDService svc, int err) {
+    println("Bonjour Operation Failed! " + svc + " err = " + err);
+  }
+  
+  void serviceRegistered(DNSSDRegistration reg, int flags, String serviceName, String regType, String domain) {
+    try {
+      // We should keep track of the DNS names of this sequencer so later when we autodiscover clients we don't rediscover ourselves
+      // (I mean, metaphorically it's fine I guess, but we don't wanna set up a discovery loop)
+      myFullNames.add(DNSSD.constructFullName(serviceName, regType, domain));
+    } catch (DNSSDException e) {
+      println("Oh noes, DNSSDException in serviceRegistered: " + e);
+    }
+  }
 
   Sequencer(PApplet parent, int _numPanels, int _numTabs, int _gridWidth, int _gridHeight, int _broadcastPort) {
     // Look at availableInputs and availableOutputs
@@ -38,6 +55,17 @@ class Sequencer {
     panels = new SequencerPanel[_numPanels];
     for (int i = 0; i < panels.length; i++) {
       panels[i] = new SequencerPanel(i, panels, _numTabs, _gridWidth, _gridHeight, _broadcastPort);
+    }
+    
+    // Magical service discovery goodness, w00t
+    try {
+      String myName = "SyzySequencer on " + java.net.InetAddress.getLocalHost().getHostName();
+      DNSSDRegistration receiver = DNSSD.register(myName, "_osc._udp", 8000, this);
+      DNSSDRegistration sender = DNSSD.register(myName, "_sequencer._udp", 9000, this);
+    } catch(DNSSDException e) {
+      println("Oh noes, DNSSDException: "+e);
+    } catch (java.net.UnknownHostException uhe) {
+      println("Oh noes, UnknownHostException: "+uhe);
     }
   }
 
