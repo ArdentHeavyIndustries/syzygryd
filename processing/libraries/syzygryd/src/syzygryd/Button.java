@@ -44,4 +44,5 @@ public abstract class Button {
 	}
 		
 	public abstract OscMessage serializeToOsc();
+	public abstract String getOscAddress();
 }
