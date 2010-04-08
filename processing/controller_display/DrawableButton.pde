@@ -28,14 +28,15 @@ static int getRow(int y, int buttonSpacing) {
  * @return the column a button is in
  */
 static int getCol(int x, int buttonSpacing) {
-  return (x - buttonSpacing) / buttonSpacing;
+  return x / buttonSpacing;
 }
 
 /**
  * The DrawableButton class is a Button that knows how to draw itself.
  */
 class DrawableButton extends syzygryd.ToggleButton {
-  int x,y, sqLength;
+  int x, y, sqLength;
+  int miniX, miniY, miniLength;
   int sqHue = 100;
   int sqBright = 100;
   int sqAlphaDefault = 30;
@@ -54,13 +55,17 @@ class DrawableButton extends syzygryd.ToggleButton {
   PShape fullButton;
   PShape fullButtonActive, middleOnActive, middleActive, rightActive, leftActive;
 
-  DrawableButton(int _col, int _row, DrawableTab _tab, /*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength){
+  DrawableButton(int _col, int _row, DrawableTab _tab, /*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength){
  //   particleSystemsSimple = _particleSystems;
     super(_col, _row, _tab);
 
     x=_x;
     y=_y;
     sqLength=_sqLength;
+
+    miniX = _miniX;
+    miniY = _miniY;
+    miniLength = _miniLength;
 
     float scaleFactor, scaleFactorActive;
 
@@ -90,49 +95,42 @@ class DrawableButton extends syzygryd.ToggleButton {
     smooth();
   }
 
-  void setHue(int _newHue){
+  void setBaseHue(int _newHue){
     sqHue = _newHue;
   }
 
-  void draw(boolean pressedOnly) {
-    if(pressedOnly && !isOn) {
+  int getHue() {
+    int hue = sqHue + 33 * panel.id;
+    // TODO: Instead of this if statement can we just take this mod 100?
+    if (hue > 100) {
+      hue -= 100;
+    }
+
+    return hue;
+  }
+
+  /**
+   * draw draws this button
+   *
+   * @param onlyIfOn if true, will only draw this button if it is set to ON.
+   */
+  void draw(boolean onlyIfOn) {
+    if(onlyIfOn && !isOn) {
       return;
     }
     
-    noStroke();
-    int thisHue = sqHue + 33 * panel.id;
-    // TODO: Instead of this if statement can we just take this mod 100?
-    if (thisHue > 100) {
-      thisHue -= 100;
-    }
-
-    int leftHue = sqHue + 33 * panel.getPrevPanel().id;
-    // TODO: Instead of this if statement can we just take this mod 100?
-    if (leftHue > 100) {
-      leftHue -= 100;
-    }
-
-    int rightHue = sqHue + 33 * panel.getNextPanel().id;
-    // TODO: Instead of this if statement can we just take this mod 100?
-    if (rightHue > 100) {
-      rightHue -= 100;
-    }
-
     // Draw this panel's buttons
     middle.disableStyle();
     noStroke();
-    fill(thisHue, 50, sqBright, sqAlpha);
+    fill(getHue(), 50, sqBright, sqAlpha);
     shape(middle,x,y);
 
     // Draw the outlines of the left panel's buttons
     DrawableButton leftSibling = (DrawableButton) getLeftSibling();
     if (leftSibling.isOn) {
       left.disableStyle();
-      // Do we need these noStroke and fill calls?
-      // Yes, we probably need the fill call, not sure about noStroke
-      // as it is called above.
       noStroke();
-      fill(leftHue, 100, sqBright, leftSibling.sqAlpha);
+      fill(leftSibling.getHue(), 100, sqBright, leftSibling.sqAlpha);
       shape(left,x,y);
     }
 
@@ -140,11 +138,8 @@ class DrawableButton extends syzygryd.ToggleButton {
     DrawableButton rightSibling = (DrawableButton) getRightSibling();
     if(rightSibling.isOn){
       right.disableStyle();
-      // Do we need the noStroke and fill calls?
-      // Yes, we probably need the fill call, not sure about noStroke
-      // as it is called above.
       noStroke();
-      fill(rightHue, 100, sqBright, rightSibling.sqAlpha);
+      fill(rightSibling.getHue(), 100, sqBright, rightSibling.sqAlpha);
       shape(right,x,y);
     }
 
@@ -198,6 +193,16 @@ class DrawableButton extends syzygryd.ToggleButton {
   }
 
   /**
+   * drawMiniTabButton draws a miniature representation of this button
+   * at it's mini-tab coordinates.
+   */
+  void drawMiniTabButton() {
+    noStroke();
+    fill(getHue(), 50, sqBright, sqAlpha);
+    rect(miniX, miniY, miniLength, miniLength);
+  }
+
+  /**
    * toggle toggles button state from on to off or off to on.
    */
   void toggle() {
@@ -205,6 +210,22 @@ class DrawableButton extends syzygryd.ToggleButton {
     println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " toggle called.");
     super.toggle();
     setValue(isOn ? ON : OFF, true);
+  }
+
+  /**
+   * setValue turns the button on or off without sending a message
+   * indicating the state change.  This is basically just a wrapper
+   * that calls the two argument version of setValue with the
+   * sendMessage argument set to false.  This method is intended to be
+   * hooked up via osc.plug.
+   *
+   * However, we are not using plug at present because it performs
+   * poorly.
+   *
+   * @param value one of the constants Button.ON or Button.OFF
+   */
+  void setValue(float value) {
+    setValue(value, false);
   }
 
   /**
@@ -224,11 +245,13 @@ class DrawableButton extends syzygryd.ToggleButton {
 
     if (value != OFF) {
       isOn = true;
+      ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
       //particleSystemsSimple.add(new ParticleSystemSimple(100,new PVector(x+30,y+30)));
       // println(getOscAddress() + " on");
       m.add(ON);
     } else {
       isOn = false;
+      ((DrawableTab) tab).onButtons.remove(getOscAddress());
       // println(getOscAddress() + " off");
       m.add(OFF);
     }

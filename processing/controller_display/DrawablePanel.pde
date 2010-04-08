@@ -17,7 +17,9 @@ class DrawablePanel extends syzygryd.Panel {
   }
 
   void draw() {
-    ((DrawableTab) selectedTab).draw();
+    for (int i = 0; i < tabs.length; i++) {
+      ((DrawableTab) tabs[i]).draw();
+    }
   }
 }
 
