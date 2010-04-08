@@ -33,7 +33,6 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
     for (int i = 0; i < gridWidth; i++) {
       for (int j = 0; j < gridHeight; j++) {
         DrawableButton b = new DrawableButton(
- //         particleSystemsSimple,
           i,
           j,
           this,

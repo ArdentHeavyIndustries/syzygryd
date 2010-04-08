@@ -44,9 +44,6 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
 
   boolean setActive;
   
-  // for referring to the particle systems
-//  ArrayList particleSystemsSimple;
-
   /* SVG getter business */
   PShape left;
   PShape right;
@@ -55,8 +52,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   PShape fullButton;
   PShape fullButtonActive, middleOnActive, middleActive, rightActive, leftActive;
 
-  DrawableButton(int _col, int _row, DrawableTab _tab, /*ArrayList _particleSystems,*/ int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength){
- //   particleSystemsSimple = _particleSystems;
+  DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength){
     super(_col, _row, _tab);
 
     x=_x;
@@ -250,7 +246,6 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     if (value != OFF) {
       isOn = true;
       ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
-      //particleSystemsSimple.add(new ParticleSystemSimple(100,new PVector(x+30,y+30)));
       // println(getOscAddress() + " on");
       m.add(ON);
     } else {

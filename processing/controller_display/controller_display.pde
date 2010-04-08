@@ -1,8 +1,7 @@
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
  * Project PKM Display Layer
- * Recieves osc from Max patch, displays it in a 16:9 window. 
- * Meant to go directly on tv screen eventually.
+ * Displays a controller, which sends and receives OSC to/from Sequencer
  */
 
 import syzygryd.*;
@@ -22,16 +21,11 @@ Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
 HashMap buttonsByRow = new HashMap();
 
-/* A place to store active particle systems */
-//ArrayList particleSystemsSimple;
-
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
 int masterHue = 1;
 
 void setup() {
   size(1280,720); // 16:9 window
-  
-//  particleSystemsSimple = new ArrayList();   // for storing particles
   
   /* dunno why there's a framerate specified, there usually isn't, 
    * but all the osc examples had one. */
