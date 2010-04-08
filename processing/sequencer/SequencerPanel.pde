@@ -41,7 +41,16 @@ class SequencerPanel extends Panel {
     // Oh this is so janky. I gotta figure out how to do more sophisticated string parsing in Java.
     // But the regexp module ... urgh. This'll work for now.
     String[] patternParts = m.addrPattern().split("/",-1);
-    if (patternParts.length > 1) {
+    if (patternParts.length > 3) {
+      String tabPart = patternParts[3];
+      // Waitaminnit, (jank++)++
+      // yes, we're splitting the string on the "b" character in [panel#]_tab[tab#]
+      String[] tabParts = tabPart.split("b",-1);
+      if (tabParts.length > 1) {
+        int tabNumber = new Integer(tabParts[1]).intValue();
+        ((SequencerPatternTab)tabs[tabNumber - 1]).clear();
+      }
+    } else if (patternParts.length > 1) {
       String tabPart = patternParts[1];
       // Waitaminnit, (jank++)++
       // yes, we're splitting the string on the "b" character in [panel#]_tab[tab#]

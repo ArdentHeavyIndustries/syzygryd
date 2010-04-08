@@ -15,4 +15,12 @@ class SequencerPatternTab extends GridPatternTab {
       }
     }
   }
+  
+  void clear() {
+    for (int i = 0; i < gridWidth; i++) {
+      for (int j = 0; j < gridHeight; j++) {
+        ((SequencerButton)buttons[i][j]).setValue(0.0);
+      }
+    }
+  }
 }
