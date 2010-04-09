@@ -29,12 +29,27 @@ class DMX {
   void addController(String port){
     controllers.add(new Controller(port, 115200, 512));
   }
- 
-  void setChannel(int controller, int address, int value){
+
+  byte getChannel(int controller, int address){
     Controller ctrlr = (Controller)controllers.get(controller);
-    ctrlr.setChannel(address, value);
+    return ctrlr.getChannel(address);
   }
 
+  void setChannel(int controller, int address, int value){
+    Controller ctrlr = (Controller)controllers.get(controller);
+    ctrlr.setChannel(address, (byte)value);
+  }
+
+  int alloc(int controller){
+    Controller ctrlr = (Controller)controllers.get(controller);
+    return ctrlr.alloc();
+  }
+   
+  int alloc(int controller, int address){
+    Controller ctrlr = (Controller)controllers.get(controller);
+    return ctrlr.alloc(address);
+  }
+ 
   class RefreshTask extends java.util.TimerTask {
      void run() {
        Controller ctrlr = null;
@@ -48,7 +63,7 @@ class DMX {
   }
 
 
-  private class Controller {
+  public class Controller {
     private PApplet parent = null;
     private Serial serialInterface = null;
     private int universeSize = 0;
@@ -80,9 +95,21 @@ class DMX {
       // close frame
       frame[universeSize + 5] = DMX_FRAME_END;      
     }
+    
+    int alloc(){
+      return -1;
+    }
+   
+    int alloc(int address){
+      return -1;
+    }
 
-    void setChannel(int address, int value){
-      frame[address + 5] = (byte)value;
+    byte getChannel(int address){
+      return frame[address + 5];
+    }
+
+    void setChannel(int address, byte value){
+      frame[address + 5] = value;
     }
 
     void sendFrame(){

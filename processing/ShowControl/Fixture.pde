@@ -1,36 +1,42 @@
-/*
- * Early approximation of a Fixture class. 
- * Now a just a placeholder for something that sucks less. 
- */
-
 class Fixture {
-  String type;
-  String DMXuniverse;
-  color lightColor;
-  public HashMap props = new HashMap();
-  HashMap DMXChannels;
+  String type = null;
+  HashMap traits;
+  HashMap channels;
+  DMX dmx;
   
-  // overloaded to support optional _lightColor argument
-  Fixture (String _type, color _lightColor) {
+  Fixture(DMX _dmx, String _type){
+    dmx = _dmx;
     type = _type;
-    lightColor = _lightColor;
-    props.put("R",red(lightColor));
-    props.put("G",green(lightColor));
-    props.put("B",blue(lightColor));
-  }
-  
-  Fixture (String _type) {
-    this(_type, color(0,0,0));  
-  }
-  
- public void addProp(String propName) {
-    props.put(propName, 0);    
   }
 
-  private class DMXMap {
-    String universe;
-    int channel, value;
-  }    
+  class Channel {
+    private int controller = -1;
+    private int address = -1;
+    private float latency = 0;
+    
+    Channel(int _controller){
+      controller = _controller;
+      address = dmx.alloc(controller);
+    }
+    
+    Channel(int _controller, int _address){
+      controller = _controller;
+      address = dmx.alloc(controller, _address);
+    }
+    
+    byte getValue(){
+      byte value = 0;
+      if (controller >= 0 && address >= 0){
+        value = dmx.getChannel(controller, address);
+      }
+      return value;
+    }
+    
+    void setValue(byte value){
+      if (controller >= 0 && address >= 0){
+        dmx.setChannel(controller, address, value);
+      }
+    }
+  }  
+
 }
-
-
