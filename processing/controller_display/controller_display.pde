@@ -1,3 +1,4 @@
+
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
  * Project PKM Display Layer
@@ -5,6 +6,7 @@
  */
 
 import syzygryd.*;
+import processing.opengl.*;
 
 /* Osc business */
 import oscP5.*;
@@ -25,7 +27,10 @@ HashMap buttonsByRow = new HashMap();
 int masterHue = 1;
 
 void setup() {
-  size(1280,720); // 16:9 window
+  // TOUCHSCREEN!
+  //change to 1920,1080 for the touchscreen!
+  //for the touchscreen, make sure you 'present' instead of run, in the sketch menu.
+  size(1280,720, OPENGL);// 16:9 window
   
   /* dunno why there's a framerate specified, there usually isn't, 
    * but all the osc examples had one. */
@@ -39,6 +44,9 @@ void setup() {
 
   // myRemoteLocation is set to the address and port the sequencer
   // listens on
+  // TOUCHSCREEN!
+  // for the touchscreen, change the localhost to whatever the fuck 
+  // the ip address is for the sequencer machine
   myRemoteLocation = new NetAddress("localhost", 8000);
 
   // Connect to the server
@@ -147,6 +155,8 @@ void oscEvent(OscMessage m) {
   */
 }
 
+  // TOUCHSCREEN!
+  // For the touchscreen, change mouseClicked() to mousePressed()
 void mouseClicked() {
   Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
   if (p != null) {
