@@ -43,7 +43,7 @@ void setup(){
   test.setChannel("blue",255);
 
   test.addTrait("RGBColor", new RGBColorTrait(test));
-  ((RGBColorTrait)test.trait("RGBColor")).setColorRGB(#FFFFFF);
+  ((RGBColorTrait)test.trait("RGBColor")).setColorRGB(#FEDCBA);
 
 }
 
