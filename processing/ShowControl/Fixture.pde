@@ -30,6 +30,14 @@ class Fixture {
     ((Channel)channels.get(channelName)).setValue((byte)value);
   }
 
+  void addTrait(String traitName, Trait traitDef){
+    traits.put(traitName, traitDef);
+  }
+  
+Trait trait(String traitName){
+    return (Trait)(traits.get(traitName));
+  }
+
   class Channel {
     private Fixture parent;
     private int controller = -1;
@@ -68,6 +76,26 @@ class Fixture {
     }
   }  
 
+}
+
+abstract class Trait {
+  Fixture parent;
+  Trait(Fixture _parent){
+    parent = _parent;
+  }
+}
+
+class RGBColorTrait extends Trait {
+  
+  RGBColorTrait(Fixture parent){
+    super(parent);
+  }
+  
+  void setColorRGB(color RGBColor){
+    parent.setChannel("red", (int)red(RGBColor));
+    parent.setChannel("green", (int)green(RGBColor));
+    parent.setChannel("blue", (int)blue(RGBColor));
+  }
 }
 
 abstract class Behavior {}

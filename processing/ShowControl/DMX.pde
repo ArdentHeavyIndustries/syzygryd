@@ -146,9 +146,9 @@ class DMX {
     }     
   
     // DMX Control Codes 
-    private byte DMX_FRAME_START = (byte)(0x7E);
-    private byte DMX_FRAME_END = (byte)(0xE7);
-    private byte DMX_SEND_PACKET = (byte)(6);
+    private final byte DMX_FRAME_START = (byte)(0x7E);
+    private final byte DMX_FRAME_END = (byte)(0xE7);
+    private final byte DMX_SEND_PACKET = (byte)(6);
   }
 
   // Refresh rate in Hz

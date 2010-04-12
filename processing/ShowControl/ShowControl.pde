@@ -37,10 +37,13 @@ void setup(){
   //add blue channel at DMX address 256
   int blueAddress = test.addChannel("blue", 256);
   print("Assigned blue address = " + blueAddress + "\n");
-  
+    
   //set values for green and blue channels
   test.setChannel("green",200);
   test.setChannel("blue",255);
+
+  test.addTrait("RGBColor", new RGBColorTrait(test));
+  ((RGBColorTrait)test.trait("RGBColor")).setColorRGB(#FFFFFF);
 
 }
 
