@@ -12,6 +12,9 @@ import processing.opengl.*;
 import oscP5.*;
 import netP5.*;
 import processing.opengl.*;
+
+// import com.apple.dnssd.*;
+
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 
@@ -25,6 +28,9 @@ HashMap buttonsByRow = new HashMap();
 
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
 int masterHue = 1;
+
+/* Last Pressable object selected by the user. */
+Pressable lastSelectedPressable;
 
 void setup() {
   // TOUCHSCREEN!
@@ -161,6 +167,15 @@ void mouseClicked() {
   Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
   if (p != null) {
     p.press();
+  }
+}
+
+void mouseDragged() {
+  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
+  if ((p != lastSelectedPressable) &&
+      (p != null)) {
+    p.press();
+    lastSelectedPressable = p;
   }
 }
 
