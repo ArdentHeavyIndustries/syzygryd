@@ -170,6 +170,10 @@ void mouseClicked() {
   }
 }
 
+void mouseReleased() {
+    lastSelectedPressable = null;
+}
+
 void mouseDragged() {
   Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
   if ((p != lastSelectedPressable) &&
