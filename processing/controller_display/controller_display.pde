@@ -1,4 +1,3 @@
-
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
  * Project PKM Display Layer
@@ -171,7 +170,7 @@ void mouseClicked() {
 }
 
 void mouseReleased() {
-    lastSelectedPressable = null;
+  lastSelectedPressable = null;
 }
 
 void mouseDragged() {
