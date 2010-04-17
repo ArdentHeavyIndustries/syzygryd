@@ -9,9 +9,9 @@ import themidibus.*;
 
 MidiBus mapperBus;
 JFrame frame;
-JPanel panel;
+JPanel mastaPanel, firstRowPanel, secondRowPanel, thirdRowPanel;
 JRadioButton channel1, channel2, channel3;
-JButton ccButton1, ccButton2, ccButton3, ccButton4, ccButton5, ccButton6, ccButton7, ccButton8;
+JButton ccButton1, ccButton2, ccButton3, ccButton4, ccButton5, ccButton6, ccButton7, ccButton8, ccButton9, ccButton10, ccButton11, ccButton12;
 ButtonGroup channelRadio;
 
 int selectedChannel, selectedControllerChange;
@@ -27,7 +27,10 @@ void setup()
   mapperBus = new MidiBus(this,"GridSequencer","GridSequencer");
   
   frame=new JFrame("MIDI Mapper");
-  panel=new JPanel();
+  mastaPanel=new JPanel(new BorderLayout());
+  firstRowPanel=new JPanel();
+  secondRowPanel=new JPanel();
+  thirdRowPanel=new JPanel();
   
 //Describing radio buttons for channelization
   channel1=new JRadioButton("Channel 1", true);
@@ -47,6 +50,11 @@ void setup()
   ccButton6=new JButton("Mod 6");
   ccButton7=new JButton("Mod 7");
   ccButton8=new JButton("Mod 8");
+  ccButton9=new JButton("XY1 X");
+  ccButton10=new JButton("XY1 Y");
+  ccButton11=new JButton("XY2 X");
+  ccButton12=new JButton("XY2 Y");
+  
   
 //Adding "hooks" for buttons to do stuff
   guilistener listener = new guilistener();
@@ -61,22 +69,34 @@ void setup()
   ccButton6.addActionListener(listener);
   ccButton7.addActionListener(listener);
   ccButton8.addActionListener(listener);
+  ccButton9.addActionListener(listener);
+  ccButton10.addActionListener(listener);
+  ccButton11.addActionListener(listener);
+  ccButton12.addActionListener(listener);
 
 //Adding items to interface
-  panel.add(channel1);
-  panel.add(channel2);
-  panel.add(channel3);
-  panel.add(ccButton1);
-  panel.add(ccButton2);
-  panel.add(ccButton3);
-  panel.add(ccButton4);
-  panel.add(ccButton5);
-  panel.add(ccButton6);
-  panel.add(ccButton7);
-  panel.add(ccButton8);
-  panel.setBounds(20,20,320,240);
+  firstRowPanel.add(channel1);
+  firstRowPanel.add(channel2);
+  firstRowPanel.add(channel3);
+  secondRowPanel.add(ccButton1);
+  secondRowPanel.add(ccButton2);
+  secondRowPanel.add(ccButton3);
+  secondRowPanel.add(ccButton4);
+  secondRowPanel.add(ccButton5);
+  secondRowPanel.add(ccButton6);
+  secondRowPanel.add(ccButton7);
+  secondRowPanel.add(ccButton8);
+  thirdRowPanel.add(ccButton9);
+  thirdRowPanel.add(ccButton10);
+  thirdRowPanel.add(ccButton11);
+  thirdRowPanel.add(ccButton12);
+  
+  mastaPanel.add(firstRowPanel, BorderLayout.NORTH);
+  mastaPanel.add(secondRowPanel, BorderLayout.CENTER);
+  mastaPanel.add(thirdRowPanel, BorderLayout.SOUTH);
+  
   frame.setResizable(false);
-  frame.getContentPane().add(panel);
+  frame.getContentPane().add(mastaPanel);
   frame.pack();
   frame.setVisible(true);
   
@@ -86,8 +106,8 @@ void draw() {
     while (buttonAction==true) {
     mapperBus.sendControllerChange(selectedChannel,selectedControllerChange,127);
     buttonAction=false;
-    print(selectedChannel);
-    print(selectedControllerChange);
+    //print(selectedChannel);
+    //print(selectedControllerChange);
   }
 }
  
@@ -132,5 +152,21 @@ class guilistener implements ActionListener
               selectedControllerChange=51;
               buttonAction=true;
 	    }
+            else if (source==ccButton9) {
+              selectedControllerChange=52;
+              buttonAction=true;
+            }
+            else if (source==ccButton10) {
+              selectedControllerChange=53;
+              buttonAction=true;
+            }
+            else if (source==ccButton11) {
+              selectedControllerChange=54;
+              buttonAction=true;
+            }
+            else if (source==ccButton12) {
+              selectedControllerChange=55;
+              buttonAction=true;
+            }
 }
 }
