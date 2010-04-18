@@ -30,6 +30,10 @@ class Fixture {
     ((Channel)channels.get(channelName)).setValue((byte)value);
   }
 
+  int getChannel(String channelName){
+    return ((Channel)channels.get(channelName)).getValue();
+  }
+
   void addTrait(String traitName, Trait traitDef){
     traits.put(traitName, traitDef);
   }

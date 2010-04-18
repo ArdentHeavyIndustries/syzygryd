@@ -32,18 +32,32 @@ class DMX {
   }
 
   byte getChannel(int controller, int address){
-    Controller ctrlr = (Controller)controllers.get(controller);
-    return ctrlr.getChannel(address);
+    try {
+      Controller ctrlr = (Controller)controllers.get(controller);
+      return ctrlr.getChannel(address);
+    } catch (IndexOutOfBoundsException e){
+      System.err.println("Failed to get value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+      return -1;
+    }
   }
 
   int getChannelUnsigned(int controller, int address){
-    Controller ctrlr = (Controller)controllers.get(controller);
-    return ctrlr.getChannelUnsigned(address);
+    try {
+      Controller ctrlr = (Controller)controllers.get(controller);
+      return ctrlr.getChannelUnsigned(address);
+    } catch (IndexOutOfBoundsException e){
+      System.err.println("Failed to get value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+      return -1;
+    }
   }
 
   void setChannel(int controller, int address, byte value){
-    Controller ctrlr = (Controller)controllers.get(controller);
-    ctrlr.setChannel(address, (byte)value);
+    try {
+      Controller ctrlr = (Controller)controllers.get(controller);
+      ctrlr.setChannel(address, (byte)value);
+    } catch (IndexOutOfBoundsException e){
+      System.err.println("Failed to set value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+    }
   }
 
   int alloc(Fixture.Channel channel, int controller){
@@ -52,8 +66,16 @@ class DMX {
   }
    
   int alloc(Fixture.Channel channel, int controller, int address){
-    Controller ctrlr = (Controller)controllers.get(controller);
-    return ctrlr.alloc(channel, address);
+    try {
+      Controller ctrlr = (Controller)controllers.get(controller);
+      return ctrlr.alloc(channel, address);
+    } catch (AddressAllocationException aae) {
+      System.err.println ("Address allocation failed. Address (" + address + ") already allocated on controller " + controller + ".\n");
+      return -1;
+    } catch (ArrayIndexOutOfBoundsException aibe) {
+      System.err.println ("Address allocation failed. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+      return -1;
+    }
   }
  
   class RefreshTask extends java.util.TimerTask {
@@ -118,25 +140,38 @@ class DMX {
       return -1;
     }
    
-    int alloc(Fixture.Channel channel, int address){
-      if (!(allocMap[address] instanceof Fixture.Channel)) {
-        allocMap[address] = channel;
-        return address;
+    int alloc(Fixture.Channel channel, int address) throws ArrayIndexOutOfBoundsException, AddressAllocationException {
+      if (address > universeSize) {
+        throw new ArrayIndexOutOfBoundsException();
       } else {
-        return -1;
+        if (!(allocMap[address] instanceof Fixture.Channel)) {
+          allocMap[address] = channel;
+          return address;
+        } else {
+          throw new AddressAllocationException();
+        }
       }
     }
   
-    byte getChannel(int address){
+    byte getChannel(int address) throws ArrayIndexOutOfBoundsException{
+      if (address > universeSize) {
+        throw new ArrayIndexOutOfBoundsException();
+      }
       return frame[address + 5];
     }
     
-    int getChannelUnsigned(int address){
-     return (int)((int)frame[address+5] & 0xFF);
+    int getChannelUnsigned(int address) throws ArrayIndexOutOfBoundsException{
+      if (address > universeSize) {
+        throw new ArrayIndexOutOfBoundsException();
+      }
+     return ((int)frame[address+5] & 0xFF);
     }
       
   
-    void setChannel(int address, byte value){
+    void setChannel(int address, byte value) throws ArrayIndexOutOfBoundsException {
+      if (address > universeSize) {
+        throw new ArrayIndexOutOfBoundsException();
+      }
       frame[address + 5] = value;
     }
   
@@ -158,4 +193,4 @@ class DMX {
   private PApplet processingObject;
 }
 
-
+class AddressAllocationException extends Exception {}

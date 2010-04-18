@@ -16,4 +16,9 @@ class RGBColorTrait extends Trait {
     parent.setChannel("green", (int)green(RGBColor));
     parent.setChannel("blue", (int)blue(RGBColor));
   }
+
+  color getColorRGB(color RGBColor){
+    colorMode(RGB);
+    return color(parent.getChannel("red"),parent.getChannel("green"),parent.getChannel("blue"));
+  }
 }
