@@ -5,6 +5,7 @@
 
 import syzygryd.*;
 
+import guicomponents.*;
 import oscP5.*;
 import netP5.*;
 import themidibus.*;
@@ -13,11 +14,15 @@ import com.apple.dnssd.*;
 
 class Sequencer implements com.apple.dnssd.RegisterListener {
   MidiBus midiBus;
+  String midiInput;
+  String midiOutput;
   MusicMaker musicMaker;
   int broadcastPort;
   int gridWidth;
   int gridHeight;
   Vector myFullNames = new Vector();
+  DNSSDRegistration receiver;
+  DNSSDRegistration sender;
   SequencerPanel[] panels;
 
   int[] scale = { 81, 79, 76, 74, 72, 69, 67, 64, 62, 60 };
@@ -41,10 +46,10 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     }
   }
 
-  Sequencer(PApplet parent, int _numPanels, int _numTabs, int _gridWidth, int _gridHeight, int _broadcastPort) {
-    // Look at availableInputs and availableOutputs
-    // "IAC Driver - GridSequencer"
-    midiBus = new MidiBus(parent, "GridSequencer", "GridSequencer");
+  Sequencer(PApplet parent, int _numPanels, int _numTabs, int _gridWidth, int _gridHeight, String _midiInput, String _midiOutput, int _broadcastPort) {
+    midiInput = _midiInput;
+    midiOutput = _midiOutput;
+    midiBus = new MidiBus(parent, midiInput, midiOutput);
 
     musicMaker = new MusicMaker(this, midiBus);
     midiBus.addMidiListener(musicMaker);
@@ -60,13 +65,25 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     // Magical service discovery goodness, w00t
     try {
       String myName = "SyzySequencer on " + java.net.InetAddress.getLocalHost().getHostName();
-      DNSSDRegistration receiver = DNSSD.register(myName, "_osc._udp", 8000, this);
-      DNSSDRegistration sender = DNSSD.register(myName, "_sequencer._udp", 9000, this);
+      receiver = DNSSD.register(myName, "_osc._udp", 8000, this);
+      sender = DNSSD.register(myName, "_sequencer._udp", 9000, this);
     } catch(DNSSDException e) {
       println("Oh noes, DNSSDException: "+e);
     } catch (java.net.UnknownHostException uhe) {
       println("Oh noes, UnknownHostException: "+uhe);
     }
+  }
+
+  void setInput(String newMidiInput) {
+    midiBus.removeInput(midiInput);
+    midiInput = newMidiInput;
+    midiBus.addInput(newMidiInput);
+  }
+
+  void setOutput(String newMidiOutput) {
+    midiBus.removeOutput(midiOutput);
+    midiOutput = newMidiOutput;
+    midiBus.addOutput(newMidiOutput);
   }
 
   void gotBeat(int beatNumber) {
@@ -140,13 +157,14 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
 
 Sequencer s;
 OscP5 oscP5;
+GCombo cboMidiInput, cboMidiOutput;
+GLabel labelMidiInput, labelMidiOutput;
 NetAddressList globalClients = new NetAddressList();
 
 void setup() {
   frameRate(60);
-  size(170,80);
+  size(360,70);
   textFont(createFont("Helvetica", 32));
-  fill(0, 102, 153);
 
   /* listeningPort is the port the server is listening for incoming messages */
   int myListeningPort = 8000;
@@ -162,17 +180,69 @@ void setup() {
   int gridWidth = 16;
   int gridHeight = 10;
 
-  s = new Sequencer(this, numPanels, numTabs, gridWidth, gridHeight, myBroadcastPort);
+  String[] availableIns = MidiBus.availableInputs();
+  String[] availableOuts = MidiBus.availableOutputs();
+
+  labelMidiInput = new GLabel(this, "Midi Input:", 0, 0, 60);
+  cboMidiInput = new GCombo(this, availableIns, 4, 65, 0, 105);
+  labelMidiOutput = new GLabel(this, "Midi Output:", 175, 0, 70);
+  cboMidiOutput = new GCombo(this, availableOuts, 4, 250, 0, 105);
+
+  for (int i = 0; i < availableIns.length; i++) {
+    if (availableIns[i].matches(".*GridSequencer.*") ||
+        availableIns[i].matches(".*In From MIDI Yoke.*")) {
+      cboMidiInput.setSelected(availableIns[i]);
+      break;
+    }
+  }
+
+  for (int i = 0; i < availableOuts.length; i++) {
+    if (availableOuts[i].matches("GridSequencer") ||
+        availableOuts[i].matches(".*Out To MIDI Yoke.*")) {
+      cboMidiOutput.setSelected(availableOuts[i]);
+      break;
+    }
+  }
+
+  textFont(createFont("Helvetica", 32));
+
+  s = new Sequencer(
+    this,
+    numPanels,
+    numTabs,
+    gridWidth,
+    gridHeight,
+    cboMidiInput.selectedText(),
+    cboMidiOutput.selectedText(),
+    myBroadcastPort);
+}
+
+void stop() {
+  s.receiver.stop();
+  s.sender.stop();
+  super.stop();
 }
 
 void draw() {
   background(0);
   if (s != null) {
-    text(s.songPosition(), 15, 50);
+    fill(0, 102, 153);
+    text(s.songPosition(), 130, 50);
   }
+
+  fill(255, 255, 255);
+  rect(0, 0, 360, 15);
 }
 
 void keyPressed() {
+}
+
+void handleComboEvents(GCombo combo) {
+  if (combo == cboMidiInput) {
+    s.setInput(combo.selectedText());
+  } else if (combo == cboMidiOutput) {
+    s.setOutput(combo.selectedText());
+  }
 }
 
 void oscEvent(OscMessage theOscMessage) {
