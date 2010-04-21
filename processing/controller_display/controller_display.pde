@@ -4,8 +4,6 @@
  * Displays a controller, which sends and receives OSC to/from Sequencer
  */
 
-// Bogus comment to test commit mails.
-
 import syzygryd.*;
 import processing.opengl.*;
 

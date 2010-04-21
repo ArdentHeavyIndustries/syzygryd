@@ -163,7 +163,7 @@ NetAddressList globalClients = new NetAddressList();
 
 void setup() {
   frameRate(60);
-  size(360,70);
+  size(400,70);
   textFont(createFont("Helvetica", 32));
 
   /* listeningPort is the port the server is listening for incoming messages */
@@ -183,14 +183,14 @@ void setup() {
   String[] availableIns = MidiBus.availableInputs();
   String[] availableOuts = MidiBus.availableOutputs();
 
-  labelMidiInput = new GLabel(this, "Midi Input:", 0, 0, 60);
-  cboMidiInput = new GCombo(this, availableIns, 4, 65, 0, 105);
-  labelMidiOutput = new GLabel(this, "Midi Output:", 175, 0, 70);
-  cboMidiOutput = new GCombo(this, availableOuts, 4, 250, 0, 105);
+  labelMidiInput = new GLabel(this, "Midi Input:", 0, 0, 65);
+  cboMidiInput = new GCombo(this, availableIns, 4, 65, 0, 130);
+  labelMidiOutput = new GLabel(this, "Midi Output:", 195, 0, 75);
+  cboMidiOutput = new GCombo(this, availableOuts, 4, 270, 0, 130);
 
   for (int i = 0; i < availableIns.length; i++) {
     if (availableIns[i].matches(".*GridSequencer.*") ||
-        availableIns[i].matches(".*In From MIDI Yoke.*")) {
+        availableIns[i].matches("In From MIDI Yoke:  2")) {
       cboMidiInput.setSelected(availableIns[i]);
       break;
     }
@@ -198,7 +198,7 @@ void setup() {
 
   for (int i = 0; i < availableOuts.length; i++) {
     if (availableOuts[i].matches("GridSequencer") ||
-        availableOuts[i].matches(".*Out To MIDI Yoke.*")) {
+        availableOuts[i].matches("Out To MIDI Yoke:  1")) {
       cboMidiOutput.setSelected(availableOuts[i]);
       break;
     }
@@ -227,7 +227,7 @@ void draw() {
   background(0);
   if (s != null) {
     fill(0, 102, 153);
-    text(s.songPosition(), 130, 50);
+    text(s.songPosition(), 150, 50);
   }
 
   fill(255, 255, 255);
