@@ -5,19 +5,19 @@ abstract class Trait {
   }
 }
 
-class RGBColorTrait extends Trait {
+class RGBColorMixingTrait extends Trait {
   
-  RGBColorTrait(Fixture parent){
+  RGBColorMixingTrait(Fixture parent){
     super(parent);
   }
   
-  void setColorRGB(color RGBColor){
-    parent.setChannel("red", (int)red(RGBColor));
-    parent.setChannel("green", (int)green(RGBColor));
-    parent.setChannel("blue", (int)blue(RGBColor));
+  void setColorRGB(color RGBColorMixing){
+    parent.setChannel("red", (int)red(RGBColorMixing));
+    parent.setChannel("green", (int)green(RGBColorMixing));
+    parent.setChannel("blue", (int)blue(RGBColorMixing));
   }
 
-  color getColorRGB(color RGBColor){
+  color getColorRGB(color RGBColorMixing){
     colorMode(RGB);
     return color(parent.getChannel("red"),parent.getChannel("green"),parent.getChannel("blue"));
   }

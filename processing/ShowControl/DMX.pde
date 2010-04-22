@@ -65,16 +65,16 @@ class DMX {
     return ctrlr.alloc(channel);
   }
    
-  int alloc(Fixture.Channel channel, int controller, int address){
+  int alloc(Fixture.Channel channel, int controller, int address) throws AddressAllocationException, ArrayIndexOutOfBoundsException {
     try {
       Controller ctrlr = (Controller)controllers.get(controller);
       return ctrlr.alloc(channel, address);
     } catch (AddressAllocationException aae) {
       System.err.println ("Address allocation failed. Address (" + address + ") already allocated on controller " + controller + ".\n");
-      return -1;
+      throw new AddressAllocationException();
     } catch (ArrayIndexOutOfBoundsException aibe) {
       System.err.println ("Address allocation failed. Address (" + address + ") out of bounds on controller " + controller + ".\n");
-      return -1;
+      throw new ArrayIndexOutOfBoundsException();
     }
   }
  
@@ -177,7 +177,7 @@ class DMX {
   
     void sendFrame(){
       //Could use some error checking to ensure port is successfully initialized before sending
-        //serialInterface.write(frame);
+        serialInterface.write(frame);
     }     
   
     // DMX Control Codes 

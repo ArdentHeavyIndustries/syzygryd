@@ -38,7 +38,7 @@ class Fixture {
     traits.put(traitName, traitDef);
   }
   
-Trait trait(String traitName){
+  Trait trait(String traitName){
     return (Trait)(traits.get(traitName));
   }
 
@@ -57,7 +57,13 @@ Trait trait(String traitName){
     Channel(Fixture _parent, int _controller, int _address){
       parent = _parent;
       controller = _controller;
-      address = dmx.alloc(this, controller, _address);
+      try {
+        address = dmx.alloc(this, controller, _address);
+      }
+      catch (AddressAllocationException e) {
+        System.err.println("Channel allocation on controller " + controller + ", address " + _address + " failed.\n");
+        new Channel(parent, controller);
+      }
     }
     
     int getValue(){
