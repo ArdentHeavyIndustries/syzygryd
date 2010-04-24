@@ -60,6 +60,11 @@ void setup() {
 
   int buttonCounter = 0;
   int buttonSize = height / 11; // size of button based on real estate
+  // Force button to be an even size so the active light can be
+  // properly centered
+  if (buttonSize % 2 == 1) {
+    buttonSize--;
+  }
   int buttonSpacing = buttonSize + 4; // spacing btwn buttons based on buttonSize
 
   int gridWidth = 16;
@@ -72,27 +77,14 @@ void setup() {
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
   selectPanel(0);
-
-  /* FOO This is where the initialization code was */
-
-  // Where should this go?  Should it go in to the Panel, Tab or
-  // Button class?
-  temposweep = new Temposweep(buttonSize, buttonSpacing, buttonsByRow);
-  /*
-  temposweep = new Temposweep(buttonSize, buttonSpacing, buttonsByRow);
-  objectMapOSC.put ("/temposlider/step", temposweep);
-  typeMapOSC.put ("/temposlider/step", "temposweep");
-  */
+  temposweep = new Temposweep(buttonSize, buttonSpacing);
 }
-
 
 int curSecond = 0;
 
 void draw() {
   background (0);
   selectedPanel.draw();
-
-  // TODO: Probably want to move temposweep object into the tabs...
   temposweep.draw();
 }
 

@@ -36,21 +36,21 @@ static int getCol(int x, int buttonSpacing) {
  */
 class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressable {
   int x, y, sqLength;
+  int sweepX, sweepY;
   int miniX, miniY, miniLength;
   int sqHue = 100;
   int sqBright = 100;
   int sqAlphaDefault = 30;
   int sqAlpha = sqAlphaDefault;
 
-  boolean setActive;
+  boolean isSweep;
   
   /* SVG getter business */
   PShape left;
   PShape right;
   PShape middle;
-  PShape middleOn;
   PShape fullButton;
-  PShape fullButtonActive, middleOnActive, middleActive, rightActive, leftActive;
+  PShape fullButtonSweep, middleOnSweep;
 
   DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength){
     super(_col, _row, _tab);
@@ -58,18 +58,19 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     x = _x;
     y = _y;
     sqLength = _sqLength;
+    sweepX = (int) (x + ((sqLength * 0.1) / 2) + 2);
+    sweepY = (int) (y + ((sqLength * 0.1) / 2) + 2);
+    isSweep = false;
 
     miniX = _miniX;
     miniY = _miniY;
     miniLength = _miniLength;
 
-    float scaleFactor, scaleFactorActive;
+    float scaleFactor, scaleFactorSweep;
 
     /*set up svg layers as objects*/
     fullButton = loadShape("button3.svg");
     scaleFactor = (sqLength/fullButton.width);
-    middleOn = fullButton.getChild("middleOn");
-    middleOn.scale(scaleFactor);
     left = fullButton.getChild("left");
     left.scale(scaleFactor);
     right = fullButton.getChild("right");
@@ -77,16 +78,10 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     middle = fullButton.getChild("middle");
     middle.scale(scaleFactor);
 
-    fullButtonActive = loadShape("button3.svg");
-    scaleFactorActive = ((sqLength/fullButtonActive.width)+.2);
-    middleOnActive = fullButtonActive.getChild("middleOn");
-    middleOnActive.scale(scaleFactorActive);
-    leftActive = fullButtonActive.getChild("left");
-    leftActive.scale(scaleFactorActive);
-    rightActive = fullButtonActive.getChild("right");
-    rightActive.scale(scaleFactorActive);
-    middleActive = fullButtonActive.getChild("middle");
-    middleActive.scale(scaleFactorActive);
+    fullButtonSweep = loadShape("button3.svg");
+    scaleFactorSweep = ((sqLength / fullButtonSweep.width) - 0.1);
+    middleOnSweep = fullButtonSweep.getChild("middleOn");
+    middleOnSweep.scale(scaleFactorSweep);
 
     smooth();
   }
@@ -119,7 +114,14 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     middle.disableStyle();
     noStroke();
     fill(getHue(), 50, sqBright, sqAlpha);
-    shape(middle,x,y);
+    shape(middle, x, y);
+
+    if (isOn && isSweep) {
+      middleOnSweep.disableStyle();
+      noStroke();
+      fill(100, 50);
+      shape(middleOnSweep, sweepX, sweepY);
+    }
 
     // Draw the outlines of the left panel's buttons
     DrawableButton leftSibling = (DrawableButton) getLeftSibling();
@@ -138,54 +140,6 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
       fill(rightSibling.getHue(), 100, sqBright, rightSibling.sqAlpha);
       shape(right,x,y);
     }
-
-
-    /*
-    switch(panel.id) {
-    case 0:
-      // Test code
-      middle.disableStyle();
-      noStroke();
-      fill(thisHue,50,sqBright,sqAlpha);
-      shape(middle,x,y);
-      // End test code
-      if(setPressed==true){
-        left.disableStyle();
-        noStroke();
-        fill(thisHue,100,sqBright,sqAlpha);
-        shape(left,x,y);
-      }
-      break;
-    case 1:
-      middle.disableStyle();
-      noStroke();
-      fill(thisHue,50,sqBright,sqAlpha);
-      shape(middle,x,y);
-      if(setPressed==true){
-        if(setActive) {
-          middleOnActive.disableStyle();
-          noStroke();
-          fill(thisHue+5,100,sqBright,sqAlpha-30);
-          shape(middleOnActive,x-10,y-10);
-        } else {
-          middleOn.disableStyle();
-          noStroke();
-          fill(thisHue,100,sqBright,sqAlpha);
-          shape(middleOn,x,y);
-        }
-
-      }
-      break;
-    case 2:
-      if(setPressed==true){
-        right.disableStyle();
-        noStroke();
-        fill(thisHue,100,sqBright,sqAlpha);
-        shape(right,x,y);
-      }
-      break;
-    }
-    */
   }
 
   /**
@@ -199,18 +153,21 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   }
 
   void press() {
-    toggle();
+    setValue(isOn ? OFF : ON, true);
+    // toggle();
   }
 
   /**
    * toggle toggles button state from on to off or off to on.
    */
+  /*
   void toggle() {
     // TODO: remove this debug code
     println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " toggle called.");
     super.toggle();
     setValue(isOn ? ON : OFF, true);
   }
+  */
 
   /**
    * setValue turns the button on or off without sending a message
@@ -260,6 +217,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     }
   }
 
+  /*
   void activeButton() {
     //sqHue = sqHue+10;
     setActive = true;
@@ -270,4 +228,5 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     //sqHue = sqHue-10;
     setActive = false;
   }
+  */
 }

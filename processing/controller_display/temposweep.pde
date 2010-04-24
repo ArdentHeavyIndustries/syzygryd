@@ -2,21 +2,18 @@
 /**
  * Temposweep
  */
-class Temposweep
-{
+class Temposweep implements Drawable {
   int step=6;
   int startingX;
   float buttonSize, buttonSpacing;
   int buttonMargin;
   int maxDark = 40;
-  HashMap buttonsByRow;
 
-  Temposweep(float _buttonSize,  float _buttonSpacing, HashMap _buttonsByRow){
+  Temposweep(float _buttonSize,  float _buttonSpacing) {
     buttonSize = _buttonSize;
     buttonSpacing = _buttonSpacing;
     startingX = int(_buttonSpacing);
     buttonMargin = round((buttonSpacing-buttonSize));
-    buttonsByRow = _buttonsByRow;
   }
 
   void draw() {
@@ -37,45 +34,20 @@ class Temposweep
         rect((startingX)*i, 2, buttonSpacing, height);
       }
     }
-
-    // use a for loop to iterate over buttonsByRow (for the current step) and call some
-    // method for "be active now!".
-    // also, call the previous set of buttonsByRow and tell it
-    // "don't be active now!"
   }
 
 
-  void setValue(int _value){
-    step = _value + 1;
+  void setValue(int _value) {
+    step = _value;
 
-    //clearly this is wrong... doesn't work at all.  
-    /*
-    int follow = step - 1;
-    if (follow < 1) {
-      follow += 16;
+    DrawableTab selectedTab = (DrawableTab) selectedPanel.selectedTab;
+    int lastStep = step - 1 < 0 ? selectedTab.gridWidth - 1 : step - 1;
+    for (int j = 0; j < selectedTab.gridHeight; j++) {
+      DrawableButton thisStepButton = (DrawableButton) selectedTab.getButtonFromTabCoords(j, step);
+      DrawableButton lastStepButton = (DrawableButton) selectedTab.getButtonFromTabCoords(j, lastStep);
+      thisStepButton.isSweep = true;
+      lastStepButton.isSweep = false;
     }
-
-    DrawableButton[] stepButtons;
-    stepButtons = (DrawableButton[]) buttonsByRow.get(step);
-
-    DrawableButton[] followButtons;
-    followButtons = (DrawableButton[]) buttonsByRow.get(follow);
-
-    if (buttonsByRow.containsKey(step)) {
-      println(step);
-      for (int j =1; j<stepButtons.length; j++) {
-        stepButtons[j].activeButton();
-      }
-      //println (thisRowButtons.length);
-    }
-
-    if (buttonsByRow.containsKey(follow)){
-      println(follow);
-      for (int j =1; j<followButtons.length; j++) {
-        followButtons[j].inactiveButton();
-      }
-    }
-    */
   }
 }
 
