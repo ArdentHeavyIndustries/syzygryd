@@ -154,20 +154,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
 
   void press() {
     setValue(isOn ? OFF : ON, true);
-    // toggle();
   }
-
-  /**
-   * toggle toggles button state from on to off or off to on.
-   */
-  /*
-  void toggle() {
-    // TODO: remove this debug code
-    println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " toggle called.");
-    super.toggle();
-    setValue(isOn ? ON : OFF, true);
-  }
-  */
 
   /**
    * setValue turns the button on or off without sending a message
