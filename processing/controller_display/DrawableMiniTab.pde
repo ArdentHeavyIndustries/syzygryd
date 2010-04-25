@@ -30,12 +30,13 @@ class DrawableMiniTab implements Drawable, Pressable {
 
   void draw() {
     if (tab.isSelected()) {
+      fill(50);
       stroke(0, 0, 100);
     } else {
+      noFill();
       stroke(0, 100, 100);
     }
 
-    noFill();
     rect(x, y, myWidth, myHeight);
 
     for (Iterator i = tab.onButtons.values().iterator(); i.hasNext(); ) {
