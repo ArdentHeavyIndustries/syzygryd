@@ -45,15 +45,7 @@ public class ToggleButton extends GridButton {
 		super(_col, _row, _tab);
 		isOn = false;
 	}
-	
-	/**
-	 * toggle toggles this button into the opposite state from which it
-	 * was in.
-	 */
-	public void toggle() {
-		isOn = !isOn;
-	}
-	
+		
 	public OscMessage serializeToOsc() {
 		OscMessage res = new OscMessage(getOscAddress());
 		res.add(isOn ? ON : OFF);
