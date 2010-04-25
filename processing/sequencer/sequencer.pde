@@ -1,3 +1,5 @@
+
+
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
  * Syzygryd sequencer
@@ -24,24 +26,29 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
   DNSSDRegistration receiver;
   DNSSDRegistration sender;
   SequencerPanel[] panels;
+  Life life;  
+  boolean lifeRunning = false;
+  int lifeStepBeats;
 
-  int[] scale = { 81, 79, 76, 74, 72, 69, 67, 64, 62, 60 };
+  int[] scale = { 
+    81, 79, 76, 74, 72, 69, 67, 64, 62, 60   };
 
   // sets the main tempo
   float minBpm = 40.0;
   float maxBpm = 300.0;
   float bpm = 140.0;
-  
+
   void operationFailed(DNSSDService svc, int err) {
     println("Bonjour Operation Failed! " + svc + " err = " + err);
   }
-  
+
   void serviceRegistered(DNSSDRegistration reg, int flags, String serviceName, String regType, String domain) {
     try {
       // We should keep track of the DNS names of this sequencer so later when we autodiscover clients we don't rediscover ourselves
       // (I mean, metaphorically it's fine I guess, but we don't wanna set up a discovery loop)
       myFullNames.add(DNSSD.constructFullName(serviceName, regType, domain));
-    } catch (DNSSDException e) {
+    } 
+    catch (DNSSDException e) {
       println("Oh noes, DNSSDException in serviceRegistered: " + e);
     }
   }
@@ -61,15 +68,17 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     for (int i = 0; i < panels.length; i++) {
       panels[i] = new SequencerPanel(i, panels, _numTabs, _gridWidth, _gridHeight, _broadcastPort);
     }
-    
+
     // Magical service discovery goodness, w00t
     try {
       String myName = "SyzySequencer on " + java.net.InetAddress.getLocalHost().getHostName();
       receiver = DNSSD.register(myName, "_osc._udp", 8000, this);
       sender = DNSSD.register(myName, "_sequencer._udp", 9000, this);
-    } catch(DNSSDException e) {
+    } 
+    catch(DNSSDException e) {
       println("Oh noes, DNSSDException: "+e);
-    } catch (java.net.UnknownHostException uhe) {
+    } 
+    catch (java.net.UnknownHostException uhe) {
       println("Oh noes, UnknownHostException: "+uhe);
     }
   }
@@ -105,6 +114,9 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
       // Now play that set of notes on the appropriate MIDI channel
       musicMaker.playNotes(i, n);
     }
+    if (lifeRunning && (beatNumber % lifeStepBeats == 0)) {
+      oneLifeStep();
+    }
   }
 
   String songPosition() {
@@ -125,13 +137,14 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     println("sequencer.oscEvent: addrPattern: " + m.addrPattern());
     /*
     println("#### received osc message");
-    println("#### addrPattern: " + m.addrPattern());
-    println("#### typetag: " + m.typetag());
-    Object[] args = m.arguments();
-    for (int i = 0; i < args.length; i++) {
-      println("#### arg " + i + ": " + args[i]);
-    }
-    */
+     println("#### addrPattern: " + m.addrPattern());
+     println("#### typetag: " + m.typetag());
+     println("#### isPlugged: " + m.isPlugged());
+     Object[] args = m.arguments();
+     for (int i = 0; i < args.length; i++) {
+     println("#### arg " + i + ": " + args[i]);
+     }
+     */
 
     connectClient(m.netAddress().address());
 
@@ -144,6 +157,7 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     String[] panelAndTab = patternParts[1].split("_", -1);
     int panelOscIndex = new Integer(panelAndTab[0]).intValue();
     int panelIndex = panelOscIndex - 1;
+    System.out.println("   patternParts: " + patternParts + " panel osc ind: " + panelOscIndex + " panelInd: " + panelIndex + " panels.length:" + panels.length);
 
     if (panelIndex < panels.length) {
       panels[panelIndex].connectClient(m.netAddress().address());
@@ -153,6 +167,46 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
       panels[panelIndex].oscEvent(m);
     }
   }  
+
+  void toggleLife() {
+    maybeSetupLife();
+    lifeRunning = !lifeRunning;
+  }
+
+  void oneLifeStep() {
+    maybeSetupLife();
+    life.oneStep();
+  }
+
+  void maybeSetupLife() {
+    if (life == null) {
+      //System.out.println("Making a life. panels: " + panels.length + " gw: " + gridWidth + " gh: " + gridHeight);
+      life = new Life(panels.length, panels, 
+      gridWidth, gridHeight,
+      CONWAY_S23B3);
+      lifeStepBeats = gridWidth;
+    }
+  }
+
+  void speedLifeUp() {
+    lifeStepBeats --;
+    if (lifeStepBeats < 1) {
+      lifeStepBeats = 1;
+    }
+  }
+
+  void slowLifeDown() {
+    lifeStepBeats++;
+    if (lifeStepBeats >= gridWidth) {
+      lifeStepBeats = gridWidth - 1;
+    }
+  }
+
+  void clearAll() {
+    for (int i = 0; i < panels.length; i++) {
+      ((SequencerPatternTab) panels[i].selectedTab).clear();
+    }
+  }
 }
 
 Sequencer s;
@@ -190,7 +244,7 @@ void setup() {
 
   for (int i = 0; i < availableIns.length; i++) {
     if (availableIns[i].matches(".*GridSequencer.*") ||
-        availableIns[i].matches("In From MIDI Yoke:  2")) {
+      availableIns[i].matches("In From MIDI Yoke:  2")) {
       cboMidiInput.setSelected(availableIns[i]);
       break;
     }
@@ -198,7 +252,7 @@ void setup() {
 
   for (int i = 0; i < availableOuts.length; i++) {
     if (availableOuts[i].matches("GridSequencer") ||
-        availableOuts[i].matches("Out To MIDI Yoke:  1")) {
+      availableOuts[i].matches("Out To MIDI Yoke:  1")) {
       cboMidiOutput.setSelected(availableOuts[i]);
       break;
     }
@@ -207,14 +261,14 @@ void setup() {
   textFont(createFont("Helvetica", 32));
 
   s = new Sequencer(
-    this,
-    numPanels,
-    numTabs,
-    gridWidth,
-    gridHeight,
-    cboMidiInput.selectedText(),
-    cboMidiOutput.selectedText(),
-    myBroadcastPort);
+  this,
+  numPanels,
+  numTabs,
+  gridWidth,
+  gridHeight,
+  cboMidiInput.selectedText(),
+  cboMidiOutput.selectedText(),
+  myBroadcastPort);
 }
 
 void stop() {
@@ -235,12 +289,29 @@ void draw() {
 }
 
 void keyPressed() {
+  if (key == 'l') {
+    s.toggleLife();
+  } 
+  else if (key == 'L') {
+    System.out.println("Pressed L");
+    s.oneLifeStep();
+  } 
+  else if (key == '+') {
+    s.speedLifeUp();
+  } 
+  else if (key == '-') {
+    s.slowLifeDown();
+  } 
+  else if (key == 'C') {
+    s.clearAll();
+  }
 }
 
 void handleComboEvents(GCombo combo) {
   if (combo == cboMidiInput) {
     s.setInput(combo.selectedText());
-  } else if (combo == cboMidiOutput) {
+  } 
+  else if (combo == cboMidiOutput) {
     s.setOutput(combo.selectedText());
   }
 }
@@ -248,4 +319,5 @@ void handleComboEvents(GCombo combo) {
 void oscEvent(OscMessage theOscMessage) {
   s.oscEvent(theOscMessage);
 }
+
 

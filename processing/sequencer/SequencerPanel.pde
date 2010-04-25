@@ -38,6 +38,7 @@ class SequencerPanel extends Panel {
 
   // TODO: Fix this up to, you know actually switch tabs. :)
   void oscEvent(OscMessage m) {
+    System.out.println("SeqPanel. oscmessage. add: " + m.addrPattern());
     // Oh this is so janky. I gotta figure out how to do more sophisticated string parsing in Java.
     // But the regexp module ... urgh. This'll work for now.
     String[] patternParts = m.addrPattern().split("/",-1);
@@ -45,6 +46,8 @@ class SequencerPanel extends Panel {
       String tabPart = patternParts[3];
       // Waitaminnit, (jank++)++
       // yes, we're splitting the string on the "b" character in [panel#]_tab[tab#]
+      System.out.println("tab part: " + tabPart);
+      System.out.println("patternParts: " + patternParts);
       String[] tabParts = tabPart.split("b",-1);
       if (tabParts.length > 1) {
         int tabNumber = new Integer(tabParts[1]).intValue();
