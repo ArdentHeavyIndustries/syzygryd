@@ -58,9 +58,6 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     midiOutput = _midiOutput;
     midiBus = new MidiBus(parent, midiInput, midiOutput);
 
-    musicMaker = new MusicMaker(this, midiBus);
-    midiBus.addMidiListener(musicMaker);
-
     broadcastPort = _broadcastPort;
     gridWidth = _gridWidth;
     gridHeight = _gridHeight;
@@ -68,6 +65,9 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     for (int i = 0; i < panels.length; i++) {
       panels[i] = new SequencerPanel(i, panels, _numTabs, _gridWidth, _gridHeight, _broadcastPort);
     }
+
+    musicMaker = new MusicMaker(this, midiBus);
+    midiBus.addMidiListener(musicMaker);
 
     // Magical service discovery goodness, w00t
     try {
