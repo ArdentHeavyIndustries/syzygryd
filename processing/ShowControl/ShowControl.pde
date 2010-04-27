@@ -2,7 +2,14 @@ import syzygryd.*;
 import processing.serial.*;
 import processing.core.*;
 
+/* define configuration constants */
+interface Configuration {
+  public static final String FIXTURE_PROFILES_FILENAME = "fixture_profiles.xml";
+  public static final String FIXTURE_DEFINITIONS_FILENAME = "fixture_definitions.xml";
+}
+
 DMX DMXManager;
+ArrayList fixtures;
 int huetemp=0;
 color colortemp, colortemp2; 
 Fixture test, test2;
@@ -23,6 +30,14 @@ void setup(){
   //DMXManager.addController("COM4");
   //DMXManager.addController("COM2");
 
+  // create the fixtures
+  try {
+    setupFixtures();
+  } catch (DataFormatException e) {
+    print("An error occurred while parsing fixtures: " + e.getMessage() + "\n");
+    exit();
+  }
+  
   //create a test fixture on controller 0
   test = new Fixture(DMXManager, 0, "cube");
   test2 = new Fixture(DMXManager, 0, "cube");
@@ -60,6 +75,54 @@ void draw(){
   drawChannelGrid();
 }
 
+// read the fixture profile and fixture definitions xml files, create the fixtures
+// and add them to the fixtures list
+void setupFixtures() throws DataFormatException {
+  ArrayList fixtureProfiles = getFixtureProfiles();
+  
+  // register fixture profiles with the factory
+  int profileCount = fixtureProfiles.size();
+  for (int i = 0; i < profileCount; i++) {
+    FixtureFactory.registerFixtureProfile(fixtureProfiles.get(i));
+  }
+
+  // read fixture definitions from xml  
+  XMLElement fixtureDefinitionsXML = new XMLElement(this, Configuration.FIXTURE_DEFINITIONS_FILENAME);
+  
+  // use factory to create fixture from the fixture definitions
+  XMLElement[] fixtureNodes = fixtureDefinitionsXML.getChildren("fixture");
+  int fixtureCount = profileNodes.length;
+  fixtures = new ArrayList(fixtureCount);
+  for (int i = 0; i < fixtureCount; i++) {
+    Fixture fixture = FixtureFactory.createFixture(DMXManager, fixtureNodes[i]);
+    fixtures.add(fixture);
+  }
+}
+
+ArrayList getFixtureProfiles() throws DataFormatException {
+  // read fixture profiles from xml
+  XMLElement fixtureProfilesXML = new XMLElement(this, Configuration.FIXTURE_PROFILES_FILENAME);
+
+  // create FixtureProfiles from XML
+  /* 
+   * The fixtureProfilesXML file is expected to be a top-level <doc_root> node with a list 
+   * of <fixture_profile> elements underneath.  Each <fixture_profile> element has 
+   * a 'type' attribute, a single <traits> child and a singe <channels> child. <traits> contains
+   * zero or more <trait> nodes, each with a 'type' attribute.  <channels> contains zero or more <channel> nodes,
+   * each with a name attribute.  <channel> nodes can optionally have other attributes, such as 'latency'.
+   *   
+   */
+  
+  XMLElement[] profileNodes = fixtureProfilesXML.getChildren("fixture_profile");
+  int profileCount = profileNodes.length;
+  ArrayList fixtureProfiles = new ArrayList(fixtureCount);
+  for (int i = 0; i < profileCount; i++) {
+    FixtureProfile fixtureProfile = new FixtureProfile(profileNodes[i]);
+    fixtureProfiles.add(fixtureProfile);
+  }
+  
+  return fixtureProfiles;
+}
 
 /* simple DMX visualization - displays grid of controller channels, values represented as grayscale levels */
 

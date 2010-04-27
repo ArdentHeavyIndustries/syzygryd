@@ -1,0 +1,15 @@
+<doc_root>
+
+    <!-- CUBE TYPE -->
+    <fixture_profile type="cube">
+        <traits>
+            <trait type="RGBColorMixingTrait" />
+        </traits>
+        <channels>
+            <channel name="red" latency="0" />
+            <channel name="green" latency="0" />
+            <channel name="blue" latency="0" />
+        </channels>
+    </fixture_profile>
+
+</doc_root>

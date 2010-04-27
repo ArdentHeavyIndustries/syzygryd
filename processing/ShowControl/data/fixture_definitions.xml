@@ -1,0 +1,11 @@
+<doc_root>
+
+    <fixture profile="cube" dmx_universe="0">
+        <channels>
+            <channel name="red" address="0" />
+            <channel name="green" address="1" />
+            <channel name="blue" address="2" />
+        </channels>
+    </fixture>
+
+</doc_root>
