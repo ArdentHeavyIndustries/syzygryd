@@ -1,10 +1,7 @@
-import java.lang.*;
-
 class FixtureProfile {
   String type;
   ArrayList traits;
   HashMap channels;
-  static String[] allowedChannelAttributes = { "name", "latency" };
   
   FixtureProfile(XMLElement xml) throws DataFormatException {
     // validate xml
@@ -37,19 +34,19 @@ class FixtureProfile {
     }
     
     // parse channels
-    int allowedAttrLen = allowedChannelAttributes.length;
+    int allowedAttrLen = Configuration.ALLOWED_CHANNEL_ATTRIBUTES.length;
 
     XMLElement channelsEl = xml.getChild("channels");
     if (channelsEl != null) {
       int channelCount = channelsEl.getChildCount();
-      channels = new ArrayList(channelCount);
+      channels = new HashMap(channelCount);
       for (int i = 0; i < channelCount; i++) {
         XMLElement channelEl = channelsEl.getChild(i);
 
         HashMap channelInfo = new HashMap();
 
         for (int j = 0; j < allowedAttrLen; j++) {
-          String attrName = allowedChannelAttributes[j];
+          String attrName = Configuration.ALLOWED_CHANNEL_ATTRIBUTES[j];
           String attr = channelEl.getStringAttribute(attrName);
           if (!attr.equals(0)) {
             channelInfo.put(attrName, attr);

@@ -6,6 +6,7 @@ import processing.core.*;
 interface Configuration {
   public static final String FIXTURE_PROFILES_FILENAME = "fixture_profiles.xml";
   public static final String FIXTURE_DEFINITIONS_FILENAME = "fixture_definitions.xml";
+  public static final String[] ALLOWED_CHANNEL_ATTRIBUTES = { "name", "latency" };
 }
 
 DMX DMXManager;
@@ -83,7 +84,7 @@ void setupFixtures() throws DataFormatException {
   // register fixture profiles with the factory
   int profileCount = fixtureProfiles.size();
   for (int i = 0; i < profileCount; i++) {
-    FixtureFactory.registerFixtureProfile(fixtureProfiles.get(i));
+    FixtureFactory.registerFixtureProfile((FixtureProfile)fixtureProfiles.get(i));
   }
 
   // read fixture definitions from xml  
@@ -91,10 +92,10 @@ void setupFixtures() throws DataFormatException {
   
   // use factory to create fixture from the fixture definitions
   XMLElement[] fixtureNodes = fixtureDefinitionsXML.getChildren("fixture");
-  int fixtureCount = profileNodes.length;
+  int fixtureCount = fixtureNodes.length;
   fixtures = new ArrayList(fixtureCount);
   for (int i = 0; i < fixtureCount; i++) {
-    Fixture fixture = FixtureFactory.createFixture(DMXManager, fixtureNodes[i]);
+    Fixture fixture = FixtureFactory.createFixture(this, DMXManager, fixtureNodes[i]);
     fixtures.add(fixture);
   }
 }
@@ -115,7 +116,7 @@ ArrayList getFixtureProfiles() throws DataFormatException {
   
   XMLElement[] profileNodes = fixtureProfilesXML.getChildren("fixture_profile");
   int profileCount = profileNodes.length;
-  ArrayList fixtureProfiles = new ArrayList(fixtureCount);
+  ArrayList fixtureProfiles = new ArrayList(profileCount);
   for (int i = 0; i < profileCount; i++) {
     FixtureProfile fixtureProfile = new FixtureProfile(profileNodes[i]);
     fixtureProfiles.add(fixtureProfile);
