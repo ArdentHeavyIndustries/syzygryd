@@ -24,6 +24,7 @@ DrawablePanel selectedPanel;
 Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
 HashMap buttonsByRow = new HashMap();
+Vector animations = new Vector(16);
 
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
 int masterHue = 1;
@@ -58,7 +59,6 @@ void setup() {
   OscMessage connect = new OscMessage("/server/connect");
   oscP5.send(connect, myRemoteLocation);
 
-  int buttonCounter = 0;
   int buttonSize = height / 11; // size of button based on real estate
   // Force button to be an even size so the active light can be
   // properly centered
@@ -83,8 +83,12 @@ void setup() {
 int curSecond = 0;
 
 void draw() {
-  background (0);
+  background(0);
   selectedPanel.draw();
+  for (Enumeration e = animations.elements(); e.hasMoreElements(); ) {
+    Animation a = (Animation) e.nextElement();
+    a.step();
+  }
   temposweep.draw();
 }
 

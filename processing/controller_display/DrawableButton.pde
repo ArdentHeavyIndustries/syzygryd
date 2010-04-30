@@ -44,6 +44,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   int sqAlpha = sqAlphaDefault;
 
   boolean isSweep;
+  int activeAlpha;
   
   /* SVG getter business */
   PShape left;
@@ -61,6 +62,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     sweepX = (int) (x + ((sqLength * 0.1) / 2) + 2);
     sweepY = (int) (y + ((sqLength * 0.1) / 2) + 2);
     isSweep = false;
+    activeAlpha = 0;
 
     miniX = _miniX;
     miniY = _miniY;
@@ -104,13 +106,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
    * draw draws this button
    */
   void draw() {
-    /*
-    if(onlyIfOn && !isOn) {
-      return;
-    }
-    */
-    
-    // Draw this panel's buttons
+    // Draw this button
     middle.disableStyle();
     noStroke();
     fill(getHue(), 50, sqBright, sqAlpha);
@@ -121,9 +117,14 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
       noStroke();
       fill(100, 50);
       shape(middleOnSweep, sweepX, sweepY);
+    } else if (activeAlpha > 0) {
+      middleOnSweep.disableStyle();
+      noStroke();
+      fill(100, activeAlpha);
+      shape(middleOnSweep, sweepX, sweepY);
     }
 
-    // Draw the outlines of the left panel's buttons
+    // Draw the outlines of the left sibling button
     DrawableButton leftSibling = (DrawableButton) getLeftSibling();
     if (leftSibling.isOn) {
       left.disableStyle();
@@ -132,7 +133,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
       shape(left,x,y);
     }
 
-    // Draw the outlines of the right panel's buttons
+    // Draw the outlines of the right sibling button
     DrawableButton rightSibling = (DrawableButton) getRightSibling();
     if(rightSibling.isOn){
       right.disableStyle();
@@ -154,6 +155,9 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
 
   void press() {
     setValue(isOn ? OFF : ON, true);
+    if (isOn) {
+      new ButtonPressAnimation((DrawableTab) tab, this);
+    }
   }
 
   /**
