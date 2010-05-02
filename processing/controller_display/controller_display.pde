@@ -23,7 +23,6 @@ DrawablePanel[] panels;
 DrawablePanel selectedPanel;
 Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
-HashMap buttonsByRow = new HashMap();
 Vector animations = new Vector(16);
 
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
@@ -101,6 +100,13 @@ void oscEvent(OscMessage m) {
       println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
       // m.print();
   }
+
+  /*
+    Disabled until we integrate the updated oscP5
+  if (m.isPlugged()) {
+    return;
+  }
+  */
 
   /* check if m has the address pattern we are looking for. */
   if (!m.addrPattern().endsWith("/tempo")) {

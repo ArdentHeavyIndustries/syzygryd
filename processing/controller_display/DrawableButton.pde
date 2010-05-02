@@ -55,6 +55,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
 
   DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength){
     super(_col, _row, _tab);
+    // Disabled until we integrate the updated oscP5
+    // oscP5.plug(this, "setValue", getOscAddress());
 
     x = _x;
     y = _y;
