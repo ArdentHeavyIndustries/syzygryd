@@ -31,6 +31,8 @@ int masterHue = 1;
 /* Last Pressable object selected by the user. */
 Pressable lastSelectedPressable;
 
+boolean armClear = false;
+
 void setup() {
   // TOUCHSCREEN!
   //change to 1920,1080 for the touchscreen!
@@ -97,8 +99,8 @@ void selectPanel(int id) {
 
 void oscEvent(OscMessage m) {
   if(!m.addrPattern().endsWith("/tempo")) {
-      println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
-      // m.print();
+    // println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+    // m.print();
   }
 
   /*
@@ -108,14 +110,28 @@ void oscEvent(OscMessage m) {
   }
   */
 
+  /* check if the typetag is the right one. */
+  if (m.checkTypetag("")) {
+    String[] patternParts = m.addrPattern().split("/", -1);
+    String[] panelAndTab = patternParts[1].split("_", -1);
+
+    int panelOscIndex = new Integer(panelAndTab[0]).intValue();
+    int panelIndex = panelOscIndex - 1;
+
+    // FYI this is hacky and will break if we ever have more than 9 tabs
+    int tabOscIndex = new Integer(panelAndTab[1].substring(panelAndTab[1].length() - 1));
+    int tabIndex = tabOscIndex - 1;
+
+    panels[panelIndex].selectTab(tabIndex);
+  }
+
   /* check if m has the address pattern we are looking for. */
   if (!m.addrPattern().endsWith("/tempo")) {
     if(objectMapOSC == null || !objectMapOSC.containsKey(m.addrPattern())){
       return;
     }
   }
-
-  /* check if the typetag is the right one. */
+  
   if(m.checkTypetag("f")) {
     float firstValue = 0;
     /* parse m and extract the values from the osc message arguments. */

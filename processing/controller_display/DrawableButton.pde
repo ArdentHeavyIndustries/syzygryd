@@ -160,6 +160,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     if (isOn) {
       new ButtonPressAnimation((DrawableTab) tab, this);
     }
+
+    armClear = false;
   }
 
   /**
@@ -188,8 +190,10 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
    */
   void setValue(float value, boolean sendMessage) {
     // TODO: remove this debug code
+    /*
     println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " set to " + value);
     println("setValue: getOscAddress returns: " + getOscAddress());
+    */
     OscMessage m = new OscMessage(getOscAddress());
     sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 

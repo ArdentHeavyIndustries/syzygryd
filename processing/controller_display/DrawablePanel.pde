@@ -16,10 +16,29 @@ class DrawablePanel extends syzygryd.Panel implements Drawable {
     selectTab(0);
   }
 
+  /**
+   * selectTab selects the active tab.
+   *
+   * @param id is the zero indexed id of the tab to select
+   */
   void selectTab(int id) {
+    selectTab(id, false);
+  }
+
+  /**
+   * selectTab selects the active tab, and optionally sends a message
+   * indicating the state change.
+   *
+   * @param id is the zero indexed id of the tab to select
+   * @param sendMessage if true, selectTab will send out a message to
+   * announce the state change.
+   */
+  void selectTab(int id, boolean sendMessage) {
     super.selectTab(id);
-    OscMessage m = new OscMessage(selectedTab.getOscAddress());
-    oscP5.send(m, myRemoteLocation);
+    if (sendMessage) {
+      OscMessage m = new OscMessage(selectedTab.getOscAddress());
+      oscP5.send(m, myRemoteLocation);
+    }
   }
 
   void draw() {

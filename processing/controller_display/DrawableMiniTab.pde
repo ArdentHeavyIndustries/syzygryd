@@ -12,6 +12,12 @@ class DrawableMiniTab implements Drawable, Pressable {
   int myWidth, myHeight;
   int originX, originY;
   int buttonSize, buttonSpacing;
+  int frameCount;
+  color lastFill, lastStroke;
+  color BLACK = color(0);
+  color RED = color(0, 100, 100);
+  color GREY = color(50);
+  color WHITE = color(0, 0, 100);
 
   DrawableMiniTab(DrawableTab _tab, int _x, int _y, int _width, int _height, int _buttonSize, int _buttonSpacing) {
     tab = _tab;
@@ -26,16 +32,43 @@ class DrawableMiniTab implements Drawable, Pressable {
 
     originX = ((myWidth - (buttonSpacing * tab.gridWidth)) / 2) + x;
     originY = ((myHeight - (buttonSpacing * tab.gridHeight)) / 2) + y;
+
+    frameCount = 0;
+
+    lastFill = BLACK;
+    lastStroke = RED;
   }
 
   void draw() {
+    boolean toggleFill = frameCount % 15 == 0;
+    frameCount++;
+
     if (tab.isSelected()) {
-      fill(50);
-      stroke(0, 0, 100);
+      lastStroke = WHITE;
     } else {
-      noFill();
-      stroke(0, 100, 100);
+      lastStroke = RED;
     }
+
+    if (armClear && toggleFill) {
+      if (lastFill == RED) {
+        if (tab.isSelected()) {
+          lastFill = GREY;
+        } else {
+          lastFill = BLACK;
+        }
+      } else {
+        lastFill = RED;
+      }
+    } else {
+      if (tab.isSelected()) {
+        lastFill = GREY;
+      } else {
+        lastFill = BLACK;
+      }
+    }
+
+    fill(lastFill);
+    stroke(lastStroke);
 
     rect(x, y, myWidth, myHeight);
 
@@ -44,11 +77,23 @@ class DrawableMiniTab implements Drawable, Pressable {
     }
   }
 
+  String getClearOscAddress() {
+    return "/" + tab.panel.getOscId() + "_control/clear/" + tab.getOscId();
+  }
+
   void press() {
-    if (tab.isSelected()) {
-      return;
+    if (armClear) {
+      tab.clear();
+      OscMessage m = new OscMessage(getClearOscAddress());
+      oscP5.send(m, myRemoteLocation);
+    } else {
+      if (tab.isSelected()) {
+        return;
+      }
+
+      ((DrawablePanel) tab.panel).selectTab(tab.id, true);
     }
 
-    tab.panel.selectTab(tab.id);
+    armClear = false;
   }
 }
