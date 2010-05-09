@@ -20,18 +20,18 @@ class NoteOffTask extends java.util.TimerTask {
 }
 
 class MusicMaker implements StandardMidiListener {
-  int clock, sixteenthNote, quarterNote, measure;
+  int clock, sixteenthNote, quarterNote, measure, pulseCompare, timeA, timeB;
   Sequencer sequencer;
   Timer noteOffTimer;
   MidiBus midiBus;
-  long noteDuration;
+  long noteDuration, masterbpm;
 
   MusicMaker(Sequencer _sequencer, MidiBus _bus) {
     sequencer = _sequencer;
     midiBus = _bus;
     resetCounters();
     noteOffTimer = new Timer();
-    noteDuration = 200; // TODO: Should the value 200 be a constant?
+    noteDuration = 125; //initial setting for 1/16 length on 120bpm
   }
 
   void playNotes(int channel, Vector notes) {
@@ -41,7 +41,8 @@ class MusicMaker implements StandardMidiListener {
       //println("Playing note "+note+" on channel "+channel);
       midiBus.sendNoteOn(channel, note.intValue(), 128);
     }
-    noteOffTimer.schedule(t, noteDuration);
+    //change ms length of a 1/16 note dependent on calculated tempo
+    noteOffTimer.schedule(t, 15000/masterbpm);
   }
 
   String songPosition() {
@@ -53,6 +54,19 @@ class MusicMaker implements StandardMidiListener {
   }
 
   void handleClockPulse() {
+    //calculating the beats per minute
+    //24 pulses equals one beat in 4/4
+    if (pulseCompare == 1) {
+       timeA = millis();   
+       // bpm to ms formula based off 1/32...  y=240000(1/32)/x
+       masterbpm = 7500/(timeA-timeB);
+       timeB = millis();
+    }
+    if (++pulseCompare > 3) {
+     pulseCompare = 1;
+    }
+    
+    //handling the sixteenth note index for sequencer
     if (clock == 1) {
       sequencer.gotBeat(currentSixteenthNoteIndex());
     }
