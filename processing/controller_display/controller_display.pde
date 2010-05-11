@@ -120,59 +120,14 @@ void oscEvent(OscMessage m) {
     int tabIndex = tabOscIndex - 1;
 
     panels[panelIndex].selectTab(tabIndex);
-  }
+  } else if (m.checkTypetag("f")) {
+    float firstValue = m.get(0).floatValue();
 
-  /* check if m has the address pattern we are looking for. */
-  if (!m.addrPattern().endsWith("/tempo")) {
-    if(objectMapOSC == null || !objectMapOSC.containsKey(m.addrPattern())){
-      return;
-    }
-  }
-  
-  if(m.checkTypetag("f")) {
-    float firstValue = 0;
-    /* parse m and extract the values from the osc message arguments. */
-    //  println(m);
-    //m.print();
-    firstValue = m.get(0).floatValue();  
-    // print("### received an osc message /test with typetag ifs.");
-
-
-    if(typeMapOSC.get(m.addrPattern())=="button") {
-      DrawableButton thisOSCObject = (DrawableButton) objectMapOSC.get(m.addrPattern());
-      thisOSCObject.setValue(firstValue, false);
-    } else if (m.addrPattern().endsWith("/tempo")) {
+    if (m.addrPattern().endsWith("/tempo")) {
       float v = (firstValue - 0.03125) * 16;
-      // println(v);
       temposweep.setValue(int(v));
     }
-    /*
-    } else if (typeMapOSC.get(m.addrPattern())=="temposweep") {
-      Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(m.addrPattern());
-      thisOSCObject.setValue(int(firstValue));
-    }
-    */
-  } else if(m.checkTypetag("i")) {
-    int firstValue =0;
-    /* parse m and extract the values from the osc message arguments. */
-    //  println(m);
-    //m.print();
-    firstValue = m.get(0).intValue();  
-    // print("### received an osc message /test with typetag ifs.");
-
-
-    if(typeMapOSC.get(m.addrPattern())=="button") {
-      DrawableButton thisOSCObject = (DrawableButton) objectMapOSC.get(m.addrPattern());
-      thisOSCObject.setValue(float(firstValue), false);
-    } 
-    else if (typeMapOSC.get(m.addrPattern())=="temposweep") {
-      Temposweep thisOSCObject = (Temposweep) objectMapOSC.get(m.addrPattern());
-      thisOSCObject.setValue(firstValue);
-    }
   }
-  /* TODO: remove this debug
-  println("### received an osc message. with address pattern "+m.addrPattern());
-  */
 }
 
   // TOUCHSCREEN!
