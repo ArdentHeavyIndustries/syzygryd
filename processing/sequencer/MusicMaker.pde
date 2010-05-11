@@ -42,8 +42,13 @@ class MusicMaker implements StandardMidiListener {
       //println("Playing note "+note+" on channel "+channel);
       midiBus.sendNoteOn(channel, note.intValue(), 128);
     }
+    //checking to see if masterbpm=0 and resetting to 120 if it is.
+    if (masterbpm == 0) {
+      masterbpm=120;
+    }
     //change ms length of a 1/16 note dependent on calculated tempo
     noteOffTimer.schedule(t, 15000/masterbpm);
+    println("Note off:"+15000/masterbpm);
   }
 
   String songPosition() {
@@ -60,7 +65,9 @@ class MusicMaker implements StandardMidiListener {
     if (pulseCompare == 1) {
        timeA = millis();   
        // bpm to ms formula based off 1/32...  y=240000(1/32)/x
+       if ((timeA-timeB) <= 7500) {
        masterbpm = 7500/(timeA-timeB);
+       }
        timeB = millis();
     }
     if (++pulseCompare > 3) {
