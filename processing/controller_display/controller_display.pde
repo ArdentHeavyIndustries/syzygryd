@@ -103,12 +103,9 @@ void oscEvent(OscMessage m) {
     // m.print();
   }
 
-  /*
-    Disabled until we integrate the updated oscP5
   if (m.isPlugged()) {
     return;
   }
-  */
 
   /* check if the typetag is the right one. */
   if (m.checkTypetag("")) {
