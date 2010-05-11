@@ -24,7 +24,8 @@ class MusicMaker implements StandardMidiListener {
   Sequencer sequencer;
   Timer noteOffTimer;
   MidiBus midiBus;
-  long noteDuration, masterbpm;
+  long noteDuration;
+  long masterbpm=120;
 
   MusicMaker(Sequencer _sequencer, MidiBus _bus) {
     sequencer = _sequencer;
