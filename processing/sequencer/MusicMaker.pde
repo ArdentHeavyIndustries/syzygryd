@@ -48,7 +48,7 @@ class MusicMaker implements StandardMidiListener {
     }
     //change ms length of a 1/16 note dependent on calculated tempo
     noteOffTimer.schedule(t, 15000/masterbpm);
-    println("Note off:"+15000/masterbpm);
+    // println("Note off: " + 15000/masterbpm);
   }
 
   String songPosition() {
