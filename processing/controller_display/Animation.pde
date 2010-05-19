@@ -35,7 +35,7 @@ class ButtonPressAnimation extends Animation {
     for (Enumeration e = surroundingButtons.elements(); e.hasMoreElements(); ) {
       DrawableButton b = (DrawableButton) e.nextElement();
       if (b != null) {
-        b.activeAlpha = 10 * activeSteps;
+        b.activeAlpha = 3 * activeSteps;
       }
     }
 

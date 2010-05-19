@@ -13,7 +13,6 @@ class NoteOffTask extends java.util.TimerTask {
   void run() {
     for (Enumeration e = notes.elements(); e.hasMoreElements(); ) {
       Integer note = (Integer)e.nextElement();
-      //println("Killing note "+note+" on channel "+channel);
       midiBus.sendNoteOff(channel, note.intValue(), 128);
     }
   }
@@ -39,7 +38,6 @@ class MusicMaker implements StandardMidiListener {
     NoteOffTask t = new NoteOffTask(midiBus, channel, notes);
     for (Enumeration e = notes.elements(); e.hasMoreElements(); ) {
       Integer note = (Integer)e.nextElement();
-      //println("Playing note "+note+" on channel "+channel);
       midiBus.sendNoteOn(channel, note.intValue(), 128);
     }
     //checking to see if masterbpm=0 and resetting to 120 if it is.

@@ -40,7 +40,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   int miniX, miniY, miniLength;
   int sqHue = 100;
   int sqBright = 100;
-  int sqAlphaDefault = 30;
+  int sqAlphaDefault = 20;
   int sqAlpha = sqAlphaDefault;
 
   boolean isSweep;
