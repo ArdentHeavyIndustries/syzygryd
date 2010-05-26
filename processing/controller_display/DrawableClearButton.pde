@@ -10,6 +10,8 @@
 class DrawableClearButton extends syzygryd.Button implements Drawable, Pressable {
   int x, y;
   int myWidth, myHeight;
+  String clrMsg = "Press a tab above to clear";
+  float opacity = 0;
 
   DrawableClearButton(DrawableTab _tab, int _x, int _y, int _width, int _height) {
     super(_tab);
@@ -17,6 +19,8 @@ class DrawableClearButton extends syzygryd.Button implements Drawable, Pressable
     y = _y;
     myWidth = _width;
     myHeight = _height;
+    clrFont = loadFont("Arial-BoldMT-16.vlw");
+
   }
 
   String getOscAddress() {
@@ -31,9 +35,23 @@ class DrawableClearButton extends syzygryd.Button implements Drawable, Pressable
     fill(0, 100, 100);
     stroke(0, 100, 100);
     rect(x, y, myWidth, myHeight);
+    if (!armClear){
+      opacity = 0;
+    }
+    if (armClear) {
+      textFont(clrFont);
+      textAlign(CENTER);
+      fill(0, 0, 99, opacity);
+      text(clrMsg, x + .25*myWidth, y + .25*myHeight, .5*myWidth, .75*myHeight);
+      opacity += .2;
+      if (opacity == 256) {
+        opacity = 255;
+      }
+    }
   }
 
   void press() {
     armClear = true;
+
   }
 }

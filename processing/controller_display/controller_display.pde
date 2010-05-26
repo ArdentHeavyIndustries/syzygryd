@@ -17,6 +17,7 @@ import processing.opengl.*;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 
+
 /* Button Array for buttoning also tempo objects maybe more*/
 HashMap objectMapOSC = new HashMap();
 DrawablePanel[] panels;
@@ -32,6 +33,13 @@ int masterHue = 1;
 Pressable lastSelectedPressable;
 
 boolean armClear = false;
+
+//Font for messages at the bottom of the display
+PFont msgFont;
+ScrollableMessage scrollablemessage;
+
+// Font for the clear button
+PFont clrFont;
 
 void setup() {
   // TOUCHSCREEN!
@@ -79,6 +87,8 @@ void setup() {
   }
   selectPanel(0);
   temposweep = new Temposweep(buttonSize, buttonSpacing);
+  
+  scrollablemessage = new ScrollableMessage();
 }
 
 int curSecond = 0;
@@ -91,6 +101,8 @@ void draw() {
     a.step();
   }
   temposweep.draw();
+  scrollablemessage.msgDraw();
+
 }
 
 void selectPanel(int id) {

@@ -28,8 +28,9 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
     int miniTabButtonSize = miniTabButtonSpacing - 2;
 
     miniTab = new DrawableMiniTab(this, miniTabX, miniTabY, miniTabWidth, miniTabHeight, miniTabButtonSize, miniTabButtonSpacing);
-    clearButton = new DrawableClearButton(this, miniTabX, height - (miniTabHeight + (buttonSpacing - buttonSize)), miniTabWidth, miniTabHeight);
-
+//    clearButton = new DrawableClearButton(this, miniTabX, height - (miniTabHeight + (buttonSpacing - buttonSize)), miniTabWidth, miniTabHeight);  //original line
+    clearButton = new DrawableClearButton(this, miniTabX, 10 * buttonSpacing - miniTabHeight- (buttonSpacing - buttonSize), miniTabWidth, miniTabHeight);  // modified line
+   
     onButtons = new HashMap();
 
     for (int i = 0; i < gridWidth; i++) {

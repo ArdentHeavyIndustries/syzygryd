@@ -16,8 +16,11 @@ class DrawableMiniTab implements Drawable, Pressable {
   color lastFill, lastStroke;
   color BLACK = color(0);
   color RED = color(0, 100, 100);
+  color ARMED = color(359, 74, 93);
   color GREY = color(50);
   color WHITE = color(0, 0, 100);
+  float opacity = 0.0;
+  int direction = 1;
 
   DrawableMiniTab(DrawableTab _tab, int _x, int _y, int _width, int _height, int _buttonSize, int _buttonSpacing) {
     tab = _tab;
@@ -40,8 +43,8 @@ class DrawableMiniTab implements Drawable, Pressable {
   }
 
   void draw() {
-    boolean toggleFill = frameCount % 15 == 0;
-    frameCount++;
+//    boolean toggleFill = frameCount % 15 == 0;
+//    frameCount++;
 
     if (tab.isSelected()) {
       lastStroke = WHITE;
@@ -49,25 +52,50 @@ class DrawableMiniTab implements Drawable, Pressable {
       lastStroke = RED;
     }
 
-    if (armClear && toggleFill) {
-      if (lastFill == RED) {
-        if (tab.isSelected()) {
-          lastFill = GREY;
-        } else {
-          lastFill = BLACK;
-        }
-      } else {
-        lastFill = RED;
-      }
-    } else {
-      if (tab.isSelected()) {
-        lastFill = GREY;
-      } else {
-        lastFill = BLACK;
-      }
+// original two-phase code
+//    if (armClear && toggleFill) {
+//      if (lastFill == RED) {
+//        if (tab.isSelected()) {
+//          lastFill = GREY;
+//        } else {
+//          lastFill = BLACK;
+//        }
+//      } else {
+//        lastFill = RED;
+//      }
+//    } else {
+//      if (tab.isSelected()) {
+//        lastFill = GREY;
+//      } else {
+//        lastFill = BLACK;
+//      }
+//    }
+
+    if (!armClear) {
+      opacity = 0;  // ensures that next fade in when clear button is pressed starts from dark.
     }
 
-    fill(lastFill);
+    if (armClear) {
+      lastFill = ARMED;
+      opacity += 0.5 * direction;
+      if ((opacity < 0) || (opacity > 75)) {
+        direction = -direction;
+      } 
+    }
+      else {
+      if (!armClear && tab.isSelected()) {
+        lastFill = BLACK;
+      } 
+      else {
+        if (!armClear) {
+        lastFill = BLACK;
+      }  
+      }
+        
+    }
+ 
+
+    fill(lastFill, opacity);
     stroke(lastStroke);
 
     rect(x, y, myWidth, myHeight);
