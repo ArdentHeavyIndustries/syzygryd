@@ -42,14 +42,14 @@ ScrollableMessage scrollablemessage;
 PFont clrFont;
 
 void setup() {
-  // TOUCHSCREEN!
-  //change to 1920,1080 for the touchscreen!
-  //for the touchscreen, make sure you 'present' instead of run, in the sketch menu.
-  size(1280,720, OPENGL);// 16:9 window
+  //controller display grabs the screen's current resolution and applies it to the sketch
+  size(screen.width,screen.height,OPENGL);
+  frame.setLocation(0,0);
+  background(0);
   
   /* dunno why there's a framerate specified, there usually isn't, 
    * but all the osc examples had one. */
-  frameRate(30); 
+  //frameRate(30);
 
   // changing color mode to hsb for ease of getting at the color wheel.
   colorMode(HSB, 100); 
@@ -94,7 +94,7 @@ void setup() {
 int curSecond = 0;
 
 void draw() {
-  background(0);
+  //background(0);
   selectedPanel.draw();
   for (Enumeration e = animations.elements(); e.hasMoreElements(); ) {
     Animation a = (Animation) e.nextElement();
@@ -104,6 +104,13 @@ void draw() {
   scrollablemessage.msgDraw();
 
 }
+
+public void init() {  
+  frame.removeNotify();
+  frame.setUndecorated(true);
+  frame.addNotify();
+  super.init();
+}  
 
 void selectPanel(int id) {
   selectedPanel = panels[id];
