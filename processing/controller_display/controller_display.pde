@@ -178,5 +178,7 @@ void keyPressed() {
     selectPanel(1);
   } else if (key == '3') {
     selectPanel(2);
+  } else if (key == 'q') {
+   exit(); 
   }
 }
