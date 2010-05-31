@@ -72,6 +72,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     float scaleFactor, scaleFactorSweep;
 
     /*set up svg layers as objects*/
+    
     fullButton = loadShape("button3.svg");
     scaleFactor = (sqLength/fullButton.width);
     left = fullButton.getChild("left");
@@ -80,13 +81,11 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     right.scale(scaleFactor);
     middle = fullButton.getChild("middle");
     middle.scale(scaleFactor);
-
-    fullButtonSweep = loadShape("button3.svg");
-    scaleFactorSweep = ((sqLength / fullButtonSweep.width) - 0.1);
-    middleOnSweep = fullButtonSweep.getChild("middleOn");
+    
+    scaleFactorSweep = ((sqLength / fullButton.width) - 0.1);
+    middleOnSweep = fullButton.getChild("middleOn");
     middleOnSweep.scale(scaleFactorSweep);
 
-    smooth();
   }
 
   void setBaseHue(int _newHue){
