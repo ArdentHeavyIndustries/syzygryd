@@ -147,14 +147,43 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     rect(miniX, miniY, miniLength, miniLength);
   }
 
-  void press() {
+  //void press() {
+  //  setValue(isOn ? OFF : ON, true);
+  //  if (isOn) {
+  //    new ButtonPressAnimation((DrawableTab) tab, this);
+  //  }
+
+  //  armClear = false;
+  //}
+  
+void press() {
     setValue(isOn ? OFF : ON, true);
     if (isOn) {
-      new ButtonPressAnimation((DrawableTab) tab, this);
+        final DrawableTab t = (DrawableTab)tab;
+        DrawableButton x;
+        x = t.getButtonFromTabCoords(row - 1, col);
+        if (x != null) x.animate0();
+        x = t.getButtonFromTabCoords(row + 1, col);
+        if (x != null) x.animate0();
+        x = t.getButtonFromTabCoords(row, col - 1);        
+        if (x != null) x.animate0();
+        x = t.getButtonFromTabCoords(row, col + 1);        
+        if (x != null) x.animate0();
     }
-
     armClear = false;
-  }
+}
+   
+void animate() {
+    if (activeAlpha > 0) {
+        activeAlpha -= 3;
+        if (activeAlpha == 0) ((DrawableTab)tab).activeCount--;
+    }
+}
+
+void animate0() {
+    if (activeAlpha == 0) ((DrawableTab)tab).activeCount++;
+    activeAlpha = 36;    
+}
 
   /**
    * setValue turns the button on or off without sending a message

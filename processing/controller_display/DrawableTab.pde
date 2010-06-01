@@ -18,6 +18,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
   float scaleFactor;
   
   PShape left, right, middle, middleOnSweep;
+  
+  int activeCount = 0;
 
   DrawableTab(int _id, Panel _panel, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing, PShape _left, PShape _right, PShape _middle, PShape _middleOn) {
     super(_id, _panel, _gridWidth, _gridHeight);
@@ -37,11 +39,6 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
    
     onButtons = new HashMap();
 
-    left = _left;
-    right = _right;
-    middle = _middle;
-    middleOnSweep = _middleOn;
-
     for (int i = 0; i < gridWidth; i++) {
       for (int j = 0; j < gridHeight; j++) {
         DrawableButton b = new DrawableButton(
@@ -54,10 +51,10 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
           (miniTab.buttonSpacing * (i + 1)) - miniTab.buttonSize + miniTab.originX,
           (miniTab.buttonSpacing * (j + 1)) - miniTab.buttonSize + miniTab.originY,
           miniTabButtonSize,
-          left,
-          right,
-          middle,
-          middleOnSweep
+          _left,
+          _right,
+          _middle,
+          _middleOn
         );
 
         // Put button into hashmaps
@@ -103,7 +100,7 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
    * @return The button at the specified row and column in this tab,
    * null if row or col are out of range.
    */
-  Pressable getButtonFromTabCoords(int row, int col) {
+  DrawableButton getButtonFromTabCoords(int row, int col) {
     if (row < 0 || col < 0 || row >= gridHeight || col >= gridWidth) {
       return null;
     }
@@ -133,7 +130,7 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
   }
 
   void draw() {
-    if(second() % 5 == 0 && second() != curSecond){ //does changing the modulo here make color cycle faster or slower?
+    if(second() % 5 == 0 && second() != curSecond) { //does changing the modulo here make color cycle faster or slower?
       masterHue++;
       if(masterHue > 100){
         masterHue -=100; 
@@ -154,4 +151,14 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
       clearButton.draw();
     }
   }
+  
+void animate() {
+    if (activeCount > 0) {
+        for (int i = 0; i < gridWidth; i++) {
+            for (int j = 0; j < gridHeight; j++) {
+                ((DrawableButton)buttons[i][j]).animate();
+            }
+        }
+    } 
+}
 }

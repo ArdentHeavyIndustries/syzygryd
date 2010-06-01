@@ -23,7 +23,7 @@ DrawablePanel[] panels;
 DrawablePanel selectedPanel;
 Temposweep temposweep;
 HashMap typeMapOSC = new HashMap();
-Vector animations = new Vector(16);
+//Vector animations = new Vector(16);
 
 /* Sets an initial Hue for colors to cycle from. Changes almost immediately */
 int masterHue = 1;
@@ -120,15 +120,25 @@ void setup() {
 int curSecond = 0;
 
 void draw() {
-  selectedPanel.draw();
-  for (Enumeration e = animations.elements(); e.hasMoreElements(); ) {
-    Animation a = (Animation) e.nextElement();
-    a.step();
-  }
-  temposweep.draw();
-  scrollablemessage.msgDraw();
-
+    //panel animation
+    for (int i = 0; i < panels.length; i++) {
+        panels[i].animate();
+    }
+    selectedPanel.draw();
+    temposweep.draw();
+    scrollablemessage.msgDraw();
 }
+
+//void draw() {
+//  selectedPanel.draw();
+//  for (Enumeration e = animations.elements(); e.hasMoreElements(); ) {
+//    Animation a = (Animation) e.nextElement();
+//    a.step();
+//  }
+//  temposweep.draw();
+//  scrollablemessage.msgDraw();
+
+//}
 
 public void init() {  
   frame.removeNotify();
