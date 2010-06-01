@@ -19,7 +19,8 @@ class DrawableClearButton extends syzygryd.Button implements Drawable, Pressable
     y = _y;
     myWidth = _width;
     myHeight = _height;
-    clrFont = loadFont("Arial-BoldMT-16.vlw");
+    //clrFont = ("Arial-BoldMT-16.vlw");
+    clrFont = createFont("Andale Mono",25);
 
   }
 

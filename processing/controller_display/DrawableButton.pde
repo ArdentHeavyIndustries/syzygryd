@@ -53,15 +53,19 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   PShape fullButton;
   PShape fullButtonSweep, middleOnSweep;
 
-  DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength){
+  //DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength, PShape _fullButton){
+  DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength, PShape _left, PShape _right, PShape _middle, PShape _middleOn) { 
     super(_col, _row, _tab);
     oscP5.plug(this, "setValue", getOscAddress());
 
     x = _x;
     y = _y;
     sqLength = _sqLength;
-    sweepX = (int) (x + ((sqLength * 0.1) / 2) + 2);
-    sweepY = (int) (y + ((sqLength * 0.1) / 2) + 2);
+    //sweepX = (int) (x + ((sqLength * 0.1) / 2) + 2);
+    //sweepY = (int) (y + ((sqLength * 0.1) / 2) + 2);
+    sweepX = x + (int)(sqLength * 0.05);
+    sweepY = y + (int)(sqLength * 0.05);
+    
     isSweep = false;
     activeAlpha = 0;
 
@@ -69,22 +73,10 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     miniY = _miniY;
     miniLength = _miniLength;
 
-    float scaleFactor, scaleFactorSweep;
-
-    /*set up svg layers as objects*/
-    
-    fullButton = loadShape("button3.svg");
-    scaleFactor = (sqLength/fullButton.width);
-    left = fullButton.getChild("left");
-    left.scale(scaleFactor);
-    right = fullButton.getChild("right");
-    right.scale(scaleFactor);
-    middle = fullButton.getChild("middle");
-    middle.scale(scaleFactor);
-    
-    scaleFactorSweep = ((sqLength / fullButton.width) - 0.1);
-    middleOnSweep = fullButton.getChild("middleOn");
-    middleOnSweep.scale(scaleFactorSweep);
+    left = _left;
+    right = _right;
+    middle = _middle;
+    middleOnSweep = _middleOn;
 
   }
 
@@ -113,11 +105,13 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     shape(middle, x, y);
 
     if (isOn && isSweep) {
+      //enabled button
       middleOnSweep.disableStyle();
       noStroke();
       fill(100, 50);
       shape(middleOnSweep, sweepX, sweepY);
     } else if (activeAlpha > 0) {
+      //crosshairs
       middleOnSweep.disableStyle();
       noStroke();
       fill(100, activeAlpha);

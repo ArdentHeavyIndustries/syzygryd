@@ -7,11 +7,11 @@
  * The DrawablePanel class is a Panel that knows how to draw itself.
  */
 class DrawablePanel extends syzygryd.Panel implements Drawable {
-  DrawablePanel(int _id, DrawablePanel[] _allPanels, int _ntabs, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing) {
+  DrawablePanel(int _id, DrawablePanel[] _allPanels, int _ntabs, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing, PShape _left, PShape _right, PShape _middle, PShape _middleOn) {
     super(_id, _allPanels, _ntabs);
-
+    
     for (int i = 0; i < tabs.length; i++) {
-      tabs[i] = new DrawableTab(i, this, _gridWidth, _gridHeight, _buttonSize, _buttonSpacing);
+      tabs[i] = new DrawableTab(i, this, _gridWidth, _gridHeight, _buttonSize, _buttonSpacing, _left, _right, _middle, _middleOn);
     }
     selectTab(0);
   }

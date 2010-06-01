@@ -14,8 +14,12 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
 
   int miniTabX, miniTabY;
   int miniTabWidth, miniTabHeight;
+  
+  float scaleFactor;
+  
+  PShape left, right, middle, middleOnSweep;
 
-  DrawableTab(int _id, Panel _panel, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing) {
+  DrawableTab(int _id, Panel _panel, int _gridWidth, int _gridHeight, int _buttonSize, int _buttonSpacing, PShape _left, PShape _right, PShape _middle, PShape _middleOn) {
     super(_id, _panel, _gridWidth, _gridHeight);
     buttonSize = _buttonSize;
     buttonSpacing = _buttonSpacing;
@@ -33,6 +37,11 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
    
     onButtons = new HashMap();
 
+    left = _left;
+    right = _right;
+    middle = _middle;
+    middleOnSweep = _middleOn;
+
     for (int i = 0; i < gridWidth; i++) {
       for (int j = 0; j < gridHeight; j++) {
         DrawableButton b = new DrawableButton(
@@ -44,7 +53,11 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
           buttonSize, // button length
           (miniTab.buttonSpacing * (i + 1)) - miniTab.buttonSize + miniTab.originX,
           (miniTab.buttonSpacing * (j + 1)) - miniTab.buttonSize + miniTab.originY,
-          miniTabButtonSize
+          miniTabButtonSize,
+          left,
+          right,
+          middle,
+          middleOnSweep
         );
 
         // Put button into hashmaps

@@ -40,19 +40,44 @@ ScrollableMessage scrollablemessage;
 // Font for the clear button
 PFont clrFont;
 
+PShape masterButton, left, right, middle, middleOnSweep;
+
 void setup() {
   //controller display grabs the screen's current resolution and applies it to the sketch
+  //size(screen.width,screen.height,OPENGL);
   size(screen.width,screen.height,OPENGL);
-  
   //move the frame location
   frame.setLocation(0,0);
   background(0);
   
   //hide the mouse cursor (if not on touchscreen comment out!)
-  noCursor();
+  //noCursor();
 
   // changing color mode to hsb for ease of getting at the color wheel.
   colorMode(HSB, 100); 
+  
+    //a quicker way to do the above without an if statement
+  int buttonSize = ((height)/22) << 1;
+  
+  //load up shape
+  masterButton = loadShape("button3.svg");
+      //let's make some buttons yo!
+    //somehow scale acts differently here than in drawablebutton, thus why the extra 0.006 needed (processing.org built their own SVG implementation)
+    //that said, in the code the undocumented call resetMatrix() fixes scaling issues below 1
+    float scaleFactor = (buttonSize/masterButton.width);
+    left = masterButton.getChild("left");
+    left.resetMatrix();
+    left.scale(scaleFactor);
+    right = masterButton.getChild("right");
+    right.resetMatrix();
+    right.scale(scaleFactor);
+    middle = masterButton.getChild("middle");
+    middle.resetMatrix();
+    middle.scale(scaleFactor);
+    middleOnSweep = masterButton.getChild("middleOn");
+    //scale this one differently for cool effect
+    middleOnSweep.resetMatrix();
+    middleOnSweep.scale(scaleFactor*0.9);
 
   // start oscP5, listening for incoming messages at port 9000
   oscP5 = new OscP5(this, 9000);
@@ -68,12 +93,13 @@ void setup() {
   OscMessage connect = new OscMessage("/server/connect");
   oscP5.send(connect, myRemoteLocation);
 
-  int buttonSize = height / 11; // size of button based on real estate
+  //int buttonSize = height / 11; // size of button based on real estate
   // Force button to be an even size so the active light can be
   // properly centered
-  if (buttonSize % 2 == 1) {
-    buttonSize--;
-  }
+  //if (buttonSize % 2 == 1) {
+  //  buttonSize--;
+  //}
+  
   int buttonSpacing = buttonSize + 4; // spacing btwn buttons based on buttonSize
 
   int gridWidth = 16;
@@ -83,7 +109,7 @@ void setup() {
 
   panels = new DrawablePanel[numPanels];
   for (int i = 0; i < panels.length; i++) {
-    panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
+    panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing, left, right, middle, middleOnSweep);
   }
   selectPanel(0);
   temposweep = new Temposweep(buttonSize, buttonSpacing);

@@ -26,7 +26,7 @@ class ScrollableMessage {
       textFont(msgFont);
       fill(0,0,99);  //white
       textAlign(LEFT);
-      text(message[messageSelect], messageXPos, height -2);
+      text(message[messageSelect], messageXPos, height);
       messageXPos -= 1.8;    
       if (messageXPos < (0 - messageWidth[messageSelect])) {
        messageSelect ++;
