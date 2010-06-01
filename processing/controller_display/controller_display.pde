@@ -10,7 +10,6 @@ import processing.opengl.*;
 /* Osc business */
 import oscP5.*;
 import netP5.*;
-import processing.opengl.*;
 
 // import com.apple.dnssd.*;
 
@@ -44,12 +43,13 @@ PFont clrFont;
 void setup() {
   //controller display grabs the screen's current resolution and applies it to the sketch
   size(screen.width,screen.height,OPENGL);
+  
+  //move the frame location
   frame.setLocation(0,0);
   background(0);
   
-  /* dunno why there's a framerate specified, there usually isn't, 
-   * but all the osc examples had one. */
-  //frameRate(30);
+  //hide the mouse cursor (if not on touchscreen comment out!)
+  noCursor();
 
   // changing color mode to hsb for ease of getting at the color wheel.
   colorMode(HSB, 100); 
@@ -94,7 +94,6 @@ void setup() {
 int curSecond = 0;
 
 void draw() {
-  //background(0);
   selectedPanel.draw();
   for (Enumeration e = animations.elements(); e.hasMoreElements(); ) {
     Animation a = (Animation) e.nextElement();
