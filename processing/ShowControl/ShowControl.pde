@@ -2,13 +2,6 @@ import syzygryd.*;
 import processing.serial.*;
 import processing.core.*;
 
-/* define configuration constants */
-interface Configuration {
-  public static final String FIXTURE_PROFILES_FILENAME = "fixture_profiles.xml";
-  public static final String FIXTURE_DEFINITIONS_FILENAME = "fixture_definitions.xml";
-  public static final String[] ALLOWED_CHANNEL_ATTRIBUTES = { "name", "latency" };
-}
-
 DMX DMXManager;
 ArrayList fixtures;
 int huetemp=0;
@@ -23,11 +16,11 @@ void setup(){
   background(0);
   frameRate(30);
   
-  //create new DMX manager object with a refresh rate of 44Hz
-  DMXManager = new DMX(this, 44);
+  //create new DMX manager object with a refresh rate of 40Hz
+  DMXManager = new DMX(this, 40);
   
   //add three controllers to manager
-  DMXManager.addController("COM3");
+  DMXManager.addController("COM5");
   //DMXManager.addController("COM4");
   //DMXManager.addController("COM2");
 
