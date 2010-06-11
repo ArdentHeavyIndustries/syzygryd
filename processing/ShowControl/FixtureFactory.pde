@@ -1,3 +1,10 @@
+/* define configuration constants */
+interface Configuration {
+  public static final String FIXTURE_PROFILES_FILENAME = "fixture_profiles.xml";
+  public static final String FIXTURE_DEFINITIONS_FILENAME = "fixture_definitions.xml";
+  public static final String[] ALLOWED_CHANNEL_ATTRIBUTES = { "name", "latency" };
+}
+
 /*
  * FixtureFactory - creates Fixture objects from a set of properties describing the fixture
  *
