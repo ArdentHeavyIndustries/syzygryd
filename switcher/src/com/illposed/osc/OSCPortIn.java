@@ -64,6 +64,8 @@ public class OSCPortIn extends OSCPort implements Runnable {
 				socket.receive(packet);
 				OSCPacket oscPacket = converter.convert(buffer, packet.getLength());
 				dispatcher.dispatchPacket(oscPacket);
+			} catch (SocketException e) {
+				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -16,9 +16,10 @@ public class Switcher {
 	public static final int LISTENING_PORT = 9001;
 	public static final int SENDING_PORT = 9000;
 	public static final int ARG_SETLISTFILENAME = 0;
-	private static Setlist list;
+	private static Setlist list = null;
 	private static int SECOND_IN_MILLIS = 1000;
-	private static OSCPortOut sender;
+	private static OSCPortOut sender = null;
+	private static OSCPortIn portIn = null;
 	
 	
 	public static void main(String[] args) {
@@ -36,31 +37,45 @@ public class Switcher {
 			System.exit(-1);
 		}
 		
-		// setup OSC fun
-		setupOSC();
+		// setup sender
+		try {
+			sender = new OSCPortOut(InetAddress.getLocalHost(), SENDING_PORT);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		setupOSCListener();
 		
 		// for infinity, play the next song, then sleep.
 		while(true) {
 			Set s = list.getNext();
 			s.play();
-			setupOSC();
+		
 			try {
 				Thread.sleep(SECOND_IN_MILLIS * s.getLength());
 			} catch (InterruptedException e) {
 				// NIL;
 			}
 			s.stop(sender);
+			try {
+				Thread.sleep(SECOND_IN_MILLIS * 3);
+			} catch (InterruptedException e) {
+				// NIL;
+			}
 		}
 		
 	}
 	
-	public static void setupOSC() {
+	public static void setupOSCListener() {
 		
-		OSCPortIn portIn = null;
+		// if we're already connected, then stop listening & close socket
+		if (portIn != null) {
+			portIn.stopListening();
+			portIn.close();
+		}
 		
 		try {
 			portIn = new OSCPortIn(LISTENING_PORT);
-			sender = new OSCPortOut(InetAddress.getLocalHost(), SENDING_PORT);
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			System.err.println("Unable to open port " + LISTENING_PORT + "for listening.\n"
@@ -70,22 +85,12 @@ public class Switcher {
 					+ "copy of this running. (hint: the process name will be java).  Thanks for playing!");
 			e.printStackTrace();
 			System.exit(-1);
-		} catch (UnknownHostException e) {
-			// NOP
-		}
+		} 
 		
 		portIn.addListener("/remix/echo", setLoadedListener);
 		portIn.startListening();
 		System.out.println("Now listening on port " + LISTENING_PORT);
-		try {
-			Thread.sleep(10000);
-		} catch (Exception e) {
-			// NOP
-		}
-		System.out.println("done");
-		portIn.stopListening();
-		portIn.close();
-		sender.close();
+		
 		
 	}
 
