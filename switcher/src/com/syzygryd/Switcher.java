@@ -74,8 +74,6 @@ public class Switcher {
 			// NOP
 		}
 		
-		
-		
 		portIn.addListener("/remix/echo", setLoadedListener);
 		portIn.startListening();
 		System.out.println("Now listening on port " + LISTENING_PORT);
