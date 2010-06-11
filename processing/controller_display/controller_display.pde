@@ -45,9 +45,8 @@ PShape masterButton, left, right, middle, middleOnSweep;
 void setup() {
   //controller display grabs the screen's current resolution and applies it to the sketch
   //size(screen.width,screen.height,OPENGL);
-  size(screen.width,screen.height,OPENGL);
+  size(1280,720,OPENGL);
   //move the frame location
-  frame.setLocation(0,0);
   background(0);
   
   //hide the mouse cursor (if not on touchscreen comment out!)
@@ -140,12 +139,6 @@ void draw() {
 
 //}
 
-public void init() {  
-  frame.removeNotify();
-  frame.setUndecorated(true);
-  frame.addNotify();
-  super.init();
-}  
 
 void selectPanel(int id) {
   selectedPanel = panels[id];
