@@ -1,3 +1,4 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 // implements the scrolling message at the bottom of the panel
 class ScrollableMessage {
   
@@ -22,19 +23,19 @@ class ScrollableMessage {
     }    
   }  // end constructor
   
-    void msgDraw(){
-      textFont(msgFont);
-      fill(0,0,99);  //white
-      textAlign(LEFT);
-      text(message[messageSelect], messageXPos, height);
-      messageXPos -= 1.8;    
-      if (messageXPos < (0 - messageWidth[messageSelect])) {
-       messageSelect ++;
-       messageXPos = width + 25; 
-      }
-      if (messageSelect > (message.length - 1))   {
-        messageSelect = 0;
-      }
-    }  // end msgDraw()
-  }// End ScrollableMessage Class
+  void msgDraw(){
+    textFont(msgFont);
+    fill(0,0,99);  //white
+    textAlign(LEFT);
+    text(message[messageSelect], messageXPos, height);
+    messageXPos -= 1.8;    
+    if (messageXPos < (0 - messageWidth[messageSelect])) {
+      messageSelect ++;
+      messageXPos = width + 25; 
+    }
+    if (messageSelect > (message.length - 1))   {
+      messageSelect = 0;
+    }
+  }  // end msgDraw()
+}// End ScrollableMessage Class
 
