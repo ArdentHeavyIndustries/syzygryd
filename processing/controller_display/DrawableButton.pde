@@ -46,23 +46,13 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   boolean isSweep;
   int activeAlpha;
   
-  /* SVG getter business */
-  PShape left;
-  PShape right;
-  PShape middle;
-  PShape fullButton;
-  PShape fullButtonSweep, middleOnSweep;
-
-  //DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength, PShape _fullButton){
-  DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength, PShape _left, PShape _right, PShape _middle, PShape _middleOn) { 
+  DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength) {
     super(_col, _row, _tab);
     oscP5.plug(this, "setValue", getOscAddress());
 
     x = _x;
     y = _y;
     sqLength = _sqLength;
-    //sweepX = (int) (x + ((sqLength * 0.1) / 2) + 2);
-    //sweepY = (int) (y + ((sqLength * 0.1) / 2) + 2);
     sweepX = x + (int)(sqLength * 0.05);
     sweepY = y + (int)(sqLength * 0.05);
     
@@ -72,12 +62,6 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     miniX = _miniX;
     miniY = _miniY;
     miniLength = _miniLength;
-
-    left = _left;
-    right = _right;
-    middle = _middle;
-    middleOnSweep = _middleOn;
-
   }
 
   void setBaseHue(int _newHue){

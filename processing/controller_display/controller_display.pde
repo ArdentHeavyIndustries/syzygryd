@@ -40,10 +40,15 @@ ScrollableMessage scrollablemessage;
 // Font for the clear button
 PFont clrFont;
 
+// Button SVG graphics.  We use the same graphic for all the buttons,
+// which only needs to be loaded once.  Since Processing doesn't have
+// static vars these are globals.
 PShape masterButton, left, right, middle, middleOnSweep;
 
 void setup() {
-  //controller display grabs the screen's current resolution and applies it to the sketch
+  // controller display can be made to grab the screen's current
+  // resolution and apply it to the sketch, but for development
+  // purposes we just smash to 1280x720
   // size(screen.width,screen.height,OPENGL);
   size(1280,720,OPENGL);
   
@@ -110,7 +115,7 @@ void setup() {
 
   panels = new DrawablePanel[numPanels];
   for (int i = 0; i < panels.length; i++) {
-    panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing, left, right, middle, middleOnSweep);
+    panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
   selectPanel(0);
   temposweep = new Temposweep(buttonSize, buttonSpacing);
