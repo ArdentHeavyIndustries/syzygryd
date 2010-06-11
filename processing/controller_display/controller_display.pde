@@ -44,10 +44,8 @@ PShape masterButton, left, right, middle, middleOnSweep;
 
 void setup() {
   //controller display grabs the screen's current resolution and applies it to the sketch
-  //size(screen.width,screen.height,OPENGL);
+  // size(screen.width,screen.height,OPENGL);
   size(1280,720,OPENGL);
-  //move the frame location
-  background(0);
   
   //hide the mouse cursor (if not on touchscreen comment out!)
   //noCursor();
@@ -60,23 +58,27 @@ void setup() {
   
   //load up shape
   masterButton = loadShape("button3.svg");
-      //let's make some buttons yo!
-    //somehow scale acts differently here than in drawablebutton, thus why the extra 0.006 needed (processing.org built their own SVG implementation)
-    //that said, in the code the undocumented call resetMatrix() fixes scaling issues below 1
-    float scaleFactor = (buttonSize/masterButton.width);
-    left = masterButton.getChild("left");
-    left.resetMatrix();
-    left.scale(scaleFactor);
-    right = masterButton.getChild("right");
-    right.resetMatrix();
-    right.scale(scaleFactor);
-    middle = masterButton.getChild("middle");
-    middle.resetMatrix();
-    middle.scale(scaleFactor);
-    middleOnSweep = masterButton.getChild("middleOn");
-    //scale this one differently for cool effect
-    middleOnSweep.resetMatrix();
-    middleOnSweep.scale(scaleFactor*0.9);
+
+  //let's make some buttons yo!
+  // somehow scale acts differently here than in drawablebutton, thus
+  // why the extra 0.006 needed (processing.org built their own SVG
+  // implementation) 
+  // that said, in the code the undocumented call resetMatrix() fixes
+  // scaling issues below 1
+  float scaleFactor = (buttonSize/masterButton.width);
+  left = masterButton.getChild("left");
+  left.resetMatrix();
+  left.scale(scaleFactor);
+  right = masterButton.getChild("right");
+  right.resetMatrix();
+  right.scale(scaleFactor);
+  middle = masterButton.getChild("middle");
+  middle.resetMatrix();
+  middle.scale(scaleFactor);
+  middleOnSweep = masterButton.getChild("middleOn");
+  //scale this one differently for cool effect
+  middleOnSweep.resetMatrix();
+  middleOnSweep.scale(scaleFactor*0.9);
 
   // start oscP5, listening for incoming messages at port 9000
   oscP5 = new OscP5(this, 9000);
