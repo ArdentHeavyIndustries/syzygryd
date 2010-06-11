@@ -119,13 +119,14 @@ void setup() {
 int curSecond = 0;
 
 void draw() {
-    //panel animation
-    for (int i = 0; i < panels.length; i++) {
-        panels[i].animate();
-    }
-    selectedPanel.draw();
-    temposweep.draw();
-    scrollablemessage.msgDraw();
+  background(0);
+  //panel animation
+  for (int i = 0; i < panels.length; i++) {
+    panels[i].animate();
+  }
+  selectedPanel.draw();
+  temposweep.draw();
+  scrollablemessage.msgDraw();
 }
 
 //void draw() {
