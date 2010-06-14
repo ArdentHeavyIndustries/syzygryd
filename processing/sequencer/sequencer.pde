@@ -1,5 +1,3 @@
-
-
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /**
  * Syzygryd sequencer
@@ -12,9 +10,15 @@ import oscP5.*;
 import netP5.*;
 import themidibus.*;
 
+//#begin !windows
 import com.apple.dnssd.*;
+//#end !windows
 
-class Sequencer implements com.apple.dnssd.RegisterListener {
+class Sequencer
+//#begin !windows
+    implements com.apple.dnssd.RegisterListener
+//#end !windows
+{
   MidiBus midiBus;
   String midiInput;
   String midiOutput;
@@ -23,8 +27,10 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
   int gridWidth;
   int gridHeight;
   Vector myFullNames = new Vector();
+  //#begin !windows
   DNSSDRegistration receiver;
   DNSSDRegistration sender;
+  //#end !windows
   SequencerPanel[] panels;
   Life life;  
   boolean lifeRunning = false;
@@ -38,6 +44,7 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
   float maxBpm = 300.0;
   float bpm = 140.0;
 
+  //#begin !windows
   void operationFailed(DNSSDService svc, int err) {
     println("Bonjour Operation Failed! " + svc + " err = " + err);
   }
@@ -52,6 +59,7 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
       println("Oh noes, DNSSDException in serviceRegistered: " + e);
     }
   }
+  //#end !windows
 
   Sequencer(PApplet parent, int _numPanels, int _numTabs, int _gridWidth, int _gridHeight, String _midiInput, String _midiOutput, int _broadcastPort) {
     midiInput = _midiInput;
@@ -69,6 +77,7 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     musicMaker = new MusicMaker(this, midiBus);
     midiBus.addMidiListener(musicMaker);
 
+    //#begin !windows
     // Magical service discovery goodness, w00t
     try {
       String myName = "SyzySequencer on " + java.net.InetAddress.getLocalHost().getHostName();
@@ -81,6 +90,7 @@ class Sequencer implements com.apple.dnssd.RegisterListener {
     catch (java.net.UnknownHostException uhe) {
       println("Oh noes, UnknownHostException: "+uhe);
     }
+    //#end !windows
   }
 
   void setInput(String newMidiInput) {
@@ -272,8 +282,10 @@ void setup() {
 }
 
 void stop() {
+  //#begin !windows
   s.receiver.stop();
   s.sender.stop();
+  //#end !windows
   super.stop();
 }
 
