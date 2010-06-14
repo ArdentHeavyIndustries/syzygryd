@@ -12,7 +12,7 @@ class ScrollableMessage {
     
     // load the font for the scrolling message at the bottom of the display
     // msgFont is a Global
-    msgFont = createFont("Andale Mono",25);
+    msgFont = createFont("DejaVuSans-25.vlw",25);
     textFont(msgFont);
     
     //load the message array and calc the companion array providing the pixel width of each message
@@ -27,11 +27,11 @@ class ScrollableMessage {
     textFont(msgFont);
     fill(0,0,99);  //white
     textAlign(LEFT);
-    text(message[messageSelect], messageXPos, height);
+    text(message[messageSelect], messageXPos, height - 8);
     messageXPos -= 1.8;    
     if (messageXPos < (0 - messageWidth[messageSelect])) {
       messageSelect ++;
-      messageXPos = width + 25; 
+      messageXPos = width + 15; 
     }
     if (messageSelect > (message.length - 1))   {
       messageSelect = 0;
