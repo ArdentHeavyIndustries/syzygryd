@@ -19,7 +19,9 @@ class NoteOffTask extends java.util.TimerTask {
 }
 
 class MusicMaker implements StandardMidiListener {
-  int clock, sixteenthNote, quarterNote, measure, pulseCompare, timeA, timeB;
+  int clock, sixteenthNote, quarterNote, measure, pulseCompare;
+  int timeCur = 0;
+  int timePrev = 0;
   Sequencer sequencer;
   Timer noteOffTimer;
   MidiBus midiBus;
@@ -40,10 +42,6 @@ class MusicMaker implements StandardMidiListener {
       Integer note = (Integer)e.nextElement();
       midiBus.sendNoteOn(channel, note.intValue(), 128);
     }
-    //checking to see if masterbpm=0 and resetting to 120 if it is.
-    if (masterbpm == 0) {
-      masterbpm=120;
-    }
     //change ms length of a 1/16 note dependent on calculated tempo
     noteOffTimer.schedule(t, 15000/masterbpm);
     // println("Note off: " + 15000/masterbpm);
@@ -61,12 +59,21 @@ class MusicMaker implements StandardMidiListener {
     //calculating the beats per minute
     //24 pulses equals one beat in 4/4
     if (pulseCompare == 1) {
-       timeA = millis();   
-       // bpm to ms formula based off 1/32...  y=240000(1/32)/x
-       if ((timeA-timeB) <= 7500) {
-       masterbpm = 7500/(timeA-timeB);
+      timePrev = timeCur;
+      timeCur = millis();
+      // the first time this will be large, since timePrev is 0.
+      // but since we're already placing an upper bound on the diff, we don't need to special case that.
+      int timeDiff = timeCur - timePrev;
+       if (timeDiff <= 7500) {
+         // bug:25 - avoid divide by zero
+         if (timeDiff > 0) {
+           // bpm to ms formula based off 1/32...  y=240000(1/32)/x
+           masterbpm = 7500/timeDiff;
+           //println("setting masterbpm to " + masterbpm);
+         } else {
+           System.err.println("WARNING: non-positive time between clock pulses: " + timeDiff);
+         }
        }
-       timeB = millis();
     }
     if (++pulseCompare > 3) {
      pulseCompare = 1;
