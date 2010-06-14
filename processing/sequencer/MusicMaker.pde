@@ -1,29 +1,10 @@
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
-class NoteOffTask extends java.util.TimerTask {
-  MidiBus midiBus;
-  int channel;
-  Vector notes;
-
-  NoteOffTask(MidiBus _bus, int _channel, Vector _notes) {
-    midiBus = _bus;
-    channel = _channel;
-    notes = _notes;
-  }
-
-  void run() {
-    for (Enumeration e = notes.elements(); e.hasMoreElements(); ) {
-      Integer note = (Integer)e.nextElement();
-      midiBus.sendNoteOff(channel, note.intValue(), 128);
-    }
-  }
-}
 
 class MusicMaker implements StandardMidiListener {
   int clock, sixteenthNote, quarterNote, measure, pulseCompare;
   int timeCur = 0;
   int timePrev = 0;
   Sequencer sequencer;
-  Timer noteOffTimer;
   MidiBus midiBus;
   long noteDuration;
   long masterbpm=120;
@@ -32,19 +13,23 @@ class MusicMaker implements StandardMidiListener {
     sequencer = _sequencer;
     midiBus = _bus;
     resetCounters();
-    noteOffTimer = new Timer();
     noteDuration = 125; //initial setting for 1/16 length on 120bpm
   }
 
-  void playNotes(int channel, Vector notes) {
-    NoteOffTask t = new NoteOffTask(midiBus, channel, notes);
-    for (Enumeration e = notes.elements(); e.hasMoreElements(); ) {
-      Integer note = (Integer)e.nextElement();
-      midiBus.sendNoteOn(channel, note.intValue(), 128);
+  void playNotes(int channel, int[] notesOff, int[] notesOn) {
+    for (int i = 0; i < notesOff.length; i++) {
+      if (notesOff[i] == -1) {
+        break;
+      }
+      midiBus.sendNoteOff(channel, notesOff[i], 128);
     }
-    //change ms length of a 1/16 note dependent on calculated tempo
-    noteOffTimer.schedule(t, 15000/masterbpm);
-    // println("Note off: " + 15000/masterbpm);
+
+    for (int i = 0; i < notesOn.length; i++) {
+      if (notesOn[i] == -1) {
+        break;
+      }
+      midiBus.sendNoteOn(channel, notesOn[i], 128);
+    }
   }
 
   String songPosition() {

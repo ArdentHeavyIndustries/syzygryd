@@ -16,7 +16,7 @@ import com.apple.dnssd.*;
 
 class Sequencer
 //#begin !windows
-    implements com.apple.dnssd.RegisterListener
+  implements com.apple.dnssd.RegisterListener
 //#end !windows
 {
   MidiBus midiBus;
@@ -37,7 +37,23 @@ class Sequencer
   int lifeStepBeats;
 
   int[] scale = { 
-    81, 79, 76, 74, 72, 69, 67, 64, 62, 60   };
+    81, 79, 76, 74, 72, 69, 67, 64, 62, 60
+  };
+
+  // bug:29,30
+  // This represents the notes we want to play on and off on every beat.
+  // sequencer.gotBeat() sets these and passes them to MusicMaker.playNotes()
+  // The three dimensions of the array are:
+  // i: 2.  we need to keep track of the current notes (to turn on) and the
+  //    previous notes (to turn off).  flip back and forth between these two.
+  // j: number of panels
+  // k: which notes to play.  a variable sized collection (e.g. Vector) is
+  // clearer, but a predefined array of the maximum length (gridHeight) is
+  // more efficient.  if we (hopefully) are not playing the maximum number of
+  // notes, use -1 as a delimiter.
+  int[][][] notes;
+  int notesIdxCur;
+  int notesIdxPrev;
 
   // sets the main tempo
   float minBpm = 40.0;
@@ -73,6 +89,19 @@ class Sequencer
     for (int i = 0; i < panels.length; i++) {
       panels[i] = new SequencerPanel(i, panels, _numTabs, _gridWidth, _gridHeight, _broadcastPort);
     }
+    notes = new int[2][panels.length][gridHeight];
+    if (gridHeight != scale.length) {
+      System.err.println("WARNING: gridHeight("+gridHeight+") != scale.length("+scale.length+")");
+    }
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < panels.length; j++) {
+        for (int k = 0; k < gridHeight; k++) {
+          notes[i][j][k] = -1;
+        }
+      }
+    }
+    notesIdxCur = 0;
+    notesIdxPrev = 1;
 
     musicMaker = new MusicMaker(this, midiBus);
     midiBus.addMidiListener(musicMaker);
@@ -113,17 +142,30 @@ class Sequencer
       // Grab a column of buttons from the panel's selected tab
       Button[] col = (Button[]) ((SequencerPatternTab) panels[i].selectedTab).buttons[beatNumber];
 
-      // Now use that information to fill in a vector of tones to play
-      Vector n = new Vector();
+      // Now use that information to fill in the tones to play
+      int k = 0;
       for (int j = 0; j < gridHeight; j++) {
         if (((SequencerButton) col[j]).isOn) {
-          n.add(new Integer(scale[j]));
+          notes[notesIdxCur][i][k++] = scale[j];
         }
+      }
+      // add delimiter if (hopefully) needed
+      if (k < gridHeight) {
+        notes[notesIdxCur][i][k] = -1;
       }
 
       // Now play that set of notes on the appropriate MIDI channel
-      musicMaker.playNotes(i, n);
+      // (but first stop playing the previous notes on the same channel)
+      musicMaker.playNotes(i, notes[notesIdxPrev][i], notes[notesIdxCur][i]);
+
+      // swap indices for next time
+      // this clever hack swaps without requiring a tmp var:
+      //   http://www.computing.net/answers/programming/swap-without-temp-variable/4268.html
+      notesIdxCur = notesIdxCur ^ notesIdxPrev;
+      notesIdxPrev = notesIdxCur ^ notesIdxPrev;
+      notesIdxCur = notesIdxCur ^ notesIdxPrev;
     }
+
     if (lifeRunning && (beatNumber % lifeStepBeats == 0)) {
       oneLifeStep();
     }
@@ -286,6 +328,13 @@ void stop() {
   s.receiver.stop();
   s.sender.stop();
   //#end !windows
+
+  // stop playing any notes that we had been playing
+  for (int i = 0; i < s.panels.length; i++) {
+    s.notes[s.notesIdxCur][i][0] = -1;
+    s.musicMaker.playNotes(i, s.notes[s.notesIdxPrev][i], s.notes[s.notesIdxCur][i]);
+  }
+
   super.stop();
 }
 
@@ -331,5 +380,3 @@ void handleComboEvents(GCombo combo) {
 void oscEvent(OscMessage theOscMessage) {
   s.oscEvent(theOscMessage);
 }
-
-
