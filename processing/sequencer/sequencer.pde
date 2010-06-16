@@ -56,9 +56,11 @@ class Sequencer
   int notesIdxPrev;
 
   // sets the main tempo
-  float minBpm = 40.0;
-  float maxBpm = 300.0;
-  float bpm = 140.0;
+  // 
+  // XXX not used?
+  // float minBpm = 40.0;
+  // float maxBpm = 300.0;
+  // float bpm = 140.0;
 
   //#begin !windows
   void operationFailed(DNSSDService svc, int err) {
