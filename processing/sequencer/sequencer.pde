@@ -41,7 +41,6 @@ class Sequencer
     81, 79, 76, 74, 72, 69, 67, 64, 62, 60
   };
 
-  // bug:29,30
   // This represents the notes we want to play on and off on every beat.
   // sequencer.gotBeat() sets these and passes them to MusicMaker.playNotes()
   // The three dimensions of the array are:
@@ -160,11 +159,9 @@ class Sequencer
       musicMaker.playNotes(i, notes[notesIdxPrev][i], notes[notesIdxCur][i]);
 
       // swap indices for next time
-      // this clever hack swaps without requiring a tmp var:
-      //   http://www.computing.net/answers/programming/swap-without-temp-variable/4268.html
-      notesIdxCur = notesIdxCur ^ notesIdxPrev;
-      notesIdxPrev = notesIdxCur ^ notesIdxPrev;
-      notesIdxCur = notesIdxCur ^ notesIdxPrev;
+      int tmpIdx = notesIdxPrev;
+      notesIdxPrev = notesIdxCur;
+      notesIdxCur = tmpIdx;
     }
 
     if (lifeRunning && (beatNumber % lifeStepBeats == 0)) {
