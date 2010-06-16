@@ -80,6 +80,8 @@ class Sequencer
   //#end !windows
 
   Sequencer(PApplet parent, int _numPanels, int _numTabs, int _gridWidth, int _gridHeight, String _midiInput, String _midiOutput, int _broadcastPort) {
+    println("begin Sequencer constructor");
+
     midiInput = _midiInput;
     midiOutput = _midiOutput;
     midiBus = new MidiBus(parent, midiInput, midiOutput);
@@ -122,6 +124,8 @@ class Sequencer
       println("Oh noes, UnknownHostException: "+uhe);
     }
     //#end !windows
+
+    println("end Sequencer constructor");
   }
 
   void setInput(String newMidiInput) {
@@ -261,6 +265,7 @@ class Sequencer
   }
 
   void stopAllNotes() {
+    println("stop playing all previously played notes");
     for (int i = 0; i < s.panels.length; i++) {
       notes[notesIdxCur][i][0] = -1;
       musicMaker.playNotes(i, notes[notesIdxPrev][i], notes[notesIdxCur][i]);
@@ -276,6 +281,8 @@ GLabel labelMidiInput, labelMidiOutput;
 NetAddressList globalClients = new NetAddressList();
 
 void setup() {
+  println("begin setup()");
+
   frameRate(60);
   size(400,70);
   textFont(createFont("Helvetica", 32));
@@ -329,9 +336,12 @@ void setup() {
   cboMidiInput.selectedText(),
   cboMidiOutput.selectedText(),
   myBroadcastPort);
+
+  println("end setup()");
 }
 
 void stop() {
+  println("sequencer stopping");
   //#begin !windows
   s.receiver.stop();
   s.sender.stop();

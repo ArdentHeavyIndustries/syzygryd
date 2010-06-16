@@ -64,6 +64,7 @@ class MusicMaker implements StandardMidiListener {
   }
 
   void allNotesOff() {
+    println("sending All Notes Off messages to Live on each channel");
     // afaict, MidiBus has no way to send a channel mode message (which is not the same as a control change message)
     ShortMessage message = new ShortMessage();
     try {
