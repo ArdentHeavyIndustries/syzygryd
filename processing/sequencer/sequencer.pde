@@ -9,6 +9,7 @@ import guicomponents.*;
 import oscP5.*;
 import netP5.*;
 import themidibus.*;
+import javax.sound.midi.*;
 
 //#begin !windows
 import com.apple.dnssd.*;
@@ -259,6 +260,14 @@ class Sequencer
       ((SequencerPatternTab) panels[i].selectedTab).clear();
     }
   }
+
+  void stopAllNotes() {
+    for (int i = 0; i < s.panels.length; i++) {
+      notes[notesIdxCur][i][0] = -1;
+      musicMaker.playNotes(i, notes[notesIdxPrev][i], notes[notesIdxCur][i]);
+    }
+    musicMaker.allNotesOff();
+  }
 }
 
 Sequencer s;
@@ -330,10 +339,7 @@ void stop() {
   //#end !windows
 
   // stop playing any notes that we had been playing
-  for (int i = 0; i < s.panels.length; i++) {
-    s.notes[s.notesIdxCur][i][0] = -1;
-    s.musicMaker.playNotes(i, s.notes[s.notesIdxPrev][i], s.notes[s.notesIdxCur][i]);
-  }
+  s.stopAllNotes();
 
   super.stop();
 }

@@ -6,14 +6,45 @@ class MusicMaker implements StandardMidiListener {
   int timePrev = 0;
   Sequencer sequencer;
   MidiBus midiBus;
-  long noteDuration;
+  //long noteDuration; // XXX not used?
   long masterbpm=120;
+
+  // http://www.midi.org/techspecs/midimessages.php
+  // Below is only the subset of MIDI messages that we expect to receive from Live.
+  //
+  // (For note off an on messages, the actual MIDI channel number is one
+  // higher than the value used internally and in the control message.)
+  // This message is sent when a note is released (ended).  
+  private static final int NOTE_OFF_0            = 0x80;
+  private static final int NOTE_OFF_1            = 0x81;
+  private static final int NOTE_OFF_2            = 0x82;
+  // This message is sent when a note is depressed (started).  
+  private static final int NOTE_ON_0             = 0x90;
+  private static final int NOTE_ON_1             = 0x91;
+  private static final int NOTE_ON_2             = 0x92;
+  //
+  // This is an internal 14 bit register that holds the number of MIDI beats
+  // (1 beat = six MIDI clocks) since the start of the song.
+  private static final int SONG_POSITION_POINTER = 0xF2;
+  // Sent 24 times per quarter note when synchronization is required.
+  private static final int TIMING_CLOCK          = 0xF8;
+  // Starts the current sequence playing.
+  private static final int START                 = 0xFA;
+  // Stop the current sequence
+  private static final int STOP                  = 0xFC;
+  //
+  // These are for sending messages to Live (see allNotesOff())
+  private static final int CHANNEL_MODE_MSG_0    = 0xB0;
+  private static final int CHANNEL_MODE_MSG_1    = 0xB1;
+  private static final int CHANNEL_MODE_MSG_2    = 0xB2;
+  private static final int ALL_NOTES_OFF_DATA1   = 0x7B;
+  private static final int ALL_NOTES_OFF_DATA2   = 0x00;
 
   MusicMaker(Sequencer _sequencer, MidiBus _bus) {
     sequencer = _sequencer;
     midiBus = _bus;
     resetCounters();
-    noteDuration = 125; //initial setting for 1/16 length on 120bpm
+    //noteDuration = 125; //initial setting for 1/16 length on 120bpm
   }
 
   void playNotes(int channel, int[] notesOff, int[] notesOn) {
@@ -21,14 +52,27 @@ class MusicMaker implements StandardMidiListener {
       if (notesOff[i] == -1) {
         break;
       }
-      midiBus.sendNoteOff(channel, notesOff[i], 128);
+      midiBus.sendNoteOff(channel, notesOff[i], /* velocity */ 128);
     }
 
     for (int i = 0; i < notesOn.length; i++) {
       if (notesOn[i] == -1) {
         break;
       }
-      midiBus.sendNoteOn(channel, notesOn[i], 128);
+      midiBus.sendNoteOn(channel, notesOn[i], /* velocity */ 128);
+    }
+  }
+
+  void allNotesOff() {
+    // afaict, MidiBus has no way to send a channel mode message (which is not the same as a control change message)
+    ShortMessage message = new ShortMessage();
+    try {
+      // it seems redundant specifying the channel both implicitly as part of the command, and explicit in the method
+      message.setMessage(CHANNEL_MODE_MSG_0, /* channel */ 0, ALL_NOTES_OFF_DATA1, ALL_NOTES_OFF_DATA2);
+      message.setMessage(CHANNEL_MODE_MSG_1, /* channel */ 1, ALL_NOTES_OFF_DATA1, ALL_NOTES_OFF_DATA2);
+      message.setMessage(CHANNEL_MODE_MSG_2, /* channel */ 2, ALL_NOTES_OFF_DATA1, ALL_NOTES_OFF_DATA2);
+    } catch (InvalidMidiDataException imde) {
+      System.err.println("The status byte or all data bytes belonging to the message do not specify a valid MIDI message in allNotesOff(): " + imde);
     }
   }
 
@@ -87,39 +131,35 @@ class MusicMaker implements StandardMidiListener {
     measure = 1;
   }
 
-  void midiMessage(javax.sound.midi.MidiMessage message) {
+  void midiMessage(MidiMessage message) {
     switch(message.getStatus()) {
-    case 0xF8:
-      // Timing Clock Message. Sent 24 times per quarter note when synchronization is required.
+    case TIMING_CLOCK:
       handleClockPulse();
       break;
 
-    case 0xFA:
-      // Start. Starts the current sequence playing.
-      resetCounters();
+    case START:
       println("Live started");
+      resetCounters();
       break;
 
-    case 0xFC:
-      // looks like the incoming quarterNote is stopping
+    case STOP:
       println("Live stopped");
+      sequencer.stopAllNotes();
       break;
 
-    case 0xF2:
-      // Song position pointer. Data contains current song position.
+    case SONG_POSITION_POINTER:
       break;
 
-    case 0x80: // Note off message, channel 0
-    case 0x81: // Note off message, channel 1
-    case 0x82: // Note off message, channel 2
-      
-    case 0x90: // Note on message, channel 0
-    case 0x91: // Note on message, channel 1
-    case 0x92: // Note on message, channel 2
+    case NOTE_OFF_0:
+    case NOTE_OFF_1:
+    case NOTE_OFF_2:
+    case NOTE_ON_0:
+    case NOTE_ON_1:
+    case NOTE_ON_2:
       break;
     
     default:
-      println("Unprocessed MIDI message, status = " + message.getStatus());
+      System.err.println("WARNING: Unexpected MIDI message: " + Integer.toHexString(message.getStatus()));
       break;
     }
   }
