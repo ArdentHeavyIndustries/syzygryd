@@ -137,7 +137,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
       new ButtonPressAnimation((DrawableTab) tab, this);
     }
 
-    armClear = false;
+//    armClear = false;
   }
 
   /**

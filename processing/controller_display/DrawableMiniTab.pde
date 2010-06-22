@@ -71,28 +71,28 @@ class DrawableMiniTab implements Drawable, Pressable {
 //      }
 //    }
 
-    if (!armClear) {
-      opacity = 0;  // ensures that next fade in when clear button is pressed starts from dark.
-    }
+//    if (!armClear) {
+//      opacity = 0;  // ensures that next fade in when clear button is pressed starts from dark.
+//    }
 
-    if (armClear) {
-      lastFill = ARMED;
-      opacity += 0.5 * direction;
-      if ((opacity < 0) || (opacity > 75)) {
-        direction = -direction;
-      } 
-    }
-      else {
-      if (!armClear && tab.isSelected()) {
-        lastFill = BLACK;
-      } 
-      else {
-        if (!armClear) {
-        lastFill = BLACK;
-      }  
-      }
-        
-    }
+//    if (armClear) {
+//      lastFill = ARMED;
+//      opacity += 0.5 * direction;
+//      if ((opacity < 0) || (opacity > 75)) {
+//        direction = -direction;
+//      } 
+//    }
+//      else {
+//      if (!armClear && tab.isSelected()) {
+//        lastFill = BLACK;
+//      } 
+//      else {
+//        if (!armClear) {
+//        lastFill = BLACK;
+//      }  
+//      }
+//        
+//    }
  
 
     fill(lastFill, opacity);
@@ -114,18 +114,18 @@ class DrawableMiniTab implements Drawable, Pressable {
   }
 
   void press() {
-    if (armClear) {
-      tab.clear();
-      OscMessage m = new OscMessage(getClearOscAddress());
-      oscP5.send(m, myRemoteLocation);
-    } else {
-      if (tab.isSelected()) {
-        return;
-      }
-
+//    if (armClear) {
+//      tab.clear();
+//      OscMessage m = new OscMessage(getClearOscAddress());
+//      oscP5.send(m, myRemoteLocation);
+//    } else {
+//      if (tab.isSelected()) {
+//        return;
+//      }
+//
       ((DrawablePanel) tab.panel).selectTab(tab.id, true);
-    }
-
-    armClear = false;
+//    }
+//
+//    armClear = false;
   }
 }

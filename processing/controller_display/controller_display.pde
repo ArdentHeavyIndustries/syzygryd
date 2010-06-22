@@ -29,14 +29,12 @@ int masterHue = 1;
 /* Last Pressable object selected by the user. */
 Pressable lastSelectedPressable;
 
-boolean armClear = false;
-
 //Font for messages at the bottom of the display
 PFont msgFont;
 ScrollableMessage scrollablemessage;
 
 // Font for the clear button
-PFont clrFont;
+//PFont clrFont;
 
 // Button SVG graphics.  We use the same graphic for all the buttons,
 // which only needs to be loaded once.  Since Processing doesn't have
