@@ -48,6 +48,12 @@
 		C988F29A11CD84E600DFF03A /* OscInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F29811CD84E600DFF03A /* OscInput.cpp */; };
 		C988F2B611CD873200DFF03A /* OscOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F2B511CD873200DFF03A /* OscOutput.cpp */; };
 		C988F2B711CD873200DFF03A /* OscOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F2B511CD873200DFF03A /* OscOutput.cpp */; };
+		C988F5BB11CEAFFF00DFF03A /* SidebarComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F5BA11CEAFFF00DFF03A /* SidebarComponent.cpp */; };
+		C988F5BC11CEAFFF00DFF03A /* SidebarComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F5BA11CEAFFF00DFF03A /* SidebarComponent.cpp */; };
+		C988F5C111CEB04E00DFF03A /* OptionsComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F5C011CEB04E00DFF03A /* OptionsComponent.cpp */; };
+		C988F5C211CEB04E00DFF03A /* OptionsComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F5C011CEB04E00DFF03A /* OptionsComponent.cpp */; };
+		C988F5C711CEB2D200DFF03A /* PanelComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F5C611CEB2D200DFF03A /* PanelComponent.cpp */; };
+		C988F5C811CEB2D200DFF03A /* PanelComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F5C611CEB2D200DFF03A /* PanelComponent.cpp */; };
 		C9E04CCB11C8680B0099DF10 /* Cell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9E04CC911C8680B0099DF10 /* Cell.cpp */; };
 		C9E04CCC11C8680B0099DF10 /* Cell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9E04CC911C8680B0099DF10 /* Cell.cpp */; };
 		C9E0500711C969D10099DF10 /* Sequencer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9E0500611C969D10099DF10 /* Sequencer.cpp */; };
@@ -108,6 +114,12 @@
 		C988F29811CD84E600DFF03A /* OscInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OscInput.cpp; sourceTree = "<group>"; };
 		C988F2B411CD873200DFF03A /* OscOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OscOutput.h; sourceTree = "<group>"; };
 		C988F2B511CD873200DFF03A /* OscOutput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OscOutput.cpp; sourceTree = "<group>"; };
+		C988F5B911CEAFFF00DFF03A /* SidebarComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SidebarComponent.h; sourceTree = "<group>"; };
+		C988F5BA11CEAFFF00DFF03A /* SidebarComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SidebarComponent.cpp; sourceTree = "<group>"; };
+		C988F5BF11CEB04E00DFF03A /* OptionsComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionsComponent.h; sourceTree = "<group>"; };
+		C988F5C011CEB04E00DFF03A /* OptionsComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OptionsComponent.cpp; sourceTree = "<group>"; };
+		C988F5C511CEB2D200DFF03A /* PanelComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanelComponent.h; sourceTree = "<group>"; };
+		C988F5C611CEB2D200DFF03A /* PanelComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PanelComponent.cpp; sourceTree = "<group>"; };
 		C9E04CC911C8680B0099DF10 /* Cell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cell.cpp; sourceTree = "<group>"; };
 		C9E04CCA11C8680B0099DF10 /* Cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cell.h; sourceTree = "<group>"; };
 		C9E0500511C969D10099DF10 /* Sequencer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sequencer.h; sourceTree = "<group>"; };
@@ -234,6 +246,12 @@
 				C9E0551F11CAA8E50099DF10 /* SequencerComponent.cpp */,
 				C9E0553811CAA9F40099DF10 /* CellComponent.h */,
 				C9E0553911CAA9F40099DF10 /* CellComponent.cpp */,
+				C988F5B911CEAFFF00DFF03A /* SidebarComponent.h */,
+				C988F5BA11CEAFFF00DFF03A /* SidebarComponent.cpp */,
+				C988F5BF11CEB04E00DFF03A /* OptionsComponent.h */,
+				C988F5C011CEB04E00DFF03A /* OptionsComponent.cpp */,
+				C988F5C511CEB2D200DFF03A /* PanelComponent.h */,
+				C988F5C611CEB2D200DFF03A /* PanelComponent.cpp */,
 			);
 			name = Components;
 			path = ../../Source/Components;
@@ -438,6 +456,9 @@
 				C9E056E211CAB9480099DF10 /* OscTypes.cpp in Sources */,
 				C988F29911CD84E600DFF03A /* OscInput.cpp in Sources */,
 				C988F2B711CD873200DFF03A /* OscOutput.cpp in Sources */,
+				C988F5BC11CEAFFF00DFF03A /* SidebarComponent.cpp in Sources */,
+				C988F5C211CEB04E00DFF03A /* OptionsComponent.cpp in Sources */,
+				C988F5C811CEB2D200DFF03A /* PanelComponent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +487,9 @@
 				C9E056E611CAB9480099DF10 /* OscTypes.cpp in Sources */,
 				C988F29A11CD84E600DFF03A /* OscInput.cpp in Sources */,
 				C988F2B611CD873200DFF03A /* OscOutput.cpp in Sources */,
+				C988F5BB11CEAFFF00DFF03A /* SidebarComponent.cpp in Sources */,
+				C988F5C111CEB04E00DFF03A /* OptionsComponent.cpp in Sources */,
+				C988F5C711CEB2D200DFF03A /* PanelComponent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,3 +2,8 @@ build
 *.perspectivev3
 *.pbxuser
 .DS_STORE
+.svn
+*.user
+*.ncb
+Debug
+Release

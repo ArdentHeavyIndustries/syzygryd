@@ -7,8 +7,12 @@
  *
  */
 
-#include "SequencerComponent.h"
 #include "PluginAudioProcessor.h"
+#include "SequencerComponent.h"
+#include "OptionsComponent.h"
+#include "SidebarComponent.h"
+
+class Sequencer;
 
 #include "MainComponent.h"
 
@@ -16,15 +20,18 @@ MainComponent::MainComponent (PluginAudioProcessor* pluginAudioProcessor_) :
 Component ("MainComponent"),
 pluginAudioProcessor (pluginAudioProcessor_),
 positionLabel (0),
-sequencerComponent (0)
+sequencerComponent (0),
+optionsComponent (0),
+sidebarComponent (0)
 {
 	addAndMakeVisible (positionLabel = new Label ("positionLabel", "Loading Position Data..."));
 	positionLabel->setColour (Label::textColourId, Colour::fromRGB (120, 120, 120));
 	positionLabel->setJustificationType (Justification::topLeft);
 	
-	addAndMakeVisible (sequencerComponent = new SequencerComponent(pluginAudioProcessor));
-	
-	setOpaque (true);
+	Sequencer* sequencer = pluginAudioProcessor->getSequencer();
+	addAndMakeVisible (sequencerComponent = new SequencerComponent (sequencer));
+	addAndMakeVisible (optionsComponent = new OptionsComponent (sequencer));
+	addAndMakeVisible (sidebarComponent = new SidebarComponent (sequencer));
 	
 	startTimer (50);
 }
@@ -42,15 +49,18 @@ void MainComponent::paint (Graphics& g)
 	g.setGradientFill (ColourGradient (Colour::fromRGB (250, 250, 250), 0, 15,
 									   Colour::fromRGB (180, 180, 180), 0, 25,
 									   false));
+	
 	g.setFont (18.0, Font::bold);
-	g.drawText ("Syzygryd Sequencer v3.0", 10, 10, getWidth() - 20, 20, 
+	g.drawText ("Syzygryd Sequencer v3.1", 10, 10, getWidth() - 20, 20, 
 				Justification::centredTop, false);
 }
 
 void MainComponent::resized()
 {
 	positionLabel->setBounds (20, 30, getWidth() - 30, 50);
-	sequencerComponent->setBounds (10, 80, getWidth() - 20, getHeight() - 90);
+	sequencerComponent->setBounds (10, 80, getWidth() - 120, getHeight() - 90);
+	optionsComponent->setBounds (getWidth() - 100, 10, 90, 50);
+	sidebarComponent->setBounds (getWidth() - 110, 80, 100, getHeight() - 90);
 }
 
 // Timer methods
@@ -123,6 +133,7 @@ const String MainComponent::ppqToBarsBeatsString (double ppq, int numerator,
 
 	return s;
 }
+
 
 
 

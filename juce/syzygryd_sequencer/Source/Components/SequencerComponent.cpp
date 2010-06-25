@@ -8,20 +8,16 @@
  */
 
 #include "Cell.h"
-#include "PluginAudioProcessor.h"
 #include "Sequencer.h"
 #include "CellComponent.h"
 
 #include "SequencerComponent.h"
 
-SequencerComponent::SequencerComponent (PluginAudioProcessor* pluginAudioProcessor_) :
+SequencerComponent::SequencerComponent (Sequencer* sequencer_) :
 Component ("SequencerComponent"),
-pluginAudioProcessor (pluginAudioProcessor_),
-sequencer (0),
+sequencer (sequencer_),
 lastPlayheadCol (-1)
 {
-	sequencer = pluginAudioProcessor->getSequencer();
-	
 	for (int i = 0; i < sequencer->getTotalRows(); i++) {
 		Array<CellComponent*>* row;
 		rows.add (row = new Array<CellComponent*>);
@@ -55,17 +51,14 @@ CellComponent* SequencerComponent::getCellAt (int row_, int col_)
 // Component methods
 void SequencerComponent::paint (Graphics& g)
 {
-	g.setGradientFill (ColourGradient (Colour::fromRGB (20, 50, 40), 0, 0,
-									   Colour::fromRGB (10, 10, 10), 0, getHeight(),
-									   false));
+	g.setColour (Colour::fromRGB (20, 50, 40));
 	g.fillAll();
 	
-	g.setGradientFill (ColourGradient (Colour::fromRGB (20, 40, 30), 0, 0,
-									   Colour::fromRGB (60, 120, 100), 0, getHeight(),
-									   false));
+	g.setColour (Colour::fromRGB (60, 120, 100));
+
 	float cellWidth = (float)getWidth() / sequencer->getTotalCols();
-	g.fillRoundedRectangle (lastPlayheadCol * cellWidth, 0.0f, cellWidth, 
-							(float)getHeight(), 3.0);
+	g.fillRect (lastPlayheadCol * cellWidth, 0.0f, cellWidth, 
+				(float)getHeight());
 }
 
 void SequencerComponent::resized()

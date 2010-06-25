@@ -14,6 +14,8 @@
 
 class PluginAudioProcessor;
 class SequencerComponent;
+class OptionsComponent;
+class SidebarComponent;
 
 class MainComponent : 
 public Component,
@@ -36,10 +38,13 @@ private:
 	static const String ppqToBarsBeatsString (double ppq, int numerator, int denominator);
 	
 	PluginAudioProcessor* pluginAudioProcessor;
+
 	Label* positionLabel;	
 	AudioPlayHead::CurrentPositionInfo lastDisplayedPosition;
 	
 	SequencerComponent* sequencerComponent;
+	OptionsComponent* optionsComponent;
+	SidebarComponent* sidebarComponent;
 };
 
 #endif

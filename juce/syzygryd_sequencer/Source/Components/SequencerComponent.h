@@ -12,7 +12,6 @@
 
 #include "JuceHeader.h"
 
-class PluginAudioProcessor;
 class Cell;
 class Sequencer;
 class CellComponent;
@@ -22,7 +21,7 @@ public Component,
 public Timer
 {
 public:
-	SequencerComponent(PluginAudioProcessor* pluginAudioProcessor_);
+	SequencerComponent (Sequencer* sequencer_);
 	~SequencerComponent();
 	
 	CellComponent* getCellAt (int row, int col);
@@ -35,7 +34,6 @@ public:
 	virtual void timerCallback();
 	
 private:
-	PluginAudioProcessor* pluginAudioProcessor;
 	Sequencer* sequencer;
 	
 	OwnedArray< Array<CellComponent*> > rows;

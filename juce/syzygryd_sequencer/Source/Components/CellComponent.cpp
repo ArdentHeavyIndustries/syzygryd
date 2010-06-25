@@ -25,20 +25,14 @@ CellComponent::~CellComponent()
 void CellComponent::paint (Graphics& g)
 {
 	if (cell->getNoteNumber() >= 0) {
-		g.setGradientFill (ColourGradient (Colour::fromRGB (170, 210, 250), getWidth() - 5, 0,
-										   Colour::fromRGB (100, 140, 110), 0, getHeight(),
-										   true));
+		g.setColour (Colour::fromRGB (100, 140, 110));
 	} else {
-		g.setGradientFill (ColourGradient (Colour::fromRGB (90, 110, 100), getWidth() - 5, 0,
-										   Colour::fromRGB (20, 40, 30), 0, getHeight(),
-										   true));
+		g.setColour (Colour::fromRGB (20, 40, 30));
 	}
-
-	g.fillRoundedRectangle (5, 5, getWidth() - 10, getHeight() - 10, 3.0);
-
+	g.fillRect (5, 5, getWidth() - 10, getHeight() - 10);
 	g.setColour (Colour::fromRGB (50, 100, 80));
-	g.drawRoundedRectangle (5, 5, getWidth() - 10, getHeight() - 10, 3.0, 1.0);
-	
+	g.drawRect (5, 5, getWidth() - 10, getHeight() - 10, 1.0);
+	 
 	/*
 	String label;
 	label << cell->getRow() << ", " << cell->getCol();

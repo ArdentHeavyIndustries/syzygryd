@@ -30,6 +30,11 @@ public:
 	Cell* getCellAt (int row, int col);
 	int getPlayheadCol();
 
+	bool getSwingEnabled();
+	void setSwingEnabled (bool swingEnabled_);
+	bool getDynamicsEnabled();
+	void setDynamicsEnabled (bool dynamicsEnabled_);
+	
 	// AudioProcessorCallback methods
 	virtual void prepareToPlay (double sampleRate_, int samplesPerBlock);
     virtual void releaseResources();
@@ -47,10 +52,15 @@ private:
 	const int totalCols;
 	OwnedArray< OwnedArray<Cell> > rows;
 
-	int playheadCol;
-	int lastPlayheadCol;
-	
 	int speed; // playback speed multiplier
+
+	int ticksPerCol;   // how many internal ticks per column of notes
+	int tickCount;     // how many total ticks counted
+	int lastTickCount; // how many total ticks counted during the last processing event
+	bool swingEnabled; // is swing enabled
+	int swingTicks;    // how many ticks should odd columns be delayed
+	
+	bool dynamicsEnabled; // reduce the velocity of odd columned notes
 };
 
 #endif
