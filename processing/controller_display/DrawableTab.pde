@@ -131,8 +131,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
     }
 
     miniTab.draw();
-
-    if (isSelected()) {
+    
+     if (isSelected()) {
       for (int i = 0; i < gridWidth; i++) {
         for (int j = 0; j < gridHeight; j++) {
           ((DrawableButton) buttons[i][j]).setBaseHue(masterHue);

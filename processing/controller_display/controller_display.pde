@@ -33,9 +33,6 @@ Pressable lastSelectedPressable;
 PFont msgFont;
 ScrollableMessage scrollablemessage;
 
-// Font for the clear button
-//PFont clrFont;
-
 // Button SVG graphics.  We use the same graphic for all the buttons,
 // which only needs to be loaded once.  Since Processing doesn't have
 // static vars these are globals.

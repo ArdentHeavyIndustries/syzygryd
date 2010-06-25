@@ -127,7 +127,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
    */
   void drawMiniTabButton() {
     noStroke();
-    fill(getHue(), 50, sqBright, sqAlpha);
+//    fill(getHue(), 50, sqBright, sqAlpha);   //This was the original line that kept the minitabs on the wrong color
+    fill(masterHue, 50, sqBright, sqAlpha);
     rect(miniX, miniY, miniLength, miniLength);
   }
 
@@ -136,8 +137,6 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     if (isOn) {
       new ButtonPressAnimation((DrawableTab) tab, this);
     }
-
-//    armClear = false;
   }
 
   /**

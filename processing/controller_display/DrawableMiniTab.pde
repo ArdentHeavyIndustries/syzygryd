@@ -45,55 +45,11 @@ class DrawableMiniTab implements Drawable, Pressable {
   void draw() {
 //    boolean toggleFill = frameCount % 15 == 0;
 //    frameCount++;
-
     if (tab.isSelected()) {
       lastStroke = WHITE;
     } else {
       lastStroke = RED;
     }
-
-// original two-phase code
-//    if (armClear && toggleFill) {
-//      if (lastFill == RED) {
-//        if (tab.isSelected()) {
-//          lastFill = GREY;
-//        } else {
-//          lastFill = BLACK;
-//        }
-//      } else {
-//        lastFill = RED;
-//      }
-//    } else {
-//      if (tab.isSelected()) {
-//        lastFill = GREY;
-//      } else {
-//        lastFill = BLACK;
-//      }
-//    }
-
-//    if (!armClear) {
-//      opacity = 0;  // ensures that next fade in when clear button is pressed starts from dark.
-//    }
-
-//    if (armClear) {
-//      lastFill = ARMED;
-//      opacity += 0.5 * direction;
-//      if ((opacity < 0) || (opacity > 75)) {
-//        direction = -direction;
-//      } 
-//    }
-//      else {
-//      if (!armClear && tab.isSelected()) {
-//        lastFill = BLACK;
-//      } 
-//      else {
-//        if (!armClear) {
-//        lastFill = BLACK;
-//      }  
-//      }
-//        
-//    }
- 
 
     fill(lastFill, opacity);
     stroke(lastStroke);
@@ -107,6 +63,7 @@ class DrawableMiniTab implements Drawable, Pressable {
         // Do nothing, we'll redraw on the next cycle
       }
     }
+
   }
 
   String getClearOscAddress() {
@@ -114,18 +71,8 @@ class DrawableMiniTab implements Drawable, Pressable {
   }
 
   void press() {
-//    if (armClear) {
-//      tab.clear();
-//      OscMessage m = new OscMessage(getClearOscAddress());
-//      oscP5.send(m, myRemoteLocation);
-//    } else {
-//      if (tab.isSelected()) {
-//        return;
-//      }
-//
+
       ((DrawablePanel) tab.panel).selectTab(tab.id, true);
-//    }
-//
-//    armClear = false;
+
   }
 }
