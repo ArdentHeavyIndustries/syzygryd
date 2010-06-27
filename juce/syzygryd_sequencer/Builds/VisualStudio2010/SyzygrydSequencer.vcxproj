@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CC26CFC9-5EBC-9718-344B-4E7CB7A2A325}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</IntDir>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Debug\SyzygrydSequencer.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\cygwin\home\rich\juce-1.51\juce\extras\audio plugins\wrapper\VST;C:\cygwin\home\rich\juce-1.51\juce\extras\audio plugins\wrapper\Standalone;C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Source\Startup;C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Source\Standalone Wrapper;C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Source\Models;C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Source\Models\osc;C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Source\Components;C:\cygwin\home\rich\vstsdk2.4;C:\cygwin\home\rich\juce-1.51\juce;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\Debug\SyzygrydSequencer.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
+      <ObjectFileName>.\Debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <OutputFile>.\Debug\SyzygrydSequencer.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\..\..\juce\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Debug\SyzygrydSequencer.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug\SyzygrydSequencer.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Release\SyzygrydSequencer.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>c:\SDKs\vstsdk2.4;..\..\JuceLibraryCode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\Release\SyzygrydSequencer.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
+      <ObjectFileName>.\Release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <OutputFile>.\Release\SyzygrydSequencer.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\..\..\juce\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Release\SyzygrydSequencer.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\SyzygrydSequencer.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\..\juce-1.51\juce\extras\audio plugins\wrapper\Standalone\juce_AudioFilterStreamer.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\juce-1.51\juce\extras\audio plugins\wrapper\Standalone\juce_StandaloneFilterWindow.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\..\juce-1.51\juce\extras\audio plugins\wrapper\VST\juce_VST_Wrapper.cpp" />
+    <ClCompile Include="..\..\Source\Components\CellComponent.cpp" />
+    <ClCompile Include="..\..\Source\Components\MainComponent.cpp" />
+    <ClCompile Include="..\..\Source\Components\OptionsComponent.cpp" />
+    <ClCompile Include="..\..\Source\Components\PanelComponent.cpp" />
+    <ClCompile Include="..\..\Source\Components\PluginAudioProcessorEditor.cpp" />
+    <ClCompile Include="..\..\Source\Components\SequencerComponent.cpp" />
+    <ClCompile Include="..\..\Source\Components\SidebarComponent.cpp" />
+    <ClCompile Include="..\..\Source\Components\StandaloneComponent.cpp" />
+    <ClCompile Include="..\..\Source\Components\TransportComponent.cpp" />
+    <ClCompile Include="..\..\Source\Models\AudioProcessorCallback.cpp" />
+    <ClCompile Include="..\..\Source\Models\Cell.cpp" />
+    <ClCompile Include="..\..\Source\Models\CustomPlayHead.cpp" />
+    <ClCompile Include="..\..\Source\Models\OscInput.cpp" />
+    <ClCompile Include="..\..\Source\Models\OscOutput.cpp" />
+    <ClCompile Include="..\..\Source\Models\PluginAudioProcessor.cpp" />
+    <ClCompile Include="..\..\Source\Models\Sequencer.cpp" />
+    <ClCompile Include="..\..\Source\Models\osc\OscOutboundPacketStream.cpp" />
+    <ClCompile Include="..\..\Source\Models\osc\OscPrintReceivedElements.cpp" />
+    <ClCompile Include="..\..\Source\Models\osc\OscReceivedElements.cpp" />
+    <ClCompile Include="..\..\Source\Models\osc\OscTypes.cpp" />
+    <ClCompile Include="..\..\Source\Startup\JuceApp.cpp" />
+    <ClCompile Include="..\..\Source\Startup\Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\..\juce-1.51\juce\extras\audio plugins\wrapper\Standalone\juce_AudioFilterStreamer.h" />
+    <ClInclude Include="..\..\..\..\..\..\..\juce-1.51\juce\extras\audio plugins\wrapper\Standalone\juce_StandaloneFilterWindow.h" />
+    <ClInclude Include="..\..\Source\Components\CellComponent.h" />
+    <ClInclude Include="..\..\Source\Components\MainComponent.h" />
+    <ClInclude Include="..\..\Source\Components\OptionsComponent.h" />
+    <ClInclude Include="..\..\Source\Components\PanelComponent.h" />
+    <ClInclude Include="..\..\Source\Components\PluginAudioProcessorEditor.h" />
+    <ClInclude Include="..\..\Source\Components\SequencerComponent.h" />
+    <ClInclude Include="..\..\Source\Components\SidebarComponent.h" />
+    <ClInclude Include="..\..\Source\Components\StandaloneComponent.h" />
+    <ClInclude Include="..\..\Source\Components\TransportComponent.h" />
+    <ClInclude Include="..\..\Source\Models\AudioProcessorCallback.h" />
+    <ClInclude Include="..\..\Source\Models\Cell.h" />
+    <ClInclude Include="..\..\Source\Models\CustomPlayHead.h" />
+    <ClInclude Include="..\..\Source\Models\OscInput.h" />
+    <ClInclude Include="..\..\Source\Models\OscOutput.h" />
+    <ClInclude Include="..\..\Source\Models\PluginAudioProcessor.h" />
+    <ClInclude Include="..\..\Source\Models\Sequencer.h" />
+    <ClInclude Include="..\..\Source\Models\osc\MessageMappingOscPacketListener.h" />
+    <ClInclude Include="..\..\Source\Models\osc\OscException.h" />
+    <ClInclude Include="..\..\Source\Models\osc\OscHostEndianness.h" />
+    <ClInclude Include="..\..\Source\Models\osc\OscOutboundPacketStream.h" />
+    <ClInclude Include="..\..\Source\Models\osc\OscPacketListener.h" />
+    <ClInclude Include="..\..\Source\Models\osc\OscPrintReceivedElements.h" />
+    <ClInclude Include="..\..\Source\Models\osc\OscReceivedElements.h" />
+    <ClInclude Include="..\..\Source\Models\osc\OscTypes.h" />
+    <ClInclude Include="..\..\Source\Startup\JuceApp.h" />
+    <ClInclude Include="..\..\Source\Startup\JuceHeader.h" />
+    <ClInclude Include="..\..\Source\Startup\JucePluginCharacteristics.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\..\..\juce-1.51\juce\bin\jucelib_static_Win32_debug.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
