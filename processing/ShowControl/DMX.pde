@@ -1,8 +1,12 @@
-/* Derived from codeanticode.prodmx library by Andres Colubri */
+/* Portions derived from codeanticode.prodmx library by Andres Colubri */
 
-class DMX {
+/*
+ * DMX - Container class for DMX controllers and related objects/functions
+ */
+public class DMX {
   ArrayList controllers = new ArrayList();
 
+  //Initializes the DMX manager, setting global refresh rate 
   DMX(PApplet _processingObject, int _refreshRate){
     processingObject = _processingObject;
     refreshRate = _refreshRate;
@@ -10,7 +14,7 @@ class DMX {
     // calculate timer interval (in ms) from refresh rate (in Hz)
     long refreshInterval = round(1000 / refreshRate);
     
-    //instantiate timer and task
+    //instantiate timer and task objects
     boolean bgMode = true;
     Timer refresh = new Timer(bgMode);
     RefreshTask update = new RefreshTask();

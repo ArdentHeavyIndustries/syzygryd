@@ -107,3 +107,54 @@ static class FixtureFactory {
     }
   }
 }
+
+
+// read the fixture profile and fixture definitions xml files, create the fixtures
+// and add them to the fixtures list
+void setupFixtures() throws DataFormatException {
+  ArrayList fixtureProfiles = getFixtureProfiles();
+  
+  // register fixture profiles with the factory
+  int profileCount = fixtureProfiles.size();
+  for (int i = 0; i < profileCount; i++) {
+    FixtureFactory.registerFixtureProfile((FixtureProfile)fixtureProfiles.get(i));
+  }
+
+  // read fixture definitions from xml  
+  XMLElement fixtureDefinitionsXML = new XMLElement(this, Configuration.FIXTURE_DEFINITIONS_FILENAME);
+  
+  // use factory to create fixture from the fixture definitions
+  XMLElement[] fixtureNodes = fixtureDefinitionsXML.getChildren("fixture");
+  int fixtureCount = fixtureNodes.length;
+  fixtures = new ArrayList(fixtureCount);
+  for (int i = 0; i < fixtureCount; i++) {
+    Fixture fixture = FixtureFactory.createFixture(this, DMXManager, fixtureNodes[i]);
+    fixtures.add(fixture);
+  }
+}
+
+ArrayList getFixtureProfiles() throws DataFormatException {
+  // read fixture profiles from xml
+  XMLElement fixtureProfilesXML = new XMLElement(this, Configuration.FIXTURE_PROFILES_FILENAME);
+
+  // create FixtureProfiles from XML
+  /* 
+   * The fixtureProfilesXML file is expected to be a top-level <doc_root> node with a list 
+   * of <fixture_profile> elements underneath.  Each <fixture_profile> element has 
+   * a 'type' attribute, a single <traits> child and a singe <channels> child. <traits> contains
+   * zero or more <trait> nodes, each with a 'type' attribute.  <channels> contains zero or more <channel> nodes,
+   * each with a name attribute.  <channel> nodes can optionally have other attributes, such as 'latency'.
+   *   
+   */
+  
+  XMLElement[] profileNodes = fixtureProfilesXML.getChildren("fixture_profile");
+  int profileCount = profileNodes.length;
+  ArrayList fixtureProfiles = new ArrayList(profileCount);
+  for (int i = 0; i < profileCount; i++) {
+    FixtureProfile fixtureProfile = new FixtureProfile(profileNodes[i]);
+    fixtureProfiles.add(fixtureProfile);
+  }
+  
+  return fixtureProfiles;
+}
+
