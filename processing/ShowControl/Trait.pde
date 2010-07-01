@@ -17,7 +17,7 @@ class RGBColorMixingTrait extends Trait {
     parent.setChannel("blue", (int)blue(RGBColorMixing));
   }
 
-  color getColorRGB(color RGBColorMixing){
+  color getColorRGB(){
     colorMode(RGB);
     return color(parent.getChannel("red"),parent.getChannel("green"),parent.getChannel("blue"));
   }

@@ -2,7 +2,8 @@
 interface Configuration {
   public static final String FIXTURE_PROFILES_FILENAME = "fixture_profiles.xml";
   public static final String FIXTURE_DEFINITIONS_FILENAME = "fixture_definitions.xml";
-  public static final String[] ALLOWED_CHANNEL_ATTRIBUTES = { "name", "latency" };
+  public static final String[] ALLOWED_CHANNEL_ATTRIBUTES = { 
+    "name", "latency"   };
 }
 
 /*
@@ -12,7 +13,7 @@ interface Configuration {
 static class FixtureFactory {
   // _registeredProfiles is our list of FixtureProfiles that are available to create Fixtures from
   public static HashMap _registeredProfiles = new HashMap();
-  
+
   /*
    * registerFixtureProfile(profile) - register a FixtureProfile.  The registered
    * profiles are used when creating Fixture objects to assign the right traits
@@ -21,7 +22,7 @@ static class FixtureFactory {
   public static void registerFixtureProfile(FixtureProfile profile) {
     _registeredProfiles.put(profile.getType(), profile);
   }
-  
+
   /*
    * createFixture(DMXManager, xml) - create a Fixture object from a <fixture> xml element
    */
@@ -30,38 +31,38 @@ static class FixtureFactory {
     String name = xml.getName();
     if (!name.equals("fixture")) {
       throw new DataFormatException("The fixture profiles definition XML must have only <fixture> " +
-                                    "nodes under the <doc_root> node.  Found " + name + " instead");
+        "nodes under the <doc_root> node.  Found " + name + " instead");
     }
-    
+
     // look up fixture profile
     String profileType = xml.getStringAttribute("profile");
     if (profileType.equals(0)) {
       throw new DataFormatException("Found a <fixture> with no 'profile' attribute");
     }
-    
+
     FixtureProfile profile = (FixtureProfile)_registeredProfiles.get(profileType);
     if (profile == null) {
       throw new DataFormatException("Specified profile " + profileType + " does not exist!");
     }
-    
+
     // get dmx universe
     int DMXUniverse = xml.getIntAttribute("dmx_universe", -1);
     if (DMXUniverse == -1) {
       throw new DataFormatException("Found a <fixture> with no 'dmx_universe' attribute");
     }
-    
+
     // create the fixture
     Fixture fixture = parent.new Fixture(DMXManager, DMXUniverse, profileType);
-    
+
     // add the channels
     addChannels(parent, fixture, profile, xml);
-    
+
     // add the traits
     addTraits(parent, fixture, profile, xml);
-    
+
     return fixture;
   }
-  
+
   static void addChannels(ShowControl parent, Fixture fixture, FixtureProfile profile, XMLElement xml) throws DataFormatException {
     HashMap profileChannels = profile.getChannels();
     XMLElement[] channels = xml.getChildren("channels/channel");
@@ -77,7 +78,7 @@ static class FixtureFactory {
       if (name.equals(0)) {
         throw new DataFormatException("Channel without name found");
       }
-      
+
       int latency = 0;
       HashMap channelInfo = (HashMap)profileChannels.get(name);
       if (channelInfo != null) {
@@ -85,35 +86,108 @@ static class FixtureFactory {
           latency = Integer.parseInt((String)channelInfo.get("latency"));
         }
       }
-      
-      fixture.addChannel(name, address); // TODO: latency?  other properties?
+
+      fixture.addChannel(name, address, latency);
     }
   }
-  
+
   static void addTraits(ShowControl parent, Fixture fixture, FixtureProfile profile, XMLElement xml) throws DataFormatException {
     ArrayList profileTraits = profile.getTraits();
     int traitCount = profileTraits.size();
     for (int i = 0; i < traitCount; i++) {
       String traitName = (String)profileTraits.get(i);
       Trait trait;
-      
+
       if ("RGBColorMixingTrait".equals(traitName)) {
-        trait = (Trait)parent.new RGBColorMixingTrait(fixture);
-      } else {
+        trait = parent.new RGBColorMixingTrait(fixture);
+      } 
+      else {
         throw new DataFormatException("No known trait " + traitName);
       }
-      
+
       fixture.addTrait(traitName, trait);
     }
   }
 }
 
+class FixtureProfile {
+  String type;
+  ArrayList traits;
+  HashMap channels;
+
+  FixtureProfile(XMLElement xml) throws DataFormatException {
+    // validate xml
+    String name = xml.getName();
+    if (!name.equals("fixture_profile")) {
+      throw new DataFormatException("The fixture profiles definition XML must have only <fixture_profile> " +
+        "nodes under the <doc_root> node.  Found " + name + " instead");
+    }
+
+    // get type
+    type = xml.getStringAttribute("type");
+    if (type.equals(0)) {
+      throw new DataFormatException("Found a <fixture_profile> with no 'type' attribute");
+    }
+
+    // parse traits
+    XMLElement traitsEl = xml.getChild("traits");
+    if (traitsEl != null) {
+      int traitCount = traitsEl.getChildCount();
+      traits = new ArrayList(traitCount);
+      for (int i = 0; i < traitCount; i++) {
+        XMLElement traitEl = traitsEl.getChild(i);
+        String traitType = traitEl.getStringAttribute("type");
+        if (traitType.equals(0)) {
+          throw new DataFormatException("Found a <trait> with no 'type' attribute");
+        }
+
+        traits.add(traitType);
+      }
+    }
+
+    // parse channels
+    int allowedAttrLen = Configuration.ALLOWED_CHANNEL_ATTRIBUTES.length;
+
+    XMLElement channelsEl = xml.getChild("channels");
+    if (channelsEl != null) {
+      int channelCount = channelsEl.getChildCount();
+      channels = new HashMap(channelCount);
+      for (int i = 0; i < channelCount; i++) {
+        XMLElement channelEl = channelsEl.getChild(i);
+
+        HashMap channelInfo = new HashMap();
+
+        for (int j = 0; j < allowedAttrLen; j++) {
+          String attrName = Configuration.ALLOWED_CHANNEL_ATTRIBUTES[j];
+          String attr = channelEl.getStringAttribute(attrName);
+          if (!attr.equals(0)) {
+            channelInfo.put(attrName, attr);
+          }
+        }
+
+        channels.put(channelInfo.get("name"), channelInfo);
+      }
+    }
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public ArrayList getTraits() {
+    return traits;
+  }
+
+  public HashMap getChannels() {
+    return channels;
+  }
+}
 
 // read the fixture profile and fixture definitions xml files, create the fixtures
 // and add them to the fixtures list
 void setupFixtures() throws DataFormatException {
   ArrayList fixtureProfiles = getFixtureProfiles();
-  
+
   // register fixture profiles with the factory
   int profileCount = fixtureProfiles.size();
   for (int i = 0; i < profileCount; i++) {
@@ -122,7 +196,7 @@ void setupFixtures() throws DataFormatException {
 
   // read fixture definitions from xml  
   XMLElement fixtureDefinitionsXML = new XMLElement(this, Configuration.FIXTURE_DEFINITIONS_FILENAME);
-  
+
   // use factory to create fixture from the fixture definitions
   XMLElement[] fixtureNodes = fixtureDefinitionsXML.getChildren("fixture");
   int fixtureCount = fixtureNodes.length;
@@ -146,7 +220,7 @@ ArrayList getFixtureProfiles() throws DataFormatException {
    * each with a name attribute.  <channel> nodes can optionally have other attributes, such as 'latency'.
    *   
    */
-  
+
   XMLElement[] profileNodes = fixtureProfilesXML.getChildren("fixture_profile");
   int profileCount = profileNodes.length;
   ArrayList fixtureProfiles = new ArrayList(profileCount);
@@ -154,7 +228,8 @@ ArrayList getFixtureProfiles() throws DataFormatException {
     FixtureProfile fixtureProfile = new FixtureProfile(profileNodes[i]);
     fixtureProfiles.add(fixtureProfile);
   }
-  
+
   return fixtureProfiles;
 }
+
 

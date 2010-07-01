@@ -1,76 +1,3 @@
-class FixtureProfile {
-  String type;
-  ArrayList traits;
-  HashMap channels;
-  
-  FixtureProfile(XMLElement xml) throws DataFormatException {
-    // validate xml
-    String name = xml.getName();
-    if (!name.equals("fixture_profile")) {
-      throw new DataFormatException("The fixture profiles definition XML must have only <fixture_profile> " +
-                                    "nodes under the <doc_root> node.  Found " + name + " instead");
-    }
-    
-    // get type
-    type = xml.getStringAttribute("type");
-    if (type.equals(0)) {
-      throw new DataFormatException("Found a <fixture_profile> with no 'type' attribute");
-    }
-    
-    // parse traits
-    XMLElement traitsEl = xml.getChild("traits");
-    if (traitsEl != null) {
-      int traitCount = traitsEl.getChildCount();
-      traits = new ArrayList(traitCount);
-      for (int i = 0; i < traitCount; i++) {
-        XMLElement traitEl = traitsEl.getChild(i);
-        String traitType = traitEl.getStringAttribute("type");
-        if (traitType.equals(0)) {
-          throw new DataFormatException("Found a <trait> with no 'type' attribute");
-        }
-      
-        traits.add(traitType);
-      }
-    }
-    
-    // parse channels
-    int allowedAttrLen = Configuration.ALLOWED_CHANNEL_ATTRIBUTES.length;
-
-    XMLElement channelsEl = xml.getChild("channels");
-    if (channelsEl != null) {
-      int channelCount = channelsEl.getChildCount();
-      channels = new HashMap(channelCount);
-      for (int i = 0; i < channelCount; i++) {
-        XMLElement channelEl = channelsEl.getChild(i);
-
-        HashMap channelInfo = new HashMap();
-
-        for (int j = 0; j < allowedAttrLen; j++) {
-          String attrName = Configuration.ALLOWED_CHANNEL_ATTRIBUTES[j];
-          String attr = channelEl.getStringAttribute(attrName);
-          if (!attr.equals(0)) {
-            channelInfo.put(attrName, attr);
-          }
-        }
-      
-        channels.put(channelInfo.get("name"), channelInfo);
-      }
-    }
-  }
-  
-  public String getType() {
-    return type;
-  }
-  
-  public ArrayList getTraits() {
-    return traits;
-  }
-  
-  public HashMap getChannels() {
-    return channels;
-  }
-}
-
 class Fixture {
   
   DMX dmx;
@@ -98,6 +25,11 @@ class Fixture {
 
   int addChannel(String channelName, int address){
     channels.put(channelName, new Channel(this, controller, address));
+    return (int)((Channel)channels.get(channelName)).getAddress();
+  }
+  
+  int addChannel(String channelName, int address, float latency){
+    channels.put(channelName, new Channel(this, controller, address, latency));
     return (int)((Channel)channels.get(channelName)).getAddress();
   }
   
@@ -141,6 +73,19 @@ class Fixture {
       }
     }
     
+    Channel(Fixture _parent, int _controller, int _address, float _latency){
+      parent = _parent;
+      controller = _controller;
+      latency = _latency;
+      try {
+        address = dmx.alloc(this, controller, _address);
+      }
+      catch (AddressAllocationException e) {
+        System.err.println("Channel allocation on controller " + controller + ", address " + _address + " failed.\n");
+        new Channel(parent, controller);
+      }
+    }
+    
     int getValue(){
       int value = 0;
       if (controller >= 0 && address >= 0){
@@ -158,6 +103,10 @@ class Fixture {
     
     int getAddress(){
       return address;
+    }
+    
+    float getLatency(){
+      return latency;
     }
   }  
 
