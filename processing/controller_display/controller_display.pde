@@ -43,8 +43,8 @@ void setup() {
   // resolution and apply it to the sketch, but for development
   // purposes we just smash to 1280x720
   // size(screen.width,screen.height,OPENGL);
-  size(1280,720,OPENGL);
-  
+  size(1280,720);
+  smooth();
   //hide the mouse cursor (if not on touchscreen comment out!)
   //noCursor();
 

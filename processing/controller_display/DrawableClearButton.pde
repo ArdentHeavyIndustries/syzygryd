@@ -19,7 +19,8 @@ class DrawableClearButton extends syzygryd.Button implements Drawable, Pressable
     myWidth = _width;
     myHeight = _height;
     s = loadShape("clear.svg"); //use button3.svg until I can get a good svg for the clear button
-   }
+   
+ }
 
   String getOscAddress() {
     return "/" + tab.panel.getOscId() + "_control/clear/" + tab.getOscId();
