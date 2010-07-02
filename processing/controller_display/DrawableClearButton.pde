@@ -18,7 +18,7 @@ class DrawableClearButton extends syzygryd.Button implements Drawable, Pressable
     y = _y;
     myWidth = _width;
     myHeight = _height;
-    s = loadShape("button3.svg"); //use button3.svg until I can get a good svg for the clear button
+    s = loadShape("clear.svg"); //use button3.svg until I can get a good svg for the clear button
    }
 
   String getOscAddress() {
