@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="SyzygrydSequencer">
+</Property><Property Name="Solution File" Value="C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\SyzygrydSequencer.sln">
+</Property><Property Name="User Options File" Value="C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\SyzygrydSequencer.suo">
+</Property><Property Name="Date" Value="Thursday, June 24, 2010">
+</Property><Property Name="Time" Value="21:48 PM">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="SyzygrydSequencer.sln" Description="File successfully backed up as C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\SyzygrydSequencer.sln.old">
+</Event><Event ErrorLevel="0" Project="" Source="SyzygrydSequencer.suo" Description="File successfully backed up as C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\SyzygrydSequencer.suo.old">
+</Event><Event ErrorLevel="0" Project="SyzygrydSequencer" Source="SyzygrydSequencer.vcproj" Description="Converting project file 'C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\SyzygrydSequencer.vcproj'.">
+</Event><Event ErrorLevel="1" Project="SyzygrydSequencer" Source="SyzygrydSequencer.vcproj" Description="VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.">
+</Event><Event ErrorLevel="1" Project="SyzygrydSequencer" Source="SyzygrydSequencer.vcproj" Description="MSB8012: $(TargetPath) ('C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\.\Debug\SyzygrydSequencer.dll') does not match the Linker's OutputFile property value '.\Debug\SyzygrydSequencer.dll' ('C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\Debug\SyzygrydSequencer.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).">
+</Event><Event ErrorLevel="1" Project="SyzygrydSequencer" Source="SyzygrydSequencer.vcproj" Description="MSB8012: $(TargetPath) ('C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\.\Release\SyzygrydSequencer.dll') does not match the Linker's OutputFile property value '.\Release\SyzygrydSequencer.dll' ('C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\Release\SyzygrydSequencer.dll') in project configuration 'Release|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).">
+</Event><Event ErrorLevel="0" Project="SyzygrydSequencer" Source="SyzygrydSequencer.vcproj" Description="Done converting to new project file 'C:\cygwin\home\rich\svn\syzygryd\trunk\juce\syzygryd_sequencer\Builds\VisualStudio2008\SyzygrydSequencer.vcxproj'.">
+</Event><Event ErrorLevel="3" Project="SyzygrydSequencer" Source="SyzygrydSequencer.vcproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="SyzygrydSequencer.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="SyzygrydSequencer.sln" Description="Converted">
+</Event></UpgradeLog>
