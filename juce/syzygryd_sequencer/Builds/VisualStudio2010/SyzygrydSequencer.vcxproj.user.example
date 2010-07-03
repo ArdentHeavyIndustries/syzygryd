@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- copy this file to SyzygrydSequencer.vcxproj.user, and edit as needed to point to JUCE and the VST SDK -->
+<!-- keep your local *.user file, but do *not* check it in to the repository -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- http://www.rawmaterialsoftware.com/downloads.php -->
+    <!-- Download JUCE, and unzip it -->
+    <!-- Point VisualStudio2010 at the file juce/build/win32/vc8/JUCE.sln -->
+    <!-- This is a VisualStudio2008 project, so it will be converted to 2010 -->
+    <!-- Build the project -->
+    <!-- Point JuceHome below at the location of the top level within the unzipped directory tree -->
+    <JuceHome>C:\cygwin\home\rich\juce-1.51\juce</JuceHome>
+    <!-- XXX I can no longer find the download page within http://www.steinberg.net/en/home/ -->
+    <!-- You want the zip file for version 2.4 of the VST SDK -->
+    <!-- Just unzip it, no building is required -->
+    <!-- Point VstSdkHome below at the location of the top level within the unzipped directory tree -->
+    <VstSdkHome>C:\cygwin\home\rich\vstsdk2.4</VstSdkHome>
+  </PropertyGroup>
+</Project>
