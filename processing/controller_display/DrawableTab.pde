@@ -29,7 +29,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
     miniTabX = (buttonSpacing * gridWidth) + (2 * (buttonSpacing - buttonSize));
     miniTabWidth = width - (miniTabX + (buttonSpacing - buttonSize));
     miniTabHeight = (int) ((miniTabWidth * height) / (float) width);
-    miniTabY = (miniTabHeight * id) + ((buttonSpacing - buttonSize) * (id + 1));
+//    miniTabY = (miniTabHeight * id) + ((buttonSpacing - buttonSize) * (id + 1));  // Orig setting
+    miniTabY = (miniTabHeight * id) + ((buttonSpacing - buttonSize) * (id + 1)) - 2;  //move this up to align with the frame.
     int miniTabButtonSpacing = min(miniTabWidth / gridWidth, miniTabHeight / gridHeight);
     int miniTabButtonSize = miniTabButtonSpacing - 2;
 
@@ -56,6 +57,7 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
         buttons[i][j] = b;
       }
     }
+// drawFrame();
   }
 
   /**
@@ -129,7 +131,7 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
       }
       curSecond = second();
     }
-
+    drawFrame();
     miniTab.draw();
     
      if (isSelected()) {
@@ -142,5 +144,14 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
 
       clearButton.draw();
     }
+  }
+  void drawFrame() {
+    stroke(0, 0, 99);  //white
+    strokeWeight(3);
+    strokeCap(ROUND);
+    strokeJoin(ROUND);
+    smooth();
+    noFill();
+    rect(2, 2, buttonSpacing * 16 , buttonSpacing * 10);
   }
 }

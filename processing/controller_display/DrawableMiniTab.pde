@@ -54,7 +54,16 @@ class DrawableMiniTab implements Drawable, Pressable {
     fill(lastFill, opacity);
     stroke(lastStroke);
 
-    rect(x, y, myWidth, myHeight);
+    if(tab.isSelected()) {
+      rect(x - 6, y, myWidth + 6, myHeight);
+      stroke(0,0,0);  //0,0,0 = black   ==> overwrites the white part of the main frame
+      strokeWeight(3);
+      line(x - 6, y + 3 , x - 6 , y + myHeight - 3 );  // the y coords have a +/- 3 pixel offset to make them match the frame.
+    }
+    else {
+      rect(x, y, myWidth, myHeight);
+    }
+
 
     for (Iterator i = tab.onButtons.values().iterator(); i.hasNext(); ) {
       try {
