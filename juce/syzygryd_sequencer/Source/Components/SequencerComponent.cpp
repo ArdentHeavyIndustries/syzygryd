@@ -9,21 +9,28 @@
 
 #include "Cell.h"
 #include "Sequencer.h"
+#include "PluginAudioProcessor.h"
 #include "CellComponent.h"
 
 #include "SequencerComponent.h"
 
-SequencerComponent::SequencerComponent (Sequencer* sequencer_) :
+SequencerComponent::SequencerComponent (PluginAudioProcessor* pluginAudioProcessor_) :
 Component ("SequencerComponent"),
-sequencer (sequencer_),
-lastPlayheadCol (-1)
+pluginAudioProcessor (pluginAudioProcessor_),
+lastPlayheadCol (-1),
+lastPanelIndex (-1),
+lastTabIndex (-1)
 {
+	sequencer = pluginAudioProcessor->getSequencer();
+	
 	for (int i = 0; i < sequencer->getTotalRows(); i++) {
 		Array<CellComponent*>* row;
 		rows.add (row = new Array<CellComponent*>);
 		for (int j = 0; j < sequencer->getTotalCols(); j++) {
+			int panelIndex = pluginAudioProcessor->getPanelIndex();
+			int tabIndex = pluginAudioProcessor->getTabIndex();
 			CellComponent* cell;
-			addAndMakeVisible (cell = new CellComponent (sequencer->getCellAt (i, j)));
+			addAndMakeVisible (cell = new CellComponent (sequencer->getCellAt (panelIndex, tabIndex, i, j)));
 			row->add (cell);
 		}
 	}
@@ -77,8 +84,21 @@ void SequencerComponent::resized()
 // Timer methods
 void SequencerComponent::timerCallback()
 {
-	if (lastPlayheadCol != sequencer->getPlayheadCol()) {
-		lastPlayheadCol = sequencer->getPlayheadCol();
-		repaint();
+	lastPlayheadCol = sequencer->getPlayheadCol();
+	repaint();
+	
+	if (lastPanelIndex != pluginAudioProcessor->getPanelIndex() 
+		|| lastTabIndex != pluginAudioProcessor->getTabIndex()) {
+		lastPanelIndex = pluginAudioProcessor->getPanelIndex();
+		lastTabIndex = pluginAudioProcessor->getTabIndex();
+		
+		for (int i = 0; i < sequencer->getTotalRows(); i++) {
+			for (int j = 0; j < sequencer->getTotalCols(); j++) {
+				CellComponent* cellComponent = getCellAt (i, j);
+				Cell* cell = sequencer->getCellAt (lastPanelIndex, lastTabIndex, 
+												   i, j);
+				cellComponent->setCell (cell);
+			}
+		}		
 	}
 }

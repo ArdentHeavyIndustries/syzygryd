@@ -9,20 +9,19 @@
 
 #include "OscOutboundPacketStream.h"
 
-#include "Sequencer.h"
 #include "Cell.h"
+#include "SharedState.h"
 
 #include "OscOutput.h"
 
-const String kRemoteHost = "127.0.0.1";
+const String kRemoteHost = "255.255.255.255";
 const int kRemotePort = 9000;
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;
 const int kSleepInterval = 100;
 
-OscOutput::OscOutput (Sequencer* sequencer_) :
+OscOutput::OscOutput () :
 Thread ("OscOutput"),
-sequencer (sequencer_),
 outSocket (0, true),
 lastPlayheadCol (-1)
 {
@@ -34,17 +33,24 @@ OscOutput::~OscOutput()
 	outSocket.close();
 }
 
+void OscOutput::broadcast (const void* sourceBuffer, int numBytesToWrite)
+{
+	outSocket.write (sourceBuffer, numBytesToWrite);
+}
+
 // Thread methods
 void OscOutput::run()
 {
 	while (! threadShouldExit()) {
 		Thread::sleep (kSleepInterval);
 
-		if (lastPlayheadCol == sequencer->getPlayheadCol()) {
+		int playheadCol = SharedState::getInstance()->getPlayheadCol();
+		
+		if (lastPlayheadCol == playheadCol) {
 			continue;
 		}
 		
-		lastPlayheadCol = sequencer->getPlayheadCol();
+		lastPlayheadCol = playheadCol;
 		
 		if (!outSocket.waitUntilReady (false, kTimeoutMs)) {
 			continue;
@@ -52,11 +58,10 @@ void OscOutput::run()
 		char buffer[kOutputBufferSize];
 		osc::OutboundPacketStream p( buffer, kOutputBufferSize );
 		
-		float tempo = ((float)sequencer->getPlayheadCol() + 1) / (float)sequencer->getTotalCols();
+		float tempo = ((float)playheadCol + 1) / (float)SharedState::getInstance()->getTotalCols();
 		
 		p << osc::BeginMessage ("/1_tab1/tempo") << (float)tempo
 		<< osc::EndMessage;
-		
 		outSocket.write (p.Data(), p.Size());
 	}
 }

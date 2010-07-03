@@ -21,6 +21,10 @@ CellComponent::~CellComponent()
 {
 }
 
+void CellComponent::setCell (Cell* cell_) {
+	cell = cell_;
+}
+
 // Component methods
 void CellComponent::paint (Graphics& g)
 {

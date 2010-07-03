@@ -10,21 +10,25 @@
 #ifndef OscInput_H
 #define OscInput_H
 
-#include "JuceHeader.h"
+#include "OscReceivedElements.h"
+#include "OscPrintReceivedElements.h"
 
-class Sequencer;
+#include "JuceHeader.h"
 
 class OscInput : public Thread
 {
 public:
-	OscInput (Sequencer* sequencer_);
+	OscInput();
 	~OscInput();
 	
 	// Thread methods
 	virtual void run();
 
 private:
-	Sequencer* sequencer;
+	void clientConnect (osc::ReceivedMessage m);
+	void noteToggle (osc::ReceivedMessage m);
+	void clearTab (osc::ReceivedMessage m);
+	void changeTab (osc::ReceivedMessage m);
 	
 	DatagramSocket inSocket;
 };

@@ -20,6 +20,8 @@ public:
 	CellComponent (Cell* cell_);
 	~CellComponent();
 	
+	void setCell (Cell* cell_);
+	
 	// Component methods
 	virtual void paint (Graphics& g);
 	virtual void resized();

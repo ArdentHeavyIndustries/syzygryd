@@ -8,19 +8,15 @@
  */
 
 #include "Cell.h"
-#include "OscInput.h"
-#include "OscOutput.h"
+#include "Panel.h"
+#include "SharedState.h"
 
 #include "Sequencer.h"
 
 Sequencer::Sequencer (PluginAudioProcessor* pluginAudioProcessor_) :
-AudioProcessorCallback (pluginAudioProcessor),
+AudioProcessorCallback (pluginAudioProcessor_),
 pluginAudioProcessor (pluginAudioProcessor_),
-totalRows (10),
-totalCols (16),
 speed (4),
-oscInput (0),
-oscOutput (0),
 ticksPerCol (4),
 tickCount (0),
 lastTickCount (-1),
@@ -28,62 +24,37 @@ swingEnabled (false),
 swingTicks (1),
 dynamicsEnabled (false)
 {
-	oscInput = new OscInput (this);
-	oscOutput = new OscOutput (this);
-	
-	// Initialize the cells
-	for (int i = 0; i < totalRows; i++) {
-		OwnedArray<Cell>* row;
-		rows.add(row = new OwnedArray<Cell>);
-		
-		for (int j = 0; j < totalCols; j++) {
-			Cell* cell;
-			row->add (cell = new Cell (i, j));
-			if (i != 0) {
-				Cell* northCell = rows.getUnchecked (i - 1)->getUnchecked(j);
-				cell->setNorthCell (northCell);
-				northCell->setSouthCell (cell);
-			}
-			if (j != 0) {
-				Cell* westCell = row->getUnchecked(j - 1);
-				cell->setWestCell (westCell);
-				westCell->setEastCell (cell);
-			}
-		}
-	}
-	
-	oscInput->startThread();
-	oscOutput->startThread();
 }
 
 Sequencer::~Sequencer()
 {
-	oscInput->stopThread(2000);
-	oscOutput->stopThread(2000);
-	delete oscInput;
-	delete oscOutput;
 }
 
 int Sequencer::getTotalRows()
 {
-	return totalRows;
+	return SharedState::getInstance()->getTotalRows();
 }
 
 int Sequencer::getTotalCols()
 {
-	return totalCols;
+	return SharedState::getInstance()->getTotalCols();
 }
 
-Cell* Sequencer::getCellAt (int row_, int col_)
+Cell* Sequencer::getCellAt (int panelIndex_, int tabIndex_, int row_, int col_)
 {
-	OwnedArray<Cell>* row = rows[row_];
-	Cell* cell = row->getUnchecked (col_);
-	return cell;
+	return SharedState::getInstance()->getCellAt (panelIndex_, tabIndex_, row_, col_);
+}
+
+void Sequencer::clearTab (int panelIndex_, int tabIndex_)
+{
+	SharedState::getInstance()->clearTab (panelIndex_, tabIndex_);
 }
 
 int Sequencer::getPlayheadCol()
 {
-	return tickCount / ticksPerCol;
+	int playheadCol = tickCount / ticksPerCol;
+	SharedState::getInstance()->setPlayheadCol (playheadCol);
+	return playheadCol;
 }
 
 bool Sequencer::getSwingEnabled()
@@ -141,7 +112,7 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	
 	
 	
-	double tickCountPrecise = fmod (ppq * speed * ticksPerCol, totalCols * ticksPerCol);
+	double tickCountPrecise = fmod (ppq * speed * ticksPerCol, getTotalCols() * ticksPerCol);
 	tickCount = (int)tickCountPrecise;
 	
 	if (tickCount != lastTickCount) {
@@ -192,8 +163,11 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 			int tickOffsetSamples = tickOffset * secPerBeat * sampleRate;
 			tickOffsetSamples = jmax (buffer.getNumSamples() - tickOffsetSamples - 1, 0);
 			
-			for (int i = 0; i < totalRows; i++) {
-				Cell* cell = getCellAt (i, getPlayheadCol());
+			int panelIndex = pluginAudioProcessor->getPanelIndex();
+			int tabIndex = pluginAudioProcessor->getTabIndex();
+
+			for (int i = 0; i < getTotalRows(); i++) {
+				Cell* cell = getCellAt (panelIndex, tabIndex, i, getPlayheadCol());
 				int noteNumber = cell->getNoteNumber();
 				if (noteNumber != -1) {
 					MidiMessage m = MidiMessage::noteOn(1, noteNumber, velocity);

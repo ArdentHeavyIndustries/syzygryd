@@ -10,12 +10,14 @@
 #include "PluginAudioProcessorEditor.h"
 #include "CustomPlayHead.h"
 #include "Sequencer.h"
+#include "SharedState.h"
 
 #include "PluginAudioProcessor.h"
 
 PluginAudioProcessor::PluginAudioProcessor() :
 customPlayHead (0),
-sequencer (0)
+sequencer (0),
+panelIndex (0)
 {
 	sequencer = new Sequencer (this);
 }
@@ -38,6 +40,26 @@ Sequencer* PluginAudioProcessor::getSequencer()
 void PluginAudioProcessor::setSequencer (Sequencer* sequencer_)
 {
 	sequencer = sequencer_;
+}
+
+int PluginAudioProcessor::getPanelIndex()
+{
+	return panelIndex;
+}
+
+void PluginAudioProcessor::setPanelIndex (int panelIndex_)
+{
+	panelIndex = panelIndex_;
+}
+
+int PluginAudioProcessor::getTabIndex()
+{
+	return SharedState::getInstance()->getTabIndex (panelIndex);
+}
+
+void PluginAudioProcessor::setTabIndex (int tabIndex_)
+{
+	SharedState::getInstance()->setTabIndex (panelIndex, tabIndex_);
 }
 
 // AudioProcessor methods

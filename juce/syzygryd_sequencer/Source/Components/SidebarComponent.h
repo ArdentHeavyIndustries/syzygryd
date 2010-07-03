@@ -12,22 +12,38 @@
 
 #include "JuceHeader.h"
 
+class PluginAudioProcessor;
 class Sequencer;
-class PanelComponent;
+class TabComponent;
 
-class SidebarComponent : public Component
+class SidebarComponent : 
+public Component,
+public Timer,
+public ButtonListener
 {
 public:
-	SidebarComponent (Sequencer* sequencer_);
+	SidebarComponent (PluginAudioProcessor* pluginAudioProcessor_);
 	~SidebarComponent();
 	
 	// Component methods
 	virtual void paint (Graphics& g);
 	virtual void resized();
+	
+	// Timer methods
+	virtual void timerCallback();
 
+	// ButtonListener methods
+	virtual void buttonClicked (Button* button);
+	
 private:
+	PluginAudioProcessor* pluginAudioProcessor;
 	Sequencer* sequencer;
-	Array<PanelComponent*> panelComponents;
+	
+	Array<TabComponent*> tabComponents;
+	Button* clearButton;
+	
+	int lastPanelIndex;
+	int lastTabIndex;
 };
 
 #endif

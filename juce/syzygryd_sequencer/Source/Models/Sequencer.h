@@ -16,10 +16,9 @@
 #include "JuceHeader.h"
 
 class Cell;
-class OscInput;
-class OscOutput;
+class Panel;
 
-class Sequencer : public AudioProcessorCallback
+class Sequencer : AudioProcessorCallback
 {
 public:
 	Sequencer (PluginAudioProcessor* pluginAudioProcessor_);
@@ -27,9 +26,11 @@ public:
 	
 	int getTotalRows();
 	int getTotalCols();
-	Cell* getCellAt (int row, int col);
+	Cell* getCellAt (int panelIndex_, int tabIndex_, int row_, int col_);
 	int getPlayheadCol();
 
+	void clearTab (int panelIndex_, int tabIndex_);
+	
 	bool getSwingEnabled();
 	void setSwingEnabled (bool swingEnabled_);
 	bool getDynamicsEnabled();
@@ -43,14 +44,8 @@ public:
 	
 private:
 	PluginAudioProcessor* pluginAudioProcessor;
-	OscInput* oscInput;
-	OscOutput* oscOutput;
-	
+
 	double sampleRate;
-	
-	const int totalRows;
-	const int totalCols;
-	OwnedArray< OwnedArray<Cell> > rows;
 
 	int speed; // playback speed multiplier
 

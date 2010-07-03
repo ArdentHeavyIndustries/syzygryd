@@ -13,6 +13,7 @@
 #include "JuceHeader.h"
 
 class Cell;
+class PluginAudioProcessor;
 class Sequencer;
 class CellComponent;
 
@@ -21,10 +22,8 @@ public Component,
 public Timer
 {
 public:
-	SequencerComponent (Sequencer* sequencer_);
+	SequencerComponent (PluginAudioProcessor* pluginAudioProcessor_);
 	~SequencerComponent();
-	
-	CellComponent* getCellAt (int row, int col);
 	
 	// Component methods
 	virtual void paint (Graphics& g);
@@ -34,11 +33,17 @@ public:
 	virtual void timerCallback();
 	
 private:
+	CellComponent* getCellAt (int row, int col);
+	
+	PluginAudioProcessor* pluginAudioProcessor;
 	Sequencer* sequencer;
 	
 	OwnedArray< Array<CellComponent*> > rows;
 	
 	int lastPlayheadCol;
+	
+	int lastPanelIndex;
+	int lastTabIndex;
 };
 
 #endif

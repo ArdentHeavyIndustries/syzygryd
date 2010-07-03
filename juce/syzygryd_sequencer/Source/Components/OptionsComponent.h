@@ -12,14 +12,16 @@
 
 #include "JuceHeader.h"
 
+class PluginAudioProcessor;
 class Sequencer;
 
 class OptionsComponent : 
 public Component,
-public ButtonListener
+public ButtonListener,
+public Timer
 {
 public:
-	OptionsComponent (Sequencer* sequencer_);
+	OptionsComponent (PluginAudioProcessor* pluginAudioProcessor_);
 	~OptionsComponent();
 	
 	// Component methods
@@ -29,11 +31,18 @@ public:
 	// ButtonListener methods
 	virtual void buttonClicked (Button* button);	
 	
+	// Timer methods
+	virtual void timerCallback();
+	
 private:
+	PluginAudioProcessor* pluginAudioProcessor;
 	Sequencer* sequencer;
 	
 	ToggleButton* swingButton;
 	ToggleButton* dynamicsButton;	
+	OwnedArray<TextButton> panelButtons;
+
+	int lastPanelIndex;
 };
 
 #endif

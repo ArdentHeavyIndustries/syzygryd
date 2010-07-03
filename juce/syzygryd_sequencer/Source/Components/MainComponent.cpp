@@ -28,10 +28,9 @@ sidebarComponent (0)
 	positionLabel->setColour (Label::textColourId, Colour::fromRGB (120, 120, 120));
 	positionLabel->setJustificationType (Justification::topLeft);
 	
-	Sequencer* sequencer = pluginAudioProcessor->getSequencer();
-	addAndMakeVisible (sequencerComponent = new SequencerComponent (sequencer));
-	addAndMakeVisible (optionsComponent = new OptionsComponent (sequencer));
-	addAndMakeVisible (sidebarComponent = new SidebarComponent (sequencer));
+	addAndMakeVisible (sequencerComponent = new SequencerComponent (pluginAudioProcessor));
+	addAndMakeVisible (optionsComponent = new OptionsComponent (pluginAudioProcessor));
+	addAndMakeVisible (sidebarComponent = new SidebarComponent (pluginAudioProcessor));
 	
 	startTimer (50);
 }
@@ -51,7 +50,7 @@ void MainComponent::paint (Graphics& g)
 									   false));
 	
 	g.setFont (18.0, Font::bold);
-	g.drawText ("Syzygryd Sequencer v3.1", 10, 10, getWidth() - 20, 20, 
+	g.drawText ("Syzygryd Sequencer v3.4", 10, 10, getWidth() - 20, 20, 
 				Justification::centredTop, false);
 }
 
@@ -59,7 +58,7 @@ void MainComponent::resized()
 {
 	positionLabel->setBounds (20, 30, getWidth() - 30, 50);
 	sequencerComponent->setBounds (10, 80, getWidth() - 120, getHeight() - 90);
-	optionsComponent->setBounds (getWidth() - 100, 10, 90, 50);
+	optionsComponent->setBounds (getWidth() - 150, 10, 140, 100);
 	sidebarComponent->setBounds (getWidth() - 110, 80, 100, getHeight() - 90);
 }
 

@@ -25,6 +25,11 @@ public:
 	void setCustomPlayHead (CustomPlayHead* customPlayHead_);
 	Sequencer* getSequencer();
 	void setSequencer (Sequencer* sequencer_);
+
+	int getPanelIndex();
+	void setPanelIndex (int panelIndex_);
+	int getTabIndex();
+	void setTabIndex (int tabIndex_);
 	
 	// AudioProcessor methods
     void prepareToPlay (double sampleRate, int samplesPerBlock);
@@ -61,12 +66,14 @@ public:
 	//--------------------------------------------------------------------------
 	AudioPlayHead::CurrentPositionInfo lastPosInfo;
 
-	Sequencer* sequencer;	
-	
     juce_UseDebuggingNewOperator
 
 private:
 	CustomPlayHead* customPlayHead;
+
+	Sequencer* sequencer;	
+	
+	int panelIndex;
 };
 
 #endif  

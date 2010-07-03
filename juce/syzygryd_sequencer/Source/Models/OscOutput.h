@@ -12,20 +12,18 @@
 
 #include "JuceHeader.h"
 
-class Sequencer;
-
 class OscOutput : public Thread
 {
 public:
-	OscOutput (Sequencer* sequencer_);
+	OscOutput();
 	~OscOutput();
+	
+	void broadcast (const void* sourceBuffer, int numBytesToWrite);
 	
 	// Thread methods
 	virtual void run();
 	
 private:
-	Sequencer* sequencer;
-	
 	DatagramSocket outSocket;
 	
 	int lastPlayheadCol;
