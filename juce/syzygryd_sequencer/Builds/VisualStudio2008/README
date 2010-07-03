@@ -1,0 +1,5 @@
+this was put together by matt in visual studio 2008
+but it refers to hardcoded paths
+and needs to be (auto) converted to run in visual studio 2010
+it is not being maintained and may be deleted soon
+it is recommended that you use the visual studio 2010 directory instead
