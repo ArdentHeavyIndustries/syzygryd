@@ -16,6 +16,7 @@ class Fixture {
     dmx = _dmx;
     controller = _controller;
     type = _type;
+    //FIXME: add fixture factory setup here
   }
   
   int addChannel(String channelName){
@@ -109,10 +110,9 @@ class Fixture {
       return latency;
     }
   }  
-
 }
 
-
-
-abstract class Behavior {}
-abstract class Command {}
+//abstract class FixtureGroup extends Fixture {
+ //it has some fixtures
+ //and maybe some behaviors/actions/something
+//}
