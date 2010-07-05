@@ -29,6 +29,8 @@ public:
 	Cell* getCellAt (int panelIndex_, int tabIndex_, int row_, int col_);
 	int getPlayheadCol();
 
+	void noteToggle (int panelIndex_, int tabIndex_, 
+					 int row_, int col_, bool isNoteOn);
 	void clearTab (int panelIndex_, int tabIndex_);
 	
 	bool getSwingEnabled();

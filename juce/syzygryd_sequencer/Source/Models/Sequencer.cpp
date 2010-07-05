@@ -45,6 +45,13 @@ Cell* Sequencer::getCellAt (int panelIndex_, int tabIndex_, int row_, int col_)
 	return SharedState::getInstance()->getCellAt (panelIndex_, tabIndex_, row_, col_);
 }
 
+void Sequencer::noteToggle (int panelIndex_, int tabIndex_,
+							int row_, int col_, bool isNoteOn)
+{
+	SharedState::getInstance()->noteToggle (panelIndex_, tabIndex_,
+											row_, col_, isNoteOn);
+}
+
 void Sequencer::clearTab (int panelIndex_, int tabIndex_)
 {
 	SharedState::getInstance()->clearTab (panelIndex_, tabIndex_);

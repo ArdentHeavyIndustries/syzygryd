@@ -38,6 +38,50 @@ void OscOutput::broadcast (const void* sourceBuffer, int numBytesToWrite)
 	outSocket.write (sourceBuffer, numBytesToWrite);
 }
 
+void OscOutput::sendNoteToggle (int panelIndex, int tabIndex, int row, int col,
+								bool isNoteOn)
+{
+	char buffer[kOutputBufferSize];
+	osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+	
+	// Adjust XY Coordinate system
+	row = SharedState::getInstance()->getTotalRows() - row;
+	col++;
+	panelIndex++;
+	tabIndex++;
+	
+	// [/1_tab1/panel/6/9 float32:1]
+	String msg;
+	msg << "/" << panelIndex << "_tab" << tabIndex << "/panel/" << row 
+	<< "/" << col;
+	
+	float state = 0;
+	if (isNoteOn) state = 1.0;
+	
+	p << osc::BeginMessage (msg.toUTF8()) << state
+	<< osc::EndMessage;
+	outSocket.write (p.Data(), p.Size());	
+}
+
+void OscOutput::sendClearTab (int panelIndex, int tabIndex)
+{
+	char buffer[kOutputBufferSize];
+	osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+	
+	panelIndex++;
+	tabIndex++;
+
+	//[/1_control/clear/tab1]
+	String msg;
+	msg << "/" << panelIndex << "_control/clear/tab" << tabIndex;
+	
+	DBG (msg)
+	
+	p << osc::BeginMessage (msg.toUTF8())
+	<< osc::EndMessage;
+	outSocket.write (p.Data(), p.Size());		
+}
+
 // Thread methods
 void OscOutput::run()
 {

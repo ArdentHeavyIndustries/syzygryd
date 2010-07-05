@@ -8,13 +8,18 @@
  */
 
 #include "Cell.h"
+#include "PluginAudioProcessor.h"
+#include "Sequencer.h"
 
 #include "CellComponent.h"
 
-CellComponent::CellComponent (Cell* cell_) :
+CellComponent::CellComponent (PluginAudioProcessor* pluginAudioProcessor_, 
+							  Cell* cell_) :
 Component ("CellComponent"),
+pluginAudioProcessor (pluginAudioProcessor_),
 cell (cell_)
 {
+	sequencer = pluginAudioProcessor->getSequencer();
 }
 
 CellComponent::~CellComponent()
@@ -52,11 +57,12 @@ void CellComponent::resized()
 
 void CellComponent::mouseDown (const MouseEvent& e)
 {
-	if (cell->getNoteNumber() > 0) {
-		cell->setNoteOff();
-	} else {
-		cell->setNoteOn();
-	}
+	int panelIndex = pluginAudioProcessor->getPanelIndex();
+	int tabIndex = pluginAudioProcessor->getTabIndex();
+	bool sendNoteOn = (cell->getNoteNumber() <= 0);
+	
+	sequencer->noteToggle (panelIndex, tabIndex, cell->getRow(), cell->getCol(), 
+						   sendNoteOn);
 	repaint();
 }
 

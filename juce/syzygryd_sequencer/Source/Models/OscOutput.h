@@ -19,6 +19,9 @@ public:
 	~OscOutput();
 	
 	void broadcast (const void* sourceBuffer, int numBytesToWrite);
+	void sendNoteToggle (int panelIndex, int tabIndex, int row, int col, 
+						 bool isNoteOn);
+	void sendClearTab (int panelIndex, int tabIndex);
 	
 	// Thread methods
 	virtual void run();

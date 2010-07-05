@@ -32,9 +32,11 @@ public:
 	void setPlayheadCol (int playheadCol_);
 	
 	Cell* getCellAt (int panelIndex_, int tabIndex_, int row_, int col_);
-	void clearTab (int panelIndex_, int tabIndex_);
-
 	void broadcast (const void* sourceBuffer, int numBytesToWrite);
+	
+	void noteToggle (int panelIndex_, int tabIndex_, int row_, int col_, 
+					 bool state);
+	void clearTab (int panelIndex_, int tabIndex_);
 	
 	juce_DeclareSingleton (SharedState, true)
 	

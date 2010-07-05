@@ -13,11 +13,13 @@
 #include "JuceHeader.h"
 
 class Cell;
+class PluginAudioProcessor;
+class Sequencer;
 
 class CellComponent : public Component
 {
 public:
-	CellComponent (Cell* cell_);
+	CellComponent (PluginAudioProcessor* pluginAudioProcessor_, Cell* cell_);
 	~CellComponent();
 	
 	void setCell (Cell* cell_);
@@ -28,6 +30,9 @@ public:
 	virtual void mouseDown (const MouseEvent& e);
 	
 private:
+	PluginAudioProcessor* pluginAudioProcessor;	
+	Sequencer* sequencer;
+	
 	Cell* cell;	
 };
 

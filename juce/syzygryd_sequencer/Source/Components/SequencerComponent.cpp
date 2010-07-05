@@ -30,7 +30,8 @@ lastTabIndex (-1)
 			int panelIndex = pluginAudioProcessor->getPanelIndex();
 			int tabIndex = pluginAudioProcessor->getTabIndex();
 			CellComponent* cell;
-			addAndMakeVisible (cell = new CellComponent (sequencer->getCellAt (panelIndex, tabIndex, i, j)));
+			addAndMakeVisible (cell = new CellComponent (pluginAudioProcessor,
+														 sequencer->getCellAt (panelIndex, tabIndex, i, j)));
 			row->add (cell);
 		}
 	}

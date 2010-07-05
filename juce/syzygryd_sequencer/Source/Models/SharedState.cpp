@@ -43,6 +43,16 @@ SharedState::~SharedState()
 	delete oscOutput;
 }
 
+int SharedState::getTotalRows()
+{
+	return totalRows;
+}
+
+int SharedState::getTotalCols()
+{
+	return totalCols;
+}
+
 int SharedState::getTabIndex (int panelIndex_)
 {
 	Panel* panel = panels[panelIndex_];
@@ -71,26 +81,32 @@ Cell* SharedState::getCellAt (int panelIndex_, int tabIndex_, int row_, int col_
 	return panel->getCellAt (tabIndex_, row_, col_);
 }
 
-void SharedState::clearTab (int panelIndex_, int tabIndex_)
-{
-	Panel* panel = panels[panelIndex_];
-	panel->clearTab (tabIndex_);
-}
-
 void SharedState::broadcast (const void* sourceBuffer, int numBytesToWrite)
 {
 	oscOutput->broadcast (sourceBuffer, numBytesToWrite);
 }
 
-int SharedState::getTotalRows()
+void SharedState::noteToggle (int panelIndex_, int tabIndex_, 
+							  int row_, int col_, bool state)
 {
-	return totalRows;
+	Cell* cell = getCellAt (panelIndex_, tabIndex_, row_, col_);
+	if (state) {
+		cell->setNoteOn();
+	} else {
+		cell->setNoteOff();
+	}
+	oscOutput->sendNoteToggle (panelIndex_, tabIndex_, row_, col_, state);
 }
 
-int SharedState::getTotalCols()
+void SharedState::clearTab (int panelIndex_, int tabIndex_)
 {
-	return totalCols;
+	Panel* panel = panels[panelIndex_];
+	panel->clearTab (tabIndex_);
+	oscOutput->sendClearTab (panelIndex_, tabIndex_);
 }
+
+
+
 
 
 
