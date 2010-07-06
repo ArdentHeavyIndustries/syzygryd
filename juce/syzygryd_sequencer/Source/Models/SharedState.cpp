@@ -95,7 +95,7 @@ void SharedState::noteToggle (int panelIndex_, int tabIndex_,
 	} else {
 		cell->setNoteOff();
 	}
-	//oscOutput->sendNoteToggle (panelIndex_, tabIndex_, row_, col_, state);
+	oscOutput->sendNoteToggle (panelIndex_, tabIndex_, row_, col_, state);
 }
 
 void SharedState::clearTab (int panelIndex_, int tabIndex_)
