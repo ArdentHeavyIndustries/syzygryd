@@ -51,7 +51,6 @@ void OscInput::run()
 		}
 		std::cout << p;
 		SharedState::getInstance()->broadcast (buffer, bytesRead);
-		SharedState::getInstance()->broadcast (buffer, bytesRead); // for safety
 		
 		osc::ReceivedMessage m(p);
 		String addressPattern (m.AddressPattern());
