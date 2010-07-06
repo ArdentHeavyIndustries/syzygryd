@@ -9,7 +9,7 @@ class Fixture {
   
   FixtureProfile profile;
   
-  Behavior behavior;
+  //Behavior behavior;
   ArrayList commandQueue = new ArrayList();
   
   Fixture(DMX _dmx, int _controller, String _type){
