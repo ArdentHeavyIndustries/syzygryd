@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  Cell.cpp
  *  syzygryd_sequencer
@@ -8,6 +9,14 @@
  */
 
 #include "Cell.h"
+
+// From the pentatonic scale. In ascending order:
+//   C4, D4, E4, G4, A4, C5, D5, E5, G5, A5
+//   http://upload.wikimedia.org/wikipedia/commons/7/7a/NoteNamesFrequenciesAndMidiNumbers.svg
+// backwards here b/c row 0 is the top row, which is the highest note
+const int Cell::scale[] = {
+   81, 79, 76, 74, 72, 69, 67, 64, 62, 60
+};
 
 Cell::Cell (int row_, int col_) :
 northCell (0),
@@ -105,12 +114,6 @@ void Cell::setNoteOff()
 
 void Cell::setNoteOn()
 {
-	setNoteNumber (69 - row);	
+   jassert (row >= 0 && row < 10);
+	setNoteNumber (scale[row]);
 }
-
-
-
-
-
-
-

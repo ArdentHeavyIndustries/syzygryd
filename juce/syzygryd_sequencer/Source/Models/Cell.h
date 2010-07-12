@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  Cell.h
  *  syzygryd_sequencer
@@ -40,6 +41,8 @@ public:
 	
 private:
 	void setNoteNumber (int noteNumber_);
+
+   static const int scale[];
 	
 	Cell* northCell;
 	Cell* westCell;
