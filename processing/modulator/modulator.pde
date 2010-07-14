@@ -16,12 +16,14 @@ class Modulator
       //OscEventListener,	/* oscP5 */
       SimpleMidiListener	/* themidibus */
 {
-   OscP5 oscP5_;
-   MidiBus[] midiBuses_;
+   OscP5 oscP5_;					// for incoming OSC messages
+   NetAddress oscBroadcast_;	// for outgoing OSC messages
 
    /* listeningPort is the port the server is listening for incoming messages */
    static final int listeningPort_ = 8001;
    
+   /* broadcast outgoing messages to the entire subnet */
+   static final String broadcastAddr_ = "255.255.255.255";
    /* the broadcast port is the port the clients should listen for
     * incoming messages from the server */
    static final int broadcastPort_ = 9001;
@@ -29,12 +31,23 @@ class Modulator
    Pattern oscModulatorPattern_ =
       Pattern.compile("/(\\d+)_modulator/modulation(\\d+)");
 
+   MidiBus[] midiBuses_;
+
+   int numPanels_;
+
    Modulator(PApplet parent, int numPanels, String midiInputs[], String[] midiOutputs) {
+      // this takes care of calling oscEvent() regardless, so we don't need to
+      // add a listener and implement the full interface in this case (unlike
+      // for SimpleMidiListener)
       oscP5_ = new OscP5(/* parent */ this, listeningPort_);
       //oscP5_.addListener(/* OscEventListener */ this);
 
-      midiBuses_ = new MidiBus[numPanels];
-      for (int i = 0; i < numPanels; i++) {
+      oscBroadcast_ = new NetAddress(broadcastAddr_, broadcastPort_);
+
+      numPanels_ = numPanels;
+
+      midiBuses_ = new MidiBus[numPanels_];
+      for (int i = 0; i < numPanels_; i++) {
          println("Creating MidiBus[" + i + "]: IN:\"" + midiInputs[i] + "\" OUT:\"" + midiOutputs[i] + "\"");
          midiBuses_[i] = new MidiBus(/* PApplet */ parent, midiInputs[i], midiOutputs[i]);
          midiBuses_[i].addMidiListener(/* SimpleMidiListener */ this);
@@ -64,17 +77,21 @@ class Modulator
       if (matcher.matches()) {
          try {
             int oscPanel = Integer.parseInt(matcher.group(1));
-            int oscModulator = Integer.parseInt(matcher.group(2));
-            if (message.checkTypetag("f")) {
-               float oscValue = message.get(0).floatValue();
-               System.out.println("received OSC: panel=" + oscPanel + " modulator=" + oscModulator + " value=" + oscValue);
-               int midiChannel = oscPanel;
-               int midiNumber = oscToMidiModulator(oscModulator);
-               int midiValue = oscToMidiValue(oscValue);
-               System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
-               midiBuses_[midiChannel - 1].sendControllerChange(midiChannel, midiNumber, midiValue);
+            if (oscPanel >= 1 && oscPanel <= numPanels_) {
+               int oscModulator = Integer.parseInt(matcher.group(2));
+               if (message.checkTypetag("f")) {
+                  float oscValue = message.get(0).floatValue();
+                  System.out.println("received OSC: panel=" + oscPanel + " modulator=" + oscModulator + " value=" + oscValue);
+                  int midiChannel = oscPanel;
+                  int midiNumber = oscToMidiModulator(oscModulator);
+                  int midiValue = oscToMidiValue(oscValue);
+                  System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
+                  midiBuses_[midiChannel - 1].sendControllerChange(midiChannel, midiNumber, midiValue);
+               } else {
+                  System.err.println("WARNING: Unexpectd type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
+               }
             } else {
-               System.err.println("WARNING: Unexpectd type tag (" + message.typetag()+ ") in OSC message: " + oscAddr);
+               System.err.println("WARNING: Unexpected panel number (" + oscPanel + ") in OSC message: " + oscAddr);
             }
          } catch (NumberFormatException nfe) {
             System.err.println("WARNING: Unable to parse OSC message pattern: " + oscAddr);
@@ -85,31 +102,38 @@ class Modulator
    }
 
    // /* OscEventListener */
+   // not actually required b/c we're not implementing the full interface
    // void oscStatus(OscStatus status) {
    //    println("oscStatus(): " + status.id());
    // }
 
    /* SimpleMidiListener */
    void controllerChange(int channel, int number, int value) {
-      println("controllerChange(): channel=" + channel + " number=" + number + " value=" + value);
+      System.out.println("received MIDI: channel=" + channel + " number=" + number + " value=" + value);
+      if (channel >= 1 && channel <= numPanels_) {
+         int oscPanel = channel;
+         int oscModulator = midiToOscModulator(number);
+         String oscAddr = "/" + oscPanel + "_modulator/modulator" + oscModulator;
+         float oscValue = midiToOscValue(value);
+         System.out.println("sending OSC: address=" + oscAddr + " value=" + oscValue);
+         OscMessage message = new OscMessage(oscAddr);
+         message.add(oscValue);
+         oscP5_.send(message, oscBroadcast_);
+      } else {
+         System.err.println("WARNING: Unexpected MIDI channel received: " + channel);
+      }
    }
 
    /* SimpleMidiListener */
+   // required to implement the interface, but we're not using
    void noteOff(int channel, int pitch, int velocity) {
-      println("noteOff(): channel=" + channel + " pitch=" + pitch + " velocity=" + velocity);
+      //println("noteOff(): channel=" + channel + " pitch=" + pitch + " velocity=" + velocity);
    }
 
    /* SimpleMidiListener */
+   // required to implement the interface, but we're not using
    void noteOn(int channel, int pitch, int velocity) {
-      println("noteOn(): channel=" + channel + " pitch=" + pitch + " velocity=" + velocity);
-   }
-
-   int oscToMidiValue(float value) {
-      return (int)(value * 127.0f);
-   }
-
-   float midiToOscValue(int value) {
-      return (float)value / 127.0f;
+      //println("noteOn(): channel=" + channel + " pitch=" + pitch + " velocity=" + velocity);
    }
 
    int oscToMidiModulator(int modulator) {
@@ -118,6 +142,14 @@ class Modulator
 
    int midiToOscModulator(int number) {
       return number - 43;
+   }
+
+   int oscToMidiValue(float value) {
+      return (int)(value * 127.0f);
+   }
+
+   float midiToOscValue(int value) {
+      return (float)value / 127.0f;
    }
 
 }
