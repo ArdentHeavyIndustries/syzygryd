@@ -7,7 +7,6 @@ import oscP5.*;
 import netP5.*;
 import themidibus.*;
 
-//import javax.sound.midi.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -33,9 +32,7 @@ class Modulator
 
    MidiBus[] midiBuses_;
 
-   int numPanels_;
-
-   Modulator(PApplet parent, int numPanels, String midiInputs[], String[] midiOutputs) {
+   Modulator(PApplet parent, String midiInputs[], String[] midiOutputs) {
       // this takes care of calling oscEvent() regardless, so we don't need to
       // add a listener and implement the full interface in this case (unlike
       // for SimpleMidiListener)
@@ -44,14 +41,22 @@ class Modulator
 
       oscBroadcast_ = new NetAddress(broadcastAddr_, broadcastPort_);
 
-      numPanels_ = numPanels;
-
       midiBuses_ = new MidiBus[numPanels_];
       for (int i = 0; i < numPanels_; i++) {
          println("Creating MidiBus[" + i + "]: IN:\"" + midiInputs[i] + "\" OUT:\"" + midiOutputs[i] + "\"");
          midiBuses_[i] = new MidiBus(/* PApplet */ parent, midiInputs[i], midiOutputs[i]);
          midiBuses_[i].addMidiListener(/* SimpleMidiListener */ this);
       }
+   }
+
+   void setInput(int panel, String midiInput) {
+      midiBuses_[panel].clearInputs();
+      midiBuses_[panel].addInput(midiInput);
+   }
+   
+   void setOutput(int panel, String midiOutput) {
+      midiBuses_[panel].clearOutputs();
+      midiBuses_[panel].addOutput(midiOutput);
    }
    
    /* (OscEventListener) */
@@ -161,64 +166,113 @@ class Modulator
 
 }
 
+// (ugh) global variables
+final int numPanels_ = 3;
 Modulator m_;
-//GCombo cboMidiInput_, cboMidiOutput_;
-//GLabel labelMidiInput_, labelMidiOutput_;
+GCombo[] combosIn_;
+GCombo[] combosOut_;
 
 void setup() {
-   final int numPanels = 3;
+   System.out.println("begin setup()");
+
+   // gui
+   int maxChoices = 10;
+   int dySmall = 20;
+   int dyLarge = dySmall * maxChoices;
+   int dxSmall = 10;
+   int dxLarge = 200;
+   
+   size(3*dxSmall + 2*dxLarge, 5*dySmall + 3*dyLarge);
+
+   System.out.println("list:");
+   MidiBus.list();
+   System.out.println("\n");
 
    String[] availableIns = MidiBus.availableInputs();
    String[] availableOuts = MidiBus.availableOutputs();
-
-   println("availableIns:");
+   System.out.println("availableIns:");
    for (int i = 0; i < availableIns.length; i++) {
-      println(availableIns[i]);
+      System.out.println(availableIns[i]);
    }
-   println("availableOuts:");
+   System.out.println("\n");
+   System.out.println("availableOuts:");
    for (int i = 0; i < availableOuts.length; i++) {
-      println(availableOuts[i]);
+      System.out.println(availableOuts[i]);
+   }
+   System.out.println("\n");
+
+   // set default midi in/out
+   // (we could also hardcode this to whatever the mac wants)
+   String[] s_defaultMidiInputs  = new String[numPanels_];
+   String[] s_defaultMidiOutputs = new String[numPanels_];
+   int[] i_defaultMidiInputs = new int[numPanels_];
+   int[] i_defaultMidiOutputs = new int[numPanels_];
+   for (int i = 0; i < numPanels_; i++) {
+      s_defaultMidiInputs[i] = new String("In From MIDI Yoke:  " + (i+1));
+      s_defaultMidiOutputs[i] = new String("Out To MIDI Yoke:  " + (i+1));
+      //IN:
+      for (int j = 0; j < availableIns.length; j++) {
+         if (s_defaultMidiInputs[i].equals(availableIns[j])) {
+            i_defaultMidiInputs[i] = j;
+            System.out.println("Setting default input for panel " + i + " to " + j + ": " + availableIns[j]);
+            //break IN;
+            j = availableIns.length;
+         }
+      }
+      //OUT:
+      for (int j = 0; j < availableOuts.length; j++) {
+         if (s_defaultMidiOutputs[i].equals(availableOuts[j])) {
+            System.out.println("Setting default output for panel " + i + " to " + j + ": " + availableOuts[j]);
+            i_defaultMidiOutputs[i] = j;
+            //break OUT;
+            j = availableOuts.length;
+         }
+      }
    }
 
-   // XXX for now i'm just going to hardcode this, but ultimately we need some way to select
-   // XXX this could also be done (maybe more cleanly?) through device numbers, not names
-   String[] midiInputs  = {"In From MIDI Yoke:  1",
-                           "In From MIDI Yoke:  2",
-                           "In From MIDI Yoke:  3"};
-   String[] midiOutputs = {"Out To MIDI Yoke:  1",
-                           "Out To MIDI Yoke:  2",
-                           "Out To MIDI Yoke:  3"};
+   GLabel[] labelsIn  = new GLabel[numPanels_];
+   GLabel[] labelsOut = new GLabel[numPanels_];
+   combosIn_  = new GCombo[numPanels_];
+   combosOut_ = new GCombo[numPanels_];
 
-   // labelMidiInput_ = new GLabel(this, "Midi Input:", 0, 0, 65);
-   // cboMidiInput_ = new GCombo(this, availableIns, 4, 65, 0, 130);
-   // labelMidiOutput_ = new GLabel(this, "Midi Output:", 195, 0, 75);
-   // cboMidiOutput_ = new GCombo(this, availableOuts, 4, 270, 0, 130);
+   for (int i = 0; i < numPanels_; i++) {
+      labelsIn[i]  = new GLabel(this, "Panel " + (i+1) + " MIDI Input", dxSmall, dySmall + i*(dySmall+dyLarge), dxLarge);
+      labelsOut[i]  = new GLabel(this, "Panel " + (i+1) + " MIDI Output", 2*dxSmall + dxLarge, dySmall + i*(dySmall+dyLarge), dxLarge);
+      combosIn_[i] = new GCombo(this, availableIns, maxChoices, dxSmall, 2*dySmall + i*(dySmall+dyLarge), dxLarge);
+      combosOut_[i] = new GCombo(this, availableOuts, maxChoices, 2*dxSmall + dxLarge, 2*dySmall + i*(dySmall+dyLarge), dxLarge);
+      combosIn_[i].setSelected(i_defaultMidiInputs[i]);
+      combosOut_[i].setSelected(i_defaultMidiOutputs[i]);
+   }
 
-   // // XXX presumably "GridSequencer" below needs to change ?
-   
-   // for (int i = 0; i < availableIns.length; i++) {
-   //    if (availableIns[i].matches(".*GridSequencer.*") ||
-   //        availableIns[i].matches("In From MIDI Yoke:  2")) {
-   //       cboMidiInput_.setSelected(availableIns[i]);
-   //       break;
-   //    }
-   // }
-   
-   // for (int i = 0; i < availableOuts.length; i++) {
-   //    if (availableOuts[i].matches("GridSequencer") ||
-   //        availableOuts[i].matches("Out To MIDI Yoke:  1")) {
-   //       cboMidiOutput_.setSelected(availableOuts[i]);
-   //       break;
-   //    }
-   // }
-   
    m_ = new Modulator(this,
-                      numPanels,
-                      midiInputs,
-                      midiOutputs);
+                      s_defaultMidiInputs,
+                      s_defaultMidiOutputs);
+
+   System.out.println("end setup()");
 }
 
 void draw() {
-   // XXX is there really nothing to do here? 
+   background(0, 255, 255); // cyan
 }
 
+void handleComboEvents(GCombo combo) {
+   for (int i = 0; i < numPanels_; i++) {
+      if (combo == combosIn_[i]) {
+         System.out.println("Selected combo in " + i + " with index " + combo.selectedIndex() + " and text \"" + combo.selectedText() + "\"");
+         m_.setInput(i, combo.selectedText());
+         break;
+      } else if (combo == combosOut_[i]) {
+         System.out.println("Selected combo out " + i + " with index " + combo.selectedIndex() + " and text \"" + combo.selectedText() + "\"");
+         m_.setOutput(i, combo.selectedText());
+         break;
+      }
+   }
+}
+
+// these aren't used, but without then processing spews a bit on initialization
+
+void handleOptionEvents(GOption selected, GOption deselected) {
+}
+
+void handleSliderEvents(GSlider slider) {
+}
