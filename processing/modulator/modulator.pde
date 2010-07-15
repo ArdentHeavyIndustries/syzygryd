@@ -113,7 +113,7 @@ class Modulator
       if (channel >= 1 && channel <= numPanels_) {
          int oscPanel = channel;
          int oscModulator = midiToOscModulator(number);
-         String oscAddr = "/" + oscPanel + "_modulator/modulator" + oscModulator;
+         String oscAddr = "/" + oscPanel + "_modulator/modulation" + oscModulator;
          float oscValue = midiToOscValue(value);
          System.out.println("sending OSC: address=" + oscAddr + " value=" + oscValue);
          OscMessage message = new OscMessage(oscAddr);
