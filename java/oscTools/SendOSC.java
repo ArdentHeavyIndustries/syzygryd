@@ -6,6 +6,10 @@ import netP5.*;
 // /cygdrive/c/Program\ Files/Java/jdk1.6.0_20/bin/javac.exe -cp ../../processing/libraries/oscP5/library/oscP5.jar SendOSC.java
 // java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation6 0.5
 
+
+/* For inspiration (but a complete clone is not necessarily a goal), see:
+ *   http://archive.cnmat.berkeley.edu/OpenSoundControl/clients/sendOSC.html
+ */
 public class SendOSC
 {
    NetAddress oscSender_;

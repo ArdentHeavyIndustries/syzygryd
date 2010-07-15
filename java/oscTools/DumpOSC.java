@@ -26,6 +26,9 @@
 import oscP5.*;
 //import processing.core.PApplet;
 
+/* For inspiration (but a complete clone is not necessarily a goal), see:
+ *   http://archive.cnmat.berkeley.edu/OpenSoundControl/dumpOSC.html
+ */
 public class DumpOSC
    implements OscEventListener
 {
