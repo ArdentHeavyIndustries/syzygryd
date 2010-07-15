@@ -68,7 +68,7 @@ class Modulator
       // and M is in the range 1..10
       // the input value is in the range [0.0 .. 1.0]
       // we translate this to a MIDI control message
-      //   the MIDI channel is the same as the panel number
+      //   the MIDI channel is the same as the panel number (XXX see below, i think themidibus uses one less)
       //   the controller number is in the range [0x2C .. 0x35], which is [44 .. 53]
       //   the value is in the range [0 .. 127]
 
@@ -82,7 +82,7 @@ class Modulator
                if (message.checkTypetag("f")) {
                   float oscValue = message.get(0).floatValue();
                   System.out.println("received OSC: panel=" + oscPanel + " modulator=" + oscModulator + " value=" + oscValue);
-                  int midiChannel = oscPanel;
+                  int midiChannel = oscPanelToMidiChannel(oscPanel);
                   int midiNumber = oscToMidiModulator(oscModulator);
                   int midiValue = oscToMidiValue(oscValue);
                   System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
@@ -111,7 +111,7 @@ class Modulator
    void controllerChange(int channel, int number, int value) {
       System.out.println("received MIDI: channel=" + channel + " number=" + number + " value=" + value);
       if (channel >= 1 && channel <= numPanels_) {
-         int oscPanel = channel;
+         int oscPanel = midiChannelToOscPanel(channel);
          int oscModulator = midiToOscModulator(number);
          String oscAddr = "/" + oscPanel + "_modulator/modulation" + oscModulator;
          float oscValue = midiToOscValue(value);
@@ -136,10 +136,18 @@ class Modulator
       //println("noteOn(): channel=" + channel + " pitch=" + pitch + " velocity=" + velocity);
    }
 
+   // we start counting panels at 1
+   // it appears empirically that midi channels for themidibus start counting at 0
+   int oscPanelToMidiChannel(int panel) {
+      return panel - 1;
+   }
+   int midiChannelToOscPanel(int channel) {
+      return channel + 1;
+   }
+
    int oscToMidiModulator(int modulator) {
       return modulator + 43;
    }
-
    int midiToOscModulator(int number) {
       return number - 43;
    }
@@ -147,7 +155,6 @@ class Modulator
    int oscToMidiValue(float value) {
       return (int)(value * 127.0f);
    }
-
    float midiToOscValue(int value) {
       return (float)value / 127.0f;
    }
