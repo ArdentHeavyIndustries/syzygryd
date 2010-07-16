@@ -18,4 +18,16 @@ public class SequencerState {
   
   //current tick interval in ms
   float tickInterval;
+  
+  void SequencerState (){
+    for (int panel = 1; panel <= PANELS; panel++) {
+      for (int tab = 0; tab < TABS; tab++) {
+        for (int step = 0; step < STEPS; step++) {
+          for (int pitch = 0; pitch < PITCHES; pitch++) {
+            notes[panel][tab][step][pitch] = false;
+          }
+        }
+      }
+    }
+  } 
 }
