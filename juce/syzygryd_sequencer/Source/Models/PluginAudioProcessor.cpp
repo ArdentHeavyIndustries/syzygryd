@@ -70,12 +70,16 @@ const String PluginAudioProcessor::getName() const
 
 int PluginAudioProcessor::getNumParameters()
 {
-    return 0;
+	return totalNumParams;
 }
 
 float PluginAudioProcessor::getParameter (int index)
 {
 	switch (index) {
+		case noteLengthParam: 
+			return getLerp (sequencer->getNoteLength(), 0, sequencer->getMaxNoteLength(), 0, 1.0);
+		case swingTicksParam: 
+			return getLerp (sequencer->getSwingTicks(), 0, sequencer->getMaxSwingTicks(), 0, 1.0);
 		default:        return 0.0f;
 	}
 }
@@ -83,6 +87,12 @@ float PluginAudioProcessor::getParameter (int index)
 void PluginAudioProcessor::setParameter (int index, float newValue)
 {
 	switch (index) {
+		case noteLengthParam: 
+			newValue = getLerp (newValue, 0, 1.0, 0, sequencer->getMaxNoteLength());
+			sequencer->setNoteLength (newValue); break;
+		case swingTicksParam: 
+			newValue = getLerp (newValue, 0, 1.0, 0, sequencer->getMaxSwingTicks());
+			sequencer->setSwingTicks (newValue); break;
 		default:        break;
 	}	
 }
@@ -90,6 +100,8 @@ void PluginAudioProcessor::setParameter (int index, float newValue)
 const String PluginAudioProcessor::getParameterName (int index)
 {
 	switch (index) {
+		case noteLengthParam: return "Note Length";
+		case swingTicksParam: return "Swing";
 		default:        return String::empty;
 	}
 }
@@ -218,8 +230,7 @@ void PluginAudioProcessor::getStateInformation (MemoryBlock& destData)
 	XmlElement xml ("SyzygrydSettings");
 	xml.setAttribute ("panelIndex", panelIndex);
 	xml.setAttribute ("noteLength", sequencer->getNoteLength());
-	xml.setAttribute ("swingEnabled", sequencer->getSwingEnabled());
-	xml.setAttribute ("dynamicsEnabled", sequencer->getDynamicsEnabled());
+	xml.setAttribute ("swingTicks", sequencer->getSwingTicks());
 	
 	String state = SharedState::getInstance()->getPanelState (panelIndex);
 	xml.setAttribute ("panelState", state);
@@ -240,18 +251,21 @@ void PluginAudioProcessor::setStateInformation (const void* data, int sizeInByte
 			tmpFloat = (float) xmlState->getDoubleAttribute ("noteLength", sequencer->getNoteLength());
 			sequencer->setNoteLength (tmpFloat);
 
-			bool tmpBool;
-			tmpBool = (bool) xmlState->getDoubleAttribute ("swingEnabled", sequencer->getSwingEnabled());
-			sequencer->setSwingEnabled (tmpBool);
-
-			tmpBool = (bool) xmlState->getDoubleAttribute ("dynamicsEnabled", sequencer->getDynamicsEnabled());
-			sequencer->setDynamicsEnabled (tmpBool);
+			tmpFloat = (float) xmlState->getDoubleAttribute ("swingTicks", sequencer->getSwingTicks());
+			sequencer->setSwingTicks (tmpFloat);
 			
 			String state = SharedState::getInstance()->getPanelState (panelIndex);
 			state = xmlState->getStringAttribute ("panelState", state);
 			SharedState::getInstance()->setPanelState (panelIndex, state);
 		}
 	}
+}
+
+float PluginAudioProcessor::getLerp (float start, float startMin, float startMax,
+									 float endMin, float endMax)
+{
+	float scaled = start * ((endMax - endMin) / (startMax - startMin));
+	return scaled;
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

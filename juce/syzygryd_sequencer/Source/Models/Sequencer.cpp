@@ -10,6 +10,7 @@
 #include "Cell.h"
 #include "Panel.h"
 #include "SharedState.h"
+#include "PluginAudioProcessor.h"
 
 #include "Sequencer.h"
 
@@ -17,12 +18,10 @@ Sequencer::Sequencer (PluginAudioProcessor* pluginAudioProcessor_) :
 AudioProcessorCallback (pluginAudioProcessor_),
 pluginAudioProcessor (pluginAudioProcessor_),
 speed (4),
-ticksPerCol (4),
+ticksPerCol (8),
 tickCount (0),
 lastTickCount (-1),
-swingEnabled (false),
-swingTicks (1),
-dynamicsEnabled (false),
+swingTicks (2),
 noteLength (4)
 {
 }
@@ -65,24 +64,19 @@ int Sequencer::getPlayheadCol()
 	return playheadCol;
 }
 
-bool Sequencer::getSwingEnabled()
+int Sequencer::getSwingTicks()
 {
-	return swingEnabled;
+	return swingTicks;
 }
 
-void Sequencer::setSwingEnabled (bool swingEnabled_)
+void Sequencer::setSwingTicks (int swingTicks_)
 {
-	swingEnabled = swingEnabled_;
+	swingTicks = swingTicks_;
 }
 
-bool Sequencer::getDynamicsEnabled()
+int Sequencer::getMaxSwingTicks()
 {
-	return dynamicsEnabled;
-}
-
-void Sequencer::setDynamicsEnabled (bool dynamicsEnabled_)
-{
-	dynamicsEnabled = dynamicsEnabled_;
+	return getTicksPerCol() - 1;
 }
 
 int Sequencer::getNoteLength()
@@ -93,6 +87,11 @@ int Sequencer::getNoteLength()
 void Sequencer::setNoteLength (int noteLength_)
 {
 	noteLength = noteLength_;
+}
+
+int Sequencer::getMaxNoteLength()
+{
+	return 20;
 }
 
 int Sequencer::getTicksPerCol()
@@ -143,35 +142,18 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		bool playCol = false;  // play the current column of notes?
 		float velocity = 0.9f;		
 		
-		// Unswung
-		if (!swingEnabled) {
-			// If we're on the first tick of the column
-			if (tickCount % ticksPerCol == 0) {
+		// Swing...
+		// If we're on an odd column
+		if (getPlayheadCol() % 2 != 0) {
+			// If we've waited for enough ticks for the swing
+			if (tickCount == (getPlayheadCol() * ticksPerCol) + swingTicks) {
 				playCol = true;
 			}
-		}
-		
-		// Swung
-		if (swingEnabled) {
-			// If we're on an odd column
-			if (getPlayheadCol() % 2 != 0) {
-				// If we've waiting enough ticks for the swing
-				if (tickCount == (getPlayheadCol() * ticksPerCol) + swingTicks) {
-					playCol = true;
-				}
-			} else {
-				// Else we're on an even column
-				// If we're on the first tick of the column...
-				if (tickCount % ticksPerCol == 0) {
-					playCol = true;
-				}
-			}
-		}
-		
-		if (dynamicsEnabled) {
-			// If we're on an odd column
-			if (getPlayheadCol() % 2 != 0) {
-				velocity = 0.8f;
+		} else {
+			// Else we're on an even column
+			// If we're on the first tick of the column...
+			if (tickCount % ticksPerCol == 0) {
+				playCol = true;
 			}
 		}
 		
@@ -206,7 +188,7 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		// Send any upcoming note-off events
 		Array<int> notesToRemove; 
 		for (int i = 0; i < noteOffs.size(); i++) {
-			if (noteOffs[i].tick == tickCount) {
+			if (noteOffs[i].tick <= tickCount) {
 				MidiMessage m2 = MidiMessage::noteOff(1, noteOffs[i].noteNumber);
 				midiMessages.addEvent (m2, tickOffsetSamples);			
 				notesToRemove.add (i);

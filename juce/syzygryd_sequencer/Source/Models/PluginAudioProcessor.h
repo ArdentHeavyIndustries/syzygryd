@@ -64,11 +64,21 @@ public:
     void setStateInformation (const void* data, int sizeInBytes);
 	
 	//--------------------------------------------------------------------------
+	enum Parameters {
+		noteLengthParam = 0,
+		swingTicksParam = 1,
+		
+		totalNumParams
+	};
+	
 	AudioPlayHead::CurrentPositionInfo lastPosInfo;
 
     juce_UseDebuggingNewOperator
 
 private:
+	float getLerp (float start, float startMin, float startMax, 
+				   float endMin, float endMax);
+	
 	CustomPlayHead* customPlayHead;
 
 	Sequencer* sequencer;	

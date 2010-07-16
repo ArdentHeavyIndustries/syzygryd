@@ -39,13 +39,13 @@ public:
 					 int row_, int col_, bool isNoteOn);
 	void clearTab (int panelIndex_, int tabIndex_);
 	
-	bool getSwingEnabled();
-	void setSwingEnabled (bool swingEnabled_);
-	bool getDynamicsEnabled();
-	void setDynamicsEnabled (bool dynamicsEnabled_);
+	int getSwingTicks();
+	void setSwingTicks (int swingTicks_);
+	int getMaxSwingTicks();
 	
 	int getNoteLength();
 	void setNoteLength (int noteLength_);
+	int getMaxNoteLength();
 	
 	int getTicksPerCol();
 	
@@ -65,11 +65,9 @@ private:
 	int ticksPerCol;   // how many internal ticks per column of notes
 	int tickCount;     // how many total ticks counted
 	int lastTickCount; // how many total ticks counted during the last processing event
-	bool swingEnabled; // is swing enabled
+
 	int swingTicks;    // how many ticks should odd columns be delayed
-	
-	bool dynamicsEnabled; // reduce the velocity of odd columned notes
-	
+
 	Array<noteOff> noteOffs; // all upcoming note-off events
 	int noteLength;  // note length in ticks
 };

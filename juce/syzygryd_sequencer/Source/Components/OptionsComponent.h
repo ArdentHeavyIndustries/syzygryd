@@ -38,8 +38,6 @@ private:
 	PluginAudioProcessor* pluginAudioProcessor;
 	Sequencer* sequencer;
 	
-	ToggleButton* swingButton;
-	ToggleButton* dynamicsButton;	
 	OwnedArray<TextButton> panelButtons;
 
 	int lastPanelIndex;

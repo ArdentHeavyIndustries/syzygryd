@@ -40,6 +40,9 @@ private:
 	
 	Slider* noteLengthSlider;
 	int lastNoteLength;
+	
+	Slider* swingTicksSlider;
+	int lastSwingTicks;
 };
 
 #endif

@@ -20,20 +20,10 @@ static const int kRadioWidth = 47;
 OptionsComponent::OptionsComponent (PluginAudioProcessor* pluginAudioProcessor_):
 Component ("OptionsComponent"),
 pluginAudioProcessor (pluginAudioProcessor_),
-swingButton (0),
-dynamicsButton (0),
 lastPanelIndex (-1)
 {
 	sequencer = pluginAudioProcessor->getSequencer();
 	
-	addAndMakeVisible (swingButton = new ToggleButton ("Swing"));
-	swingButton->setColour (ToggleButton::textColourId, Colour::fromRGB (150, 150, 150));
-	swingButton->addButtonListener (this);
-	
-	addAndMakeVisible (dynamicsButton = new ToggleButton ("Dynamics"));
-	dynamicsButton->setColour (ToggleButton::textColourId, Colour::fromRGB (150, 150, 150));
-	dynamicsButton->addButtonListener (this);
-
 	for (int i = 0; i < kRadioSize; ++i) {
 		TextButton* radioButton = new TextButton ("Pan " + String(i));
 		radioButton->setRadioGroupId (kRadioGroupId + 1);
@@ -59,11 +49,6 @@ void OptionsComponent::paint (Graphics& g)
 
 void OptionsComponent::resized()
 {
-	swingButton->setBounds (0, 0, getWidth(), 20);
-	swingButton->setToggleState (sequencer->getSwingEnabled(), false);
-	dynamicsButton->setBounds (0, 20, getWidth(), 20);
-	dynamicsButton->setToggleState (sequencer->getDynamicsEnabled(), false);
-	
 	for (int i = 0; i < kRadioSize; ++i) {
 		TextButton* radioButton = panelButtons[i];
 		radioButton->setBounds ((i * kRadioWidth), 40, kRadioWidth, kRadioHeight);
@@ -75,18 +60,12 @@ void OptionsComponent::resized()
 // ButtonListener methods
 void OptionsComponent::buttonClicked (Button* button)
 {
-	if (button == swingButton) {
-		sequencer->setSwingEnabled (swingButton->getToggleState());
-	} else if (button == dynamicsButton) {
-		sequencer->setDynamicsEnabled (dynamicsButton->getToggleState());
-	} else {
-		for (int i = 0; i < kRadioSize; ++i) {
-			TextButton* radioButton = panelButtons[i];
-			if (button == radioButton) {
-				pluginAudioProcessor->setPanelIndex (i);
-			}
-		}		
-	}
+	for (int i = 0; i < kRadioSize; ++i) {
+		TextButton* radioButton = panelButtons[i];
+		if (button == radioButton) {
+			pluginAudioProcessor->setPanelIndex (i);
+		}
+	}		
 }
 
 // Timer methods

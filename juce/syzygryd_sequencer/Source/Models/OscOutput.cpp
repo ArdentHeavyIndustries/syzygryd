@@ -124,6 +124,7 @@ void OscOutput::run()
 			<< osc::EndMessage;
 			outSocket.write (p.Data(), p.Size());
 		}
+
 	}
 }
 
