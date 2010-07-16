@@ -105,6 +105,58 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
 	oscOutput->sendClearTab (panelIndex_, tabIndex_);
 }
 
+String SharedState::getPanelState (int panelIndex_)
+{
+	// Get the serialized state of a panel
+	int numTabs = 4;
+	int numRows = getTotalRows();
+	int numCols = getTotalCols();
+	
+	int numValues = numTabs * numRows * numCols;
+	String valueString;
+	
+	valueString = String::empty;
+	valueString.preallocateStorage (numValues);
+	
+	for (int j = 0; j < numTabs; j++) {
+		for (int k = 0; k < numRows; k++) {
+			for (int l = 0; l < numCols; l++) {
+				Cell *cell = SharedState::getInstance()->getCellAt (panelIndex_, j, k, l);
+				bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
+				valueString << isOn;
+			}
+		}
+	}	
+	
+	return valueString;	
+}
+
+void SharedState::setPanelState (int panelIndex_, String state)
+{
+	// Set the state of a panel based on a serialized state string
+	int numTabs = 4;
+	int numRows = getTotalRows();
+	int numCols = getTotalCols();
+	
+	int pos = 0;
+	for (int j = 0; j < numTabs; j++) {
+		for (int k = 0; k < numRows; k++) {
+			for (int l = 0; l < numCols; l++) {
+				bool isOn = (state[pos] == '1') ? true : false;
+				Cell *cell = SharedState::getInstance()->getCellAt (panelIndex_, j, k, l);
+				if (isOn) {
+					cell->setNoteOn();
+				} else {
+					cell->setNoteOff();
+				}
+				pos++;
+			}
+		}
+	}		
+}
+
+
+
 
 
 

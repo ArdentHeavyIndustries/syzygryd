@@ -108,33 +108,14 @@ void OscOutput::run()
 		<< osc::EndMessage;
 		outSocket.write (p.Data(), p.Size());
 
-		// Send state sync
-		// Sync Blob Format:
-		//    for each tab...
-		//       for each row...
-		//          val = col[i]
 		int numPanels = 3;
 
 		int numTabs = 4;
-		int numRows = 10;
-		int numCols = 16;
+		int numRows = SharedState::getInstance()->getTotalRows();
+		int numCols = SharedState::getInstance()->getTotalCols();
 
-		int numValues = numTabs * numRows * numCols;
-		String valueString;
-		
 		for (int i = 0; i < numPanels; i++) {
-			valueString = String::empty;
-			valueString.preallocateStorage (numValues);
-			
-			for (int j = 0; j < numTabs; j++) {
-				for (int k = 0; k < numRows; k++) {
-					for (int l = 0; l < numCols; l++) {
-						Cell *cell = SharedState::getInstance()->getCellAt (i, j, k, l);
-						bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
-						valueString << isOn;
-					}
-				}
-			}
+			String valueString = SharedState::getInstance()->getPanelState (i);
 			
 			p.Clear();
 			p << osc::BeginMessage ("/sync") 

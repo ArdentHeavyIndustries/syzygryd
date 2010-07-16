@@ -15,6 +15,12 @@
 
 #include "JuceHeader.h"
 
+// Holds data for an upcoming note-off event
+struct noteOff {
+	int noteNumber;
+	int tick;
+};
+
 class Cell;
 class Panel;
 
@@ -38,6 +44,11 @@ public:
 	bool getDynamicsEnabled();
 	void setDynamicsEnabled (bool dynamicsEnabled_);
 	
+	int getNoteLength();
+	void setNoteLength (int noteLength_);
+	
+	int getTicksPerCol();
+	
 	// AudioProcessorCallback methods
 	virtual void prepareToPlay (double sampleRate_, int samplesPerBlock);
     virtual void releaseResources();
@@ -58,6 +69,9 @@ private:
 	int swingTicks;    // how many ticks should odd columns be delayed
 	
 	bool dynamicsEnabled; // reduce the velocity of odd columned notes
+	
+	Array<noteOff> noteOffs; // all upcoming note-off events
+	int noteLength;  // note length in ticks
 };
 
 #endif

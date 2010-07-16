@@ -11,6 +11,7 @@
 #include "SequencerComponent.h"
 #include "OptionsComponent.h"
 #include "SidebarComponent.h"
+#include "AdjustmentComponent.h"
 
 class Sequencer;
 
@@ -22,7 +23,8 @@ pluginAudioProcessor (pluginAudioProcessor_),
 positionLabel (0),
 sequencerComponent (0),
 optionsComponent (0),
-sidebarComponent (0)
+sidebarComponent (0),
+adjustmentComponent (0)
 {
 	addAndMakeVisible (positionLabel = new Label ("positionLabel", "Loading Position Data..."));
 	positionLabel->setColour (Label::textColourId, Colour::fromRGB (120, 120, 120));
@@ -31,6 +33,7 @@ sidebarComponent (0)
 	addAndMakeVisible (sequencerComponent = new SequencerComponent (pluginAudioProcessor));
 	addAndMakeVisible (optionsComponent = new OptionsComponent (pluginAudioProcessor));
 	addAndMakeVisible (sidebarComponent = new SidebarComponent (pluginAudioProcessor));
+	addAndMakeVisible (adjustmentComponent = new AdjustmentComponent (pluginAudioProcessor));
 	
 	startTimer (50);
 }
@@ -50,16 +53,17 @@ void MainComponent::paint (Graphics& g)
 									   false));
 	
 	g.setFont (18.0, Font::bold);
-	g.drawText ("Syzygryd Sequencer v3.4", 10, 10, getWidth() - 20, 20, 
+	g.drawText ("Syzygryd Sequencer v3.6", 10, 10, getWidth() - 20, 20, 
 				Justification::centredTop, false);
 }
 
 void MainComponent::resized()
 {
-	positionLabel->setBounds (20, 30, getWidth() - 30, 50);
+	positionLabel->setBounds (5, 30, getWidth() - 30, 50);
 	sequencerComponent->setBounds (10, 80, getWidth() - 120, getHeight() - 90);
 	optionsComponent->setBounds (getWidth() - 150, 10, 140, 100);
 	sidebarComponent->setBounds (getWidth() - 110, 80, 100, getHeight() - 90);
+	adjustmentComponent->setBounds (10, 30, getWidth() - 170, 40);
 }
 
 // Timer methods
@@ -75,16 +79,16 @@ void MainComponent::timerCallback()
 		displayText 
 		<< "BPM: " << String (pos.bpm, 2) << " "
 		//		<< "Time Sig: " << pos.timeSigNumerator << "/" << pos.timeSigDenominator << "\n"
-		<< "Recording: " << String (pos.isRecording) << " " // Doesn't work in Live 8
-		<< "Playing: " << String (pos.isPlaying) << " " 
-		<< "Time In Seconds: " << String (pos.timeInSeconds) << "\n"
-		<< "PPQ Position: " << String (pos.ppqPosition) << " "
-		<< "PPQ Position of Last Bar Start: " << String (pos.ppqPositionOfLastBarStart) << "\n"
+		//<< "Recording: " << String (pos.isRecording) << " " // Doesn't work in Live 8
+		//<< "Playing: " << String (pos.isPlaying) << " " 
+		//<< "Time In Seconds: " << String (pos.timeInSeconds) << "\n"
+		<< "PPQ Position: " << String (pos.ppqPosition);
+		//<< "PPQ Position of Last Bar Start: " << String (pos.ppqPositionOfLastBarStart) << "\n"
 		//<< "Edit Origin Time: " << String (pos.editOriginTime) << "\n" // Doesn't work in Live 8
 		//<< "Framerate: " << String (pos.frameRate) << "\n" // Shows '99' in Live 8
 		//<< "Timecode String: " << timeToTimecodeString (pos.timeInSeconds) << "\n"
-		<< "Bars, Beats, & Ticks: " << ppqToBarsBeatsString (pos.ppqPosition, pos.timeSigNumerator,
-													 pos.timeSigDenominator);
+		//<< "Bars, Beats, & Ticks: " << ppqToBarsBeatsString (pos.ppqPosition, pos.timeSigNumerator,
+		//											 pos.timeSigDenominator);
 		
 		positionLabel->setText (displayText, false);
 	}

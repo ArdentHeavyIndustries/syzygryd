@@ -37,6 +37,9 @@ public:
 	void noteToggle (int panelIndex_, int tabIndex_, int row_, int col_, 
 					 bool state);
 	void clearTab (int panelIndex_, int tabIndex_);
+
+	String getPanelState (int panelIndex_); 
+	void setPanelState (int panelIndex_, String state);
 	
 	juce_DeclareSingleton (SharedState, true)
 	

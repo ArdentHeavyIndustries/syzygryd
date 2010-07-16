@@ -215,12 +215,43 @@ void PluginAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+	XmlElement xml ("SyzygrydSettings");
+	xml.setAttribute ("panelIndex", panelIndex);
+	xml.setAttribute ("noteLength", sequencer->getNoteLength());
+	xml.setAttribute ("swingEnabled", sequencer->getSwingEnabled());
+	xml.setAttribute ("dynamicsEnabled", sequencer->getDynamicsEnabled());
+	
+	String state = SharedState::getInstance()->getPanelState (panelIndex);
+	xml.setAttribute ("panelState", state);
+	
+	copyXmlToBinary (xml, destData);
 }
 
 void PluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+	ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+	if (xmlState != 0) {
+		if (xmlState->hasTagName ("SyzygrydSettings")) {
+			panelIndex = (int) xmlState->getIntAttribute ("panelIndex", panelIndex);
+
+			float tmpFloat;
+			tmpFloat = (float) xmlState->getDoubleAttribute ("noteLength", sequencer->getNoteLength());
+			sequencer->setNoteLength (tmpFloat);
+
+			bool tmpBool;
+			tmpBool = (bool) xmlState->getDoubleAttribute ("swingEnabled", sequencer->getSwingEnabled());
+			sequencer->setSwingEnabled (tmpBool);
+
+			tmpBool = (bool) xmlState->getDoubleAttribute ("dynamicsEnabled", sequencer->getDynamicsEnabled());
+			sequencer->setDynamicsEnabled (tmpBool);
+			
+			String state = SharedState::getInstance()->getPanelState (panelIndex);
+			state = xmlState->getStringAttribute ("panelState", state);
+			SharedState::getInstance()->setPanelState (panelIndex, state);
+		}
+	}
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

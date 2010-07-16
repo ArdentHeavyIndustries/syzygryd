@@ -16,6 +16,7 @@ class PluginAudioProcessor;
 class SequencerComponent;
 class OptionsComponent;
 class SidebarComponent;
+class AdjustmentComponent;
 
 class MainComponent : 
 public Component,
@@ -45,6 +46,7 @@ private:
 	SequencerComponent* sequencerComponent;
 	OptionsComponent* optionsComponent;
 	SidebarComponent* sidebarComponent;
+	AdjustmentComponent* adjustmentComponent;
 };
 
 #endif
