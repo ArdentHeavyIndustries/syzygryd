@@ -175,8 +175,14 @@ void oscEvent(OscMessage m) {
   /* check if the typetag is the right one. */
   if (m.checkTypetag("")) {
     String[] patternParts = m.addrPattern().split("/", -1);
+    if (patternParts.length < 2) {
+      return;
+    }
     String[] panelAndTab = patternParts[1].split("_", -1);
-
+    if (panelAndTab.length < 2) {
+      return;
+    }
+    
     int panelOscIndex = new Integer(panelAndTab[0]).intValue();
     int panelIndex = panelOscIndex - 1;
 

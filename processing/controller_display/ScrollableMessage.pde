@@ -21,6 +21,7 @@ class ScrollableMessage {
     for (int i=0; i < message.length; i++) {
       messageWidth[i] = textWidth(message[i]);
     }    
+    messageSelect = int(random(message.length-1));
   }  // end constructor
   
   void msgDraw(){
@@ -30,11 +31,8 @@ class ScrollableMessage {
     text(message[messageSelect], messageXPos, height - 8);
     messageXPos -= 1.8;    
     if (messageXPos < (0 - messageWidth[messageSelect])) {
-      messageSelect ++;
+      messageSelect = int(random(message.length-1));
       messageXPos = width + 15; 
-    }
-    if (messageSelect > (message.length - 1))   {
-      messageSelect = 0;
     }
   }  // end msgDraw()
 }// End ScrollableMessage Class
