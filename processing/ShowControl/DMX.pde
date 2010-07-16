@@ -183,7 +183,7 @@ public class DMX {
       /* TODO? Could use some error handling to ensure port is successfully initialized before sending frames -- sadly, processing.serial traps its own errors,
        * preventing any further handling downstream. Possibly someone more familiar with Java than I knows how to circumvent this behavior?
        */
-        serialInterface.write(frame);
+        //serialInterface.write(frame);
     }     
   
     // DMX Control Codes 
