@@ -144,6 +144,7 @@
     <ClCompile Include="$(JuceHome)\extras\audio plugins\wrapper\Standalone\juce_AudioFilterStreamer.cpp" />
     <ClCompile Include="$(JuceHome)\extras\audio plugins\wrapper\Standalone\juce_StandaloneFilterWindow.cpp" />
     <ClCompile Include="$(JuceHome)\extras\audio plugins\wrapper\VST\juce_VST_Wrapper.cpp" />
+    <ClCompile Include="..\..\Source\Components\AdjustmentComponent.cpp" />
     <ClCompile Include="..\..\Source\Components\CellComponent.cpp" />
     <ClCompile Include="..\..\Source\Components\MainComponent.cpp" />
     <ClCompile Include="..\..\Source\Components\OptionsComponent.cpp" />
@@ -173,6 +174,7 @@
   <ItemGroup>
     <ClInclude Include="$(JuceHome)\extras\audio plugins\wrapper\Standalone\juce_AudioFilterStreamer.h" />
     <ClInclude Include="$(JuceHome)\extras\audio plugins\wrapper\Standalone\juce_StandaloneFilterWindow.h" />
+    <ClInclude Include="..\..\Source\Components\AdjustmentComponent.h" />
     <ClInclude Include="..\..\Source\Components\CellComponent.h" />
     <ClInclude Include="..\..\Source\Components\MainComponent.h" />
     <ClInclude Include="..\..\Source\Components\OptionsComponent.h" />
