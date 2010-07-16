@@ -148,6 +148,30 @@ void oscEvent(OscMessage m) {
     return;
   }
 
+  if (m.addrPattern().endsWith("/sync")) {
+    int panelIndex = m.get(0).intValue();
+    int numTabs = m.get(1).intValue();
+    int numRows = m.get(2).intValue();
+    int numCols = m.get(3).intValue();
+    String valueString = m.get(4).stringValue();
+    
+    DrawablePanel panel = panels[panelIndex];
+    
+    int nextIndex = 0;
+    for (int i = 0; i < numTabs; i++) {
+      for (int j = 0; j < numRows; j++) {
+        for (int k = 0; k < numCols; k++) {
+          float isOn = (valueString.charAt(nextIndex++) == '1') ? 1.0f : 0.0f;
+          
+          DrawableTab myTab = (DrawableTab) panel.tabs[i];
+          DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
+          myButton.setValue (isOn, false);
+        }
+      }
+    }
+    return;
+  } 
+
   /* check if the typetag is the right one. */
   if (m.checkTypetag("")) {
     String[] patternParts = m.addrPattern().split("/", -1);
