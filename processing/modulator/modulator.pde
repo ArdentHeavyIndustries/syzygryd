@@ -207,28 +207,29 @@ void setup() {
 
    // set default midi in/out
    // should be complements of whatever Ableton Live is set to
-   // (we could also hardcode this to whatever the mac wants)
-   // XXX on mac, these are both likely to be: "IAC Driver Bus 1"
-   String s_defaultMidiInput  = "In From MIDI Yoke:  2";
-   String s_defaultMidiOutput = "Out To MIDI Yoke:  1";
+   String s_defaultWinMidiInput  = "In From MIDI Yoke:  2";
+   String s_defaultWinMidiOutput = "Out To MIDI Yoke:  1";
+   // XXX this needs to be verified
+   String s_defaultMacMidiInput  = "IAC Driver Bus 1";
+   String s_defaultMacMidiOutput = "IAC Driver Bus 1";
    // if all else fails, just take the first choices
    int i_defaultMidiInput = 1;
    int i_defaultMidiOutput = 1;
    for (int i = 0; i < availableIns.length; i++) {
-      if (s_defaultMidiInput.equals(availableIns[i])) {
+      if (availableIns[i].equals(s_defaultMacMidiInput) ||
+          availableIns[i].equals(s_defaultWinMidiInput)) {
          i_defaultMidiInput = i;
          System.out.println("Setting default input for to " + i + ": " + availableIns[i]);
          break;
-         //i = availableIns.length;
       }
    }
 
    for (int i = 0; i < availableOuts.length; i++) {
-      if (s_defaultMidiOutput.equals(availableOuts[i])) {
+      if (availableOuts[i].equals(s_defaultMacMidiOutput) ||
+          availableOuts[i].equals(s_defaultWinMidiOutput)) {
          System.out.println("Setting default output to " + i + ": " + availableOuts[i]);
          i_defaultMidiOutput = i;
          break;
-         //i = availableOuts.length;
       }
    }
 
@@ -240,8 +241,8 @@ void setup() {
    comboOut_.setSelected(i_defaultMidiOutput);
 
    m_ = new Modulator(this,
-                      s_defaultMidiInput,
-                      s_defaultMidiOutput);
+                      comboIn_.selectedText(),
+                      comboOut_.selectedText());
 
    System.out.println("end setup()");
 }
