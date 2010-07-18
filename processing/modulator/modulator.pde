@@ -175,6 +175,7 @@ final int numPanels_ = 5;
 Modulator m_;
 GCombo comboIn_;
 GCombo comboOut_;
+boolean redraw = false;
 
 void setup() {
    System.out.println("begin setup()");
@@ -204,6 +205,7 @@ void setup() {
    int dxLarge = 200;
    
    size(3*dxSmall + 2*dxLarge, 2*dySmall + dyLarge);
+   redraw = true;
 
    // set default midi in/out
    // should be complements of whatever Ableton Live is set to
@@ -248,7 +250,10 @@ void setup() {
 }
 
 void draw() {
-   background(0, 255, 255); // cyan
+   if (redraw) {
+      background(0, 255, 255); // cyan
+      redraw = false;
+   }
 }
 
 void handleComboEvents(GCombo combo) {
@@ -261,6 +266,8 @@ void handleComboEvents(GCombo combo) {
    } else {
       System.err.println("WARNING: Received unexpected combo in callback");
    }
+   combo.shrink();
+   redraw = true;
 }
 
 // these aren't used, but without then processing spews a bit on initialization
