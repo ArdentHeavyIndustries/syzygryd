@@ -62,50 +62,50 @@ class Modulator
    /* (OscEventListener) */
    void oscEvent(OscMessage message) {
       try {
-      System.out.println("oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
+         System.out.println("oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
 
-      // (unfortunately there are two not entirely consistent forms of documentation)
-      // http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Musicians:OSCMIDISpecs
-      // http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Sequencer:OSC_Messages
-      // 
-      // input OSC messages should all be of the form:
-      //   /P_modulator/modulationM value
-      // where P is in the range 1..numPanels
-      // and M is in the range 1..10
-      // the input value is in the range [0.0 .. 1.0]
-      // we translate this to a MIDI control message
-      //   the MIDI channel is the same as the panel number (XXX see below, i think themidibus uses one less)
-      //   the controller number is in the range [0x2C .. 0x35], which is [44 .. 53]
-      //   the value is in the range [0 .. 127]
+         // (unfortunately there are two not entirely consistent forms of documentation)
+         // http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Musicians:OSCMIDISpecs
+         // http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Sequencer:OSC_Messages
+         // 
+         // input OSC messages should all be of the form:
+         //   /P_modulator/modulationM value
+         // where P is in the range 1..numPanels
+         // and M is in the range 1..10
+         // the input value is in the range [0.0 .. 1.0]
+         // we translate this to a MIDI control message
+         //   the MIDI channel is the same as the panel number (XXX see below, i think themidibus uses one less)
+         //   the controller number is in the range [0x2C .. 0x35], which is [44 .. 53]
+         //   the value is in the range [0 .. 127]
 
-      String oscAddr = message.addrPattern();
-      Matcher matcher = oscModulatorPattern_.matcher(oscAddr);
-      if (matcher.matches()) {
-         try {
-            int oscPanel = Integer.parseInt(matcher.group(1));
-            if (oscPanel >= 1 && oscPanel <= numPanels_) {
-               int oscModulator = Integer.parseInt(matcher.group(2));
-               if (message.checkTypetag("f")) {
-                  float oscValue = message.get(0).floatValue();
-                  System.out.println("received OSC: panel=" + oscPanel + " modulator=" + oscModulator + " value=" + oscValue);
-                  int midiChannel = oscPanelToMidiChannel(oscPanel);
-                  int midiNumber = oscToMidiModulator(oscModulator);
-                  int midiValue = oscToMidiValue(oscValue);
-                  System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
-                  // array index out of bounds exception: -1
-                  midiBuses_[midiChannel - 1].sendControllerChange(midiChannel, midiNumber, midiValue);
+         String oscAddr = message.addrPattern();
+         Matcher matcher = oscModulatorPattern_.matcher(oscAddr);
+         if (matcher.matches()) {
+            try {
+               int oscPanel = Integer.parseInt(matcher.group(1));
+               if (oscPanel >= 1 && oscPanel <= numPanels_) {
+                  int oscModulator = Integer.parseInt(matcher.group(2));
+                  if (message.checkTypetag("f")) {
+                     float oscValue = message.get(0).floatValue();
+                     System.out.println("received OSC: panel=" + oscPanel + " modulator=" + oscModulator + " value=" + oscValue);
+                     int midiChannel = oscPanelToMidiChannel(oscPanel);
+                     int midiNumber = oscToMidiModulator(oscModulator);
+                     int midiValue = oscToMidiValue(oscValue);
+                     System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
+                     // array index out of bounds exception: -1
+                     midiBuses_[midiChannel - 1].sendControllerChange(midiChannel, midiNumber, midiValue);
+                  } else {
+                     System.err.println("WARNING: Unexpectd type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
+                  }
                } else {
-                  System.err.println("WARNING: Unexpectd type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
+                  System.err.println("WARNING: Unexpected panel number (" + oscPanel + ") in OSC message: " + oscAddr);
                }
-            } else {
-               System.err.println("WARNING: Unexpected panel number (" + oscPanel + ") in OSC message: " + oscAddr);
+            } catch (NumberFormatException nfe) {
+               System.err.println("WARNING: Unable to parse OSC message pattern: " + oscAddr);
             }
-         } catch (NumberFormatException nfe) {
-            System.err.println("WARNING: Unable to parse OSC message pattern: " + oscAddr);
+         } else {
+            System.err.println("WARNING: Unexpected OSC message pattern: " + oscAddr);
          }
-      } else {
-         System.err.println("WARNING: Unexpected OSC message pattern: " + oscAddr);
-      }
       } catch (Exception e) {
          System.err.println("WARNING: Caught exception " + e);
          e.printStackTrace();
