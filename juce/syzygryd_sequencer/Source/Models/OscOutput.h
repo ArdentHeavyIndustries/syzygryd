@@ -27,6 +27,9 @@ public:
 	virtual void run();
 	
 private:
+	void sendTempo();
+	void sendSync();
+	
 	DatagramSocket outSocket;
 	
 	int lastPlayheadCol;

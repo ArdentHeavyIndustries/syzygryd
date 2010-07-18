@@ -82,6 +82,44 @@ void OscOutput::sendClearTab (int panelIndex, int tabIndex)
 	outSocket.write (p.Data(), p.Size());		
 }
 
+void OscOutput::sendTempo()
+{
+	char buffer[kOutputBufferSize];
+	osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+	
+	int playheadCol = SharedState::getInstance()->getPlayheadCol();
+	
+	float tempo = ((float)playheadCol + 1) / (float)SharedState::getInstance()->getTotalCols();
+	
+	p << osc::BeginMessage ("/1_tab1/tempo") << (float)tempo 
+	<< osc::EndMessage;
+	outSocket.write (p.Data(), p.Size());	
+}
+
+void OscOutput::sendSync()
+{
+	char buffer[kOutputBufferSize];
+	osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+	
+	int numPanels = 3;
+	
+	int numTabs = 4;
+	int numRows = SharedState::getInstance()->getTotalRows();
+	int numCols = SharedState::getInstance()->getTotalCols();
+	
+	for (int panelIndex = 0; panelIndex < numPanels; panelIndex++) {
+		int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
+		String valueString = SharedState::getInstance()->getPanelState (panelIndex);
+		
+		p.Clear();
+		p << osc::BeginMessage ("/sync") 
+		<< panelIndex << tabIndex << numTabs << numRows << numCols
+		<< valueString.toUTF8()
+		<< osc::EndMessage;
+		outSocket.write (p.Data(), p.Size());
+	}	
+}
+
 // Thread methods
 void OscOutput::run()
 {
@@ -99,32 +137,9 @@ void OscOutput::run()
 		if (!outSocket.waitUntilReady (false, kTimeoutMs)) {
 			continue;
 		}
-		char buffer[kOutputBufferSize];
-		osc::OutboundPacketStream p( buffer, kOutputBufferSize );
-		
-		float tempo = ((float)playheadCol + 1) / (float)SharedState::getInstance()->getTotalCols();
-		
-		p << osc::BeginMessage ("/1_tab1/tempo") << (float)tempo 
-		<< osc::EndMessage;
-		outSocket.write (p.Data(), p.Size());
 
-		int numPanels = 3;
-
-		int numTabs = 4;
-		int numRows = SharedState::getInstance()->getTotalRows();
-		int numCols = SharedState::getInstance()->getTotalCols();
-
-		for (int i = 0; i < numPanels; i++) {
-			String valueString = SharedState::getInstance()->getPanelState (i);
-			
-			p.Clear();
-			p << osc::BeginMessage ("/sync") 
-			<< i << numTabs << numRows << numCols
-			<< valueString.toUTF8()
-			<< osc::EndMessage;
-			outSocket.write (p.Data(), p.Size());
-		}
-
+		sendTempo();
+		sendSync();
 	}
 }
 
