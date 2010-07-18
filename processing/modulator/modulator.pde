@@ -205,6 +205,7 @@ void setup() {
    int dxLarge = 200;
    
    size(3*dxSmall + 2*dxLarge, 2*dySmall + dyLarge);
+   frameRate(10);
    redraw = true;
 
    // set default midi in/out
