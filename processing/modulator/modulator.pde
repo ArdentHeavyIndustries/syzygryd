@@ -61,6 +61,7 @@ class Modulator
    
    /* (OscEventListener) */
    void oscEvent(OscMessage message) {
+      try {
       System.out.println("oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
 
       // (unfortunately there are two not entirely consistent forms of documentation)
@@ -91,6 +92,7 @@ class Modulator
                   int midiNumber = oscToMidiModulator(oscModulator);
                   int midiValue = oscToMidiValue(oscValue);
                   System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
+                  // array index out of bounds exception: -1
                   midiBuses_[midiChannel - 1].sendControllerChange(midiChannel, midiNumber, midiValue);
                } else {
                   System.err.println("WARNING: Unexpectd type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
@@ -103,6 +105,10 @@ class Modulator
          }
       } else {
          System.err.println("WARNING: Unexpected OSC message pattern: " + oscAddr);
+      }
+      } catch (Exception e) {
+         System.err.println("WARNING: Caught exception " + e);
+         e.printStackTrace();
       }
    }
 
