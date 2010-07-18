@@ -30,9 +30,9 @@ class Modulator
    Pattern oscModulatorPattern_ =
       Pattern.compile("/(\\d+)_modulator/modulation(\\d+)");
 
-   MidiBus[] midiBuses_;
+   MidiBus midiBus_;
 
-   Modulator(PApplet parent, String midiInputs[], String[] midiOutputs) {
+   Modulator(PApplet parent, String midiInput, String midiOutput) {
       // this takes care of calling oscEvent() regardless, so we don't need to
       // add a listener and implement the full interface in this case (unlike
       // for SimpleMidiListener)
@@ -41,22 +41,19 @@ class Modulator
 
       oscBroadcast_ = new NetAddress(broadcastAddr_, broadcastPort_);
 
-      midiBuses_ = new MidiBus[numPanels_];
-      for (int i = 0; i < numPanels_; i++) {
-         println("Creating MidiBus[" + i + "]: IN:\"" + midiInputs[i] + "\" OUT:\"" + midiOutputs[i] + "\"");
-         midiBuses_[i] = new MidiBus(/* PApplet */ parent, midiInputs[i], midiOutputs[i]);
-         midiBuses_[i].addMidiListener(/* SimpleMidiListener */ this);
-      }
+      System.out.println("Creating MidiBus: IN:\"" + midiInput + "\" OUT:\"" + midiOutput + "\"");
+      midiBus_ = new MidiBus(/* PApplet */ parent, midiInput, midiOutput);
+      midiBus_.addMidiListener(/* SimpleMidiListener */ this);
    }
 
-   void setInput(int panel, String midiInput) {
-      midiBuses_[panel].clearInputs();
-      midiBuses_[panel].addInput(midiInput);
+   void setInput(String midiInput) {
+      midiBus_.clearInputs();
+      midiBus_.addInput(midiInput);
    }
    
-   void setOutput(int panel, String midiOutput) {
-      midiBuses_[panel].clearOutputs();
-      midiBuses_[panel].addOutput(midiOutput);
+   void setOutput(String midiOutput) {
+      midiBus_.clearOutputs();
+      midiBus_.addOutput(midiOutput);
    }
    
    /* (OscEventListener) */
@@ -92,8 +89,7 @@ class Modulator
                      int midiNumber = oscToMidiModulator(oscModulator);
                      int midiValue = oscToMidiValue(oscValue);
                      System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
-                     // array index out of bounds exception: -1
-                     midiBuses_[midiChannel - 1].sendControllerChange(midiChannel, midiNumber, midiValue);
+                     midiBus_.sendControllerChange(midiChannel, midiNumber, midiValue);
                   } else {
                      System.err.println("WARNING: Unexpectd type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
                   }
@@ -121,7 +117,7 @@ class Modulator
    /* SimpleMidiListener */
    void controllerChange(int channel, int number, int value) {
       System.out.println("received MIDI: channel=" + channel + " number=" + number + " value=" + value);
-      if (channel >= 1 && channel <= numPanels_) {
+      if (channel >= 0 && channel < numPanels_) {
          int oscPanel = midiChannelToOscPanel(channel);
          int oscModulator = midiToOscModulator(number);
          String oscAddr = "/" + oscPanel + "_modulator/modulation" + oscModulator;
@@ -173,22 +169,15 @@ class Modulator
 }
 
 // (ugh) global variables
-final int numPanels_ = 3;
+
+// 3 real controllers, plus backing tracks (4) and mixer (5)
+final int numPanels_ = 5;
 Modulator m_;
-GCombo[] combosIn_;
-GCombo[] combosOut_;
+GCombo comboIn_;
+GCombo comboOut_;
 
 void setup() {
    System.out.println("begin setup()");
-
-   // gui
-   int maxChoices = 10;
-   int dySmall = 20;
-   int dyLarge = dySmall * maxChoices;
-   int dxSmall = 10;
-   int dxLarge = 200;
-   
-   size(3*dxSmall + 2*dxLarge, 5*dySmall + 3*dyLarge);
 
    System.out.println("list:");
    MidiBus.list();
@@ -207,52 +196,52 @@ void setup() {
    }
    System.out.println("\n");
 
+   int maxChoices = Math.max(availableIns.length, availableOuts.length);
+   // gui
+   int dySmall = 20;
+   int dyLarge = dySmall * maxChoices;
+   int dxSmall = 10;
+   int dxLarge = 200;
+   
+   size(3*dxSmall + 2*dxLarge, 2*dySmall + dyLarge);
+
    // set default midi in/out
+   // should be complements of whatever Ableton Live is set to
    // (we could also hardcode this to whatever the mac wants)
-   String[] s_defaultMidiInputs  = new String[numPanels_];
-   String[] s_defaultMidiOutputs = new String[numPanels_];
-   int[] i_defaultMidiInputs = new int[numPanels_];
-   int[] i_defaultMidiOutputs = new int[numPanels_];
-   for (int i = 0; i < numPanels_; i++) {
-      s_defaultMidiInputs[i] = new String("In From MIDI Yoke:  " + (i+1));
-      s_defaultMidiOutputs[i] = new String("Out To MIDI Yoke:  " + (i+1));
-      //IN:
-      for (int j = 0; j < availableIns.length; j++) {
-         if (s_defaultMidiInputs[i].equals(availableIns[j])) {
-            i_defaultMidiInputs[i] = j;
-            System.out.println("Setting default input for panel " + i + " to " + j + ": " + availableIns[j]);
-            //break IN;
-            j = availableIns.length;
-         }
-      }
-      //OUT:
-      for (int j = 0; j < availableOuts.length; j++) {
-         if (s_defaultMidiOutputs[i].equals(availableOuts[j])) {
-            System.out.println("Setting default output for panel " + i + " to " + j + ": " + availableOuts[j]);
-            i_defaultMidiOutputs[i] = j;
-            //break OUT;
-            j = availableOuts.length;
-         }
+   // XXX on mac, these are both likely to be: "IAC Driver Bus 1"
+   String s_defaultMidiInput  = "In From MIDI Yoke:  2";
+   String s_defaultMidiOutput = "Out To MIDI Yoke:  1";
+   // if all else fails, just take the first choices
+   int i_defaultMidiInput = 1;
+   int i_defaultMidiOutput = 1;
+   for (int i = 0; i < availableIns.length; i++) {
+      if (s_defaultMidiInput.equals(availableIns[i])) {
+         i_defaultMidiInput = i;
+         System.out.println("Setting default input for to " + i + ": " + availableIns[i]);
+         break;
+         //i = availableIns.length;
       }
    }
 
-   GLabel[] labelsIn  = new GLabel[numPanels_];
-   GLabel[] labelsOut = new GLabel[numPanels_];
-   combosIn_  = new GCombo[numPanels_];
-   combosOut_ = new GCombo[numPanels_];
-
-   for (int i = 0; i < numPanels_; i++) {
-      labelsIn[i]  = new GLabel(this, "Panel " + (i+1) + " MIDI Input", dxSmall, dySmall + i*(dySmall+dyLarge), dxLarge);
-      labelsOut[i]  = new GLabel(this, "Panel " + (i+1) + " MIDI Output", 2*dxSmall + dxLarge, dySmall + i*(dySmall+dyLarge), dxLarge);
-      combosIn_[i] = new GCombo(this, availableIns, maxChoices, dxSmall, 2*dySmall + i*(dySmall+dyLarge), dxLarge);
-      combosOut_[i] = new GCombo(this, availableOuts, maxChoices, 2*dxSmall + dxLarge, 2*dySmall + i*(dySmall+dyLarge), dxLarge);
-      combosIn_[i].setSelected(i_defaultMidiInputs[i]);
-      combosOut_[i].setSelected(i_defaultMidiOutputs[i]);
+   for (int i = 0; i < availableOuts.length; i++) {
+      if (s_defaultMidiOutput.equals(availableOuts[i])) {
+         System.out.println("Setting default output to " + i + ": " + availableOuts[i]);
+         i_defaultMidiOutput = i;
+         break;
+         //i = availableOuts.length;
+      }
    }
+
+   GLabel labelIn  = new GLabel(this, "MIDI Input", dxSmall, dySmall, dxLarge);
+   GLabel labelOut = new GLabel(this, "MIDI Output", 2*dxSmall + dxLarge, dySmall, dxLarge);
+   comboIn_ = new GCombo(this, availableIns, maxChoices, dxSmall, 2*dySmall, dxLarge);
+   comboOut_ = new GCombo(this, availableOuts, maxChoices, 2*dxSmall + dxLarge, 2*dySmall, dxLarge);
+   comboIn_.setSelected(i_defaultMidiInput);
+   comboOut_.setSelected(i_defaultMidiOutput);
 
    m_ = new Modulator(this,
-                      s_defaultMidiInputs,
-                      s_defaultMidiOutputs);
+                      s_defaultMidiInput,
+                      s_defaultMidiOutput);
 
    System.out.println("end setup()");
 }
@@ -262,16 +251,14 @@ void draw() {
 }
 
 void handleComboEvents(GCombo combo) {
-   for (int i = 0; i < numPanels_; i++) {
-      if (combo == combosIn_[i]) {
-         System.out.println("Selected combo in " + i + " with index " + combo.selectedIndex() + " and text \"" + combo.selectedText() + "\"");
-         m_.setInput(i, combo.selectedText());
-         break;
-      } else if (combo == combosOut_[i]) {
-         System.out.println("Selected combo out " + i + " with index " + combo.selectedIndex() + " and text \"" + combo.selectedText() + "\"");
-         m_.setOutput(i, combo.selectedText());
-         break;
-      }
+   if (combo == comboIn_) {
+      System.out.println("Selected combo in with index " + combo.selectedIndex() + " and text \"" + combo.selectedText() + "\"");
+      m_.setInput(combo.selectedText());
+   } else if (combo == comboOut_) {
+      System.out.println("Selected combo out with index " + combo.selectedIndex() + " and text \"" + combo.selectedText() + "\"");
+      m_.setOutput(combo.selectedText());
+   } else {
+      System.err.println("WARNING: Received unexpected combo in callback");
    }
 }
 
