@@ -34,8 +34,8 @@ class OSCManager {
     // println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
     
 
-    if(!m.addrPattern().endsWith("/tempo")) {
-      // TODO: Send 'tick' event to dispatcher/event queue
+    if(m.addrPattern().endsWith("/tempo")) {
+       events.fire("tick",true); // This should probably be called something other than 'tick' with the new sequencer
       // TODO: Calculate tick interval/BPS, store to SequencerState object
     }
 

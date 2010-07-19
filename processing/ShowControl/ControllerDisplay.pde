@@ -6,7 +6,7 @@ public void displayControllers(int _cellSize){
   int univSize = 0, winHeight = 0, winWidth = 0;
   DMX.Controller controller = null;
   
-  GWindow[] ctrlrWindow = new GWindow[ctrlrCount];
+  ctrlrWindow = new GWindow[ctrlrCount];
   for (int i = 0; i < ctrlrCount; i++) {
     controller = (DMX.Controller)DMXManager.controllers.get(i);
     univSize = controller.universeSize;
@@ -76,5 +76,16 @@ class ctrlrWinData extends GWinData {
     }
     windowBuffer = createImage(appc.width, appc.height, RGB);
     windowBuffer = appc.get();
+  }
+}
+
+public void handleButtonEvents(GButton button){
+  if(button.eventType == GButton.CLICKED){
+    if (ctrlrWindow == null) {
+      displayControllers();
+    }
+    else {
+      
+    }
   }
 }

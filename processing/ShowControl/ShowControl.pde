@@ -10,6 +10,8 @@ OSCManager OSCConnection;
 
 SequencerState sequencerState;
 
+EventDispatcher events;
+
 ArrayList fixtures;
 int huetemp=0;
 color colortemp, colortemp2; 
@@ -23,12 +25,15 @@ Iterator iterator;
 //it should stay synced up with the sequencer in some meaninful way
 int currentBeat = 0;
 
+private GButton btnStart;
+GWindow[] ctrlrWindow;
+
 void setup(){
 
   /* example code*/
   colorMode(RGB);
   background(0);
-  frameRate(30);
+  frameRate(200);
 
   //Set up OSC connection
   OSCConnection = new OSCManager("localhost");
@@ -37,12 +42,14 @@ void setup(){
   sequencerState = new SequencerState();
 
   //create new DMX manager object with a refresh rate of 40Hz
-  DMXManager = new DMX(this, 40);
+  DMXManager = new DMX(this, 200);
+
+  events = new EventDispatcher();
 
   //add three controllers to manager
-  DMXManager.addController("COM5");
-  DMXManager.addController("COM4",256);
-  DMXManager.addController("COM3",311);
+  DMXManager.addController("COM5",108);
+  DMXManager.addController("COM4",108);
+  DMXManager.addController("COM3",108);
 
   readyQueue = new LinkedList();
   waitingActions = new ArrayList();
@@ -75,25 +82,26 @@ void setup(){
   test2.addChannel("green", 33);
   test2.addChannel("blue", 34);
 
-  test4.addChannel("red", 200);
-  test4.addChannel("green", 201);
-  test4.addChannel("blue", 202);
+  test4.addChannel("red",64);
+  test4.addChannel("green",65);
+  test4.addChannel("blue",66);
 
-  test5.addChannel("red", 220);
-  test5.addChannel("green", 221);
-  test5.addChannel("blue", 222);
+  test5.addChannel("red");
+  test5.addChannel("green");
+  test5.addChannel("blue");
 
   //set values for green and blue fixture channels directly
-  test2.setChannel("green",200);
-  test2.setChannel("blue",255);
+  test3.setChannel("green",200);
+  test3.setChannel("blue",255);
 
   test.addTrait("RGBColorMixing", new RGBColorMixingTrait(test));
   test2.addTrait("RGBColorMixing", new RGBColorMixingTrait(test2));
   test4.addTrait("RGBColorMixing", new RGBColorMixingTrait(test4));
   test5.addTrait("RGBColorMixing", new RGBColorMixingTrait(test5));
 
-  // create controller displays
-  displayControllers();
+  // create DMX Monitor button
+  btnStart = new GButton(this, "DMX Monitor", 10,35,80,30);
+  btnStart.setColorScheme(new GCScheme().GREEN_SCHEME);
 
   //test out the fade action
   Fade newFade = new Fade(200, (RGBColorMixingTrait)test5.trait("RGBColorMixing"), 250, 1);
@@ -134,12 +142,15 @@ void draw(){
     waitingActions.add(newBlink);
   }
 
-  tick(); //in reality this should only fire when we get sync info from the sequencer.  Or something.
+  //print(events.eventQueue);
+  updateScene(); //in reality this should only fire when we get sync info from the sequencer.  Or something.
+  events.flushExpired();
 
 }
 
 
-void tick() {
+void updateScene() {
+  
   Action a;
   while(!readyQueue.isEmpty()) {
     a = (Action)readyQueue.remove();
@@ -150,5 +161,3 @@ void tick() {
   currentBeat++;
 
 }
-
-
