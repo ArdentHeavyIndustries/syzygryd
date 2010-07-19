@@ -1,5 +1,3 @@
-/* -*- mode: java; c-basic-offset: 3; indent-tabs-mode: nil -*- */
-
 // mkdir build
 // /cygdrive/c/Program\ Files/Java/jdk1.6.0_20/bin/javac.exe -cp ../../processing/libraries/oscP5/library/oscP5.jar -d build DumpOSC.java 
 //
@@ -85,3 +83,14 @@ public class DumpOSC
    }
 }
 
+/*
+** Local Variables:
+**   mode: java
+**   c-basic-offset: 3
+**   tab-width: 3
+**   indent-tabs-mode: nil
+** End:
+**
+** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+**
+*/
