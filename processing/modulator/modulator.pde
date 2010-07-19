@@ -212,12 +212,11 @@ void setup() {
    // should be complements of whatever Ableton Live is set to
    String s_defaultWinMidiInput  = "In From MIDI Yoke:  2";
    String s_defaultWinMidiOutput = "Out To MIDI Yoke:  1";
-   // XXX this needs to be verified
-   String s_defaultMacMidiInput  = "IAC Driver Bus 1";
-   String s_defaultMacMidiOutput = "IAC Driver Bus 1";
+   String s_defaultMacMidiInput  = "IAC Driver - Bus 1";
+   String s_defaultMacMidiOutput = "IAC Driver - Bus 1";
    // if all else fails, just take the first choices
-   int i_defaultMidiInput = 1;
-   int i_defaultMidiOutput = 1;
+   int i_defaultMidiInput = 0;
+   int i_defaultMidiOutput = 0;
    for (int i = 0; i < availableIns.length; i++) {
       if (availableIns[i].equals(s_defaultMacMidiInput) ||
           availableIns[i].equals(s_defaultWinMidiInput)) {
