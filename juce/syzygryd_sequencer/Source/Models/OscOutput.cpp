@@ -53,13 +53,13 @@ void OscOutput::sendNoteToggle (int panelIndex, int tabIndex, int row, int col,
 	// [/1_tab1/panel/6/9 float32:1]
 	String msg;
 	msg << "/" << panelIndex << "_tab" << tabIndex << "/panel/" << row 
-	<< "/" << col;
+       << "/" << col;
 	
 	float state = 0;
 	if (isNoteOn) state = 1.0;
 	
 	p << osc::BeginMessage (msg.toUTF8()) << state
-	<< osc::EndMessage;
+     << osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());	
 }
 
@@ -92,7 +92,7 @@ void OscOutput::sendTempo()
 	float tempo = ((float)playheadCol + 1) / (float)SharedState::getInstance()->getTotalCols();
 	
 	p << osc::BeginMessage ("/1_tab1/tempo") << (float)tempo 
-	<< osc::EndMessage;
+     << osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());	
 }
 
@@ -113,9 +113,9 @@ void OscOutput::sendSync()
 		
 		p.Clear();
 		p << osc::BeginMessage ("/sync") 
-		<< panelIndex << tabIndex << numTabs << numRows << numCols
-		<< valueString.toUTF8()
-		<< osc::EndMessage;
+        << panelIndex << tabIndex << numTabs << numRows << numCols
+        << valueString.toUTF8()
+        << osc::EndMessage;
 		outSocket.write (p.Data(), p.Size());
 	}	
 }
@@ -142,4 +142,3 @@ void OscOutput::run()
 		sendSync();
 	}
 }
-
