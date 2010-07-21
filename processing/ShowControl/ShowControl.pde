@@ -12,6 +12,9 @@ SequencerState sequencerState;
 
 EventDispatcher events;
 
+FadeBehavior testBehavior;
+HueRotateBehavior testBehavior2;
+
 ArrayList fixtures;
 int huetemp=0;
 color colortemp, colortemp2; 
@@ -41,7 +44,7 @@ void setup(){
   //Instantiate sequencer state storage
   sequencerState = new SequencerState();
 
-  //create new DMX manager object with a refresh rate of 40Hz
+  //create new DMX manager object with a refresh rate of 200Hz (Prcessing doesn't seem to be able to generate this refresh rate consistently)
   DMXManager = new DMX(this, 200);
 
   events = new EventDispatcher();
@@ -104,6 +107,13 @@ void setup(){
   btnStart.setColorScheme(new GCScheme().GREEN_SCHEME);
 
   //test out the fade action
+  ((RGBColorMixingTrait)test2.trait("RGBColorMixing")).setColorRGB(color(128,64,256));  //set start color   
+  ((RGBColorMixingTrait)test.trait("RGBColorMixing")).setColorRGB(color(0,255,0));  //set start color   
+  
+  //test Behaviors
+  testBehavior = new FadeBehavior(test2, millis()+10000, 5000, color(255));  // wait 10 secs, then fade to black over 5 secs
+  testBehavior2 = new HueRotateBehavior(test, millis()+5000); // wait 5 secs, then begin color cycling
+  
   Fade newFade = new Fade(200, (RGBColorMixingTrait)test5.trait("RGBColorMixing"), 250, 1);
   waitingActions.add(newFade);
 }
@@ -128,13 +138,7 @@ void draw(){
 
   //the rest of this method is test code
 
-  colortemp = color(huetemp,255,255); 
-  colortemp2  = color((huetemp+128)%256,255,255);
-  ((RGBColorMixingTrait)test.trait("RGBColorMixing")).setColorRGB(colortemp); 
-  ((RGBColorMixingTrait)test2.trait("RGBColorMixing")).setColorRGB(colortemp2); 
   //((RGBColorMixingTrait)test3.trait("RGBColorMixing")).setColorRGB(colortemp2); 
-  huetemp++;
-  huetemp %= 256;
 
   //test the blink action
   Blink newBlink = new Blink(currentBeat + 20, (RGBColorMixingTrait)test4.trait("RGBColorMixing"), colortemp);
@@ -143,8 +147,13 @@ void draw(){
   }
 
   //print(events.eventQueue);
-  updateScene(); //in reality this should only fire when we get sync info from the sequencer.  Or something.
+  
+  updateScene(); // invoke Actions
+  testBehavior.perform();
+  testBehavior2.perform();
   events.flushExpired();
+
+  //background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
 
 }
 
