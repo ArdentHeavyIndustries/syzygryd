@@ -90,6 +90,7 @@ void setup() {
 
   // Connect to the server
   OscMessage connect = new OscMessage("/server/connect");
+  //println("Sending OSC message " + connect + " to " + myRemoteLocation);
   oscP5.send(connect, myRemoteLocation);
 
   //int buttonSize = height / 11; // size of button based on real estate
@@ -138,66 +139,104 @@ void selectPanel(int id) {
   selectedPanel = panels[id];
 }
 
+// useful for debugging sync msgs
+// void outputByteArray(byte[] bytes) {
+//   StringBuffer sb = new StringBuffer();
+//   for (int i = 0; i < bytes.length; i++) {
+//     sb.append(Integer.toHexString((int)bytes[i] & 0xF));
+//     if (i % 2 == 1) {
+//       sb.append(" ");
+//     }
+//     if (i % 16 == 15) {
+//       sb.append("\n");
+//     }
+//   }
+//   System.out.println(sb.toString());
+// }
+
 void oscEvent(OscMessage m) {
-  if(!m.addrPattern().endsWith("/tempo")) {
-    // println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
-    // m.print();
-  }
+  try {
+    if(!m.addrPattern().endsWith("/tempo")) {
+      println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+      m.print();
+    }
 
-  if (m.isPlugged()) {
-    return;
-  }
+    if (m.isPlugged()) {
+      return;
+    }
 
-  if (m.addrPattern().endsWith("/sync")) {
-    int panelIndex = m.get(0).intValue();
-    int numTabs = m.get(1).intValue();
-    int numRows = m.get(2).intValue();
-    int numCols = m.get(3).intValue();
-    String valueString = m.get(4).stringValue();
+    if (m.addrPattern().endsWith("/sync")) {
+      int panelIndex = m.get(0).intValue();
+      int curTab = m.get(1).intValue();	// XXX not used?
+      int numTabs = m.get(2).intValue();
+      int numRows = m.get(3).intValue();
+      int numCols = m.get(4).intValue();
+      int blobSize = m.get(5).intValue();	// XXX possibly get rid of this
+      byte[] blob = m.get(6).blobValue();
+      if (blob == null) {
+        System.err.println("WARNING: null blob");
+        return;
+      }
+      if (blob.length != blobSize) {
+        System.err.println("WARNING: Size of blob (" + blob.length + ") does not match expected (" + blobSize + ")");
+      }
     
-    DrawablePanel panel = panels[panelIndex];
+      DrawablePanel panel = panels[panelIndex];
     
-    int nextIndex = 0;
-    for (int i = 0; i < numTabs; i++) {
-      for (int j = 0; j < numRows; j++) {
-        for (int k = 0; k < numCols; k++) {
-          float isOn = (valueString.charAt(nextIndex++) == '1') ? 1.0f : 0.0f;
+      int index = 0;
+      for (int i = 0; i < numTabs; i++) {
+        for (int j = 0; j < numRows; j++) {
+          for (int k = 0; k < numCols; k++) {
+            int byteSel = index / 8;
+            int bitSel = index % 8;
+            index++;
+
+            boolean isOn = (blob[byteSel] & (1 << (7 - bitSel))) != 0;
           
-          DrawableTab myTab = (DrawableTab) panel.tabs[i];
-          DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
-          myButton.setValue (isOn, false);
+            DrawableTab myTab = (DrawableTab) panel.tabs[i];
+            DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
+            if (isOn != myButton.isOn) {
+              System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                                 + " " + myButton.isOn + "=>" + isOn);
+            }
+            float f_isOn =  isOn ? 1.0f : 0.0f;
+            myButton.setValue (f_isOn, false);
+          }
         }
       }
-    }
-    return;
-  } 
+      return;
+    } 
 
-  /* check if the typetag is the right one. */
-  if (m.checkTypetag("")) {
-    String[] patternParts = m.addrPattern().split("/", -1);
-    if (patternParts.length < 2) {
-      return;
-    }
-    String[] panelAndTab = patternParts[1].split("_", -1);
-    if (panelAndTab.length < 2) {
-      return;
-    }
+    /* check if the typetag is the right one. */
+    if (m.checkTypetag("")) {
+      String[] patternParts = m.addrPattern().split("/", -1);
+      if (patternParts.length < 2) {
+        return;
+      }
+      String[] panelAndTab = patternParts[1].split("_", -1);
+      if (panelAndTab.length < 2) {
+        return;
+      }
     
-    int panelOscIndex = new Integer(panelAndTab[0]).intValue();
-    int panelIndex = panelOscIndex - 1;
+      int panelOscIndex = new Integer(panelAndTab[0]).intValue();
+      int panelIndex = panelOscIndex - 1;
 
-    // FYI this is hacky and will break if we ever have more than 9 tabs
-    int tabOscIndex = new Integer(panelAndTab[1].substring(panelAndTab[1].length() - 1));
-    int tabIndex = tabOscIndex - 1;
+      // FYI this is hacky and will break if we ever have more than 9 tabs
+      int tabOscIndex = new Integer(panelAndTab[1].substring(panelAndTab[1].length() - 1));
+      int tabIndex = tabOscIndex - 1;
 
-    panels[panelIndex].selectTab(tabIndex);
-  } else if (m.checkTypetag("f")) {
-    float firstValue = m.get(0).floatValue();
+      panels[panelIndex].selectTab(tabIndex);
+    } else if (m.checkTypetag("f")) {
+      float firstValue = m.get(0).floatValue();
 
-    if (m.addrPattern().endsWith("/tempo")) {
-      float v = (firstValue - 0.03125) * 16;
-      temposweep.setValue(int(v));
+      if (m.addrPattern().endsWith("/tempo")) {
+        float v = (firstValue - 0.03125) * 16;
+        temposweep.setValue(int(v));
+      }
     }
+  } catch (Exception e) {
+    System.err.println("WARNING: Exception caught while processing OSC message: " + m.addrPattern());
+    e.printStackTrace();
   }
 }
 

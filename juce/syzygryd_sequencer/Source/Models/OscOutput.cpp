@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  OscOutput.cpp
  *  syzygryd_sequencer
@@ -109,12 +110,14 @@ void OscOutput::sendSync()
 	
 	for (int panelIndex = 0; panelIndex < numPanels; panelIndex++) {
 		int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
-		String valueString = SharedState::getInstance()->getPanelState (panelIndex);
+      osc::Blob* blob = SharedState::getInstance()->updateAndGetCompressedPanelState (panelIndex);
 		
 		p.Clear();
+      // XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
+      //        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
 		p << osc::BeginMessage ("/sync") 
         << panelIndex << tabIndex << numTabs << numRows << numCols
-        << valueString.toUTF8()
+        << (int)blob->size << *blob
         << osc::EndMessage;
 		outSocket.write (p.Data(), p.Size());
 	}	

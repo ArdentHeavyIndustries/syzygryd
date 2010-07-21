@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  SharedState.cpp
  *  syzygryd_sequencer
@@ -11,6 +12,7 @@
 #include "Panel.h"
 #include "OscInput.h"
 #include "OscOutput.h"
+#include "Panel.h"
 
 #include "SharedState.h"
 
@@ -24,9 +26,23 @@ totalCols (16),
 oscInput (0),
 oscOutput (0)
 {
+   blobs = new osc::Blob*[kNumPanels];
+   int numValues = Panel::kNumTabs * totalRows * totalCols;
+   int numBytes = numValues / (sizeof(unsigned char)*8);
+   int numBits = numBytes * (sizeof(unsigned char)*8);
+   int paddingBits = numValues - numBits;
+   if (paddingBits > 0) {
+      numBytes++;
+   }
+   
 	for (int i = 0; i < kNumPanels; i++) {
 		Panel* panel = new Panel (totalRows, totalCols);
 		panels.add (panel);
+
+      blobs[i] = new osc::Blob();
+      unsigned char* values = (unsigned char*)calloc(numBytes, sizeof(unsigned char));
+      blobs[i]->data = (void*) values;
+      blobs[i]->size = numBytes * sizeof(unsigned char);
 	}
 	
 	oscInput = new OscInput();
@@ -41,6 +57,11 @@ SharedState::~SharedState()
 	oscOutput->stopThread(2000);
 	delete oscInput;
 	delete oscOutput;
+   for (int i = 0; i < kNumPanels; i++) {
+      free((unsigned char*) blobs[i]->data);
+      delete blobs[i];
+   }
+   delete [] blobs;
 }
 
 int SharedState::getTotalRows()
@@ -105,16 +126,43 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
 	oscOutput->sendClearTab (panelIndex_, tabIndex_);
 }
 
-String SharedState::getPanelState (int panelIndex_)
+// Update and get the bit compressed serialized state of a panel
+osc::Blob* SharedState::updateAndGetCompressedPanelState (int panelIndex_)
 {
-	// Get the serialized state of a panel
-	int numTabs = 4;
+   unsigned char* values = (unsigned char*)(blobs[panelIndex_]->data);
+   int numValues = blobs[panelIndex_]->size;
+   
+	for (int j = 0; j < Panel::kNumTabs; j++) {
+		for (int k = 0; k < getTotalRows(); k++) {
+			for (int l = 0; l < getTotalCols(); l++) {
+            int n = j*getTotalRows()*getTotalCols() + k*getTotalCols() + l;
+            int byte = n / (sizeof(unsigned char)*8);
+				Cell *cell = SharedState::getInstance()->getCellAt (panelIndex_, j, k, l);
+				unsigned char isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
+            values[byte] = (values[byte] << 1) | isOn;
+			}
+		}
+	}
+   for (int i = 0; i < paddingBits; i++) {
+      values[numValues-1] <<= 1;
+   }
+
+	return blobs[panelIndex_];
+}
+
+// Get the serialized state of a panel, in the form of a String
+String SharedState::getStringPanelState (int panelIndex_)
+{
+	int numTabs = Panel::kNumTabs;
 	int numRows = getTotalRows();
 	int numCols = getTotalCols();
 	
 	int numValues = numTabs * numRows * numCols;
 	String valueString;
-	
+
+   // XXX if this is called frequently, it would be more efficient to
+   // preallocate these arrays within the SharedState, and not once each time
+   // this method is called
 	valueString = String::empty;
 	valueString.preallocateStorage (numValues);
 	
@@ -131,7 +179,7 @@ String SharedState::getPanelState (int panelIndex_)
 	return valueString;	
 }
 
-void SharedState::setPanelState (int panelIndex_, String state)
+void SharedState::setStringPanelState (int panelIndex_, String state)
 {
 	// Set the state of a panel based on a serialized state string
 	int numTabs = 4;
@@ -154,12 +202,3 @@ void SharedState::setPanelState (int panelIndex_, String state)
 		}
 	}		
 }
-
-
-
-
-
-
-
-
-

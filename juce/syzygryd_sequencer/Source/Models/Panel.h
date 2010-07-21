@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  Panel.h
  *  syzygryd_sequencer
@@ -20,7 +21,9 @@ class Panel
 public:
 	Panel (int totalRows_, int totalCols_);
 	~Panel();
-	
+
+   static const int kNumTabs;
+
 	int getTabIndex();
 	void setTabIndex (int tabIndex_);
 	

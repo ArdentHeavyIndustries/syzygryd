@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  SharedState.h
  *  syzygryd_sequencer
@@ -9,6 +10,8 @@
 
 #ifndef SharedState_H
 #define SharedState_H
+
+#include "osc/OscTypes.h"
 
 #include "JuceHeader.h"
 
@@ -38,8 +41,9 @@ public:
 					 bool state);
 	void clearTab (int panelIndex_, int tabIndex_);
 
-	String getPanelState (int panelIndex_); 
-	void setPanelState (int panelIndex_, String state);
+   osc::Blob* updateAndGetCompressedPanelState (int panelIndex_); 
+	String getStringPanelState (int panelIndex_); 
+	void setStringPanelState (int panelIndex_, String state);
 	
 	juce_DeclareSingleton (SharedState, true)
 	
@@ -49,6 +53,9 @@ private:
 
 	const int totalRows;
 	const int totalCols;	
+
+   osc::Blob** blobs;
+   int paddingBits;
 	
 	int playheadCol; // only used for playhead transmission
 	

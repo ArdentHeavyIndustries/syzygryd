@@ -232,7 +232,7 @@ void PluginAudioProcessor::getStateInformation (MemoryBlock& destData)
 	xml.setAttribute ("noteLength", sequencer->getNoteLength());
 	xml.setAttribute ("swingTicks", sequencer->getSwingTicks());
 	
-	String state = SharedState::getInstance()->getPanelState (panelIndex);
+	String state = SharedState::getInstance()->getStringPanelState (panelIndex);
 	xml.setAttribute ("panelState", state);
 	
 	copyXmlToBinary (xml, destData);
@@ -253,10 +253,11 @@ void PluginAudioProcessor::setStateInformation (const void* data, int sizeInByte
 
 			tmpFloat = (float) xmlState->getDoubleAttribute ("swingTicks", sequencer->getSwingTicks());
 			sequencer->setSwingTicks (tmpFloat);
-			
-			String state = SharedState::getInstance()->getPanelState (panelIndex);
+
+         // XXX why do we get and then immediately set back to the same value?
+			String state = SharedState::getInstance()->getStringPanelState (panelIndex);
 			state = xmlState->getStringAttribute ("panelState", state);
-			SharedState::getInstance()->setPanelState (panelIndex, state);
+			SharedState::getInstance()->setStringPanelState (panelIndex, state);
 		}
 	}
 }
