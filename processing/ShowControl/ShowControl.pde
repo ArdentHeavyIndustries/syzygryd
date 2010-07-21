@@ -97,6 +97,11 @@ void setup(){
   test3.setChannel("green",200);
   test3.setChannel("blue",255);
 
+  if(test3.traits.containsKey("RGBColorMixingTrait")){
+    ((RGBColorMixingTrait)test3.trait("RGBColorMixingTrait")).setColorRGB(color(255)); 
+  }
+
+
   test.addTrait("RGBColorMixing", new RGBColorMixingTrait(test));
   test2.addTrait("RGBColorMixing", new RGBColorMixingTrait(test2));
   test4.addTrait("RGBColorMixing", new RGBColorMixingTrait(test4));
@@ -137,8 +142,6 @@ void draw(){
   }
 
   //the rest of this method is test code
-
-  //((RGBColorMixingTrait)test3.trait("RGBColorMixing")).setColorRGB(colortemp2); 
 
   //test the blink action
   Blink newBlink = new Blink(currentBeat + 20, (RGBColorMixingTrait)test4.trait("RGBColorMixing"), colortemp);

@@ -58,7 +58,7 @@ static class FixtureFactory {
     addChannels(parent, fixture, profile, xml);
 
     // add the traits
-    addTraits(fixture, profile, xml);
+    addTraits(parent, fixture, profile, xml);
 
     return fixture;
   }
@@ -91,7 +91,7 @@ static class FixtureFactory {
     }
   }
 
-  static void addTraits(Fixture fixture, FixtureProfile profile, XMLElement xml) throws DataFormatException {
+  static void addTraits(ShowControl parent, Fixture fixture, FixtureProfile profile, XMLElement xml) throws DataFormatException {
     ArrayList profileTraits = profile.getTraits();
     int traitCount = profileTraits.size();
     for (int i = 0; i < traitCount; i++) {
@@ -99,15 +99,12 @@ static class FixtureFactory {
       Trait trait;
 
       if ("RGBColorMixingTrait".equals(traitName)) {
-        // BROKEN - FIX
-        //trait = new RGBColorMixingTrait(fixture);
+        trait = parent.new RGBColorMixingTrait(fixture);
       } 
       else {
         throw new DataFormatException("No known trait " + traitName);
       }
-
-      // BROKEN - FIX
-      //fixture.addTrait(traitName, trait);
+      fixture.addTrait(traitName, trait);
     }
   }
 }
