@@ -185,6 +185,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     }
 
     if (sendMessage) {
+      //println("Sending OSC message " + m + " to " + myRemoteLocation);
       oscP5.send(m, myRemoteLocation);
     }
   }
