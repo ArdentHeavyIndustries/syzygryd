@@ -24,7 +24,10 @@ SharedState::SharedState() :
 totalRows (10),
 totalCols (16),
 oscInput (0),
-oscOutput (0)
+oscOutput (0),
+ppqPosition (0.0),
+timeInSeconds (0.0),
+bpm (120.0)
 {
    blobs = new osc::Blob*[kNumPanels];
    int numValues = Panel::kNumTabs * totalRows * totalCols;

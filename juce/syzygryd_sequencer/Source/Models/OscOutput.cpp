@@ -20,12 +20,12 @@ const String kRemoteHost = "255.255.255.255";
 const int kRemotePort = 9000;
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;
-const int kSleepInterval = 100;
 
 OscOutput::OscOutput () :
 Thread ("OscOutput"),
 outSocket (0, true),
-lastPlayheadCol (-1)
+lastPlayheadCol (-1),
+sleepIntervalMs (125)
 {
 	outSocket.connect (kRemoteHost, kRemotePort, kTimeoutMs);
 }
@@ -132,7 +132,10 @@ void OscOutput::sendSync()
 void OscOutput::run()
 {
 	while (! threadShouldExit()) {
-		Thread::sleep (kSleepInterval);
+      // ms/tick = ms/s / (tick/beat * beat/min / s/min)
+      sleepIntervalMs = (int)(1000.0 / ((4.0 * SharedState::getInstance()->getBpm()) / 60.0));
+      //DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
+		Thread::sleep (sleepIntervalMs);
 
 		int playheadCol = SharedState::getInstance()->getPlayheadCol();
 		

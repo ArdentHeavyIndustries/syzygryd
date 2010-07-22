@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  OscOutput.h
  *  syzygryd_sequencer
@@ -33,6 +34,8 @@ private:
 	DatagramSocket outSocket;
 	
 	int lastPlayheadCol;
+
+   int sleepIntervalMs;
 };
 
 #endif
