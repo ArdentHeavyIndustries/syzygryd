@@ -237,6 +237,7 @@ void oscEvent(OscMessage m) {
       // XXX do we really need to be parsing one of these, but not the other?
       // do we need both?  or can we get away with neither?
 
+      // XXX afaict, commenting this out has no ill effects
       // /1_tab2
       Matcher tabSelectMatcher = tabSelectPattern.matcher(m.addrPattern());
       if (tabSelectMatcher.matches()) {
@@ -253,21 +254,22 @@ void oscEvent(OscMessage m) {
         return;
       }
 
-      // /1_control/clear/tab2
-      Matcher tabClearMatcher = tabClearPattern.matcher(m.addrPattern());
-      if (tabClearMatcher.matches()) {
-        try {
-          int panelOscIndex = Integer.parseInt(tabClearMatcher.group(1));
-          int panelIndex = panelOscIndex - 1;
-          int tabOscIndex = Integer.parseInt(tabClearMatcher.group(2));
-          int tabIndex = tabOscIndex - 1;
-          // XXX but now what ???
-          System.out.println("Clear button pressed for tab " + tabIndex + " for panel " + panelIndex + ", but so what???: " + m.addrPattern());
-        } catch (NumberFormatException nfe) {
-          System.err.println("WARNING: Unable to parse tab clear OSC message: " + m.addrPattern());
-        }
-        return;
-      }
+      // XXX comment out for now b/c this isn't doing anything
+      // // /1_control/clear/tab2
+      // Matcher tabClearMatcher = tabClearPattern.matcher(m.addrPattern());
+      // if (tabClearMatcher.matches()) {
+      //   try {
+      //     int panelOscIndex = Integer.parseInt(tabClearMatcher.group(1));
+      //     int panelIndex = panelOscIndex - 1;
+      //     int tabOscIndex = Integer.parseInt(tabClearMatcher.group(2));
+      //     int tabIndex = tabOscIndex - 1;
+      //     // XXX but now what ???
+      //     System.out.println("Clear button pressed for tab " + tabIndex + " for panel " + panelIndex + ", but so what???: " + m.addrPattern());
+      //   } catch (NumberFormatException nfe) {
+      //     System.err.println("WARNING: Unable to parse tab clear OSC message: " + m.addrPattern());
+      //   }
+      //   return;
+      // }
 
       // otherwise, ignore
 
