@@ -93,23 +93,6 @@ void setup() {
   middleOnSweep.resetMatrix();
   middleOnSweep.scale(scaleFactor*0.9);
 
-  syncCount = 0;
-
-  // start oscP5, listening for incoming messages at port 9000
-  oscP5 = new OscP5(this, 9000);
-
-  // myRemoteLocation is set to the address and port the sequencer
-  // listens on
-  // TOUCHSCREEN!
-  // for the touchscreen, change the localhost to whatever the fuck 
-  // the ip address is for the sequencer machine
-  myRemoteLocation = new NetAddress("localhost", 8000);
-
-  // Connect to the server
-  OscMessage connect = new OscMessage("/server/connect");
-  System.out.println("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
-  oscP5.send(connect, myRemoteLocation);
-
   //int buttonSize = height / 11; // size of button based on real estate
   // Force button to be an even size so the active light can be
   // properly centered
@@ -132,6 +115,23 @@ void setup() {
   temposweep = new Temposweep(buttonSize, buttonSpacing);
   
   scrollablemessage = new ScrollableMessage();
+
+  syncCount = 0;
+
+  // start oscP5, listening for incoming messages at port 9000
+  oscP5 = new OscP5(this, 9000);
+
+  // myRemoteLocation is set to the address and port the sequencer
+  // listens on
+  // TOUCHSCREEN!
+  // for the touchscreen, change the localhost to whatever the fuck 
+  // the ip address is for the sequencer machine
+  myRemoteLocation = new NetAddress("localhost", 8000);
+
+  // Connect to the server
+  OscMessage connect = new OscMessage("/server/connect");
+  System.out.println("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
+  oscP5.send(connect, myRemoteLocation);
 }
 
 int curSecond = 0;
@@ -188,6 +188,7 @@ void oscEvent(OscMessage m) {
       if (syncSkip == 0 || syncCount >= syncSkip) {
         //System.out.println("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
         syncCount = 0;
+
         double ppqPosition = m.get(0).doubleValue(); // XXX not currently used
         double timeInSeconds = m.get(1).doubleValue(); // XXX not currently used
         double bpm = m.get(2).doubleValue(); // XXX not currently used
