@@ -19,7 +19,6 @@ import java.util.regex.Matcher;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 
-
 /* Button Array for buttoning also tempo objects maybe more*/
 DrawablePanel[] panels;
 DrawablePanel selectedPanel;
@@ -46,6 +45,13 @@ Pattern tabSelectPattern =
 // XXX this is not currently used
 Pattern tabClearPattern =
   Pattern.compile("/(\\d+)_control/clear/tab(\\d+)");                  
+
+// set this if we decide that it's too much overhead to process every sync
+// message and we want to skip some.  we process every N sync messages if this
+// is set to > 0.  e.g. 2 means every other message, 1 means every message.
+// set to 0 to disable.  (so 1 is effectively the same as 0)
+final int syncSkip = 0;
+int syncCount;
 
 void setup() {
   // controller display can be made to grab the screen's current
@@ -86,6 +92,8 @@ void setup() {
   //scale this one differently for cool effect
   middleOnSweep.resetMatrix();
   middleOnSweep.scale(scaleFactor*0.9);
+
+  syncCount = 0;
 
   // start oscP5, listening for incoming messages at port 9000
   oscP5 = new OscP5(this, 9000);
@@ -176,43 +184,51 @@ void oscEvent(OscMessage m) {
     // }
 
     if (m.addrPattern().endsWith("/sync")) {
-      int panelIndex = m.get(0).intValue();
-      int curTab = m.get(1).intValue();	// XXX not used?
-      int numTabs = m.get(2).intValue();
-      int numRows = m.get(3).intValue();
-      int numCols = m.get(4).intValue();
-      int blobSize = m.get(5).intValue();	// XXX possibly get rid of this
-      byte[] blob = m.get(6).blobValue();
-      if (blob == null) {
-        System.err.println("WARNING: null blob");
-        return;
-      }
-      if (blob.length != blobSize) {
-        System.err.println("WARNING: Size of blob (" + blob.length + ") does not match expected (" + blobSize + ")");
-      }
-    
-      DrawablePanel panel = panels[panelIndex];
-    
-      int index = 0;
-      for (int i = 0; i < numTabs; i++) {
-        for (int j = 0; j < numRows; j++) {
-          for (int k = 0; k < numCols; k++) {
-            int byteSel = index / 8;
-            int bitSel = index % 8;
-            index++;
-
-            boolean isOn = (blob[byteSel] & (1 << (7 - bitSel))) != 0;
-            DrawableTab myTab = (DrawableTab) panel.tabs[i];
-            DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
-            if (isOn != myButton.isOn) {
-              System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                                 + " " + myButton.isOn + "=>" + isOn);
-              float f_isOn =  isOn ? 1.0f : 0.0f;
-              myButton.setValue (f_isOn, false);
+      syncCount++;
+      if (syncSkip == 0 || syncCount >= syncSkip) {
+        //System.out.println("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
+        syncCount = 0;
+        int panelIndex = m.get(0).intValue();
+        int curTab = m.get(1).intValue();	// XXX not used?
+        int numTabs = m.get(2).intValue();
+        int numRows = m.get(3).intValue();
+        int numCols = m.get(4).intValue();
+        int blobSize = m.get(5).intValue();	// XXX possibly get rid of this
+        byte[] blob = m.get(6).blobValue();
+        if (blob == null) {
+          System.err.println("WARNING: null blob");
+          return;
+        }
+        if (blob.length != blobSize) {
+          System.err.println("WARNING: Size of blob (" + blob.length + ") does not match expected (" + blobSize + ")");
+        }
+        
+        DrawablePanel panel = panels[panelIndex];
+        
+        int index = 0;
+        for (int i = 0; i < numTabs; i++) {
+          for (int j = 0; j < numRows; j++) {
+            for (int k = 0; k < numCols; k++) {
+              int byteSel = index / 8;
+              int bitSel = index % 8;
+              index++;
+              
+              boolean isOn = (blob[byteSel] & (1 << (7 - bitSel))) != 0;
+              DrawableTab myTab = (DrawableTab) panel.tabs[i];
+              DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
+              if (isOn != myButton.isOn) {
+                System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                                   + " " + myButton.isOn + "=>" + isOn);
+                float f_isOn =  isOn ? 1.0f : 0.0f;
+                myButton.setValue (f_isOn, false);
+              }
             }
           }
         }
       }
+      // else {
+      //   System.out.println("Skipping /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
+      // }
       return;
     } 
 
