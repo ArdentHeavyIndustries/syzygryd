@@ -107,7 +107,7 @@ void setup() {
 
   // Connect to the server
   OscMessage connect = new OscMessage("/server/connect");
-  //println("Sending OSC message " + connect + " to " + myRemoteLocation);
+  System.out.println("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
   oscP5.send(connect, myRemoteLocation);
 
   //int buttonSize = height / 11; // size of button based on real estate
@@ -217,10 +217,27 @@ void oscEvent(OscMessage m) {
               DrawableTab myTab = (DrawableTab) panel.tabs[i];
               DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
               if (isOn != myButton.isOn) {
-                System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                                   + " " + myButton.isOn + "=>" + isOn);
-                float f_isOn =  isOn ? 1.0f : 0.0f;
-                myButton.setValue (f_isOn, false);
+                // In most cases, if the sync state differs from the button
+                // state, we will trust the sync.  The exception is if we
+                // explicitly decided to send out a particular button state in
+                // the past (e.g. the button was pressed in the UI on this
+                // panel) but this button press has not yet been confirmed in
+                // a subsequent sync message.  In this case, we assume that
+                // the previous OSC message that was sent was lost.  In that
+                // case, we respond by resending the message.
+                if (!myButton.isDirty) {
+                  System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                                     + " " + myButton.isOn + "=>" + isOn);
+                  float f_isOn =  isOn ? 1.0f : 0.0f;
+                  myButton.setValue(f_isOn, false);
+                } else {
+                  System.out.println("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                                     + " " + myButton.isOn);
+                  float f_isOn = myButton.isOn ? 1.0f : 0.0f;
+                  myButton.setValue(f_isOn, true);
+                }
+              } else {
+                myButton.isDirty = false;
               }
             }
           }

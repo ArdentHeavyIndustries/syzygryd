@@ -39,7 +39,7 @@ class DrawableClearButton extends syzygryd.Button implements Drawable, Pressable
     ((DrawableTab) tab).clear();
     System.out.println("Clear button pressed");
     OscMessage m = new OscMessage(getOscAddress());
-    //println("Sending OSC message " + m + " to " + myRemoteLocation);
+    //System.out.println("Sending OSC message " + m.addrPattern() + " to " + myRemoteLocation);
     oscP5.send(m, myRemoteLocation);
   }
 }
