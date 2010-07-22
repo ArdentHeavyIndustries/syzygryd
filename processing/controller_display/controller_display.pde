@@ -205,9 +205,19 @@ void oscEvent(OscMessage m) {
         }
 
         DrawablePanel panel = panels[panelIndex];
+
+        if (numTabs > panel.tabs.length) {
+          System.err.println("WARNING: number of tabs in /sync msg (" + numTabs + ") > expected (" + panel.tabs.length + ")");
+          return;
+        }
         
         int index = 0;
         for (int i = 0; i < numTabs; i++) {
+          DrawableTab myTab = (DrawableTab) panel.tabs[i];
+          if (numCols > myTab.buttons.length) {
+            System.err.println("WARNING: number of columns in /sync msg (" + numCols + ") > expected (" + myTab.buttons.length + ")");
+            return;
+          }
           for (int j = 0; j < numRows; j++) {
             for (int k = 0; k < numCols; k++) {
               int byteSel = index / 8;
@@ -215,7 +225,10 @@ void oscEvent(OscMessage m) {
               index++;
               
               boolean isOn = (blob[byteSel] & (1 << (7 - bitSel))) != 0;
-              DrawableTab myTab = (DrawableTab) panel.tabs[i];
+              if (numRows > myTab.buttons[k].length) {
+                System.err.println("WARNING: number of rows in /sync msg (" + numRows + ") > expected (" + myTab.buttons[k].length + ")");
+                return;
+              }
               DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
               if (isOn != myButton.isOn) {
                 // In most cases, if the sync state differs from the button
