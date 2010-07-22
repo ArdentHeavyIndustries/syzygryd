@@ -11,6 +11,9 @@ import processing.opengl.*;
 import oscP5.*;
 import netP5.*;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 // import com.apple.dnssd.*;
 
 OscP5 oscP5;
@@ -37,6 +40,12 @@ ScrollableMessage scrollablemessage;
 // which only needs to be loaded once.  Since Processing doesn't have
 // static vars these are globals.
 PShape masterButton, left, right, middle, middleOnSweep;
+
+Pattern tabSelectPattern =
+  Pattern.compile("/(\\d+)_tab(\\d+)");
+// XXX this is not currently used
+Pattern tabClearPattern =
+  Pattern.compile("/(\\d+)_control/clear/tab(\\d+)");                  
 
 void setup() {
   // controller display can be made to grab the screen's current
@@ -156,14 +165,15 @@ void selectPanel(int id) {
 
 void oscEvent(OscMessage m) {
   try {
-    if(!m.addrPattern().endsWith("/tempo")) {
-      println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
-      m.print();
-    }
+    // if(!m.addrPattern().endsWith("/tempo")) {
+    //   println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+    //   m.print();
+    // }
 
-    if (m.isPlugged()) {
-      return;
-    }
+    // if (m.isPlugged()) {
+    //   System.out.println("Not handling osc msg here b/c it is plugged: " + m.addrPattern());
+    //   return;
+    // }
 
     if (m.addrPattern().endsWith("/sync")) {
       int panelIndex = m.get(0).intValue();
@@ -192,15 +202,14 @@ void oscEvent(OscMessage m) {
             index++;
 
             boolean isOn = (blob[byteSel] & (1 << (7 - bitSel))) != 0;
-          
             DrawableTab myTab = (DrawableTab) panel.tabs[i];
             DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
             if (isOn != myButton.isOn) {
               System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
                                  + " " + myButton.isOn + "=>" + isOn);
+              float f_isOn =  isOn ? 1.0f : 0.0f;
+              myButton.setValue (f_isOn, false);
             }
-            float f_isOn =  isOn ? 1.0f : 0.0f;
-            myButton.setValue (f_isOn, false);
           }
         }
       }
@@ -209,30 +218,51 @@ void oscEvent(OscMessage m) {
 
     /* check if the typetag is the right one. */
     if (m.checkTypetag("")) {
-      String[] patternParts = m.addrPattern().split("/", -1);
-      if (patternParts.length < 2) {
+      // XXX do we really need to be parsing one of these, but not the other?
+      // do we need both?  or can we get away with neither?
+
+      // /1_tab2
+      Matcher tabSelectMatcher = tabSelectPattern.matcher(m.addrPattern());
+      if (tabSelectMatcher.matches()) {
+        try {
+          int panelOscIndex = Integer.parseInt(tabSelectMatcher.group(1));
+          int panelIndex = panelOscIndex - 1;
+          int tabOscIndex = Integer.parseInt(tabSelectMatcher.group(2));
+          int tabIndex = tabOscIndex - 1;
+          System.out.println("Selecting tab " + tabIndex + " for panel " + panelIndex + " based on osc message: " + m.addrPattern());
+          panels[panelIndex].selectTab(tabIndex);
+        } catch (NumberFormatException nfe) {
+          System.err.println("WARNING: Unable to parse tab select OSC message: " + m.addrPattern());
+        }
         return;
       }
-      String[] panelAndTab = patternParts[1].split("_", -1);
-      if (panelAndTab.length < 2) {
+
+      // /1_control/clear/tab2
+      Matcher tabClearMatcher = tabClearPattern.matcher(m.addrPattern());
+      if (tabClearMatcher.matches()) {
+        try {
+          int panelOscIndex = Integer.parseInt(tabClearMatcher.group(1));
+          int panelIndex = panelOscIndex - 1;
+          int tabOscIndex = Integer.parseInt(tabClearMatcher.group(2));
+          int tabIndex = tabOscIndex - 1;
+          // XXX but now what ???
+          System.out.println("Clear button pressed for tab " + tabIndex + " for panel " + panelIndex + ", but so what???: " + m.addrPattern());
+        } catch (NumberFormatException nfe) {
+          System.err.println("WARNING: Unable to parse tab clear OSC message: " + m.addrPattern());
+        }
         return;
       }
-    
-      int panelOscIndex = new Integer(panelAndTab[0]).intValue();
-      int panelIndex = panelOscIndex - 1;
 
-      // FYI this is hacky and will break if we ever have more than 9 tabs
-      int tabOscIndex = new Integer(panelAndTab[1].substring(panelAndTab[1].length() - 1));
-      int tabIndex = tabOscIndex - 1;
+      // otherwise, ignore
 
-      panels[panelIndex].selectTab(tabIndex);
     } else if (m.checkTypetag("f")) {
-      float firstValue = m.get(0).floatValue();
-
       if (m.addrPattern().endsWith("/tempo")) {
+        float firstValue = m.get(0).floatValue();
         float v = (firstValue - 0.03125) * 16;
         temposweep.setValue(int(v));
       }
+
+      // otherwise, ignore
     }
   } catch (Exception e) {
     System.err.println("WARNING: Exception caught while processing OSC message: " + m.addrPattern());
@@ -270,6 +300,6 @@ void keyPressed() {
   } else if (key == '3') {
     selectPanel(2);
   } else if (key == 'q') {
-   exit(); 
+    exit(); 
   }
 }

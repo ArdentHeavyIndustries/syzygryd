@@ -80,8 +80,7 @@ class DrawableMiniTab implements Drawable, Pressable {
   }
 
   void press() {
-
-      ((DrawablePanel) tab.panel).selectTab(tab.id, true);
-
+    System.out.println("Mini tab " + tab.id + " pressed and selected");
+    ((DrawablePanel) tab.panel).selectTab(tab.id, true);
   }
 }

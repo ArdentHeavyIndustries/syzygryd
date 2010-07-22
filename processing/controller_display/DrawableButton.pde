@@ -48,7 +48,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   
   DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength) {
     super(_col, _row, _tab);
-    oscP5.plug(this, "setValue", getOscAddress());
+    // not needed with sync msg
+    //oscP5.plug(this, "setValue", getOscAddress());
 
     x = _x;
     y = _y;
@@ -140,14 +141,11 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   }
 
   /**
-   * setValue turns the button on or off without sending a message
-   * indicating the state change.  This is basically just a wrapper
-   * that calls the two argument version of setValue with the
-   * sendMessage argument set to false.  This method is intended to be
-   * hooked up via osc.plug.
-   *
-   * However, we are not using plug at present because it performs
-   * poorly.
+   * setValue turns the button on or off without sending a message indicating
+   * the state change.  This is basically just a wrapper that calls the two
+   * argument version of setValue with the sendMessage argument set to false.
+   * This method was previously hooked up via osc.plug(), but now it is called
+   * as a result of the /sync msg.
    *
    * @param value one of the constants Button.ON or Button.OFF
    */
@@ -169,22 +167,21 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " set to " + value);
     println("setValue: getOscAddress returns: " + getOscAddress());
     */
-    OscMessage m = new OscMessage(getOscAddress());
     sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 
     if (value != OFF) {
       isOn = true;
       ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
       // println(getOscAddress() + " on");
-      m.add(ON);
     } else {
       isOn = false;
       ((DrawableTab) tab).onButtons.remove(getOscAddress());
       // println(getOscAddress() + " off");
-      m.add(OFF);
     }
 
     if (sendMessage) {
+      OscMessage m = new OscMessage(getOscAddress());
+      m.add(value);
       //println("Sending OSC message " + m + " to " + myRemoteLocation);
       oscP5.send(m, myRemoteLocation);
     }
