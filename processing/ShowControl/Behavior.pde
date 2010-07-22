@@ -194,6 +194,8 @@ class FadeBehavior extends TimedBehavior {
 }
 
 class HueRotateBehavior extends ConstantBehavior {
+  
+  color current;
 
   int frame; // debugging - remove
 
@@ -220,14 +222,15 @@ class HueRotateBehavior extends ConstantBehavior {
       frame = 0; // debugging - remove
 
       // get current color from fixture
-      color current = currentColor();
+      current = currentColor();
 
-      // increment hue component by 1 
-      colorMode(HSB);
-      float newHue = (hue(current) + 1) % 255;
+      // increment hue component by 1/4 degree
+      colorMode(HSB,360,100,100);
+      float newHue = (hue(current) + 0.25) % 360;
+      color newColor = color(newHue, saturation(current), brightness(current));
 
-      // set fixture to new hue
-      ((RGBColorMixingTrait)fixture.trait("RGBColorMixing")).setColorRGB(color(newHue, saturation(current), brightness(current)));
+      // set fixture to new color
+      ((RGBColorMixingTrait)fixture.trait("RGBColorMixing")).setColorRGB(newColor);
 
       // debugging - remove
       print("time = " + millis() + "\nhue = " + newHue + "\nsaturation = " + saturation(current) + "\nvalue = " + brightness(current) + "\n\n");
