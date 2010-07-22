@@ -35,7 +35,8 @@ private:
 	
 	int lastPlayheadCol;
 
-   int sleepIntervalMs;
+   unsigned int sleepIntervalMs;
+   unsigned int syncCount;
 };
 
 #endif

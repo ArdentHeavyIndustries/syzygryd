@@ -21,11 +21,19 @@ const int kRemotePort = 9000;
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;
 
+// we always send a tempo message once per column.  set this if we decide that
+// it's too much traffic to send sync messages every column as well and we
+// want to skip some.  we send a sync message every N columns if this is set
+// to > 0.  e.g. 2 means every other column, 1 means every column.  set to 0
+// to disable.  (so 1 is effectively the same as 0).
+const int kSyncSkip = 0;
+
 OscOutput::OscOutput () :
 Thread ("OscOutput"),
 outSocket (0, true),
 lastPlayheadCol (-1),
-sleepIntervalMs (125)
+sleepIntervalMs (125),
+syncCount(0)
 {
 	outSocket.connect (kRemoteHost, kRemotePort, kTimeoutMs);
 }
@@ -77,10 +85,10 @@ void OscOutput::sendClearTab (int panelIndex, int tabIndex)
 	String msg;
 	msg << "/" << panelIndex << "_control/clear/tab" << tabIndex;
 	
-	DBG (msg)
+	DBG (msg);
 	
 	p << osc::BeginMessage (msg.toUTF8())
-	<< osc::EndMessage;
+     << osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());		
 }
 
@@ -100,39 +108,48 @@ void OscOutput::sendTempo()
 
 void OscOutput::sendSync()
 {
-	char buffer[kOutputBufferSize];
-	osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+   syncCount++;
+   if (kSyncSkip == 0 || syncCount >= kSyncSkip) {
+      //DBG ("Sending sync: count=" + String(syncCount) + " skip=" + String(kSyncSkip));
+      syncCount = 0;
 
-   double ppqPosition = SharedState::getInstance()->getPpqPosition();
-   double timeInSeconds = SharedState::getInstance()->getTimeInSeconds();
-   double bpm = SharedState::getInstance()->getBpm();
+      char buffer[kOutputBufferSize];
+      osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+
+      double ppqPosition = SharedState::getInstance()->getPpqPosition();
+      double timeInSeconds = SharedState::getInstance()->getTimeInSeconds();
+      double bpm = SharedState::getInstance()->getBpm();
 	
-	int numPanels = SharedState::kNumPanels;
-	int numTabs = Panel::kNumTabs;;
-	int numRows = SharedState::getInstance()->getTotalRows();
-	int numCols = SharedState::getInstance()->getTotalCols();
+      int numPanels = SharedState::kNumPanels;
+      int numTabs = Panel::kNumTabs;;
+      int numRows = SharedState::getInstance()->getTotalRows();
+      int numCols = SharedState::getInstance()->getTotalCols();
 	
-	for (int panelIndex = 0; panelIndex < numPanels; panelIndex++) {
-		int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
-      osc::Blob* blob = SharedState::getInstance()->updateAndGetCompressedPanelState (panelIndex);
+      for (int panelIndex = 0; panelIndex < numPanels; panelIndex++) {
+         int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
+         osc::Blob* blob = SharedState::getInstance()->updateAndGetCompressedPanelState (panelIndex);
 		
-		p.Clear();
-      // XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
-      //        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
-		p << osc::BeginMessage ("/sync")
-        << ppqPosition << timeInSeconds << bpm
-        << panelIndex << tabIndex << numTabs << numRows << numCols
-        << *blob
-        << osc::EndMessage;
-		outSocket.write (p.Data(), p.Size());
-	}	
+         p.Clear();
+         // XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
+         //        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
+         p << osc::BeginMessage ("/sync")
+           << ppqPosition << timeInSeconds << bpm
+           << panelIndex << tabIndex << numTabs << numRows << numCols
+           << *blob
+           << osc::EndMessage;
+         outSocket.write (p.Data(), p.Size());
+      }
+   }	
+   // else {
+   //    DBG ("Skipping sync: count=" + String(syncCount) + " skip=" + String(kSyncSkip));
+   // }
 }
 
 // Thread methods
 void OscOutput::run()
 {
 	while (! threadShouldExit()) {
-      // ms/tick = ms/s / (tick/beat * beat/min / s/min)
+      // ms/col = ms/s / (col/beat * beat/min / s/min)
       sleepIntervalMs = (int)(1000.0 / ((4.0 * SharedState::getInstance()->getBpm()) / 60.0));
       //DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
 		Thread::sleep (sleepIntervalMs);
