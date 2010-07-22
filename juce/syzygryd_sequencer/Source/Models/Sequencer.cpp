@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  Sequencer.cpp
  *  syzygryd_sequencer
@@ -110,7 +111,7 @@ void Sequencer::releaseResources()
 }
 
 void Sequencer::processBlock (AudioSampleBuffer& buffer,
-							  MidiBuffer& midiMessages)
+                              MidiBuffer& midiMessages)
 {
 	AudioPlayHead::CurrentPositionInfo pos (pluginAudioProcessor->lastPosInfo);	
 
@@ -119,6 +120,13 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	}
 	
 	double ppq = pos.ppqPosition;
+   SharedState::getInstance()->setPpqPosition (ppq);
+
+   double timeInSeconds = pos.timeInSeconds;
+   SharedState::getInstance()->setTimeInSeconds (timeInSeconds);
+
+   double bpm = pos.bpm;
+   SharedState::getInstance()->setBpm (bpm);
 
 	/*
 	int numerator = pos.timeSigNumerator;
@@ -158,7 +166,7 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		}
 		
 		// Calculate the latency
-		double beatsPerSec = pos.bpm * speed * ticksPerCol / 60.0;
+		double beatsPerSec = bpm * speed * ticksPerCol / 60.0;
 		double secPerBeat = 1.0 / beatsPerSec;	
 		
 		double tickOffset = tickCountPrecise - tickCount;
@@ -201,10 +209,3 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		}
 	}
 }
-
-
-
-
-
-
-

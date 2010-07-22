@@ -116,7 +116,7 @@ void CustomPlayHead::releaseResources()
 }
 
 void CustomPlayHead::processBlock (AudioSampleBuffer& buffer,
-								   MidiBuffer& midiMessages)
+                                   MidiBuffer& midiMessages)
 {
 	if (! playing) {
 		return;

@@ -16,7 +16,7 @@
 
 #include "SharedState.h"
 
-static const int kNumPanels = 3;
+const int SharedState::kNumPanels = 3;
 
 juce_ImplementSingleton (SharedState)
 
@@ -94,6 +94,36 @@ int SharedState::getPlayheadCol()
 void SharedState::setPlayheadCol (int playheadCol_)
 {
 	playheadCol = playheadCol_;
+}
+
+double SharedState::getPpqPosition()
+{
+	return ppqPosition;
+}
+
+void SharedState::setPpqPosition (double ppqPosition_)
+{
+	ppqPosition = ppqPosition_;
+}
+
+double SharedState::getTimeInSeconds()
+{
+	return timeInSeconds;
+}
+
+void SharedState::setTimeInSeconds (double timeInSeconds_)
+{
+	timeInSeconds = timeInSeconds_;
+}
+
+double SharedState::getBpm()
+{
+	return bpm;
+}
+
+void SharedState::setBpm (double bpm_)
+{
+	bpm = bpm_;
 }
 
 Cell* SharedState::getCellAt (int panelIndex_, int tabIndex_, int row_, int col_)

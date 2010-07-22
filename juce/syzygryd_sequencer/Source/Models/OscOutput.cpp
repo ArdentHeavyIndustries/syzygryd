@@ -12,6 +12,7 @@
 
 #include "Cell.h"
 #include "SharedState.h"
+#include "Panel.h"
 
 #include "OscOutput.h"
 
@@ -101,10 +102,13 @@ void OscOutput::sendSync()
 {
 	char buffer[kOutputBufferSize];
 	osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+
+   double ppqPosition = SharedState::getInstance()->getPpqPosition();
+   double timeInSeconds = SharedState::getInstance()->getTimeInSeconds();
+   double bpm = SharedState::getInstance()->getBpm();
 	
-	int numPanels = 3;
-	
-	int numTabs = 4;
+	int numPanels = SharedState::kNumPanels;
+	int numTabs = Panel::kNumTabs;;
 	int numRows = SharedState::getInstance()->getTotalRows();
 	int numCols = SharedState::getInstance()->getTotalCols();
 	
@@ -115,9 +119,10 @@ void OscOutput::sendSync()
 		p.Clear();
       // XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
       //        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
-		p << osc::BeginMessage ("/sync") 
+		p << osc::BeginMessage ("/sync")
+        << ppqPosition << timeInSeconds << bpm
         << panelIndex << tabIndex << numTabs << numRows << numCols
-        << (int)blob->size << *blob
+        << *blob
         << osc::EndMessage;
 		outSocket.write (p.Data(), p.Size());
 	}	

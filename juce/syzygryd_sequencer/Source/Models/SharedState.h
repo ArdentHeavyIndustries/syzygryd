@@ -25,6 +25,8 @@ class OscOutput;
 class SharedState : public DeletedAtShutdown
 {
 public:
+   static const int kNumPanels;
+
 	int getTotalRows();
 	int getTotalCols();
 
@@ -33,6 +35,15 @@ public:
 	
 	int getPlayheadCol(); // only used for playhead transmission
 	void setPlayheadCol (int playheadCol_);
+	
+	double getPpqPosition();
+	void setPpqPosition (double ppqPosition_);
+	
+	double getTimeInSeconds();
+	void setTimeInSeconds (double timeInSeconds_);
+	
+	double getBpm();
+	void setBpm (double bpm_);
 	
 	Cell* getCellAt (int panelIndex_, int tabIndex_, int row_, int col_);
 	void broadcast (const void* sourceBuffer, int numBytesToWrite);
@@ -58,6 +69,9 @@ private:
    int paddingBits;
 	
 	int playheadCol; // only used for playhead transmission
+   double ppqPosition;
+   double timeInSeconds;
+   double bpm;
 	
 	OwnedArray<Panel> panels; // holds actual notation
 

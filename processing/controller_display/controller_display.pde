@@ -188,21 +188,22 @@ void oscEvent(OscMessage m) {
       if (syncSkip == 0 || syncCount >= syncSkip) {
         //System.out.println("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
         syncCount = 0;
-        int panelIndex = m.get(0).intValue();
-        int curTab = m.get(1).intValue();	// XXX not used?
-        int numTabs = m.get(2).intValue();
-        int numRows = m.get(3).intValue();
-        int numCols = m.get(4).intValue();
-        int blobSize = m.get(5).intValue();	// XXX possibly get rid of this
-        byte[] blob = m.get(6).blobValue();
+        double ppqPosition = m.get(0).doubleValue(); // XXX not currently used
+        double timeInSeconds = m.get(1).doubleValue(); // XXX not currently used
+        double bpm = m.get(2).doubleValue(); // XXX not currently used
+        int panelIndex = m.get(3).intValue();
+        int curTab = m.get(4).intValue();	// XXX not currently used, possibly use as alternative to processing tab select msgs
+        int numTabs = m.get(5).intValue();
+        int numRows = m.get(6).intValue();
+        int numCols = m.get(7).intValue();
+        //System.out.println("sync: ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
+        byte[] blob = m.get(8).blobValue();
+        //outputByteArray(blob);
         if (blob == null) {
           System.err.println("WARNING: null blob");
           return;
         }
-        if (blob.length != blobSize) {
-          System.err.println("WARNING: Size of blob (" + blob.length + ") does not match expected (" + blobSize + ")");
-        }
-        
+
         DrawablePanel panel = panels[panelIndex];
         
         int index = 0;
