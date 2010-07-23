@@ -36,7 +36,7 @@ class OSCManager {
 
     if(m.addrPattern().endsWith("/tempo")) {
        events.fire("tick",true); // This should probably be called something other than 'tick' with the new sequencer
-       sequencerState.timeofLastStep = millis();
+       sequencerState.timeOfLastStep = millis();
       // TODO: Calculate tick interval/BPS, store to SequencerState object
       
     }
