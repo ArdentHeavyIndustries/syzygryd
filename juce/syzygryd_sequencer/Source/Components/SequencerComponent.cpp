@@ -86,24 +86,26 @@ void SequencerComponent::resized()
 
 void SequencerComponent::mouseDown (const MouseEvent& e)
 {
-	handleMouseEvent (e);
+	handleMouseEvent (e, true);
 }
 
 void SequencerComponent::mouseDrag (const MouseEvent& e)
 {
-	handleMouseEvent (e);
+	handleMouseEvent (e, false);
 }
 
-void SequencerComponent::handleMouseEvent (const MouseEvent& e)
+void SequencerComponent::handleMouseEvent (const MouseEvent& e, bool alwaysToggle)
 {
 	Component *c = getComponentAt (e.getEventRelativeTo(this).getPosition());
 	CellComponent *cellComponent = dynamic_cast<CellComponent*> (c);
 	
 	if (cellComponent != 0) {
-		if (cellComponent != lastToggledCellComponent) {
-			cellComponent->toggleNote();
-			lastToggledCellComponent = cellComponent;
+		if ((!alwaysToggle) && 
+			(cellComponent == lastToggledCellComponent)) {
+			return;
 		}
+		cellComponent->toggleNote();
+		lastToggledCellComponent = cellComponent;
 	}	
 }
 

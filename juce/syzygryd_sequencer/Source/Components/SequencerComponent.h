@@ -36,7 +36,7 @@ public:
 	
 private:
 	CellComponent* getCellAt (int row, int col);
-	void handleMouseEvent (const MouseEvent& e);
+	void handleMouseEvent (const MouseEvent& e, bool alwaysToggle);
 	
 	PluginAudioProcessor* pluginAudioProcessor;
 	Sequencer* sequencer;
