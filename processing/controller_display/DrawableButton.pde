@@ -136,10 +136,10 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   }
 
   void press() {
-    setValue(isOn ? OFF : ON, true);
-    if (isOn) {
+    if (!isOn) {
       new ButtonPressAnimation((DrawableTab) tab, this);
     }
+    setValue(isOn ? OFF : ON, true);
   }
 
   /**
