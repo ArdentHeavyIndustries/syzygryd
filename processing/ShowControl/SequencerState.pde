@@ -33,15 +33,14 @@ public class SequencerState {
           }
         }
       }
-    }
+    } 
+  }
+  
+  int timeOfNextStep(){
+     return 0;
+  }
     
-    int timeOfNextStep() {
-      return 0;
-    }
-    
-    int timeBetweenBeats() {
-      return 0;
-    }
-    
-  } 
+  int timeBetweenBeats(){
+    return 0;
+  }
 }
