@@ -158,6 +158,7 @@ void draw(){
 
   //background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
 
+//LightingProgram.step()
 }
 
 

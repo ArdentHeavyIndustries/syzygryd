@@ -37,6 +37,7 @@ class OSCManager {
     if(m.addrPattern().endsWith("/tempo")) {
        events.fire("tick",true); // This should probably be called something other than 'tick' with the new sequencer
       // TODO: Calculate tick interval/BPS, store to SequencerState object
+      
     }
 
     if (m.addrPattern().endsWith("/sync")) {

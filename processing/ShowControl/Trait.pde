@@ -35,3 +35,23 @@ class RGBColorMixingTrait extends Trait {
     return argb;
   }
 }
+
+class FireTrait extends Trait {
+  
+   FireTrait(Fixture parent){
+     super(parent);
+   }
+   
+   boolean isBurning() {
+     return parent.getChannel("fire") > 0; //TODO: change this to final threshold value
+   }
+   
+   void fireOn() {
+     parent.setChannel("fire", 255);
+   }
+   
+   void fireOff() {
+     parent.setChannel("fire", 0);
+   }
+   
+}
