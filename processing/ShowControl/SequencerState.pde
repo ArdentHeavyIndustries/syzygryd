@@ -8,9 +8,9 @@ public class SequencerState {
   private final static int PITCHES = 10;
   
   //timing information
-  int currentStep;
-  int timeOfLastStep;
-  int BPM;
+  int currentStep; //int between 0 and 15
+  int timeOfLastStep; // timestamp in milliseconds
+  int BPM;  //beats per minute
   
   // This will be used to calculate a rolling average of the OSC tick interval
   private Queue tickTimestamps;
