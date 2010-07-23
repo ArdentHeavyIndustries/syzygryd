@@ -171,16 +171,6 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     */
     sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 
-    if (value != OFF) {
-      isOn = true;
-      ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
-      // println(getOscAddress() + " on");
-    } else {
-      isOn = false;
-      ((DrawableTab) tab).onButtons.remove(getOscAddress());
-      // println(getOscAddress() + " off");
-    }
-
     if (sendMessage) {
       OscMessage m = new OscMessage(getOscAddress());
       m.add(value);
@@ -188,6 +178,16 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
       // // mark as dirty until we get a sync message confirming receipt
       // isDirty = true;
       oscP5.send(m, myRemoteLocation);
+    } else {
+      if (value != OFF) {
+        isOn = true;
+        ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
+        // println(getOscAddress() + " on");
+      } else {
+        isOn = false;
+        ((DrawableTab) tab).onButtons.remove(getOscAddress());
+        // println(getOscAddress() + " off");
+      }
     }
   }
 
