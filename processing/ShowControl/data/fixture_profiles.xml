@@ -12,4 +12,14 @@
         </channels>
     </fixture_profile>
 
+    <!-- FIRE TYPE -->
+    <fixture_profile type="fire">
+        <traits>
+            <trait type="FireTrait" />
+        </traits>
+        <channels>
+            <channel name="fire" latency="20" />
+        </channels>
+    </fixture_profile>
+
 </doc_root>
