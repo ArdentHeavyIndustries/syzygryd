@@ -23,12 +23,12 @@ public:
 	~CellComponent();
 	
 	void setCell (Cell* cell_);
+	void toggleNote();
 	
 	// Component methods
 	virtual void paint (Graphics& g);
 	virtual void resized();
-	virtual void mouseDown (const MouseEvent& e);
-	
+
 private:
 	PluginAudioProcessor* pluginAudioProcessor;	
 	Sequencer* sequencer;

@@ -28,12 +28,15 @@ public:
 	// Component methods
 	virtual void paint (Graphics& g);
 	virtual void resized();
-
+	virtual void mouseDown (const MouseEvent& e);
+	virtual void mouseDrag (const MouseEvent& e);
+	
 	// Timer methods
 	virtual void timerCallback();
 	
 private:
 	CellComponent* getCellAt (int row, int col);
+	void handleMouseEvent (const MouseEvent& e);
 	
 	PluginAudioProcessor* pluginAudioProcessor;
 	Sequencer* sequencer;
@@ -44,6 +47,8 @@ private:
 	
 	int lastPanelIndex;
 	int lastTabIndex;
+	
+	CellComponent* lastToggledCellComponent;
 };
 
 #endif

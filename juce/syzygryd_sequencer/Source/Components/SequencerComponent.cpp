@@ -19,7 +19,8 @@ Component ("SequencerComponent"),
 pluginAudioProcessor (pluginAudioProcessor_),
 lastPlayheadCol (-1),
 lastPanelIndex (-1),
-lastTabIndex (-1)
+lastTabIndex (-1),
+lastToggledCellComponent (0)
 {
 	sequencer = pluginAudioProcessor->getSequencer();
 	
@@ -33,6 +34,7 @@ lastTabIndex (-1)
 			addAndMakeVisible (cell = new CellComponent (pluginAudioProcessor,
 														 sequencer->getCellAt (panelIndex, tabIndex, i, j)));
 			row->add (cell);
+			cell->addMouseListener (this, false);
 		}
 	}
 	
@@ -80,6 +82,30 @@ void SequencerComponent::resized()
 			cell->setBounds (j * cellWidth, i * cellHeight, cellWidth, cellHeight);
 		}
 	}
+}
+
+void SequencerComponent::mouseDown (const MouseEvent& e)
+{
+	handleMouseEvent (e);
+}
+
+void SequencerComponent::mouseDrag (const MouseEvent& e)
+{
+	handleMouseEvent (e);
+}
+
+void SequencerComponent::handleMouseEvent (const MouseEvent& e)
+{
+	Component *c = getComponentAt (e.getEventRelativeTo(this).getPosition());
+	CellComponent *cellComponent = dynamic_cast<CellComponent*> (c);
+	
+	if (cellComponent != 0) {
+		if (cellComponent != lastToggledCellComponent) {
+			DBG (cellComponent->getName())
+			cellComponent->toggleNote();
+			lastToggledCellComponent = cellComponent;
+		}
+	}	
 }
 
 // Timer methods

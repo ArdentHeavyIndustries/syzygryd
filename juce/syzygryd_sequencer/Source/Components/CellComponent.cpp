@@ -20,6 +20,10 @@ pluginAudioProcessor (pluginAudioProcessor_),
 cell (cell_)
 {
 	sequencer = pluginAudioProcessor->getSequencer();
+
+	String name;
+	name << "Cell-" << cell->getRow() << "," << cell->getCol();
+	setName (name);
 }
 
 CellComponent::~CellComponent()
@@ -28,6 +32,17 @@ CellComponent::~CellComponent()
 
 void CellComponent::setCell (Cell* cell_) {
 	cell = cell_;
+}
+
+void CellComponent::toggleNote()
+{
+	int panelIndex = pluginAudioProcessor->getPanelIndex();
+	int tabIndex = pluginAudioProcessor->getTabIndex();
+	bool sendNoteOn = (cell->getNoteNumber() <= 0);
+	
+	sequencer->noteToggle (panelIndex, tabIndex, cell->getRow(), cell->getCol(), 
+						   sendNoteOn);
+	repaint();
 }
 
 // Component methods
@@ -54,17 +69,4 @@ void CellComponent::paint (Graphics& g)
 void CellComponent::resized()
 {
 }
-
-void CellComponent::mouseDown (const MouseEvent& e)
-{
-	int panelIndex = pluginAudioProcessor->getPanelIndex();
-	int tabIndex = pluginAudioProcessor->getTabIndex();
-	bool sendNoteOn = (cell->getNoteNumber() <= 0);
-	
-	sequencer->noteToggle (panelIndex, tabIndex, cell->getRow(), cell->getCol(), 
-						   sendNoteOn);
-	repaint();
-}
-
-
 
