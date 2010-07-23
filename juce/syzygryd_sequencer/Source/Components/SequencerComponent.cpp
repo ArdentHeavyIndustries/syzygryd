@@ -101,7 +101,6 @@ void SequencerComponent::handleMouseEvent (const MouseEvent& e)
 	
 	if (cellComponent != 0) {
 		if (cellComponent != lastToggledCellComponent) {
-			DBG (cellComponent->getName())
 			cellComponent->toggleNote();
 			lastToggledCellComponent = cellComponent;
 		}
