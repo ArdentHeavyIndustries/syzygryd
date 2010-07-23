@@ -73,4 +73,13 @@ public class Setlist {
 	
 		return it.previous();
 	}
+	
+	public Set getSet(int s) {
+		if (s > list.size()) {
+			s = 0;
+		}
+		it = list.listIterator(s);
+		
+		return it.next();
+	}
 }
