@@ -46,7 +46,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   boolean isSweep;
   int activeAlpha;
 
-  boolean isDirty = false;
+  // boolean isDirty = false;
   
   DrawableButton(int _col, int _row, DrawableTab _tab, int _x, int _y, int _sqLength, int _miniX, int _miniY, int _miniLength) {
     super(_col, _row, _tab);
@@ -185,8 +185,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
       OscMessage m = new OscMessage(getOscAddress());
       m.add(value);
       System.out.println("Sending OSC message " + m.addrPattern() + " to turn button " + isOn + " to " + myRemoteLocation);
-      // mark as dirty until we get a sync message confirming receipt
-      isDirty = true;
+      // // mark as dirty until we get a sync message confirming receipt
+      // isDirty = true;
       oscP5.send(m, myRemoteLocation);
     }
   }

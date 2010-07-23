@@ -129,9 +129,9 @@ void setup() {
   myRemoteLocation = new NetAddress("localhost", 8000);
 
   // Connect to the server
-  OscMessage connect = new OscMessage("/server/connect");
-  System.out.println("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
-  oscP5.send(connect, myRemoteLocation);
+  // OscMessage connect = new OscMessage("/server/connect");
+  // System.out.println("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
+  // oscP5.send(connect, myRemoteLocation);
 }
 
 int curSecond = 0;
@@ -193,11 +193,17 @@ void oscEvent(OscMessage m) {
         double timeInSeconds = m.get(1).doubleValue(); // XXX not currently used
         double bpm = m.get(2).doubleValue(); // XXX not currently used
         int panelIndex = m.get(3).intValue();
-        int curTab = m.get(4).intValue();	// XXX not currently used, possibly use as alternative to processing tab select msgs
+        int curTab = m.get(4).intValue();
         int numTabs = m.get(5).intValue();
         int numRows = m.get(6).intValue();
         int numCols = m.get(7).intValue();
         //System.out.println("sync: ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
+
+        if (curTab != panels[panelIndex].selectedTab.id) {
+          System.out.println("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab + " => " + curTab);
+          panels[panelIndex].selectTab(curTab);
+        }
+
         byte[] blob = m.get(8).blobValue();
         //outputByteArray(blob);
         if (blob == null) {
@@ -232,6 +238,7 @@ void oscEvent(OscMessage m) {
               }
               DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
               if (isOn != myButton.isOn) {
+                // XXX no, we're going to trust the sync always
                 // In most cases, if the sync state differs from the button
                 // state, we will trust the sync.  The exception is if we
                 // explicitly decided to send out a particular button state in
@@ -240,19 +247,19 @@ void oscEvent(OscMessage m) {
                 // a subsequent sync message.  In this case, we assume that
                 // the previous OSC message that was sent was lost.  In that
                 // case, we respond by resending the message.
-                if (!myButton.isDirty) {
+                // if (!myButton.isDirty) {
                   System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
                                      + " " + myButton.isOn + "=>" + isOn);
                   float f_isOn =  isOn ? 1.0f : 0.0f;
                   myButton.setValue(f_isOn, false);
-                } else {
-                  System.out.println("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                                     + " " + myButton.isOn);
-                  float f_isOn = myButton.isOn ? 1.0f : 0.0f;
-                  myButton.setValue(f_isOn, true);
-                }
-              } else {
-                myButton.isDirty = false;
+                // } else {
+                //   System.out.println("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                //                      + " " + myButton.isOn);
+                //   float f_isOn = myButton.isOn ? 1.0f : 0.0f;
+                //   myButton.setValue(f_isOn, true);
+                // }
+              // } else {
+              //   myButton.isDirty = false;
               }
             }
           }
@@ -265,26 +272,26 @@ void oscEvent(OscMessage m) {
     } 
 
     /* check if the typetag is the right one. */
-    if (m.checkTypetag("")) {
+    // if (m.checkTypetag("")) {
       // XXX do we really need to be parsing one of these, but not the other?
       // do we need both?  or can we get away with neither?
 
       // XXX afaict, commenting this out has no ill effects
       // /1_tab2
-      Matcher tabSelectMatcher = tabSelectPattern.matcher(m.addrPattern());
-      if (tabSelectMatcher.matches()) {
-        try {
-          int panelOscIndex = Integer.parseInt(tabSelectMatcher.group(1));
-          int panelIndex = panelOscIndex - 1;
-          int tabOscIndex = Integer.parseInt(tabSelectMatcher.group(2));
-          int tabIndex = tabOscIndex - 1;
-          System.out.println("Selecting tab " + tabIndex + " for panel " + panelIndex + " based on osc message: " + m.addrPattern());
-          panels[panelIndex].selectTab(tabIndex);
-        } catch (NumberFormatException nfe) {
-          System.err.println("WARNING: Unable to parse tab select OSC message: " + m.addrPattern());
-        }
-        return;
-      }
+      // Matcher tabSelectMatcher = tabSelectPattern.matcher(m.addrPattern());
+      // if (tabSelectMatcher.matches()) {
+      //   try {
+      //     int panelOscIndex = Integer.parseInt(tabSelectMatcher.group(1));
+      //     int panelIndex = panelOscIndex - 1;
+      //     int tabOscIndex = Integer.parseInt(tabSelectMatcher.group(2));
+      //     int tabIndex = tabOscIndex - 1;
+      //     System.out.println("Selecting tab " + tabIndex + " for panel " + panelIndex + " based on osc message: " + m.addrPattern());
+      //     panels[panelIndex].selectTab(tabIndex);
+      //   } catch (NumberFormatException nfe) {
+      //     System.err.println("WARNING: Unable to parse tab select OSC message: " + m.addrPattern());
+      //   }
+      //   return;
+      // }
 
       // XXX comment out for now b/c this isn't doing anything
       // // /1_control/clear/tab2
@@ -305,7 +312,8 @@ void oscEvent(OscMessage m) {
 
       // otherwise, ignore
 
-    } else if (m.checkTypetag("f")) {
+    // } else 
+        // if (m.checkTypetag("f")) {
       if (m.addrPattern().endsWith("/tempo")) {
         float firstValue = m.get(0).floatValue();
         float v = (firstValue - 0.03125) * 16;
@@ -313,7 +321,7 @@ void oscEvent(OscMessage m) {
       }
 
       // otherwise, ignore
-    }
+    // }
   } catch (Exception e) {
     System.err.println("WARNING: Exception caught while processing OSC message: " + m.addrPattern());
     e.printStackTrace();
