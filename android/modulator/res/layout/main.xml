@@ -1,16 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+<LinearLayout
+   android:layout_width="fill_parent"
+   android:layout_height="fill_parent"
+   android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
-    <TextView
-        android:id="@+id/main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/main_text"
-        android:enabled="true" />
-</RelativeLayout>
+  <TextView
+     android:id="@+id/name_1_1"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_1"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_1"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+  <TextView
+     android:id="@+id/name_1_2"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_2"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_2"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+  <TextView
+     android:id="@+id/name_1_3"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_3"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_3"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+  <TextView
+     android:id="@+id/name_1_4"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_4"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_4"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+  <TextView
+     android:id="@+id/name_1_5"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_5"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_5"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+  <TextView
+     android:id="@+id/name_1_6"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_6"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_6"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+  <TextView
+     android:id="@+id/name_1_7"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_7"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_7"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+  <TextView
+     android:id="@+id/name_1_8"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/name_1_8"
+     android:enabled="true" />
+  <SeekBar
+     android:id="@+id/modulator_1_8"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:enabled="true" />
+</LinearLayout>
 
 <!--
   Local Variables:

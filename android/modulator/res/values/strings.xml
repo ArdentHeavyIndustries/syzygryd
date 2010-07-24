@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Syzygryd Modulator</string>
-    <string name="main_text">This is a test.  This element and string will probably go away.</string>
+    <string name="name_1_1">/1_modulator/modulation1</string>
+    <string name="name_1_2">/1_modulator/modulation2</string>
+    <string name="name_1_3">/1_modulator/modulation3</string>
+    <string name="name_1_4">/1_modulator/modulation4</string>
+    <string name="name_1_5">/1_modulator/modulation5</string>
+    <string name="name_1_6">/1_modulator/modulation6</string>
+    <string name="name_1_7">/1_modulator/modulation7</string>
+    <string name="name_1_8">/1_modulator/modulation8</string>
     <string name="settings">Syzygryd Modulator Settings</string>
     <string name="prefs_hostRemote_title">Remote host</string>
     <string name="prefs_hostRemote_summary">Processing modulator hostname or dotted decimal IP address</string>
