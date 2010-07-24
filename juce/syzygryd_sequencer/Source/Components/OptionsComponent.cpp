@@ -9,6 +9,7 @@
 
 #include "PluginAudioProcessor.h"
 #include "Sequencer.h"
+#include "SharedState.h"
 
 #include "OptionsComponent.h"
 
@@ -20,7 +21,9 @@ static const int kRadioWidth = 47;
 OptionsComponent::OptionsComponent (PluginAudioProcessor* pluginAudioProcessor_):
 Component ("OptionsComponent"),
 pluginAudioProcessor (pluginAudioProcessor_),
-lastPanelIndex (-1)
+lastPanelIndex (-1),
+starFieldButton (0),
+lastStarFieldActive (false)
 {
 	sequencer = pluginAudioProcessor->getSequencer();
 	
@@ -34,6 +37,10 @@ lastPanelIndex (-1)
 		addAndMakeVisible (radioButton);
 		panelButtons.add (radioButton);
 	}
+	
+	addAndMakeVisible (starFieldButton = new ToggleButton ("Activate Starfield"));
+	starFieldButton->setColour (ToggleButton::textColourId, Colour::greyLevel (0.8));
+	starFieldButton->addButtonListener (this);
 	
 	startTimer (1000);
 }
@@ -55,15 +62,23 @@ void OptionsComponent::resized()
 		radioButton->setConnectedEdges (((i != 0) ? Button::ConnectedOnLeft : 0) 
 										| ((i != kRadioSize - 1) ? Button::ConnectedOnRight : 0));
 	}
+	
+	starFieldButton->setBounds (0, 0, getWidth(), 20);
 }
 
 // ButtonListener methods
 void OptionsComponent::buttonClicked (Button* button)
 {
+	if (button == starFieldButton) {
+		bool starFieldActive = starFieldButton->getToggleState();
+		SharedState::getInstance()->setStarFieldActive (starFieldActive);
+	}
+	
 	for (int i = 0; i < kRadioSize; ++i) {
 		TextButton* radioButton = panelButtons[i];
 		if (button == radioButton) {
 			pluginAudioProcessor->setPanelIndex (i);
+			return;
 		}
 	}		
 }
@@ -76,6 +91,11 @@ void OptionsComponent::timerCallback()
 
 		TextButton* radioButton = panelButtons[lastPanelIndex];
 		radioButton->setToggleState (true, false);
+	}
+	
+	if (lastStarFieldActive != SharedState::getInstance()->getStarFieldActive()) {
+		lastStarFieldActive = SharedState::getInstance()->getStarFieldActive();
+		starFieldButton->setToggleState (lastStarFieldActive, false);
 	}
 }
 

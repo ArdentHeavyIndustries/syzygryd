@@ -14,6 +14,8 @@
 
 class Cell;
 
+class StarField;
+
 class Tab 
 {
 public:
@@ -24,11 +26,15 @@ public:
 
 	void clear();
 	
+	void update();
+	
 private:
 	const int totalRows;
 	const int totalCols;
 	
 	OwnedArray< OwnedArray<Cell> > rows;	
+	
+	StarField* starField;
 };
 
 #endif

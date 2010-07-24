@@ -28,6 +28,7 @@ public:
 
 	int getPanelIndex();
 	void setPanelIndex (int panelIndex_);
+	
 	int getTabIndex();
 	void setTabIndex (int tabIndex_);
 	

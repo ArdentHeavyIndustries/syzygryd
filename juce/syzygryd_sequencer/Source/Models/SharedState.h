@@ -25,11 +25,11 @@ class OscOutput;
 class SharedState : public DeletedAtShutdown
 {
 public:
-   static const int kNumPanels;
-
+	static const int kNumPanels;
+	
 	int getTotalRows();
 	int getTotalCols();
-
+	
 	int getTabIndex (int panelIndex_);
 	void setTabIndex (int panelIndex_, int tabIndex_);	
 	
@@ -51,32 +51,39 @@ public:
 	void noteToggle (int panelIndex_, int tabIndex_, int row_, int col_, 
 					 bool state);
 	void clearTab (int panelIndex_, int tabIndex_);
-
-   osc::Blob* updateAndGetCompressedPanelState (int panelIndex_); 
+	
+	osc::Blob* updateAndGetCompressedPanelState (int panelIndex_); 
 	String getStringPanelState (int panelIndex_); 
 	void setStringPanelState (int panelIndex_, String state);
 	
+	void update();
+
+	bool getStarFieldActive();
+	void setStarFieldActive (bool starFieldActive_);
+
 	juce_DeclareSingleton (SharedState, true)
 	
 private:
 	SharedState();
 	~SharedState();
-
+	
 	const int totalRows;
 	const int totalCols;	
-
-   osc::Blob** blobs;
-   int paddingBits;
+	
+	osc::Blob** blobs;
+	int paddingBits;
 	
 	int playheadCol; // only used for playhead transmission
-   double ppqPosition;
-   double timeInSeconds;
-   double bpm;
+	double ppqPosition;
+	double timeInSeconds;
+	double bpm;
 	
 	OwnedArray<Panel> panels; // holds actual notation
-
+	
 	OscInput* oscInput;
 	OscOutput* oscOutput;
+	
+	bool starFieldActive; // perform starfield effect	
 };
 
 #endif

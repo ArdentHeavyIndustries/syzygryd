@@ -31,6 +31,8 @@ public:
 
 	void clearTab (int tabIndex_);
 	
+	void update();
+	
 private:
 	OwnedArray<Tab> tabs;	
 	

@@ -121,7 +121,7 @@ void OscOutput::sendSync()
       double bpm = SharedState::getInstance()->getBpm();
 	
       int numPanels = SharedState::kNumPanels;
-      int numTabs = Panel::kNumTabs;;
+      int numTabs = Panel::kNumTabs;
       int numRows = SharedState::getInstance()->getTotalRows();
       int numCols = SharedState::getInstance()->getTotalCols();
 	

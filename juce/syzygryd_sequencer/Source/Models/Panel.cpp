@@ -51,6 +51,16 @@ void Panel::clearTab (int tabIndex_)
 	tab->clear();
 }
 
+void Panel::update()
+{
+	/*
+	for (int i = 0; i < kNumTabs; i++) {
+		Tab* tab = tabs[i];
+		tab->update();
+	}
+	 */
+	tabs[tabIndex]->update();
+}
 
 
 

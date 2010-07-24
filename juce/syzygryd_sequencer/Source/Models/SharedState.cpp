@@ -27,7 +27,8 @@ oscInput (0),
 oscOutput (0),
 ppqPosition (0.0),
 timeInSeconds (0.0),
-bpm (120.0)
+bpm (120.0),
+starFieldActive (false)
 {
    blobs = new osc::Blob*[kNumPanels];
    int numValues = Panel::kNumTabs * totalRows * totalCols;
@@ -235,3 +236,23 @@ void SharedState::setStringPanelState (int panelIndex_, String state)
 		}
 	}		
 }
+
+void SharedState::update()
+{
+	for (int i = 0; i < kNumPanels; i++) {
+		Panel* panel = panels[i];
+		panel->update();
+	}
+}
+
+bool SharedState::getStarFieldActive()
+{
+	return starFieldActive;
+}
+
+void SharedState::setStarFieldActive (bool starFieldActive_)
+{
+	starFieldActive = starFieldActive_;
+}
+
+

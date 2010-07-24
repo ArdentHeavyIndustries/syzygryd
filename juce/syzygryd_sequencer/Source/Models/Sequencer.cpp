@@ -61,7 +61,9 @@ void Sequencer::clearTab (int panelIndex_, int tabIndex_)
 int Sequencer::getPlayheadCol()
 {
 	int playheadCol = tickCount / ticksPerCol;
-	SharedState::getInstance()->setPlayheadCol (playheadCol);
+	if (pluginAudioProcessor->getPanelIndex() == 0) {
+		SharedState::getInstance()->setPlayheadCol (playheadCol);
+	}
 	return playheadCol;
 }
 
@@ -146,6 +148,15 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	if (tickCount != lastTickCount) {
 
 		lastTickCount = tickCount;
+		
+		// Update starfield if necessary
+		if (SharedState::getInstance()->getStarFieldActive()) {
+			if (pluginAudioProcessor->getPanelIndex() == 0) {
+				if (tickCount % 10 == 0) {			
+					SharedState::getInstance()->update();
+				}
+			}
+		}
 		
 		bool playCol = false;  // play the current column of notes?
 		float velocity = 0.9f;		

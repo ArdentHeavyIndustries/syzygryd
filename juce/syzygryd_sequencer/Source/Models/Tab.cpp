@@ -8,12 +8,14 @@
  */
 
 #include "Cell.h"
+#include "StarField.h"
 
 #include "Tab.h"
 
 Tab::Tab (int totalRows_, int totalCols_) :
 totalRows (totalRows_),
-totalCols (totalCols_)
+totalCols (totalCols_),
+starField (0)
 {
 	// Initialize the cells
 	for (int i = 0; i < totalRows; i++) {
@@ -35,10 +37,13 @@ totalCols (totalCols_)
 			}
 		}
 	}	
+	
+	starField = new StarField (totalRows, totalCols);
 }
 
 Tab::~Tab()
 {
+	deleteAndZero (starField);
 }
 
 Cell* Tab::getCellAt (int row_, int col_)
@@ -57,5 +62,26 @@ void Tab::clear()
 		}
 	}		
 }
+
+void Tab::update()
+{
+	starField->update();
+	
+	for (int i = 0; i < totalRows; i++) {
+		for (int j = 0; j < totalCols; j++) {
+			bool active = starField->getActiveAt (i, j);
+			
+			Cell* cell = getCellAt (i, j);
+			if (active) {
+				cell->setNoteOn();
+			} else {
+				cell->setNoteOff();
+			}
+		}
+	}		
+	
+}
+
+
 
 

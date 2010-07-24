@@ -39,8 +39,10 @@ private:
 	Sequencer* sequencer;
 	
 	OwnedArray<TextButton> panelButtons;
-
 	int lastPanelIndex;
+
+	ToggleButton* starFieldButton;
+	bool lastStarFieldActive;
 };
 
 #endif
