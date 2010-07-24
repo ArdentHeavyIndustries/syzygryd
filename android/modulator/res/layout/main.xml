@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <TextView
+        android:id="@+id/main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_text"
+        android:enabled="true" />
+</RelativeLayout>
+
+<!--
+  Local Variables:
+    mode: nXML
+    nxml-child-indent: 3
+    nxml-attribute-indent: 3
+    indent-tabs-mode: nil
+  End:
+
+  ex: set softtabstop=3 tabstop=3 expandtab:
+  -->

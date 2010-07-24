@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+   <!-- XXX i suppose it would be a cleaner UI to have this be 4 linear boxes in a row -->
+   <EditTextPreference
+      android:key="hostRemote"
+      android:title="@string/prefs_hostRemote_title"
+      android:inputType="text"
+      android:defaultValue="255.255.255.255"
+      android:summary="@string/prefs_hostRemote_summary" />
+   
+   <EditTextPreference
+      android:key="portIn"
+      android:title="@string/prefs_portRemote_title"
+      android:inputType="numberDecimal"
+      android:defaultValue="8001"
+      android:summary="@string/prefs_portRemote_summary" />
+   
+   <EditTextPreference
+      android:key="portIn"
+      android:title="@string/prefs_portListening_title"
+      android:inputType="numberDecimal"
+      android:defaultValue="9001"
+      android:summary="@string/prefs_portListening_summary" />
+    
+</PreferenceScreen>
+
+<!--
+  Local Variables:
+    mode: nXML
+    nxml-child-indent: 3
+    nxml-attribute-indent: 3
+    indent-tabs-mode: nil
+  End:
+
+  ex: set softtabstop=3 tabstop=3 expandtab:
+  -->

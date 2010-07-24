@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Syzygryd Modulator</string>
+    <string name="main_text">This is a test.  This element and string will probably go away.</string>
+    <string name="settings">Syzygryd Modulator Settings</string>
+    <string name="prefs_hostRemote_title">Remote host</string>
+    <string name="prefs_hostRemote_summary">Processing modulator hostname or dotted decimal IP address</string>
+    <string name="prefs_portRemote_title">Remote port</string>
+    <string name="prefs_portRemote_summary">Port the processing modulator is listening on for OSC messages</string>
+    <string name="prefs_portListening_title">Listening port</string>
+    <string name="prefs_portListening_summary">Port the processing modulator is broadcasting OSC messages to</string>
+</resources>
+
+<!--
+  Local Variables:
+    mode: nXML
+    nxml-child-indent: 4
+    nxml-attribute-indent: 4
+    indent-tabs-mode: nil
+  End:
+
+  ex: set softtabstop=4 tabstop=4 expandtab:
+  -->

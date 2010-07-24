@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="syzygryd.modulator">
+    
+   <application android:label="@string/app_name"
+                android:icon="@drawable/icon"
+                android:debuggable="true">
+      
+      <!-- configChanges="orientation|keyboardHidden" means that we will
+           handle these ourself (via Activity.onConfigurationChanged())
+           rather than the activity being destroyed and recreated.  For more
+           details, see:
+           http://developer.android.com/reference/android/app/Activity.html#ConfigurationChanges
+      -->
+      <activity android:name=".Modulator"
+                android:label="@string/app_name"
+                android:configChanges="orientation|keyboardHidden">
+         <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+         </intent-filter>
+      </activity>
+      
+      <activity android:name=".Preferences"
+                android:label="@string/settings" />
+      
+   </application>
+   
+   <uses-permission android:name="android.permission.INTERNET" />
+   
+   <uses-sdk android:minSdkVersion="3" />
+   
+</manifest>
+
+<!--
+  Local Variables:
+    mode: nXML
+    nxml-child-indent: 3
+    nxml-attribute-indent: 3
+    indent-tabs-mode: nil
+  End:
+
+  ex: set softtabstop=3 tabstop=3 expandtab:
+  -->
