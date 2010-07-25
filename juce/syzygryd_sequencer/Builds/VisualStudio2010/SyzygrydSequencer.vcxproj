@@ -163,6 +163,7 @@
     <ClCompile Include="..\..\Source\Models\PluginAudioProcessor.cpp" />
     <ClCompile Include="..\..\Source\Models\Sequencer.cpp" />
     <ClCompile Include="..\..\Source\Models\SharedState.cpp" />
+    <ClCompile Include="..\..\Source\Models\StarField.cpp" />
     <ClCompile Include="..\..\Source\Models\Tab.cpp" />
     <ClCompile Include="..\..\Source\Models\osc\OscOutboundPacketStream.cpp" />
     <ClCompile Include="..\..\Source\Models\osc\OscPrintReceivedElements.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="..\..\Source\Models\PluginAudioProcessor.h" />
     <ClInclude Include="..\..\Source\Models\Sequencer.h" />
     <ClInclude Include="..\..\Source\Models\SharedState.h" />
+    <ClInclude Include="..\..\Source\Models\StarField.h" />
     <ClInclude Include="..\..\Source\Models\Tab.h" />
     <ClInclude Include="..\..\Source\Models\osc\MessageMappingOscPacketListener.h" />
     <ClInclude Include="..\..\Source\Models\osc\OscException.h" />
