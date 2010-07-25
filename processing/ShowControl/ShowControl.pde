@@ -22,10 +22,6 @@ int huetemp=0;
 color colortemp, colortemp2; 
 Fixture test, test2, test3, test4, test5;
 
-Queue readyQueue;
-List waitingActions;
-Iterator iterator;
-
 //this is placeholder for however we decide to track time internally
 //it should stay synced up with the sequencer in some meaninful way
 int currentBeat = 0;
@@ -55,9 +51,6 @@ void setup(){
   DMXManager.addController("COM5",108);
   DMXManager.addController("COM4",108);
   DMXManager.addController("COM3",108);
-
-  readyQueue = new LinkedList();
-  waitingActions = new ArrayList();
 
   //todo here: sync currentBeat up with something meaningful from the sequencer.
   currentBeat = 0;
@@ -121,9 +114,6 @@ void setup(){
   testBehavior = new FadeBehavior(test2, millis()+10000, 5000, color(255));  // wait 10 secs, then fade to black over 5 secs
   testBehavior2 = new HueRotateBehavior(test, millis()+5000); // wait 5 secs, then begin color cycling
   
-  Fade newFade = new Fade(200, (RGBColorMixingTrait)test5.trait("RGBColorMixing"), 250, 1);
-  waitingActions.add(newFade);
-  
   //initialize lighting program
   //need to add code here to initialize an array of lighting programs
   program = new LightingProgram();
@@ -135,50 +125,19 @@ void setup(){
 
 void draw(){
   colorMode(HSB);
-
-  //ask all waiting actions "is it time yet?"
-  //if they're ready, enqueue them for the next tick from the sequencer
-  iterator = waitingActions.iterator();
-  Action a;
-  while(iterator.hasNext()) {
-    a = (Action)iterator.next();
-    if( a.isReady() ) {
-      iterator.remove();
-      readyQueue.add(a);
-    }
-  }
-
+  
+  //step lighting program
+  program.step();
+  
   //the rest of this method is test code
-
-  //test the blink action
-  Blink newBlink = new Blink(currentBeat + 20, (RGBColorMixingTrait)test4.trait("RGBColorMixing"), colortemp);
-  if(huetemp % 64 == 0) {
-    waitingActions.add(newBlink);
-  }
-
   //print(events.eventQueue);
   
-  updateScene(); // invoke Actions
   testBehavior.perform();
   testBehavior2.perform();
   events.flushExpired();
 
   //background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
   
-  //step lighting program
-  program.step();
+ 
 }
 
-
-void updateScene() {
-  
-  Action a;
-  while(!readyQueue.isEmpty()) {
-    a = (Action)readyQueue.remove();
-    a.perform();
-  }
-
-  //todo here: sync up currentBeat with something meaningful in the sequencer
-  currentBeat++;
-
-}
