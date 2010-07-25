@@ -12,6 +12,8 @@ SequencerState sequencerState;
 
 EventDispatcher events;
 
+LightingProgram program;
+
 FadeBehavior testBehavior;
 HueRotateBehavior testBehavior2;
 
@@ -121,6 +123,11 @@ void setup(){
   
   Fade newFade = new Fade(200, (RGBColorMixingTrait)test5.trait("RGBColorMixing"), 250, 1);
   waitingActions.add(newFade);
+  
+  //initialize lighting program
+  //need to add code here to initialize an array of lighting programs
+  program = new LightingProgram();
+  program.setupLighting();  
 }
 
 
@@ -157,8 +164,9 @@ void draw(){
   events.flushExpired();
 
   //background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
-
-//LightingProgram.step()
+  
+  //step lighting program
+  program.step();
 }
 
 
