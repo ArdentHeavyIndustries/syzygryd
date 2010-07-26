@@ -127,7 +127,7 @@ void draw(){
   colorMode(HSB);
   
   //step lighting program
-  program.step();
+  program.drawFrame();
   
   //the rest of this method is test code
   //print(events.eventQueue);

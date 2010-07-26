@@ -16,7 +16,7 @@ class LightingProgram {
   }
   
   //override this method to do stuff!
-  void step() {
+  void drawFrame() {
    
   }
   
