@@ -25,30 +25,41 @@ public class SendOSC
    }
 
    // XXX for now assume only floats
-   public void send(String address, float value) {
-      System.out.println("Sending OSC: " + address + " " + value);
+
+   public void send(String address, Float value1) {
+      send(address, value1, null);
+   }
+
+   public void send(String address, Float value1, Float value2) {
+      System.out.println("Sending OSC: " + address + " " + value1 + " " + value2);
       OscMessage message = new OscMessage(address);
-      message.add(value);
+      message.add(value1);
+      if (value2 != null) {
+         message.add(value2);
+      }
       oscP5_.send(message, oscSender_);
    }
 
    // XXX not literal, given java classpath crap
    private static void usage() {
-      System.err.println("usage: SendOSC <host> <port> <address> <value>");
+      System.err.println("usage: SendOSC <host> <port> <address> <value1> [<value2>]");
       System.exit(1);
    }
 
    public static void main(String[] args) {
-      if (args.length == 4) {
+      if (args.length == 4 || args.length == 5) {
          try {
             String host = args[0];
             int port = Integer.parseInt(args[1]);
             String address = args[2];
-            // XXX for now assume only floats
-            float value = Float.parseFloat(args[3]);
-
             SendOSC sendOSC = new SendOSC(host, port);
-            sendOSC.send(address, value);
+            Float value1 = Float.parseFloat(args[3]);
+            if (args.length == 4) {
+               sendOSC.send(address, value1);
+            } else {
+               Float value2 = Float.parseFloat(args[4]);
+               sendOSC.send(address, value1, value2);
+            }
          } catch (NumberFormatException nfe) {
             usage();
          }

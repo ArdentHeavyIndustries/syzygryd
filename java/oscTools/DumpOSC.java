@@ -38,13 +38,18 @@ public class DumpOSC
    /* OscEventListener */
    public void oscEvent(OscMessage message) {
       //System.out.println("oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
-      // XXX for now just support a single float
+      // XXX this really ought to be generalized by type for each value, then iterate through the msg
       if ("f".equals(message.typetag())) {
          String address = message.addrPattern();
          float value = message.get(0).floatValue();
          System.out.println("Received OSC: " + address + " " + value);
+      } else if ("ff".equals(message.typetag())) {
+         String address = message.addrPattern();
+         float value1 = message.get(0).floatValue();
+         float value2 = message.get(1).floatValue();
+         System.out.println("Received OSC: " + address + " " + value1 + " " + value2);;
       } else {
-         System.err.println("WARNING: for now, only a single float supported, not " + message.typetag() + ": " + message.addrPattern());
+         System.err.println("WARNING: for now, only one or two floats supported, not " + message.typetag() + ": " + message.addrPattern());
       }
    }
    

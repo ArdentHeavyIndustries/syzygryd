@@ -1,0 +1,50 @@
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation1 0.1
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation2 0.2
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation3 0.3
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation4 0.4
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation5 0.5
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation6 0.6
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation7 0.7
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator/modulation8 0.8
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /1_modulator_xy/xy1 0.25 0.75
+
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation1 0.1
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation2 0.2
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation3 0.3
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation4 0.4
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation5 0.5
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation6 0.6
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation7 0.7
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator/modulation8 0.8
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /2_modulator_xy/xy1 0.25 0.75
+
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation1 0.1
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation2 0.2
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation3 0.3
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation4 0.4
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation5 0.5
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation6 0.6
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation7 0.7
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator/modulation8 0.8
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /3_modulator_xy/xy1 0.25 0.75
+
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation1 0.1
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation2 0.2
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation3 0.3
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation4 0.4
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation5 0.5
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation6 0.6
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation7 0.7
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator/modulation8 0.8
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /4_modulator_xy/xy1 0.25 0.75
+
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation1 0.1
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation2 0.2
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation3 0.3
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation4 0.4
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation5 0.5
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation6 0.6
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation7 0.7
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation8 0.8
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation9 0.9
+java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` SendOSC localhost 8001 /5_modulator/modulation10 1.0

@@ -25,8 +25,10 @@ class Modulator
     * incoming messages from the server */
    static final int broadcastPort_ = 9001;
 
-   Pattern oscModulatorPattern_ =
+   Pattern oscSinglePattern_ =
       Pattern.compile("/(\\d+)_modulator/modulation(\\d+)");
+   Pattern oscDoublePattern_ =
+      Pattern.compile("/(\\d+)_modulator_xy/xy(\\d+)");
 
    MidiBus midiBus_;
 
@@ -59,46 +61,85 @@ class Modulator
       try {
          System.out.println("oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
 
-         // (unfortunately there are two not entirely consistent forms of documentation)
-         // http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Musicians:OSCMIDISpecs
-         // http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Sequencer:OSC_Messages
-         // 
-         // input OSC messages should all be of the form:
-         //   /P_modulator/modulationM value
-         // where P is in the range 1..numPanels
+         // in general, input OSC messages should all be of the form:
+         //   /C_modulator/modulationM value
+         // or:
+         //   /C_modulator_xy/xyM value1 value
+         // where C is in the range 1..numController
          // and M is in the range 1..10
-         // the input value is in the range [0.0 .. 1.0]
+         // the input value(s) is in the range [0.0 .. 1.0]
+         //
          // we translate this to a MIDI control message
-         //   the MIDI channel is the same as the panel number (XXX see below, i think themidibus uses one less)
-         //   the controller number is in the range [0x2C .. 0x35], which is [44 .. 53]
-         //   the value is in the range [0 .. 127]
+         //   the MIDI channel is often (but not always) the same as the controller number
+         //   - but note that themidibus starts counting at 0, not 1
+         //   for controllers 1 through 4, the control number is in the range [0x2C .. 0x35], which is [44 .. 53]
+         //   for controller 5, the MIDI control number is in the range [0x36 .. 0x39], which is [54 .. 57]
+         //   the MIDI value is in the range [0 .. 127]
+         //
+         // for more complete details, see:
+         // http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Musicians:OSCMIDISpecs
 
          String oscAddr = message.addrPattern();
-         Matcher matcher = oscModulatorPattern_.matcher(oscAddr);
-         if (matcher.matches()) {
+         Matcher matcherSingle = oscSinglePattern_.matcher(oscAddr);
+         if (matcherSingle.matches()) {
             try {
-               int oscPanel = Integer.parseInt(matcher.group(1));
-               if (oscPanel >= 1 && oscPanel <= numPanels_) {
-                  int oscModulator = Integer.parseInt(matcher.group(2));
+               int oscController = Integer.parseInt(matcherSingle.group(1));
+               if (oscController >= 1 && oscController <= numControllers_) {
+                  int oscModulator = Integer.parseInt(matcherSingle.group(2));
                   if (message.checkTypetag("f")) {
                      float oscValue = message.get(0).floatValue();
-                     System.out.println("received OSC: panel=" + oscPanel + " modulator=" + oscModulator + " value=" + oscValue);
-                     int midiChannel = oscPanelToMidiChannel(oscPanel);
-                     int midiNumber = oscToMidiModulator(oscModulator);
+                     System.out.println("received OSC: controller=" + oscController + " modulator=" + oscModulator + " value=" + oscValue);
+                     int midiChannel = oscControllerToMidiChannel(oscController, oscModulator);
+                     int midiNumber = oscToMidiModulator(oscController, oscModulator);
                      int midiValue = oscToMidiValue(oscValue);
                      System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
                      midiBus_.sendControllerChange(midiChannel, midiNumber, midiValue);
                   } else {
-                     System.err.println("WARNING: Unexpectd type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
+                     System.err.println("WARNING: Unexpected type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
                   }
                } else {
-                  System.err.println("WARNING: Unexpected panel number (" + oscPanel + ") in OSC message: " + oscAddr);
+                  System.err.println("WARNING: Unexpected controller number (" + oscController + ") in OSC message: " + oscAddr);
                }
             } catch (NumberFormatException nfe) {
                System.err.println("WARNING: Unable to parse OSC message pattern: " + oscAddr);
             }
          } else {
-            System.err.println("WARNING: Unexpected OSC message pattern: " + oscAddr);
+            // need to special case xy pad
+            Matcher matcherDouble = oscDoublePattern_.matcher(oscAddr);
+            if (matcherDouble.matches()) {
+               try {
+                  int oscController = Integer.parseInt(matcherDouble.group(1));
+                  if (oscController >= 1 && oscController <= numControllers_ - 1) {	// the mixer does not have an xy pad
+                     int oscModulator = Integer.parseInt(matcherDouble.group(2));
+                     if (message.checkTypetag("ff")) {
+                        float oscValueX = message.get(0).floatValue();
+                        float oscValueY = message.get(1).floatValue();
+                        // save values for later use by return path
+                        x[oscController-1] = oscValueX;
+                        y[oscController-1] = oscValueY;
+                        System.out.println("received OSC: controller=" + oscController + " modulator=" + oscModulator + " valueX=" + oscValueX + " valueY=" + oscValueY);
+                        int midiChannelX = oscControllerToMidiChannel(oscController, 9);
+                        int midiChannelY = oscControllerToMidiChannel(oscController, 10);
+                        int midiNumberX = oscToMidiModulator(oscController, 9);
+                        int midiNumberY = oscToMidiModulator(oscController, 10);
+                        int midiValueX = oscToMidiValue(oscValueX);
+                        int midiValueY = oscToMidiValue(oscValueY);
+                        System.out.println("sending MIDI: channel=" + midiChannelX + " number=" + midiNumberX + " value=" + midiValueX);
+                        midiBus_.sendControllerChange(midiChannelX, midiNumberX, midiValueX);
+                        System.out.println("sending MIDI: channel=" + midiChannelY + " number=" + midiNumberY + " value=" + midiValueY);
+                        midiBus_.sendControllerChange(midiChannelY, midiNumberY, midiValueY);
+                     } else {
+                        System.err.println("WARNING: Unexpected type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
+                     }
+                  } else {
+                     System.err.println("WARNING: Unexpected controller number (" + oscController + ") in OSC message: " + oscAddr);
+                  }
+               } catch (NumberFormatException nfe) {
+                  System.err.println("WARNING: Unable to parse OSC message pattern: " + oscAddr);
+               }
+            } else {
+               System.err.println("WARNING: Unexpected OSC message pattern: " + oscAddr);
+            }
          }
       } catch (Exception e) {
          System.err.println("WARNING: Caught exception " + e);
@@ -115,15 +156,43 @@ class Modulator
    /* SimpleMidiListener */
    void controllerChange(int channel, int number, int value) {
       System.out.println("received MIDI: channel=" + channel + " number=" + number + " value=" + value);
-      if (channel >= 0 && channel < numPanels_) {
-         int oscPanel = midiChannelToOscPanel(channel);
-         int oscModulator = midiToOscModulator(number);
-         String oscAddr = "/" + oscPanel + "_modulator/modulation" + oscModulator;
-         float oscValue = midiToOscValue(value);
-         System.out.println("sending OSC: address=" + oscAddr + " value=" + oscValue);
-         OscMessage message = new OscMessage(oscAddr);
-         message.add(oscValue);
-         oscP5_.send(message, oscBroadcast_);
+      if (channel >= 0 && channel < numControllers_) {
+         if (number == 52 || number == 53) {
+            // need to special case xy pad
+            if (channel == numControllers_ - 1) {
+               System.err.println("WARNING: MIDI controller number " + number + " corresponding to xy pad not expected on MIDI channel " + channel);
+            } else {
+               int oscController = midiChannelToOscController(channel, number);
+               String oscAddr = "/" + oscController + "_modulator_xy/xy1";
+               float oscValue = midiToOscValue(value);
+               float oscValue1, oscValue2;
+               if (number == 52) {
+                  // X
+                  oscValue1 = oscValue;
+                  oscValue2 = y[oscController-1];	// send previous Y value
+                  x[oscController-1] = oscValue1;	// save for next time
+               } else {
+                  // Y
+                  oscValue1 = x[oscController-1];	// send previous X value
+                  oscValue2 = oscValue;
+                  y[oscController-1] = oscValue2;	// save for next time
+               }
+               System.out.println("sending OSC: address=" + oscAddr + " value1=" + oscValue1 + " value2=" + oscValue2);
+               OscMessage message = new OscMessage(oscAddr);
+               message.add(oscValue1);
+               message.add(oscValue2);
+               oscP5_.send(message, oscBroadcast_);
+            }
+         } else {
+            int oscController = midiChannelToOscController(channel, number);
+            int oscModulator = midiToOscModulator(channel, number);
+            String oscAddr = "/" + oscController + "_modulator/modulation" + oscModulator;
+            float oscValue = midiToOscValue(value);
+            System.out.println("sending OSC: address=" + oscAddr + " value=" + oscValue);
+            OscMessage message = new OscMessage(oscAddr);
+            message.add(oscValue);
+            oscP5_.send(message, oscBroadcast_);
+         }
       } else {
          System.err.println("WARNING: Unexpected MIDI channel received: " + channel);
       }
@@ -141,20 +210,53 @@ class Modulator
       //println("noteOn(): channel=" + channel + " pitch=" + pitch + " velocity=" + velocity);
    }
 
-   // we start counting panels at 1
+   // we start counting controllers at 1
    // it appears empirically that midi channels for themidibus start counting at 0
-   int oscPanelToMidiChannel(int panel) {
-      return panel - 1;
+   int oscControllerToMidiChannel(int controller, int modulator) {
+      if (controller != 5) {
+         return controller - 1;
+      } else {
+         // the mixer is a special case
+         if (modulator > 8) {
+            return 4;	// really MIDI channel 5
+         } else {
+            return (modulator - 1) % 4;	// really MIDI channels 1 through 4, then repeat
+         }
+      }
    }
-   int midiChannelToOscPanel(int channel) {
-      return channel + 1;
+   int midiChannelToOscController(int channel, int number) {
+      if (number < 54) {
+         return channel + 1;
+      } else {
+         // the mixer is a special case
+         return 5;
+      }
    }
 
-   int oscToMidiModulator(int modulator) {
-      return modulator + 43;
+   int oscToMidiModulator(int controller, int modulator) {
+      if (controller != 5) {
+         return modulator + 43;
+      } else {
+         // the mixer is a special case
+         if (modulator >= 9) {
+            return modulator + 47;
+         } else {
+            return ((modulator - 1) / 4) + 54;
+         }
+      }
    }
-   int midiToOscModulator(int number) {
-      return number - 43;
+   int midiToOscModulator(int channel, int number) {
+      if (channel != 4 &&	// really MIDI channel 5
+          number < 54) {
+         return number - 43;
+      } else {
+         // the mixer is a special case
+         if (number >= 56) {
+            return number - 47;
+         } else {
+            return channel + 1 + ((number - 54) * 4);
+         }
+      }
    }
 
    int oscToMidiValue(float value) {
@@ -169,7 +271,11 @@ class Modulator
 // (ugh) global variables
 
 // 3 real controllers, plus backing tracks (4) and mixer (5)
-final int numPanels_ = 5;
+final int numControllers_ = 5;
+// xy pad not on mixer
+float[] x = new float [numControllers_-1];
+float[] y = new float [numControllers_-1];
+
 Modulator m_;
 GCombo comboIn_;
 GCombo comboOut_;
@@ -177,6 +283,14 @@ boolean redraw = false;
 
 void setup() {
    System.out.println("begin setup()");
+
+   // just in case we have a return path for an xy pad value before we have
+   // the corresponding (x or y) forward path, initialize to the middle of the
+   // range
+   for (int i = 0; i < numControllers_ - 2; i++) {
+      x[i] = 0.5f;
+      y[i] = 0.5f;
+   }
 
    System.out.println("list:");
    MidiBus.list();
@@ -208,15 +322,18 @@ void setup() {
 
    // set default midi in/out
    // should be complements of whatever Ableton Live is set to
+   String s_defaultMacMidiInput1 = "GridSequencer";
+   String s_defaultMacMidiInput2  = "IAC Driver - Bus 1";
+   String s_defaultMacMidiOutput1 = "GridSequencer";
+   String s_defaultMacMidiOutput2 = "IAC Driver - Bus 1";
    String s_defaultWinMidiInput  = "In From MIDI Yoke:  2";
    String s_defaultWinMidiOutput = "Out To MIDI Yoke:  1";
-   String s_defaultMacMidiInput  = "IAC Driver - Bus 1";
-   String s_defaultMacMidiOutput = "IAC Driver - Bus 1";
    // if all else fails, just take the first choices
    int i_defaultMidiInput = 0;
    int i_defaultMidiOutput = 0;
    for (int i = 0; i < availableIns.length; i++) {
-      if (availableIns[i].equals(s_defaultMacMidiInput) ||
+      if (availableIns[i].equals(s_defaultMacMidiInput1) ||
+          availableIns[i].equals(s_defaultMacMidiInput2) ||
           availableIns[i].equals(s_defaultWinMidiInput)) {
          i_defaultMidiInput = i;
          System.out.println("Setting default input for to " + i + ": " + availableIns[i]);
@@ -225,7 +342,8 @@ void setup() {
    }
 
    for (int i = 0; i < availableOuts.length; i++) {
-      if (availableOuts[i].equals(s_defaultMacMidiOutput) ||
+      if (availableOuts[i].equals(s_defaultMacMidiOutput1) ||
+          availableOuts[i].equals(s_defaultMacMidiOutput2) ||
           availableOuts[i].equals(s_defaultWinMidiOutput)) {
          System.out.println("Setting default output to " + i + ": " + availableOuts[i]);
          i_defaultMidiOutput = i;
@@ -243,6 +361,9 @@ void setup() {
    m_ = new Modulator(this,
                       comboIn_.selectedText(),
                       comboOut_.selectedText());
+
+   // for testing only, see comments below
+   //testMidiToOsc(m_);
 
    System.out.println("end setup()");
 }
@@ -275,6 +396,27 @@ void handleOptionEvents(GOption selected, GOption deselected) {
 
 void handleSliderEvents(GSlider slider) {
 }
+
+// for testing osc to midi, see oscToMidi.notes
+// send with SendOSC, and look at output on processing console
+// XXX i suppose this wouldn't be necessary if i had a set of command line tools for SendMIDI and DumpMIDI
+// void testMidiToOsc(Modulator m) {
+//    for (int channel = 0; channel <=3; channel++) {
+//       for (int number = 44; number <= 53; number++) {
+//          m.controllerChange(channel, number, 32);
+//       }
+//    }
+//    m.controllerChange(0, 54, 13);
+//    m.controllerChange(1, 54, 26);
+//    m.controllerChange(2, 54, 38);
+//    m.controllerChange(3, 54, 51);
+//    m.controllerChange(0, 55, 64);
+//    m.controllerChange(1, 55, 77);
+//    m.controllerChange(2, 55, 90);
+//    m.controllerChange(3, 55, 102);
+//    m.controllerChange(4, 56, 115);
+//    m.controllerChange(4, 57, 128);
+// }
 
 /*
 ** Local Variables:
