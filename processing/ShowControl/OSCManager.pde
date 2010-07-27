@@ -25,36 +25,36 @@ class OSCManager {
     oscP5.send(connect, myRemoteLocation);
   }
 
-  
+
   /*
    * Listens for incoming OSC messages and acts upon them
    */
   void oscEvent(OscMessage m) {
-    
+
     // Enable the following line for OSC message debugging purposes
     //println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
-    
+
     if(m.addrPattern().endsWith("/tempo")) {
-       events.fire("tick",true); // This should probably be called something other than 'tick' with the new sequencer
-       sequencerState.timeOfLastStep = millis();
-       // TODO: Calculate tick interval/BPS, store to SequencerState object
-      
+      events.fire("step",true);
+      sequencerState.timeOfLastStep = millis(); // set timestamp to now
+      float stepsPercentDone = m.get(0).floatValue(); // sequencer sends current step as float in the range 0 to 1.
+      sequencerState.nextStep = ((int(16 * stepsPercentDone) + 1) % 16); // results in nextStep falling in a range from 0 to 15
     }
 
     if (m.addrPattern().endsWith("/sync")) {
-      double ppqPosition = m.get(0).doubleValue();
-      double timeInSeconds = m.get(1).doubleValue();
-      double bpm = m.get(2).doubleValue();
+      sequencerState.ppqPosition = m.get(0).doubleValue();
+      // double timeInSeconds = m.get(1).doubleValue(); // unlikely we'll need sequencer-relative time for anything
+      sequencerState.bpm = m.get(2).doubleValue();
       int panelIndex = m.get(3).intValue();
       int curTab = m.get(4).intValue();
       int numTabs = m.get(5).intValue();
       int numRows = m.get(6).intValue();
       int numCols = m.get(7).intValue();
       byte[] blob = m.get(8).blobValue();
-        if (blob == null) {
-          System.err.println("WARNING: null blob");
-          return;
-        }
+      if (blob == null) {
+        System.err.println("WARNING: null blob");
+        return;
+      }
 
       int index = 0;
       for (int i = 0; i < numTabs; i++) {
@@ -74,3 +74,4 @@ class OSCManager {
   }
 
 }
+

@@ -8,22 +8,14 @@ public class SequencerState {
   private final static int PITCHES = 10;
   
   //timing information
-  int currentStep; //int between 0 and 15
-  int timeOfLastStep; // timestamp in milliseconds
-  int BPM;  //beats per minute
-  
-  // This will be used to calculate a rolling average of the OSC tick interval
-  private Queue tickTimestamps;
+  int nextStep; // Number of next sequencer step to be triggered (integer from 0 to 15). Add 1 to get controller's step numbering.
+  int timeOfLastStep; // timestamp (in milliseconds since beginning of sketch) of last step
+  double bpm;  // beats per minute
+  double ppqPosition; // number of quarter notes since sequencer start
     
   // array to keep track of on/off notes
   public boolean[][][][] notes = new boolean[PANELS][TABS][STEPS][PITCHES];
-  
-  // current tempo in BPS
-  float tempoBPS;
-  
-  //current tick interval in ms
-  float tickInterval;
-  
+    
   void SequencerState (){
     for (int panel = 1; panel <= PANELS; panel++) {
       for (int tab = 0; tab < TABS; tab++) {
@@ -36,11 +28,27 @@ public class SequencerState {
     } 
   }
   
-  int timeOfNextStep(){
-     return 0;
-  }
     
-  int timeBetweenBeats(){
-    return 0;
+  /*
+   * Returns time in milliseconds between beats at current BPM
+   */ 
+  public int beatInterval(){
+    return int(round(60000/(float)bpm));
+  }
+  
+  
+  /*
+   * Returns absolute time (in milliseconds since beginning of sketch) when next step will trigger, based on current BPM
+   */
+  public int timeOfNextStep(){
+    return timeOfLastStep + int(beatInterval()/4);
+  }
+  
+  
+  /*
+   * Returns remaining time in milliseconds until next step will trigger
+   */
+  public int timeToNextStep(){
+    return timeOfNextStep() - millis();
   }
 }
