@@ -64,11 +64,17 @@ public class DMX {
     }
   }
 
+  /*
+   * Attempts to allocate the next available DMX address on the given controller to the given fixture channel.
+   */
   int alloc(Fixture.Channel channel, int controller){
     Controller ctrlr = (Controller)controllers.get(controller);
     return ctrlr.alloc(channel);
   }
    
+  /*
+   * Attempts to allocate a specific DMX address on the given controller to the given fixture channel. Fails if address already allocated.
+   */
   int alloc(Fixture.Channel channel, int controller, int address) throws AddressAllocationException, ArrayIndexOutOfBoundsException {
     try {
       Controller ctrlr = (Controller)controllers.get(controller);
@@ -82,6 +88,10 @@ public class DMX {
     }
   }
  
+  
+  /*
+   * Timer task to handle DMX refresh
+   */
   class RefreshTask extends java.util.TimerTask {
      void run() {
        Controller ctrlr = null;
