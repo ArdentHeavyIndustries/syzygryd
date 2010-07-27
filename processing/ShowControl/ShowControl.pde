@@ -17,14 +17,11 @@ LightingProgram program;
 FadeBehavior testBehavior;
 HueRotateBehavior testBehavior2;
 
-ArrayList fixtures;
+ArrayList<Fixture> fixtures;
 int huetemp=0;
 color colortemp, colortemp2; 
 Fixture test, test2, test3, test4, test5;
 
-//this is placeholder for however we decide to track time internally
-//it should stay synced up with the sequencer in some meaninful way
-int currentBeat = 0;
 
 private GButton btnStart;
 GWindow[] ctrlrWindow;
@@ -52,9 +49,6 @@ void setup(){
   DMXManager.addController("COM4",108);
   DMXManager.addController("COM3",108);
 
-  //todo here: sync currentBeat up with something meaningful from the sequencer.
-  currentBeat = 0;
-
   //manually create three test fixtures on controller 0
   test = new Fixture(DMXManager, 0, "cube");
   test2 = new Fixture(DMXManager, 2, "cube");
@@ -69,7 +63,7 @@ void setup(){
     print("An error occurred while parsing fixtures: " + e.getMessage() + "\n");
     exit();
   }
-  test3 = (Fixture)fixtures.get(0);
+  test3 = fixtures.get(0);
 
   //add RGB channels, allowing DMX manager to assign addresses 
   test.addChannel("red");
@@ -121,8 +115,6 @@ void setup(){
 }
 
 
-/* example of a simple hue rotation on a single fixture */
-
 void draw(){
   colorMode(HSB);
   
@@ -136,8 +128,7 @@ void draw(){
   testBehavior2.perform();
   events.flushExpired();
 
-  //background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
+  background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
   
  
 }
-
