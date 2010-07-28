@@ -21,6 +21,7 @@ const int SharedState::kNumPanels = 3;
 juce_ImplementSingleton (SharedState)
 
 SharedState::SharedState() :
+primarySet (false),
 totalRows (10),
 totalCols (16),
 oscInput (0),
@@ -66,6 +67,24 @@ SharedState::~SharedState()
       delete blobs[i];
    }
    delete [] blobs;
+}
+
+bool SharedState::testAndSetPrimarySequencer()
+{
+   const ScopedLock primarySequencerScopedLock (primarySequencerCriticalSection);
+   // critical section is now locked
+
+   // bug:51 - whichever sequencer calls this first gets to be the primary one.
+   bool retValue;
+   if (!primarySet) {
+      primarySet = true;
+      retValue = true;
+   } else {
+      retValue = false;
+   }
+
+   // critical section gets unlocked here
+   return retValue;
 }
 
 int SharedState::getTotalRows()

@@ -25,6 +25,8 @@ lastTickCount (-1),
 swingTicks (2),
 noteLength (4)
 {
+   primary = SharedState::getInstance()->testAndSetPrimarySequencer();
+   DBG ("Sequencer " + String(pluginAudioProcessor->getPanelIndex()) + (primary ? " IS" : " is NOT") + " the primary");
 }
 
 Sequencer::~Sequencer()
@@ -61,9 +63,9 @@ void Sequencer::clearTab (int panelIndex_, int tabIndex_)
 int Sequencer::getPlayheadCol()
 {
 	int playheadCol = tickCount / ticksPerCol;
-	if (pluginAudioProcessor->getPanelIndex() == 0) {
+	if (primary) {
 		SharedState::getInstance()->setPlayheadCol (playheadCol);
-	}
+   }
 	return playheadCol;
 }
 
@@ -120,15 +122,15 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	if (! pos.isPlaying) {
 		return;
 	}
-	
+
 	double ppq = pos.ppqPosition;
-   SharedState::getInstance()->setPpqPosition (ppq);
-
    double timeInSeconds = pos.timeInSeconds;
-   SharedState::getInstance()->setTimeInSeconds (timeInSeconds);
-
    double bpm = pos.bpm;
-   SharedState::getInstance()->setBpm (bpm);
+   if (primary) {
+      SharedState::getInstance()->setPpqPosition (ppq);
+      SharedState::getInstance()->setTimeInSeconds (timeInSeconds);
+      SharedState::getInstance()->setBpm (bpm);
+   }
 
 	/*
 	int numerator = pos.timeSigNumerator;

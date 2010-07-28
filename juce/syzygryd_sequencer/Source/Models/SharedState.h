@@ -26,6 +26,8 @@ class SharedState : public DeletedAtShutdown
 {
 public:
 	static const int kNumPanels;
+
+   bool testAndSetPrimarySequencer();
 	
 	int getTotalRows();
 	int getTotalCols();
@@ -66,6 +68,9 @@ public:
 private:
 	SharedState();
 	~SharedState();
+
+   CriticalSection primarySequencerCriticalSection;
+   bool primarySet;
 	
 	const int totalRows;
 	const int totalCols;	

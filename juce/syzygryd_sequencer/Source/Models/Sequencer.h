@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  Sequencer.h
  *  syzygryd_sequencer
@@ -57,6 +58,9 @@ public:
 	
 private:
 	PluginAudioProcessor* pluginAudioProcessor;
+
+   // bug:51 - only one sequencer can be the primary one.  whichever asks first.
+   bool primary;
 
 	double sampleRate;
 
