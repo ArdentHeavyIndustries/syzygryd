@@ -99,7 +99,7 @@ void OscOutput::sendTempo()
 	
 	int playheadCol = SharedState::getInstance()->getPlayheadCol();
 	
-	float tempo = ((float)playheadCol + 1) / (float)SharedState::getInstance()->getTotalCols();
+	float tempo = (float)playheadCol / (float)SharedState::getInstance()->getTotalCols();
 	
 	p << osc::BeginMessage ("/1_tab1/tempo") << (float)tempo 
      << osc::EndMessage;

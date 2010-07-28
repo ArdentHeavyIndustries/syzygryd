@@ -316,7 +316,8 @@ void oscEvent(OscMessage m) {
         // if (m.checkTypetag("f")) {
       if (m.addrPattern().endsWith("/tempo")) {
         float firstValue = m.get(0).floatValue();
-        float v = (firstValue - 0.03125) * 16;
+        float v = firstValue * 16;
+        //System.out.println("got tempo, firstValue=" + firstValue + " v=" + v + " int(v)=" + int(v));
         temposweep.setValue(int(v));
       }
 
