@@ -14,6 +14,11 @@ import netP5.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+// Used for debugging
+//PrintWriter output; 
+
+
+
 // import com.apple.dnssd.*;
 
 OscP5 oscP5;
@@ -63,6 +68,9 @@ void setup() {
   //hide the mouse cursor (if not on touchscreen comment out!)
   //noCursor();
 
+  // Used for debugging
+//  output = createWriter("debug.txt");
+  
   // changing color mode to hsb for ease of getting at the color wheel.
   colorMode(HSB, 100); 
   
@@ -101,7 +109,7 @@ void setup() {
   //}
   
   int buttonSpacing = buttonSize + 4; // spacing btwn buttons based on buttonSize
-
+ 
   int gridWidth = 16;
   int gridHeight = 10;
   int numPanels = 3;
@@ -359,6 +367,8 @@ void keyPressed() {
   } else if (key == '3') {
     selectPanel(2);
   } else if (key == 'q') {
-    exit(); 
+//    output.flush(); // Writes the remaining data to the file
+//    output.close(); // Finishes the file    
+   exit(); 
   }
 }
