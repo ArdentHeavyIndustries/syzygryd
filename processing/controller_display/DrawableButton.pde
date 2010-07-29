@@ -136,6 +136,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   }
 
   void press() {
+    log("Button pressed with current state " + isOn + " at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
     if (!isOn) {
       new ButtonPressAnimation((DrawableTab) tab, this);
     }
@@ -190,18 +191,18 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     if (sendMessage) {
       OscMessage m = new OscMessage(getOscAddress());
       m.add(value);
-      System.out.println("Sending OSC message " + m.addrPattern() + " " + value + " for button currently " + isOn + " to " + myRemoteLocation);
+      log("Sending OSC message " + m.addrPattern() + " " + value + " for button currently " + isOn + " to " + myRemoteLocation);
       // // mark as dirty until we get a sync message confirming receipt
       // isDirty = true;
       oscP5.send(m, myRemoteLocation);
     } else {
       if (value != OFF) {
-        System.out.println("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
+        log("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = true;
         ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
         // println(getOscAddress() + " on");
       } else {
-        System.out.println("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
+        log("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = false;
         ((DrawableTab) tab).onButtons.remove(getOscAddress());
         // println(getOscAddress() + " off");

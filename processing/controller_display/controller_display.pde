@@ -11,15 +11,12 @@ import processing.opengl.*;
 import oscP5.*;
 import netP5.*;
 
+import java.util.Calendar;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 // Used for debugging
 //PrintWriter output; 
-
-
-
-// import com.apple.dnssd.*;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -138,7 +135,7 @@ void setup() {
 
   // Connect to the server
   // OscMessage connect = new OscMessage("/server/connect");
-  // System.out.println("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
+  // log("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
   // oscP5.send(connect, myRemoteLocation);
 }
 
@@ -176,7 +173,7 @@ void selectPanel(int id) {
 //       sb.append("\n");
 //     }
 //   }
-//   System.out.println(sb.toString());
+//   log(sb.toString());
 // }
 
 void oscEvent(OscMessage m) {
@@ -187,14 +184,14 @@ void oscEvent(OscMessage m) {
     // }
 
     // if (m.isPlugged()) {
-    //   System.out.println("Not handling osc msg here b/c it is plugged: " + m.addrPattern());
+    //   log("Not handling osc msg here b/c it is plugged: " + m.addrPattern());
     //   return;
     // }
 
     if (m.addrPattern().endsWith("/sync")) {
       syncCount++;
       if (syncSkip == 0 || syncCount >= syncSkip) {
-        //System.out.println("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
+        //log("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
         syncCount = 0;
 
         double ppqPosition = m.get(0).doubleValue(); // XXX not currently used
@@ -205,24 +202,24 @@ void oscEvent(OscMessage m) {
         int numTabs = m.get(5).intValue();
         int numRows = m.get(6).intValue();
         int numCols = m.get(7).intValue();
-        //System.out.println("sync: ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
+        //log("sync: ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
 
         if (curTab != panels[panelIndex].selectedTab.id) {
-          System.out.println("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab + " => " + curTab);
+          log("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab + " => " + curTab);
           panels[panelIndex].selectTab(curTab);
         }
 
         byte[] blob = m.get(8).blobValue();
         //outputByteArray(blob);
         if (blob == null) {
-          System.err.println("WARNING: null blob");
+          warn("null blob");
           return;
         }
 
         DrawablePanel panel = panels[panelIndex];
 
         if (numTabs > panel.tabs.length) {
-          System.err.println("WARNING: number of tabs in /sync msg (" + numTabs + ") > expected (" + panel.tabs.length + ")");
+          warn("number of tabs in /sync msg (" + numTabs + ") > expected (" + panel.tabs.length + ")");
           return;
         }
         
@@ -230,7 +227,7 @@ void oscEvent(OscMessage m) {
         for (int i = 0; i < numTabs; i++) {
           DrawableTab myTab = (DrawableTab) panel.tabs[i];
           if (numCols > myTab.buttons.length) {
-            System.err.println("WARNING: number of columns in /sync msg (" + numCols + ") > expected (" + myTab.buttons.length + ")");
+            warn("number of columns in /sync msg (" + numCols + ") > expected (" + myTab.buttons.length + ")");
             return;
           }
           for (int j = 0; j < numRows; j++) {
@@ -241,7 +238,7 @@ void oscEvent(OscMessage m) {
               
               boolean isOn = (blob[byteSel] & (1 << (7 - bitSel))) != 0;
               if (numRows > myTab.buttons[k].length) {
-                System.err.println("WARNING: number of rows in /sync msg (" + numRows + ") > expected (" + myTab.buttons[k].length + ")");
+                warn("number of rows in /sync msg (" + numRows + ") > expected (" + myTab.buttons[k].length + ")");
                 return;
               }
               DrawableButton myButton = (DrawableButton) myTab.buttons[k][j];
@@ -256,8 +253,8 @@ void oscEvent(OscMessage m) {
                 // the previous OSC message that was sent was lost.  In that
                 // case, we respond by resending the message.
                 // if (!myButton.isDirty) {
-                  System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                                     + " " + myButton.isOn + "=>" + isOn);
+                  log("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                      + " " + myButton.isOn + "=>" + isOn);
                   float f_isOn =  isOn ? 1.0f : 0.0f;
                   // This actually changes the button's state in the
                   // controller, which was not done earlier when the button
@@ -265,8 +262,8 @@ void oscEvent(OscMessage m) {
                   // DrawableButton.setValue() for more details.
                   myButton.setValue(f_isOn, /* sendMessage */ false);
                 // } else {
-                //   System.out.println("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                //                      + " " + myButton.isOn);
+                //   log("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                //       + " " + myButton.isOn);
                 //   float f_isOn = myButton.isOn ? 1.0f : 0.0f;
                 //   myButton.setValue(f_isOn, true);
                 // }
@@ -278,7 +275,7 @@ void oscEvent(OscMessage m) {
         }
       }
       // else {
-      //   System.out.println("Skipping /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
+      //   log("Skipping /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
       // }
       return;
     } 
@@ -297,10 +294,10 @@ void oscEvent(OscMessage m) {
       //     int panelIndex = panelOscIndex - 1;
       //     int tabOscIndex = Integer.parseInt(tabSelectMatcher.group(2));
       //     int tabIndex = tabOscIndex - 1;
-      //     System.out.println("Selecting tab " + tabIndex + " for panel " + panelIndex + " based on osc message: " + m.addrPattern());
+      //     log("Selecting tab " + tabIndex + " for panel " + panelIndex + " based on osc message: " + m.addrPattern());
       //     panels[panelIndex].selectTab(tabIndex);
       //   } catch (NumberFormatException nfe) {
-      //     System.err.println("WARNING: Unable to parse tab select OSC message: " + m.addrPattern());
+      //     warn("Unable to parse tab select OSC message: " + m.addrPattern());
       //   }
       //   return;
       // }
@@ -315,9 +312,9 @@ void oscEvent(OscMessage m) {
       //     int tabOscIndex = Integer.parseInt(tabClearMatcher.group(2));
       //     int tabIndex = tabOscIndex - 1;
       //     // XXX but now what ???
-      //     System.out.println("Clear button pressed for tab " + tabIndex + " for panel " + panelIndex + ", but so what???: " + m.addrPattern());
+      //     log("Clear button pressed for tab " + tabIndex + " for panel " + panelIndex + ", but so what???: " + m.addrPattern());
       //   } catch (NumberFormatException nfe) {
-      //     System.err.println("WARNING: Unable to parse tab clear OSC message: " + m.addrPattern());
+      //     warn("Unable to parse tab clear OSC message: " + m.addrPattern());
       //   }
       //   return;
       // }
@@ -329,14 +326,14 @@ void oscEvent(OscMessage m) {
       if (m.addrPattern().endsWith("/tempo")) {
         float firstValue = m.get(0).floatValue();
         float v = firstValue * 16;
-        //System.out.println("got tempo, firstValue=" + firstValue + " v=" + v + " int(v)=" + int(v));
+        //log("got tempo, firstValue=" + firstValue + " v=" + v + " int(v)=" + int(v));
         temposweep.setValue(int(v));
       }
 
       // otherwise, ignore
     // }
   } catch (Exception e) {
-    System.err.println("WARNING: Exception caught while processing OSC message: " + m.addrPattern());
+    warn("Exception caught while processing OSC message: " + m.addrPattern());
     e.printStackTrace();
   }
 }
@@ -388,4 +385,70 @@ void keyPressed() {
 //    output.close(); // Finishes the file    
    exit(); 
   }
+}
+
+// for debugging.  log statements should be commented out for a production build.  warnings can probably stay.
+
+// pad a string to at least a minimum size by prepending the given char
+// the StringBuffer is modified in place
+void prefixPad(StringBuffer sb, int minsize, char c) {
+  int toAdd = minsize - sb.length();
+  if (toAdd > 0) {
+    for (int i = 0; i < toAdd; i++) {
+      sb.insert(0, c);
+    }
+  }
+}
+
+String getTime() {
+  Calendar cal = Calendar.getInstance();
+
+  StringBuffer year = new StringBuffer();
+  year.append(cal.get(Calendar.YEAR));
+  prefixPad(year, 4, '0');
+  StringBuffer month = new StringBuffer();
+  month.append(cal.get(Calendar.MONTH) + 1);
+  prefixPad(month, 2, '0');
+  StringBuffer day = new StringBuffer();
+  day.append(cal.get(Calendar.DAY_OF_MONTH));
+  prefixPad(day, 2, '0');
+  StringBuffer hour = new StringBuffer();
+  hour.append(cal.get(Calendar.HOUR_OF_DAY));
+  prefixPad(hour, 2, '0');
+  StringBuffer min = new StringBuffer();
+  min.append(cal.get(Calendar.MINUTE));
+  prefixPad(min, 2, '0');
+  StringBuffer sec = new StringBuffer();
+  sec.append(cal.get(Calendar.SECOND));
+  prefixPad(sec, 2, '0');
+  StringBuffer millis = new StringBuffer();
+  millis.append(cal.get(Calendar.MILLISECOND));
+  prefixPad(millis, 3, '0');
+
+  StringBuffer date = new StringBuffer();
+  date.append('[');
+  date.append(year);
+  date.append('/');
+  date.append(month);
+  date.append('/');
+  date.append(day);
+  date.append(' ');
+  date.append(hour);
+  date.append(':');
+  date.append(min);
+  date.append(':');
+  date.append(sec);
+  date.append('.');
+  date.append(millis);
+  date.append(']');
+
+  return date.toString();
+}
+
+void log(String msg) {
+  System.out.println(getTime() + " " + msg);
+}
+
+void warn(String msg) {
+  System.err.println(getTime() + " WARNING: " + msg);
 }
