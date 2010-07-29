@@ -340,26 +340,34 @@ void oscEvent(OscMessage m) {
 
 // TOUCHSCREEN!
 // For the touchscreen, change mouseClicked() to mousePressed()
-void mouseClicked() {
+// bug:63 i'm not sure if i agree with the above statement.  always use mousePressed() for now.
+void mousePressed() {
+  //log("mousePressed()");
   Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
   if (p != null) {
     p.press();
   }
 }
 
+// void mouseClicked() {
+//   log("mouseClicked()");
+// }
+
 void mouseReleased() {
+  //log("mouseReleased()");
   lastSelectedPressable = null;
 }
 
-// Uncomment the code in mouseDragged to re-implement dragging.
-void mouseDragged() {
+// Uncomment mouseDragged() to re-implement dragging.
+// void mouseDragged() {
+//   log("mouseDragged()");
 //  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
 //  if ((p != lastSelectedPressable) &&
 //      (p != null)) {
 //    p.press();
 //    lastSelectedPressable = p;
 //  }
-}
+// }
 
 void keyPressed() {
   if (key == '1') {
