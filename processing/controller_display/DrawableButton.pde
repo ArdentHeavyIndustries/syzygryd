@@ -139,7 +139,10 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     if (!isOn) {
       new ButtonPressAnimation((DrawableTab) tab, this);
     }
-    setValue(isOn ? OFF : ON, true);
+    // This just sends a message to change the button's state to the
+    // sequencer.  We do not yet change the internal controller state.  See
+    // comments in DrawableButton.setValue() for more details.
+    setValue(isOn ? OFF : ON, /* sendMessage */ true);
   }
 
   /**
@@ -171,19 +174,34 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     */
     sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 
+    // What's going on here is a little confusing.  When a user presses a
+    // button, in DrawableButton.press() we call setValue() with the new state
+    // (value) and sendMessage=true.  This does *not* actually change the
+    // state of the button.  Instead, it sends a message to the sequencer for
+    // it to change its internal state.  Hopefully a short while later we
+    // receive a sync message in oscEvent() in controller_display, and this
+    // calls setValue() with the new state from the sync message and
+    // sendMessage=false.  This actually changes the internal state of the
+    // button in the controller, including the graphics.  The animation for
+    // turning a button on (there is no corresponding animation for turning
+    // off) happens right away, however, when the button is pressed.  (So it
+    // is possible in theory to animate the button on, but have the OSC msg to
+    // the sequencer lost, and the button will not turn on.)
     if (sendMessage) {
       OscMessage m = new OscMessage(getOscAddress());
       m.add(value);
-      System.out.println("Sending OSC message " + m.addrPattern() + " to turn button " + isOn + " to " + myRemoteLocation);
+      System.out.println("Sending OSC message " + m.addrPattern() + " " + value + " for button currently " + isOn + " to " + myRemoteLocation);
       // // mark as dirty until we get a sync message confirming receipt
       // isDirty = true;
       oscP5.send(m, myRemoteLocation);
     } else {
       if (value != OFF) {
+        System.out.println("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = true;
         ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
         // println(getOscAddress() + " on");
       } else {
+        System.out.println("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = false;
         ((DrawableTab) tab).onButtons.remove(getOscAddress());
         // println(getOscAddress() + " off");

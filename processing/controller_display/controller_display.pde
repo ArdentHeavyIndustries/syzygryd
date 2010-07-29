@@ -259,7 +259,11 @@ void oscEvent(OscMessage m) {
                   System.out.println("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
                                      + " " + myButton.isOn + "=>" + isOn);
                   float f_isOn =  isOn ? 1.0f : 0.0f;
-                  myButton.setValue(f_isOn, false);
+                  // This actually changes the button's state in the
+                  // controller, which was not done earlier when the button
+                  // was actually pressed.  See comments in
+                  // DrawableButton.setValue() for more details.
+                  myButton.setValue(f_isOn, /* sendMessage */ false);
                 // } else {
                 //   System.out.println("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
                 //                      + " " + myButton.isOn);
