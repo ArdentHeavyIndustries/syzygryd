@@ -179,7 +179,7 @@ void selectPanel(int id) {
 void oscEvent(OscMessage m) {
   try {
     // if(!m.addrPattern().endsWith("/tempo")) {
-    //   println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+    //   log("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
     //   m.print();
     // }
 

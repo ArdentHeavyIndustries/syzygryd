@@ -170,8 +170,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   void setValue(float value, boolean sendMessage) {
     // TODO: remove this debug code
     /*
-    println("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " set to " + value);
-    println("setValue: getOscAddress returns: " + getOscAddress());
+    log("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " set to " + value);
+    log("setValue: getOscAddress returns: " + getOscAddress());
     */
     sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 
@@ -200,12 +200,12 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
         log("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = true;
         ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
-        // println(getOscAddress() + " on");
+        // log(getOscAddress() + " on");
       } else {
         log("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = false;
         ((DrawableTab) tab).onButtons.remove(getOscAddress());
-        // println(getOscAddress() + " off");
+        // log(getOscAddress() + " off");
       }
     }
   }

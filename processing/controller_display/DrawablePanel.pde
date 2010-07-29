@@ -40,7 +40,7 @@ class DrawablePanel extends syzygryd.Panel implements Drawable {
     super.selectTab(id);
     if (sendMessage) {
       OscMessage m = new OscMessage(selectedTab.getOscAddress());
-      //System.out.println("Sending OSC message " + m.addrPattern() + " to " + myRemoteLocation);
+      //log("Sending OSC message " + m.addrPattern() + " to " + myRemoteLocation);
       oscP5.send(m, myRemoteLocation);
     }
   }
