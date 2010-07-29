@@ -130,8 +130,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
    */
   void drawMiniTabButton() {
     noStroke();
-//    fill(getHue(), 50, sqBright, sqAlpha);   //This was the original line that kept the minitabs on the wrong color
-    fill(masterHue, 50, sqBright, sqAlpha);
+    fill(getHue(), 50, sqBright, sqAlpha);   //This was the original line that (allegedly) kept the minitabs on the wrong color
+//    fill(masterHue, 50, sqBright, sqAlpha);	// this has all minitabs showing the color of panel 0, so i'm going back to the above line
     rect(miniX, miniY, miniLength, miniLength);
   }
 
