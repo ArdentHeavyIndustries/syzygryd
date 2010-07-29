@@ -338,8 +338,8 @@ void oscEvent(OscMessage m) {
   }
 }
 
-  // TOUCHSCREEN!
-  // For the touchscreen, change mouseClicked() to mousePressed()
+// TOUCHSCREEN!
+// For the touchscreen, change mouseClicked() to mousePressed()
 void mouseClicked() {
   Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
   if (p != null) {
@@ -351,7 +351,6 @@ void mouseReleased() {
   lastSelectedPressable = null;
 }
 
-
 // Uncomment the code in mouseDragged to re-implement dragging.
 void mouseDragged() {
 //  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
@@ -361,17 +360,6 @@ void mouseDragged() {
 //    lastSelectedPressable = p;
 //  }
 }
-
-// This function allows the first button clicked to be activated, even if the user is dragging, which we no
-// longer want to support. 
-// It can be removed if we re-implement dragging.
-void mousePressed() {
-  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
-  if (p != null) {
-    p.press();
-  }
-}
-
 
 void keyPressed() {
   if (key == '1') {
