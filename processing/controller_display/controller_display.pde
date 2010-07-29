@@ -205,7 +205,7 @@ void oscEvent(OscMessage m) {
         //log("sync: ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
 
         if (curTab != panels[panelIndex].selectedTab.id) {
-          log("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab + " => " + curTab);
+          log("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab.id + " => " + curTab);
           panels[panelIndex].selectTab(curTab);
         }
 
