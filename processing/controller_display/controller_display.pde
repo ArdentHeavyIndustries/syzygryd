@@ -350,14 +350,27 @@ void mouseReleased() {
   lastSelectedPressable = null;
 }
 
+
+// Uncomment the code in mouseDragged to re-implement dragging.
 void mouseDragged() {
+//  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
+//  if ((p != lastSelectedPressable) &&
+//      (p != null)) {
+//    p.press();
+//    lastSelectedPressable = p;
+//  }
+}
+
+// This function allows the first button clicked to be activated, even if the user is dragging, which we no
+// longer want to support. 
+// It can be removed if we re-implement dragging.
+void mousePressed() {
   Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
-  if ((p != lastSelectedPressable) &&
-      (p != null)) {
+  if (p != null) {
     p.press();
-    lastSelectedPressable = p;
   }
 }
+
 
 void keyPressed() {
   if (key == '1') {
