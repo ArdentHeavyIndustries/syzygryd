@@ -1,16 +1,37 @@
+// wrapper function to make code more readable
+int now(){
+  return millis();
+}
+
 abstract class Behavior {
   Fixture fixture;
   int startTime;
-
-  public boolean perform() {
-    return true;
+  int state;
+  
+  public static final int ACTIVE = 1; // Currently running
+  public static final int INACTIVE = 0; // Waiting to run, or disabled
+  public static final int COMPLETE = -1; // Execution finished, ready to be removed from execution queue
+  
+  void masterDrawFrame(){
+    if (state() != ACTIVE) {
+      return;
+    }
+    else {
+      drawFrame();
+    }
+  }
+  
+  void drawFrame() {
+    return;
   }
 
-  public boolean active() {
-    return true;
+  public int state() {
+    return INACTIVE;
   }  
 
-  // Gets current color of fixture
+  /* 
+   * Gets current color of fixture if fixture supports RGBColorMixing trait, otherwise returns white (255,255, 255)
+   */
   public color currentColor() {
     if (fixture.traits.containsKey("RGBColorMixing")) {
       return ((RGBColorMixingTrait)fixture.trait("RGBColorMixing")).getColorRGB();
@@ -27,26 +48,36 @@ abstract class TimedBehavior extends Behavior {
   int endTime;
   int duration;
 
-  TimedBehavior(Fixture _parent, int _startTime, int _duration) {
-    fixture = _parent;
+  TimedBehavior(Fixture _fixture, int _startTime, int _duration) {
+    fixture = _fixture;
     startTime = _startTime;
     endTime = _startTime + _duration;
     duration = _duration;
   }
 
   // If called with duration but no start time, use current time from millis() as start time.
-  TimedBehavior(Fixture _parent, int _duration) {
-    this(_parent, millis(), _duration);
+  TimedBehavior(Fixture _fixture, int _duration) {
+    this(_fixture, now(), _duration);
   }
 
   // Program is "active" if scheduled start time has passed and behavior has not completed.
-  public boolean active() {
-    return (millis() > startTime && proportionDone() <= 1);
+  public int state() {
+    if (now() > startTime){
+      if (proportionDone() <= 1) {
+        return ACTIVE;
+      } 
+      else {
+        return COMPLETE;
+      }
+    }
+    else {
+      return INACTIVE;
+    }
   }  
 
   // Returns proportion of scheduled duration already passed, as a value between 0 (not started) and 1 (complete).
   public float proportionDone() {
-    int now = millis();
+    int now = now();
     if (now > endTime) {
       return 1;
     }
@@ -61,34 +92,38 @@ abstract class TimedBehavior extends Behavior {
 
 abstract class ConstantBehavior extends Behavior {
 
-  boolean active;
-  int lastTime;
-  int refreshInterval;
+  int lastTime; // used by refresh()
+  int refreshInterval; // used by refresh()
 
 
-  ConstantBehavior(Fixture _parent, int _startTime) {
-    fixture = _parent;
-    active = true;
+  ConstantBehavior(Fixture _fixture, int _startTime) {
+    fixture = _fixture;
+    state = ACTIVE;
     startTime = _startTime;
     lastTime = startTime;
   }
 
 
-  ConstantBehavior(Fixture _parent) {
-    this(_parent, millis());
+  ConstantBehavior(Fixture _fixture) {
+    this(_fixture, now());
   }
 
 
-  public boolean active() {
-    return ((millis() >= startTime) && active);
+  public int state() {
+    if (now() >= startTime) {
+      return state;
+    }
+    else {
+      return INACTIVE;
+    }
   }  
 
 
   /* Sets a refresh rate (in Hz) for this behavior, independently of the draw loop. See refresh() method below.
    * Note that the refresh rate of draw() sets an upper limit on the effective refresh rate.
    */
-  public void setRate(float _Hz) {
-    refreshInterval = int(1000/_Hz);
+  public void setRate(float Hz) {
+    refreshInterval = int(1000/Hz);
   }
 
 
@@ -99,7 +134,7 @@ abstract class ConstantBehavior extends Behavior {
   public boolean refresh() {
 
     // get current clock
-    int now = millis();
+    int now = now();
 
     // if now < lastTime, behavior still hasn't begun; return false. Otherwise...
     if (now >= lastTime) {
@@ -118,6 +153,8 @@ abstract class ConstantBehavior extends Behavior {
   }
 }
 
+
+
 /* ------------------------------------- Implementations ----------------------------------------- */
 
 class FadeBehavior extends TimedBehavior {
@@ -126,23 +163,18 @@ class FadeBehavior extends TimedBehavior {
   color startColor, endColor;
 
   //Timed behaviors should override both constructor signatures to support both immediate and scheduled invocation
-  FadeBehavior (Fixture _parent, int _startTime, int _duration, color _endColor) {
-    super(_parent, _startTime, _duration);
+  FadeBehavior (Fixture _fixture, int _startTime, int _duration, color _endColor) {
+    super(_fixture, _startTime, _duration);
     colorMode(RGB);
     endColor = _endColor;
     startColor = currentColor();
   }
 
-  FadeBehavior(Fixture _parent, int _duration, color _endColor) {
-    this(_parent, millis(), _duration, _endColor);
+  FadeBehavior(Fixture _fixture, int _duration, color _endColor) {
+    this(_fixture, millis(), _duration, _endColor);
   }
 
-  public boolean perform() {
-
-    //don't run if behavior shouldn't be active
-    if (!active()) {
-      return false;
-    }
+  public void drawFrame() {
 
     colorMode(HSB);
 
@@ -188,8 +220,6 @@ class FadeBehavior extends TimedBehavior {
     ((RGBColorMixingTrait)fixture.trait("RGBColorMixing")).setColorRGB(color(newHue, newSaturation, newValue));
 
     //print("proportion done = " + proportionDone() + "\nhue = " + newHue + "\nsaturation = " + newSaturation + "\nvalue = " + newValue + "\n\n");
-
-    return true;
   }
 }
 
@@ -197,29 +227,26 @@ class HueRotateBehavior extends ConstantBehavior {
   
   color current;
 
-  int frame; // debugging - remove
+  //int frame; // debugging - remove
 
-    HueRotateBehavior(Fixture _parent, int _startTime) {
-    super(_parent, _startTime);
+  HueRotateBehavior(Fixture _fixture, int _startTime) {
+    super(_fixture, _startTime);
     setRate(30);
-    frame = 0; // debugging - remove
+    //frame = 0; // debugging - remove
   }
 
 
-  HueRotateBehavior(Fixture _parent) {
-    this(_parent, millis());
+  HueRotateBehavior(Fixture _fixture) {
+    this(_fixture, now());
   }
 
 
-  public boolean perform() {
-    if (!active()) {
-      return false;
-    }
+  public void drawFrame() {
 
-    print(++frame + "\n\n"); // debugging - remove
+    //print(++frame + "\n\n"); // debugging - remove
 
     if (refresh()) { // this behavior refreshes at a dependable rate set by setRate() in the constructor.
-      frame = 0; // debugging - remove
+      //frame = 0; // debugging - remove
 
       // get current color from fixture
       current = currentColor();
@@ -228,15 +255,14 @@ class HueRotateBehavior extends ConstantBehavior {
       colorMode(HSB,360,100,100);
       float newHue = (hue(current) + 0.25) % 360;
       color newColor = color(newHue, saturation(current), brightness(current));
-
+ 
       // set fixture to new color
-      ((RGBColorMixingTrait)fixture.trait("RGBColorMixing")).setColorRGB(newColor);
+      RGBColorMixingTrait trait = ((RGBColorMixingTrait)fixture.trait("RGBColorMixing"));
+      trait.setColorRGB(newColor);
 
       // debugging - remove
-      print("time = " + millis() + "\nhue = " + newHue + "\nsaturation = " + saturation(current) + "\nvalue = " + brightness(current) + "\n\n");
+      //print("time = " + millis() + "\nhue = " + newHue + "\nsaturation = " + saturation(current) + "\nvalue = " + brightness(current) + "\n\n");
     }
-
-    return true;
   }
 }
 
