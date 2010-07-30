@@ -38,7 +38,7 @@ class OSCManager {
       events.fire("step",true);
       sequencerState.timeOfLastStep = millis(); // set timestamp to now
       float stepsPercentDone = m.get(0).floatValue(); // sequencer sends current step as float in the range 0 to 1.
-      sequencerState.nextStep = ((int(16 * stepsPercentDone) + 1) % 16); // results in nextStep falling in a range from 0 to 15
+      sequencerState.nextStep = (int(16 * stepsPercentDone) % 15); // results in nextStep falling in a range from 0 to 15
     }
 
     if (m.addrPattern().endsWith("/sync")) {
