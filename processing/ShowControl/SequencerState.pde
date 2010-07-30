@@ -8,7 +8,7 @@ public class SequencerState {
   private final static int PITCHES = 10;
   
   //timing information
-  int nextStep; // Number of next sequencer step to be triggered (integer from 0 to 15). Add 1 to get controller's step numbering.
+  int nextStep; // Number of next sequencer step to be triggered (integer from 0 to 15).
   int timeOfLastStep; // timestamp (in milliseconds since beginning of sketch) of last step
   double bpm;  // beats per minute
   double ppqPosition; // number of quarter notes since sequencer start
