@@ -15,7 +15,6 @@ class Fixture {
     dmx = _dmx;
     controller = _controller;
     type = _type;
-    //FIXME: add fixture factory setup here
   }
   
   int addChannel(String channelName){
@@ -40,6 +39,10 @@ class Fixture {
   int getChannel(String channelName){
     return ((Channel)channels.get(channelName)).getValue();
   }
+  
+  float getChannelLatency(String channelName){
+    return ((Channel)channels.get(channelName)).getLatency();
+  }
 
   void addTrait(String traitName, Trait traitDef){
     traits.put(traitName, traitDef);
@@ -47,6 +50,9 @@ class Fixture {
   
   Trait trait(String traitName){
     return (Trait)(traits.get(traitName));
+  }
+  
+  void setBehavior(Behavior behavior){
   }
 
   class Channel {
@@ -111,7 +117,41 @@ class Fixture {
   }  
 }
 
-//abstract class FixtureGroup extends Fixture {
- //it has some fixtures
- //and maybe some behaviors/actions/something
-//}
+class FixtureGroup extends Fixture {
+  ArrayList<Fixture> members;
+  
+  FixtureGroup(String _type){
+    super((DMX)null, -1, _type);
+    members = new ArrayList<Fixture>();
+  }
+  
+  /*
+   * Add fixture of matching type to this group. Fails if fixture type does not match group type.
+   */
+  void addFixture(Fixture _fixture) throws FixtureTypeMismatchException {
+    if (_fixture.type == type) {
+      members.add(_fixture);
+    }
+    else {
+      System.err.println("Fixture type mismatch while adding Fixture type \"" + _fixture.type + "\" to FixtureGroup type \"" + type + "\"\n\n");
+      throw new FixtureTypeMismatchException();
+    }
+  }
+  
+  void setChannel(String channelName, int value){
+    for (int i = 0; i < members.size(); i++){
+      members.get(i).setChannel(channelName, value);
+    }
+  }
+  
+  int getChannel(String channelName){
+    return members.get(0).getChannel(channelName); // hackish: assumes all members have same values
+  }
+  
+  float getChannelLatency(String channelName){
+    return members.get(0).getChannelLatency(channelName); // hackish: assumes all members have same values
+  }
+    
+}
+
+class FixtureTypeMismatchException extends Exception {}
