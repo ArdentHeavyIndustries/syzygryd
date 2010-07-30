@@ -3,7 +3,6 @@ package com.syzygryd;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Date;
 
 import com.illposed.osc.OSCListener;
@@ -13,12 +12,13 @@ import com.illposed.osc.OSCPortOut;
 
 public class Switcher {
 
-	public static final int LISTENING_PORT = 9001;
-	public static final int SENDING_PORT = 9000;
+	public static final int OSC_LISTENING_PORT = 9001;
+	public static final int OSC_SENDING_PORT = 9000;
+	public static final int WEB_SENDING_PORT = 31337;
+	
 	public static final int ARG_SETLISTFILENAME = 0;
-	private static Setlist list = null;
-	private static int SECOND_IN_MILLIS = 1000;
 	private static OSCPortOut sender = null;
+	private static Setlist list = null;
 	private static OSCPortIn portIn = null;
 	
 	
@@ -39,29 +39,34 @@ public class Switcher {
 		
 		// setup sender
 		try {
-			sender = new OSCPortOut(InetAddress.getLocalHost(), SENDING_PORT);
+			sender = new OSCPortOut(InetAddress.getLocalHost(), OSC_SENDING_PORT);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		setupOSCListener();
 		
-		// for infinity, play the next song, then sleep.
-		while(true) {
-			Set s = list.getNext();
-			s.play();
+		// setup switcher queue thread
+		ActionRunner ar = new ActionRunner(list, sender);
+
+		// start it
+		ar.run();
 		
-			try {
-				Thread.sleep(SECOND_IN_MILLIS * s.getLength());
-			} catch (InterruptedException e) {
-				// NIL;
-			}
-			s.stop(sender);
-			try {
-				Thread.sleep(SECOND_IN_MILLIS * 3);
-			} catch (InterruptedException e) {
-				// NIL;
-			}
+		// setup webserver
+		try {
+			@SuppressWarnings("unused")
+			Syzyweb web = new Syzyweb(WEB_SENDING_PORT, ar);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// wait forever.
+		try {
+			ar.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 	}
@@ -75,12 +80,12 @@ public class Switcher {
 		}
 		
 		try {
-			portIn = new OSCPortIn(LISTENING_PORT);
+			portIn = new OSCPortIn(OSC_LISTENING_PORT);
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
-			System.err.println("Unable to open port " + LISTENING_PORT + "for listening.\n"
+			System.err.println("Unable to open port " + OSC_LISTENING_PORT + "for listening.\n"
 					+ "It's possible that there's another copy of this running, or there's another\n"
-					+ "program listening on port " + LISTENING_PORT + ".  Use netstat to figure out\n"
+					+ "program listening on port " + OSC_LISTENING_PORT + ".  Use netstat to figure out\n"
 					+ "if someone's listening, and use ps or Activity Monitor to see if there's another\n"
 					+ "copy of this running. (hint: the process name will be java).  Thanks for playing!");
 			e.printStackTrace();
@@ -89,7 +94,7 @@ public class Switcher {
 		
 		portIn.addListener("/remix/echo", setLoadedListener);
 		portIn.startListening();
-		System.out.println("Now listening on port " + LISTENING_PORT);
+		System.out.println("Now listening on port " + OSC_LISTENING_PORT);
 		
 		
 	}
