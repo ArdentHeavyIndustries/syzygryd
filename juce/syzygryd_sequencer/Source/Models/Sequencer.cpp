@@ -23,7 +23,8 @@ ticksPerCol (8),
 tickCount (0),
 lastTickCount (-1),
 swingTicks (2),
-noteLength (4)
+noteLength (4),
+lastPlayheadColPrecise (0)
 {
    primary = SharedState::getInstance()->testAndSetPrimarySequencer();
    DBG ("Sequencer " + String(pluginAudioProcessor->getPanelIndex()) + (primary ? " IS" : " is NOT") + " the primary");
@@ -62,11 +63,14 @@ void Sequencer::clearTab (int panelIndex_, int tabIndex_)
 
 int Sequencer::getPlayheadCol()
 {
-	int playheadCol = tickCount / ticksPerCol;
-	if (primary) {
-		SharedState::getInstance()->setPlayheadCol (playheadCol);
-   }
+	//int playheadCol = tickCount / ticksPerCol;
+	int playheadCol = lastPlayheadColPrecise;
 	return playheadCol;
+}
+
+double Sequencer::getPlayheadColPrecise()
+{
+	return lastPlayheadColPrecise;
 }
 
 int Sequencer::getSwingTicks()
@@ -164,6 +168,13 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	
 	double tickCountPrecise = fmod (ppq * speed * ticksPerCol, getTotalCols() * ticksPerCol);
 	tickCount = (int)tickCountPrecise;
+	
+	lastPlayheadColPrecise = tickCountPrecise / ticksPerCol;
+	jassert (lastPlayheadColPrecise >= 0.0)
+	jassert (lastPlayheadColPrecise <= 16.0)
+	if (primary) {
+		SharedState::getInstance()->setPlayheadColPrecise (lastPlayheadColPrecise);
+	}		
 	
 	if (tickCount != lastTickCount) {
 

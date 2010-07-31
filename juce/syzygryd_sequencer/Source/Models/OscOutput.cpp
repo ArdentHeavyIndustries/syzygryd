@@ -63,13 +63,13 @@ void OscOutput::sendNoteToggle (int panelIndex, int tabIndex, int row, int col,
 	// [/1_tab1/panel/6/9 float32:1]
 	String msg;
 	msg << "/" << panelIndex << "_tab" << tabIndex << "/panel/" << row 
-       << "/" << col;
+	<< "/" << col;
 	
 	float state = 0;
 	if (isNoteOn) state = 1.0;
 	
 	p << osc::BeginMessage (msg.toUTF8()) << state
-     << osc::EndMessage;
+	<< osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());	
 }
 
@@ -80,7 +80,7 @@ void OscOutput::sendClearTab (int panelIndex, int tabIndex)
 	
 	panelIndex++;
 	tabIndex++;
-
+	
 	//[/1_control/clear/tab1]
 	String msg;
 	msg << "/" << panelIndex << "_control/clear/tab" << tabIndex;
@@ -88,7 +88,7 @@ void OscOutput::sendClearTab (int panelIndex, int tabIndex)
 	DBG (msg);
 	
 	p << osc::BeginMessage (msg.toUTF8())
-     << osc::EndMessage;
+	<< osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());		
 }
 
@@ -102,58 +102,59 @@ void OscOutput::sendTempo()
 	float tempo = (float)playheadCol / (float)SharedState::getInstance()->getTotalCols();
 	
 	p << osc::BeginMessage ("/1_tab1/tempo") << (float)tempo 
-     << osc::EndMessage;
+	<< osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());	
 }
 
 void OscOutput::sendSync()
 {
-   syncCount++;
-   if (kSyncSkip == 0 || syncCount >= kSyncSkip) {
-      //DBG ("Sending sync: count=" + String(syncCount) + " skip=" + String(kSyncSkip));
-      syncCount = 0;
-
-      char buffer[kOutputBufferSize];
-      osc::OutboundPacketStream p( buffer, kOutputBufferSize );
-
-      double ppqPosition = SharedState::getInstance()->getPpqPosition();
-      double timeInSeconds = SharedState::getInstance()->getTimeInSeconds();
-      double bpm = SharedState::getInstance()->getBpm();
-	
-      int numPanels = SharedState::kNumPanels;
-      int numTabs = Panel::kNumTabs;
-      int numRows = SharedState::getInstance()->getTotalRows();
-      int numCols = SharedState::getInstance()->getTotalCols();
-	
-      for (int panelIndex = 0; panelIndex < numPanels; panelIndex++) {
-         int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
-         osc::Blob* blob = SharedState::getInstance()->updateAndGetCompressedPanelState (panelIndex);
+	syncCount++;
+	if (kSyncSkip == 0 || syncCount >= kSyncSkip) {
+		//DBG ("Sending sync: count=" + String(syncCount) + " skip=" + String(kSyncSkip));
+		syncCount = 0;
 		
-         p.Clear();
-         // XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
-         //        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
-         p << osc::BeginMessage ("/sync")
-           << ppqPosition << timeInSeconds << bpm
-           << panelIndex << tabIndex << numTabs << numRows << numCols
-           << *blob
-           << osc::EndMessage;
-         outSocket.write (p.Data(), p.Size());
-      }
-   }	
-   // else {
-   //    DBG ("Skipping sync: count=" + String(syncCount) + " skip=" + String(kSyncSkip));
-   // }
+		char buffer[kOutputBufferSize];
+		osc::OutboundPacketStream p( buffer, kOutputBufferSize );
+		
+		double playheadColPrecise = SharedState::getInstance()->getPlayheadColPrecise();
+		double ppqPosition = SharedState::getInstance()->getPpqPosition();
+		double timeInSeconds = SharedState::getInstance()->getTimeInSeconds();
+		double bpm = SharedState::getInstance()->getBpm();
+		
+		int numPanels = SharedState::kNumPanels;
+		int numTabs = Panel::kNumTabs;
+		int numRows = SharedState::getInstance()->getTotalRows();
+		int numCols = SharedState::getInstance()->getTotalCols();
+		
+		for (int panelIndex = 0; panelIndex < numPanels; panelIndex++) {
+			int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
+			osc::Blob* blob = SharedState::getInstance()->updateAndGetCompressedPanelState (panelIndex);
+			
+			p.Clear();
+			// XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
+			//        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
+			p << osc::BeginMessage ("/sync")
+			<< playheadColPrecise << ppqPosition << timeInSeconds << bpm
+			<< panelIndex << tabIndex << numTabs << numRows << numCols
+			<< *blob
+			<< osc::EndMessage;
+			outSocket.write (p.Data(), p.Size());
+		}
+	}	
+	// else {
+	//    DBG ("Skipping sync: count=" + String(syncCount) + " skip=" + String(kSyncSkip));
+	// }
 }
 
 // Thread methods
 void OscOutput::run()
 {
 	while (! threadShouldExit()) {
-      // ms/col = ms/s / (col/beat * beat/min / s/min)
-      sleepIntervalMs = (int)(1000.0 / ((4.0 * SharedState::getInstance()->getBpm()) / 60.0));
-      //DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
+		// ms/col = ms/s / (col/beat * beat/min / s/min)
+		sleepIntervalMs = (int)(1000.0 / ((4.0 * SharedState::getInstance()->getBpm()) / 60.0));
+		//DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
 		Thread::sleep (sleepIntervalMs);
-
+		
 		int playheadCol = SharedState::getInstance()->getPlayheadCol();
 		
 		if (lastPlayheadCol == playheadCol) {
@@ -165,7 +166,7 @@ void OscOutput::run()
 		if (!outSocket.waitUntilReady (false, kTimeoutMs)) {
 			continue;
 		}
-
+		
 		sendTempo();
 		sendSync();
 	}

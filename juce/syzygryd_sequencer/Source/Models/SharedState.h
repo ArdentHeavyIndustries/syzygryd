@@ -36,7 +36,9 @@ public:
 	void setTabIndex (int panelIndex_, int tabIndex_);	
 	
 	int getPlayheadCol(); // only used for playhead transmission
-	void setPlayheadCol (int playheadCol_);
+	
+	double getPlayheadColPrecise(); // only used for playhead transmission
+	void setPlayheadColPrecise (int playheadColPrecise_);
 	
 	double getPpqPosition();
 	void setPpqPosition (double ppqPosition_);
@@ -78,7 +80,7 @@ private:
 	osc::Blob** blobs;
 	int paddingBits;
 	
-	int playheadCol; // only used for playhead transmission
+	double playheadColPrecise; // only used for playhead transmission
 	double ppqPosition;
 	double timeInSeconds;
 	double bpm;

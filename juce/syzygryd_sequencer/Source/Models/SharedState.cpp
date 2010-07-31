@@ -111,12 +111,17 @@ void SharedState::setTabIndex (int panelIndex_, int tabIndex_)
 
 int SharedState::getPlayheadCol()
 {
-	return playheadCol;
+	return (int)getPlayheadColPrecise();
 }
 
-void SharedState::setPlayheadCol (int playheadCol_)
+double SharedState::getPlayheadColPrecise()
 {
-	playheadCol = playheadCol_;
+	return playheadColPrecise;
+}
+
+void SharedState::setPlayheadColPrecise (int playheadColPrecise_)
+{
+	playheadColPrecise = playheadColPrecise_;
 }
 
 double SharedState::getPpqPosition()
