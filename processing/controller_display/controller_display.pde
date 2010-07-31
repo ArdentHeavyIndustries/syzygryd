@@ -178,7 +178,7 @@ void selectPanel(int id) {
 
 void oscEvent(OscMessage m) {
   try {
-    // if(!m.addrPattern().endsWith("/tempo")) {
+    // if(!m.addrPattern().endsWith("/sync")) {
     //   log("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
     //   m.print();
     // }
@@ -194,22 +194,30 @@ void oscEvent(OscMessage m) {
         //log("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
         syncCount = 0;
 
-        double ppqPosition = m.get(0).doubleValue(); // XXX not currently used
-        double timeInSeconds = m.get(1).doubleValue(); // XXX not currently used
-        double bpm = m.get(2).doubleValue(); // XXX not currently used
-        int panelIndex = m.get(3).intValue();
-        int curTab = m.get(4).intValue();
-        int numTabs = m.get(5).intValue();
-        int numRows = m.get(6).intValue();
-        int numCols = m.get(7).intValue();
-        //log("sync: ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
+        float playheadColPrecise = m.get(0).floatValue();
+        double ppqPosition = m.get(1).doubleValue(); // XXX not currently used
+        double timeInSeconds = m.get(2).doubleValue(); // XXX not currently used
+        double bpm = m.get(3).doubleValue(); // XXX not currently used
+        int panelIndex = m.get(4).intValue();
+        int curTab = m.get(5).intValue();
+        int numTabs = m.get(6).intValue();
+        int numRows = m.get(7).intValue();
+        int numCols = m.get(8).intValue();
+        //log("sync: playheadColPrecise="+playheadColPrecise+" ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
+
+        if (playheadColPrecise >= 0.0f && playheadColPrecise < 16.0f) {
+          int playheadCol = int(playheadColPrecise);
+          temposweep.setValue(playheadCol);
+        } else {
+          warn("Unexpected playheadColPrecise: " + playheadColPrecise);
+        }
 
         if (curTab != panels[panelIndex].selectedTab.id) {
           log("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab.id + " => " + curTab);
           panels[panelIndex].selectTab(curTab);
         }
 
-        byte[] blob = m.get(8).blobValue();
+        byte[] blob = m.get(9).blobValue();
         //outputByteArray(blob);
         if (blob == null) {
           warn("null blob");
@@ -318,17 +326,6 @@ void oscEvent(OscMessage m) {
       //   }
       //   return;
       // }
-
-      // otherwise, ignore
-
-    // } else 
-        // if (m.checkTypetag("f")) {
-      if (m.addrPattern().endsWith("/tempo")) {
-        float firstValue = m.get(0).floatValue();
-        float v = firstValue * 16;
-        //log("got tempo, firstValue=" + firstValue + " v=" + v + " int(v)=" + int(v));
-        temposweep.setValue(int(v));
-      }
 
       // otherwise, ignore
     // }
@@ -441,8 +438,10 @@ String getTime() {
   return date.toString();
 }
 
+// for production use, we should comment out all calls to log
+// for now, comment out the contents here, unless you want verbose logging
 void log(String msg) {
-  System.out.println(getTime() + " " + msg);
+  //System.out.println(getTime() + " " + msg);
 }
 
 void warn(String msg) {
