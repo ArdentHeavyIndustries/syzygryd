@@ -154,7 +154,7 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		// Update starfield if necessary
 		if (SharedState::getInstance()->getStarFieldActive()) {
 			if (pluginAudioProcessor->getPanelIndex() == 0) {
-				if (tickCount % 10 == 0) {			
+				if (tickCount % 20 == 0) {			
 					SharedState::getInstance()->update();
 				}
 			}

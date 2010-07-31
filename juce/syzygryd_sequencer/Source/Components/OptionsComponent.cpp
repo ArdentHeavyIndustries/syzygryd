@@ -28,7 +28,7 @@ lastStarFieldActive (false)
 	sequencer = pluginAudioProcessor->getSequencer();
 	
 	for (int i = 0; i < kRadioSize; ++i) {
-		TextButton* radioButton = new TextButton ("Pan " + String(i));
+		TextButton* radioButton = new TextButton ("Panel " + String(i + 1));
 		radioButton->setRadioGroupId (kRadioGroupId + 1);
 		radioButton->setColour (TextButton::buttonOnColourId, Colour::fromRGB (150, 150, 240));
 		if (i == 0) radioButton->setToggleState (true, false);
