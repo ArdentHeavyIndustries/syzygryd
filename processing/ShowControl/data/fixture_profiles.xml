@@ -3,7 +3,7 @@
     <!-- CUBE TYPE -->
     <fixture_profile type="cube">
         <traits>
-            <trait type="RGBColorMixingTrait" />
+            <trait type="RGBColorMixing" />
         </traits>
         <channels>
             <channel name="red" latency="0" />
@@ -15,7 +15,7 @@
     <!-- FIRE TYPE -->
     <fixture_profile type="fire">
         <traits>
-            <trait type="FireTrait" />
+            <trait type="Fire" />
         </traits>
         <channels>
             <channel name="fire" latency="20" />
