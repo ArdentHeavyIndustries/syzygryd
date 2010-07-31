@@ -75,7 +75,7 @@ abstract class TimedBehavior extends Behavior {
     fixture.addBehavior(this, priority);
   }
 
-  // If called with duration but no start time, use current time from millis() as start time.
+  // If called with duration but no start time, use now() as start time.
   TimedBehavior(Fixture _fixture, int _priority, int _duration) {
     this(_fixture, _priority, now(), _duration);
   }
@@ -161,7 +161,7 @@ abstract class ConstantBehavior extends Behavior {
     // if now < lastTime, behavior still hasn't begun; return false. Otherwise...
     if (now >= lastTime) {
 
-      // if the difference between now and the last time we refreshed is larger than the refresh interval, we should refresh again
+      // if the time difference between now and the last refresh is equal to the refresh interval or greater, we should refresh again
       boolean go = ((now - lastTime) >= refreshInterval);
 
       if (go) 
@@ -184,7 +184,7 @@ class FadeBehavior extends TimedBehavior {
   //Assign behavior-specific fields
   color startColor, endColor;
 
-  //Timed behaviors should override both constructor signatures to support both immediate and scheduled invocation
+  //Behaviors should override both constructor signatures to support both immediate and scheduled invocation
   FadeBehavior (Fixture _fixture, int _priority, int _startTime, int _duration, color _endColor) {
     super(_fixture, _priority, _startTime, _duration);
     colorMode(RGB);
@@ -193,7 +193,7 @@ class FadeBehavior extends TimedBehavior {
   }
 
   FadeBehavior(Fixture _fixture, int _priority, int _duration, color _endColor) {
-    this(_fixture, _priority, millis(), _duration, _endColor);
+    this(_fixture, _priority, now(), _duration, _endColor);
   }
 
   public void drawFrame() {
@@ -249,12 +249,16 @@ class HueRotateBehavior extends ConstantBehavior {
   
   color current;
 
-  //int frame; // debugging - remove
+  int frame; // debugging - remove
 
   HueRotateBehavior(Fixture _fixture, int _priority, int _startTime) {
     super(_fixture, _priority, _startTime);
     setRate(30);
-    //frame = 0; // debugging - remove
+    frame = 0; // debugging - remove
+
+    // get current color from fixture
+    current = currentColor();
+    print("in constructor, blendMode = " + blendMode + "\n");
   }
 
 
@@ -265,13 +269,7 @@ class HueRotateBehavior extends ConstantBehavior {
 
   public void drawFrame() {
 
-    //print(++frame + "\n\n"); // debugging - remove
-
     if (refresh()) { // this behavior refreshes at a dependable rate set by setRate() in the constructor.
-      //frame = 0; // debugging - remove
-
-      // get current color from fixture
-      current = currentColor();
 
       // increment hue component by 1/4 degree
       colorMode(HSB,360,100,100);
@@ -280,9 +278,10 @@ class HueRotateBehavior extends ConstantBehavior {
  
       // set fixture to new color
       setColor(newColor);
-
-      // debugging - remove
-      //print("time = " + millis() + "\nhue = " + newHue + "\nsaturation = " + saturation(current) + "\nvalue = " + brightness(current) + "\n\n");
+      current = newColor;
+    }
+    else {
+      setColor(current);
     }
   }
 }
