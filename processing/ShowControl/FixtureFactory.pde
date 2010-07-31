@@ -199,10 +199,8 @@ void setupFixtures() throws DataFormatException {
   // use factory to create fixture from the fixture definitions
   XMLElement[] fixtureNodes = fixtureDefinitionsXML.getChildren("fixture");
   int fixtureCount = fixtureNodes.length;
-  fixtures = new ArrayList(fixtureCount);
   for (int i = 0; i < fixtureCount; i++) {
     Fixture fixture = FixtureFactory.createFixture(this, DMXManager, fixtureNodes[i]);
-    fixtures.add(fixture);
   }
 }
 

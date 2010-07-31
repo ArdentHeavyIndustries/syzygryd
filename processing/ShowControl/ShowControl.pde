@@ -17,7 +17,8 @@ LightingProgram program;
 FadeBehavior testBehavior;
 HueRotateBehavior testBehavior2;
 
-ArrayList<Fixture> fixtures;
+ArrayList<Fixture> fixtures = new ArrayList();
+ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
 int huetemp=0;
 color colortemp, colortemp2; 
 Fixture test, test2, test3, test4, test5;
@@ -26,7 +27,7 @@ Fixture test, test2, test3, test4, test5;
 private GButton btnStart;
 GWindow[] ctrlrWindow;
 
-void setup(){
+void setup() {
 
   /* example code*/
   colorMode(RGB);
@@ -110,8 +111,9 @@ void setup(){
   ((RGBColorMixingTrait)test.trait("RGBColorMixing")).setColorRGB(color(0,255,0));  //set start color   
   
   //test Behaviors
-  //testBehavior = new FadeBehavior(test2, now()+10000, 5000, color(255));  // wait 10 secs, then fade to black over 5 secs
-  testBehavior2 = new HueRotateBehavior(testGroup, now()+500); // wait .5 secs, then begin color cycling
+  testBehavior = new FadeBehavior(test, 10, now()+10000, 5000, color(255));  // wait 10 secs, then fade to black over 5 secs
+  testBehavior.blendMode = MULTIPLY;
+  testBehavior2 = new HueRotateBehavior(testGroup, 0, now()+500); // wait .5 secs, then begin color cycling
   
   //initialize lighting program
   //need to add code here to initialize an array of lighting programs
@@ -129,8 +131,24 @@ void draw(){
   //the rest of this method is test code
   //print(events.eventQueue);
   
-  //testBehavior.masterDrawFrame();
-  testBehavior2.masterDrawFrame();
+  // render fixture behaviors.  do fixture groups first, then fixtures
+  for (FixtureGroup group : fixtureGroups) {
+    Iterator behaviorIter = group.getBehaviorList().iterator();
+    while (behaviorIter.hasNext()) {
+      Behavior b = (Behavior)behaviorIter.next();
+      b.masterDrawFrame();
+    }
+  }
+  
+  // now individual fixtures
+  for (Fixture fixture : fixtures) {
+    Iterator behaviorIter = fixture.getBehaviorList().iterator();
+    while (behaviorIter.hasNext()) {
+      Behavior b = (Behavior)behaviorIter.next();
+      b.masterDrawFrame();
+    }
+  }
+  
   events.flushExpired();
 
   background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB()); 

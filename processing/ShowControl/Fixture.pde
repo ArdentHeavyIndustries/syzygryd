@@ -9,12 +9,21 @@ class Fixture {
   
   FixtureProfile profile;
   
-  ArrayList commandQueue = new ArrayList();
+  // currentBehaviors keeps track of the behaviors currently running on this fixture.  Behaviors
+  // have a priority in relation to a fixture, which defines their order of rendering on that fixture.
+  // All behaviors at the highest priority will render first, then the next lower priority, and so on.
+  public static final int BEHAVIOR_PRIORITY_COUNT = 10; // highest priority for behaviors
+  PriorityLinkedList currentBehaviors = new PriorityLinkedList(BEHAVIOR_PRIORITY_COUNT);
   
-  Fixture(DMX _dmx, int _controller, String _type){
+  Fixture(DMX _dmx, int _controller, String _type) {
     dmx = _dmx;
     controller = _controller;
     type = _type;
+    register();
+  }
+  
+  void register() {
+    fixtures.add(this);
   }
   
   int addChannel(String channelName){
@@ -52,7 +61,22 @@ class Fixture {
     return (Trait)(traits.get(traitName));
   }
   
-  void setBehavior(Behavior behavior){
+  // addBehavior adds the behavior to the rendering list at the
+  // given priority
+  public void addBehavior(Behavior behavior, int priority){
+    currentBehaviors.addLast(behavior, priority);
+  }
+  
+  // removeBehavior removes all occurrences of the given behavior
+  // from the render list
+  public void removeBehavior(Behavior behavior) {
+    currentBehaviors.remove(behavior);
+  }
+  
+  // getBehaviorList returns the list of all behaviors to be rendered,
+  // in the correct rendering order
+  public List getBehaviorList() {
+    return currentBehaviors.getAll();
   }
 
   class Channel {
@@ -123,6 +147,10 @@ class FixtureGroup extends Fixture {
   FixtureGroup(String _type){
     super((DMX)null, -1, _type);
     members = new ArrayList<Fixture>();
+  }
+  
+  void register() {
+    fixtureGroups.add(this);
   }
   
   /*
