@@ -41,6 +41,16 @@ abstract class Behavior {
       return(color(255));
     }
   }
+  
+  /* 
+   * Sets color of fixture if fixture supports RGBColorMixing trait; hides ugly Trait syntax
+   */
+  public void setColor(color value) {
+    if (fixture.traits.containsKey("RGBColorMixing")) {
+      ((RGBColorMixingTrait)fixture.trait("RGBColorMixing")).setColorRGB(value);
+    }
+  }
+  
 }
 
 
@@ -217,7 +227,7 @@ class FadeBehavior extends TimedBehavior {
     newHue = startHue + ((endHue - startHue) * proportionDone());
 
     //set new color on fixture
-    ((RGBColorMixingTrait)fixture.trait("RGBColorMixing")).setColorRGB(color(newHue, newSaturation, newValue));
+    setColor(color(newHue, newSaturation, newValue));
 
     //print("proportion done = " + proportionDone() + "\nhue = " + newHue + "\nsaturation = " + newSaturation + "\nvalue = " + newValue + "\n\n");
   }
@@ -257,8 +267,7 @@ class HueRotateBehavior extends ConstantBehavior {
       color newColor = color(newHue, saturation(current), brightness(current));
  
       // set fixture to new color
-      RGBColorMixingTrait trait = ((RGBColorMixingTrait)fixture.trait("RGBColorMixing"));
-      trait.setColorRGB(newColor);
+      setColor(newColor);
 
       // debugging - remove
       //print("time = " + millis() + "\nhue = " + newHue + "\nsaturation = " + saturation(current) + "\nvalue = " + brightness(current) + "\n\n");
