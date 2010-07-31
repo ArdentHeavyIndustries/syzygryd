@@ -147,6 +147,7 @@ class FixtureGroup extends Fixture {
   FixtureGroup(String _type){
     super((DMX)null, -1, _type);
     members = new ArrayList<Fixture>();
+    register();
   }
   
   void register() {
@@ -157,7 +158,7 @@ class FixtureGroup extends Fixture {
    * Add fixture of matching type to this group. Fails if fixture type does not match group type.
    */
   void addFixture(Fixture _fixture) throws FixtureTypeMismatchException {
-    if (_fixture.type == type) {
+    if (_fixture.type.equals(type)) {
       members.add(_fixture);
     }
     else {
@@ -177,7 +178,7 @@ class FixtureGroup extends Fixture {
   }
   
   float getChannelLatency(String channelName){
-    return members.get(0).getChannelLatency(channelName); // hackish: assumes all members have same values
+    return members.get(0).getChannelLatency(channelName); 
   }
     
 }

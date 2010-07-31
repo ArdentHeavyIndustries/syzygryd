@@ -98,7 +98,10 @@ static class FixtureFactory {
       String traitName = (String)profileTraits.get(i);
       Trait trait;
 
-      if ("RGBColorMixingTrait".equals(traitName)) {
+      if ("RGBColorMixing".equals(traitName)) {
+        trait = parent.new RGBColorMixingTrait(fixture);
+      } 
+      else if ("Fire".equals(traitName)) {
         trait = parent.new RGBColorMixingTrait(fixture);
       } 
       else {
