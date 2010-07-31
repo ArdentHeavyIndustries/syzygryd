@@ -174,8 +174,6 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
       curSecond = second();
     }
 
-    drawFrame();
-    miniTab.draw();
     
     for (int i = 0; i < gridWidth; i++) {
       for (int j = 0; j < gridHeight; j++) {
@@ -189,6 +187,8 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
     if (isSelected()) {
       clearButton.draw();
     }
+    drawFrame();
+    miniTab.draw();
   }
 
   void drawFrame() {
