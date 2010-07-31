@@ -70,6 +70,7 @@ void AdjustmentComponent::timerCallback()
 	if (lastSwingTicks != sequencer->getSwingTicks()) {
 		swingTicksSlider->setValue (sequencer->getSwingTicks(), false, false);
 		lastSwingTicks = sequencer->getSwingTicks();
+		noteLengthSlider->setRange (0, sequencer->getMaxNoteLength(), 1.0);
 	}
 }
 

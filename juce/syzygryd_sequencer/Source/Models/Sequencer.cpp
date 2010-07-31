@@ -77,6 +77,9 @@ int Sequencer::getSwingTicks()
 void Sequencer::setSwingTicks (int swingTicks_)
 {
 	swingTicks = swingTicks_;
+	if (noteLength > getMaxNoteLength()) {
+		noteLength = getMaxNoteLength();
+	}
 }
 
 int Sequencer::getMaxSwingTicks()
@@ -96,7 +99,7 @@ void Sequencer::setNoteLength (int noteLength_)
 
 int Sequencer::getMaxNoteLength()
 {
-	return 20;
+	return getTicksPerCol() - getSwingTicks() - 1;
 }
 
 int Sequencer::getTicksPerCol()
@@ -119,7 +122,22 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 {
 	AudioPlayHead::CurrentPositionInfo pos (pluginAudioProcessor->lastPosInfo);	
 
+	// If we aren't playing...
 	if (! pos.isPlaying) {
+		if (noteOffs.size() > 0) {
+			// Send any upcoming note-off events
+			Array<int> notesToRemove; 
+			for (int i = 0; i < noteOffs.size(); i++) {
+				MidiMessage m2 = MidiMessage::noteOff(1, noteOffs[i].noteNumber);
+				midiMessages.addEvent (m2, 0);			
+				notesToRemove.add (i);
+			}
+			for (int i = 0; i < notesToRemove.size(); i++) {
+				// Remove the event from the note-off event list
+				// (We do this in two steps so that the noteOffs array isn't modified inside a loop)
+				noteOffs.remove (notesToRemove[i]);
+			}			
+		}
 		return;
 	}
 
