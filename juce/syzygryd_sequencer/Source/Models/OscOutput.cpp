@@ -134,7 +134,7 @@ void OscOutput::sendSync()
 			// XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
 			//        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
 			p << osc::BeginMessage ("/sync")
-			<< playheadColPrecise << ppqPosition << timeInSeconds << bpm
+			<< (float)playheadColPrecise << ppqPosition << timeInSeconds << bpm
 			<< panelIndex << tabIndex << numTabs << numRows << numCols
 			<< *blob
 			<< osc::EndMessage;

@@ -64,7 +64,7 @@ void Sequencer::clearTab (int panelIndex_, int tabIndex_)
 int Sequencer::getPlayheadCol()
 {
 	//int playheadCol = tickCount / ticksPerCol;
-	int playheadCol = lastPlayheadColPrecise;
+	int playheadCol = (int)lastPlayheadColPrecise;
 	return playheadCol;
 }
 
