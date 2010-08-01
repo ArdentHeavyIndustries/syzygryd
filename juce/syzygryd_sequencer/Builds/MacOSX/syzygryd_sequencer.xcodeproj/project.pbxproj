@@ -44,6 +44,8 @@
 		C969A3971194E1140062CEEE /* AudioProcessorCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C969A3941194E1140062CEEE /* AudioProcessorCallback.cpp */; };
 		C969A4531194E7E70062CEEE /* TransportComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C969A4521194E7E70062CEEE /* TransportComponent.cpp */; };
 		C969A4991194EB8E0062CEEE /* StandaloneComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C969A4971194EB8E0062CEEE /* StandaloneComponent.cpp */; };
+		C982F10B11FA70D6000DFB33 /* StarField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C982F10A11FA70D6000DFB33 /* StarField.cpp */; };
+		C982F10C11FA70D6000DFB33 /* StarField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C982F10A11FA70D6000DFB33 /* StarField.cpp */; };
 		C988F29911CD84E600DFF03A /* OscInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F29811CD84E600DFF03A /* OscInput.cpp */; };
 		C988F29A11CD84E600DFF03A /* OscInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F29811CD84E600DFF03A /* OscInput.cpp */; };
 		C988F2B611CD873200DFF03A /* OscOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C988F2B511CD873200DFF03A /* OscOutput.cpp */; };
@@ -118,6 +120,8 @@
 		C969A4521194E7E70062CEEE /* TransportComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransportComponent.cpp; sourceTree = "<group>"; };
 		C969A4961194EB8E0062CEEE /* StandaloneComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StandaloneComponent.h; sourceTree = "<group>"; };
 		C969A4971194EB8E0062CEEE /* StandaloneComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StandaloneComponent.cpp; sourceTree = "<group>"; };
+		C982F10911FA70D6000DFB33 /* StarField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StarField.h; sourceTree = "<group>"; };
+		C982F10A11FA70D6000DFB33 /* StarField.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StarField.cpp; sourceTree = "<group>"; };
 		C988F29711CD84E600DFF03A /* OscInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OscInput.h; sourceTree = "<group>"; };
 		C988F29811CD84E600DFF03A /* OscInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OscInput.cpp; sourceTree = "<group>"; };
 		C988F2B411CD873200DFF03A /* OscOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OscOutput.h; sourceTree = "<group>"; };
@@ -248,6 +252,8 @@
 				C9F6622B11DE854A00EA64B3 /* Tab.cpp */,
 				C9F6625C11DE8B0F00EA64B3 /* SharedState.h */,
 				C9F6625D11DE8B0F00EA64B3 /* SharedState.cpp */,
+				C982F10911FA70D6000DFB33 /* StarField.h */,
+				C982F10A11FA70D6000DFB33 /* StarField.cpp */,
 			);
 			name = Models;
 			path = ../../Source/Models;
@@ -487,6 +493,7 @@
 				C9F6622D11DE854A00EA64B3 /* Tab.cpp in Sources */,
 				C9F6625F11DE8B0F00EA64B3 /* SharedState.cpp in Sources */,
 				C9E4850411EFC23D00DB0F65 /* AdjustmentComponent.cpp in Sources */,
+				C982F10B11FA70D6000DFB33 /* StarField.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,6 +529,7 @@
 				C9F6622C11DE854A00EA64B3 /* Tab.cpp in Sources */,
 				C9F6625E11DE8B0F00EA64B3 /* SharedState.cpp in Sources */,
 				C9E4850511EFC23D00DB0F65 /* AdjustmentComponent.cpp in Sources */,
+				C982F10C11FA70D6000DFB33 /* StarField.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
