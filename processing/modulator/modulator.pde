@@ -32,7 +32,12 @@ class Modulator
 
    MidiBus midiBus_;
 
+   Set<String> pendingControllerChanges_;
+
    Modulator(PApplet parent, String midiInput, String midiOutput) {
+      // HashSet is *not* synchronized by default
+      pendingControllerChanges_ = Collections.synchronizedSet(new HashSet<String>());
+      
       // this takes care of calling oscEvent() regardless, so we don't need to
       // add a listener and implement the full interface in this case (unlike
       // for SimpleMidiListener)
@@ -59,7 +64,11 @@ class Modulator
    /* (OscEventListener) */
    void oscEvent(OscMessage message) {
       try {
-         System.out.println("oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
+         System.out.println("received (and rebroadcasting) oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
+
+         // bug:64
+         // immediately echo the message back out, don't rely on MIDI send/receive
+         oscP5_.send(message, oscBroadcast_);
 
          // in general, input OSC messages should all be of the form:
          //   /C_modulator/modulationM value
@@ -93,7 +102,7 @@ class Modulator
                      int midiNumber = oscToMidiModulator(oscController, oscModulator);
                      int midiValue = oscToMidiValue(oscValue);
                      System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
-                     midiBus_.sendControllerChange(midiChannel, midiNumber, midiValue);
+                     doSendControllerChange(midiChannel, midiNumber, midiValue);
                   } else {
                      System.err.println("WARNING: Unexpected type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
                   }
@@ -125,9 +134,9 @@ class Modulator
                         int midiValueX = oscToMidiValue(oscValueX);
                         int midiValueY = oscToMidiValue(oscValueY);
                         System.out.println("sending MIDI: channel=" + midiChannelX + " number=" + midiNumberX + " value=" + midiValueX);
-                        midiBus_.sendControllerChange(midiChannelX, midiNumberX, midiValueX);
+                        doSendControllerChange(midiChannelX, midiNumberX, midiValueX);
                         System.out.println("sending MIDI: channel=" + midiChannelY + " number=" + midiNumberY + " value=" + midiValueY);
-                        midiBus_.sendControllerChange(midiChannelY, midiNumberY, midiValueY);
+                        doSendControllerChange(midiChannelY, midiNumberY, midiValueY);
                      } else {
                         System.err.println("WARNING: Unexpected type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
                      }
@@ -153,9 +162,33 @@ class Modulator
    //    println("oscStatus(): " + status.id());
    // }
 
+   String canonicalizeControllerChange(int channel, int number) {
+      return channel + "-" + number;
+   }
+
+   void doSendControllerChange(int channel, int number, int value) {
+      // bug:64
+      // we're already rebroadcasting this back on OSC, and we don't trust the value received back from the MIDI send/receive loop.
+      // so note that this has been sent, and we will ignore the next received MIDI controller change message for this channel/number pair.
+      String id = canonicalizeControllerChange(channel, number);
+      // each item in a set can only be present once
+      System.out.println("Will ignore next MIDI controller change received from " + id);
+      pendingControllerChanges_.add(id);
+      midiBus_.sendControllerChange(channel, number, value);
+   }
+
    /* SimpleMidiListener */
    void controllerChange(int channel, int number, int value) {
       System.out.println("received MIDI: channel=" + channel + " number=" + number + " value=" + value);
+
+      // bug:64
+      String id = canonicalizeControllerChange(channel, number);
+      if (pendingControllerChanges_.contains(id)) {
+         System.out.println("Ignoring MIDI controller change received from " + id);
+         pendingControllerChanges_.remove(id);
+         return;
+      }
+
       if (channel >= 0 && channel < numControllers_) {
          if (number == 52 || number == 53) {
             // need to special case xy pad
