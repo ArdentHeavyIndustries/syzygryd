@@ -103,7 +103,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(JuceHome)\extras\audio plugins\wrapper\VST;$(JuceHome)\extras\audio plugins\wrapper\Standalone;..\..\Source\Startup;..\..\Source\Standalone Wrapper;..\..\Source\Models;..\..\Source\Models\osc;..\..\Source\Components;$(VstSdkHome);$(JuceHome);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -208,8 +208,11 @@
     <ClInclude Include="..\..\Source\Startup\JuceHeader.h" />
     <ClInclude Include="..\..\Source\Startup\JucePluginCharacteristics.h" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Library Include="$(JuceHome)\bin\jucelib_static_Win32_debug.lib" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Library Include="$(JuceHome)\bin\jucelib_static_Win32.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
