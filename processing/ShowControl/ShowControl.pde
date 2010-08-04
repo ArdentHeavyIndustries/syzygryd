@@ -22,12 +22,19 @@ ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
 
 Fixture test, test2, test3, test4, test5;
 
+int lastSyncTimeInMs;
+int timeSinceLastSyncInMs;
+int lastDrawTimeInMs;
 
 private GButton btnStart;
 GWindow[] ctrlrWindow;
 
 void setup() {
 
+  lastSyncTimeInMs = 0;
+  timeSinceLastSyncInMs = 0;
+  lastDrawTimeInMs = millis();
+  
   /* example code*/
   colorMode(RGB);
   background(0);
@@ -85,7 +92,8 @@ void setup() {
 
 
 void draw(){
-  colorMode(HSB);
+  
+  updateStepPosition();
   
   //step lighting program
   program.drawFrame();
@@ -114,4 +122,31 @@ void draw(){
   events.flushExpired();
 
   background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB()); 
+}
+
+void updateStepPosition(){
+  if (lastSyncTimeInMs > 0) {
+    int now = millis();
+    int timeSinceLastDrawInMs = now - lastDrawTimeInMs;
+    lastDrawTimeInMs = now;
+    timeSinceLastSyncInMs += timeSinceLastDrawInMs;
+  
+    sequencerState.stepPosition += getTimeAsColOffset(timeSinceLastSyncInMs);
+    
+    int oldStep = sequencerState.curStep;
+    sequencerState.curStep = floor(sequencerState.stepPosition);
+    if (oldStep != sequencerState.curStep) {
+      events.fire("step");
+    }
+    print("Position: "+sequencerState.stepPosition+"\n");
+  }
+}
+
+
+double getTimeAsColOffset (int time) {
+  double beatsPerCol = 4;
+  double msPerBeat = 60000 / (float)sequencerState.bpm;
+  double msPerCol = beatsPerCol * msPerBeat;
+
+  return time * msPerCol;
 }

@@ -8,8 +8,8 @@ public class SequencerState {
   private final static int PITCHES = 10;
   
   //timing information
-  int nextStep; // Number of next sequencer step to be triggered (integer from 0 to 15).
-  int timeOfLastStep; // timestamp (in milliseconds since beginning of sketch) of last step
+  int curStep; // Number of current sequencer step.
+  float stepPosition; // precise position within sequence
   double bpm;  // beats per minute
   double ppqPosition; // number of quarter notes since sequencer start
     
@@ -36,19 +36,20 @@ public class SequencerState {
     return int(round(60000/(float)bpm));
   }
   
-  
-  /*
-   * Returns absolute time (in milliseconds since beginning of sketch) when next step will trigger, based on current BPM
-   */
-  public int timeOfNextStep(){
-    return timeOfLastStep + int(beatInterval()/4);
-  }
-  
-  
+ 
   /*
    * Returns remaining time in milliseconds until next step will trigger
    */
-  public int timeToNextStep(){
-    return timeOfNextStep() - millis();
+  public int timeToStep(int step){
+    int beatsPerStep = 4;
+    float msPerBeat = 60000 / (float)bpm;
+    float msPerStep = beatsPerStep * msPerBeat;
+    float stepOffset = 0;
+    if (step < curStep) {
+      stepOffset = (STEPS - curStep) + step;
+    } else {
+      stepOffset = step - curStep;
+    }
+    return int(stepOffset * msPerStep);
   }
 }

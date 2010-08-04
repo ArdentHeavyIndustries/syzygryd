@@ -34,23 +34,21 @@ class OSCManager {
     // Enable the following line for OSC message debugging purposes
     //println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
 
-    if(m.addrPattern().endsWith("/tempo")) {
-      events.fire("step",true);
-      sequencerState.timeOfLastStep = millis(); // set timestamp to now
-      float stepsPercentDone = m.get(0).floatValue(); // sequencer sends current step as float in the range 0 to 1.
-      sequencerState.nextStep = (int(16 * stepsPercentDone) % 15); // results in nextStep falling in a range from 0 to 15
-    }
-
     if (m.addrPattern().endsWith("/sync")) {
-      sequencerState.ppqPosition = m.get(0).doubleValue();
-      // double timeInSeconds = m.get(1).doubleValue(); // unlikely we'll need sequencer-relative time for anything
-      sequencerState.bpm = m.get(2).doubleValue();
-      int panelIndex = m.get(3).intValue();
-      int curTab = m.get(4).intValue();
-      int numTabs = m.get(5).intValue();
-      int numRows = m.get(6).intValue();
-      int numCols = m.get(7).intValue();
-      byte[] blob = m.get(8).blobValue();
+      
+      lastSyncTimeInMs = millis();
+      timeSinceLastSyncInMs = 0;
+      
+      sequencerState.stepPosition = m.get(0).floatValue();      
+      sequencerState.ppqPosition = m.get(1).doubleValue();
+      // double timeInSeconds = m.get(2).doubleValue(); // unlikely we'll need sequencer-relative time for anything
+      sequencerState.bpm = m.get(3).doubleValue();
+      int panelIndex = m.get(4).intValue();
+      int curTab = m.get(5).intValue();
+      int numTabs = m.get(6).intValue();
+      int numRows = m.get(7).intValue();
+      int numCols = m.get(8).intValue();
+      byte[] blob = m.get(9).blobValue();
       if (blob == null) {
         System.err.println("WARNING: null blob");
         return;
