@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  OscInput.cpp
  *  syzygryd_sequencer
@@ -57,14 +58,16 @@ void OscInput::run()
 		if (addressPattern == "/server/connect") {
 			clientConnect (m);
 		} else if (addressPattern.contains("tab") &&
-				   addressPattern.contains("panel")) {
+                 addressPattern.contains("panel")) {
 			noteToggle (m);
 		} else if (addressPattern.contains("control") &&
-				   addressPattern.contains("clear")) { 
-
+                 addressPattern.contains("clear")) { 
 			clearTab (m);
 		} else if (addressPattern.contains("tab")) {
 			changeTab (m);
+      } else if (addressPattern.contains("_control/syncRequest")) {
+         // XXX bug:77 nicole has to verify the format of this message
+         inefficientSync();
 		} else {
 			DBG ("Unrecognized address pattern.")
 		}
@@ -122,10 +125,12 @@ void OscInput::noteToggle (osc::ReceivedMessage m)
 	row = SharedState::getInstance()->getTotalRows() - row;
 	col -= 1;
 	
+   //#ifdef JUCE_DEBUG
 	String msg;
 	msg << "Setting the status of cell " << row << ", " << col <<
-	" on tab " << tabIndex << " panel " << panelIndex << " to: " << status;
-	DBG (msg) 
+      " on tab " << tabIndex << " panel " << panelIndex << " to: " << status;
+	DBG (msg);
+   //#endif
 	
 	// Update the shared sequencer state
 	Cell* cell = SharedState::getInstance()->getCellAt (panelIndex - 1, 
@@ -168,7 +173,8 @@ void OscInput::clearTab (osc::ReceivedMessage m)
 	
 	String msg;
 	msg << "Clearing tab " << tabIndex << " on panel " << panelIndex;
-	DBG (msg)
+	DBG (msg);
+   // XXX bug:72 also need to send inefficiently for touchosc
 	SharedState::getInstance()->clearTab (panelIndex, tabIndex);	
 }
 
@@ -201,7 +207,11 @@ void OscInput::changeTab (osc::ReceivedMessage m)
 	SharedState::getInstance()->setTabIndex (panelIndex, tabIndex);			
 }
 
-
-
-
-
+// XXX bug:77 i suspect that maybe this should be per panel
+// in which case we would need to parse (osc::ReceivedMessage m)
+void OscInput::inefficientSync() {
+   // [/1_control/syncRequest]
+   // assume that this means that some touchOsc controller is connected,
+   // which will be needed 
+   SharedState::getInstance()->sendInefficientSync();
+}

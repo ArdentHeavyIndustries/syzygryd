@@ -50,10 +50,10 @@ Cell* Sequencer::getCellAt (int panelIndex_, int tabIndex_, int row_, int col_)
 }
 
 void Sequencer::noteToggle (int panelIndex_, int tabIndex_,
-							int row_, int col_, bool isNoteOn)
+                            int row_, int col_, bool isNoteOn)
 {
 	SharedState::getInstance()->noteToggle (panelIndex_, tabIndex_,
-											row_, col_, isNoteOn);
+                                           row_, col_, isNoteOn);
 }
 
 void Sequencer::clearTab (int panelIndex_, int tabIndex_)

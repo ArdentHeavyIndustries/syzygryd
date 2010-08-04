@@ -59,6 +59,9 @@ public:
 	osc::Blob* updateAndGetCompressedPanelState (int panelIndex_); 
 	String getStringPanelState (int panelIndex_); 
 	void setStringPanelState (int panelIndex_, String state);
+
+   void sendInefficientSync();
+   void sendInefficientClearTab(int panelIndex_, int tabIndex_);
 	
 	void update();
 
@@ -89,6 +92,11 @@ private:
 	
 	OscInput* oscInput;
 	OscOutput* oscOutput;
+
+   // XXX bug:72,76 - it would be better to keep a list of IP addresses, but i
+   // don't know how to get that info
+   // XXX bug:77 i suspect that maybe this should be per panel
+   bool touchOscConnected;
 	
 	bool starFieldActive; // perform starfield effect	
 };

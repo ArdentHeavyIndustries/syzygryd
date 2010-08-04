@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  OscInput.h
  *  syzygryd_sequencer
@@ -29,6 +30,7 @@ private:
 	void noteToggle (osc::ReceivedMessage m);
 	void clearTab (osc::ReceivedMessage m);
 	void changeTab (osc::ReceivedMessage m);
+   void OscInput::inefficientSync();
 	
 	DatagramSocket inSocket;
 };

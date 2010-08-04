@@ -16,7 +16,7 @@
 
 #include "OscOutput.h"
 
-const String kRemoteHost = "255.255.255.255";
+const String kRemoteHost = "255.255.255.255";	// XXX bug:76 - more flexibility is desired
 const int kRemotePort = 9000;
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;
@@ -48,8 +48,11 @@ void OscOutput::broadcast (const void* sourceBuffer, int numBytesToWrite)
 	outSocket.write (sourceBuffer, numBytesToWrite);
 }
 
+// this is somewhat poorly named, b/c it doesn't actually toggle anything, and it's not just used when a note is being toggled.
+// (for example, see SharedState::sendInefficientSync())
+// indices start counting at 0
 void OscOutput::sendNoteToggle (int panelIndex, int tabIndex, int row, int col,
-								bool isNoteOn)
+                                bool isNoteOn)
 {
 	char buffer[kOutputBufferSize];
 	osc::OutboundPacketStream p( buffer, kOutputBufferSize );
@@ -63,13 +66,13 @@ void OscOutput::sendNoteToggle (int panelIndex, int tabIndex, int row, int col,
 	// [/1_tab1/panel/6/9 float32:1]
 	String msg;
 	msg << "/" << panelIndex << "_tab" << tabIndex << "/panel/" << row 
-	<< "/" << col;
+       << "/" << col;
 	
-	float state = 0;
+	float state = 0.0;
 	if (isNoteOn) state = 1.0;
 	
 	p << osc::BeginMessage (msg.toUTF8()) << state
-	<< osc::EndMessage;
+     << osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());	
 }
 

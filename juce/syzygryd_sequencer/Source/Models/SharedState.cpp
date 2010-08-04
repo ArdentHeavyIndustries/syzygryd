@@ -29,6 +29,7 @@ oscOutput (0),
 ppqPosition (0.0),
 timeInSeconds (0.0),
 bpm (120.0),
+touchOscConnected (false),
 starFieldActive (false)
 {
    blobs = new osc::Blob*[kNumPanels];
@@ -166,7 +167,7 @@ void SharedState::broadcast (const void* sourceBuffer, int numBytesToWrite)
 }
 
 void SharedState::noteToggle (int panelIndex_, int tabIndex_, 
-							  int row_, int col_, bool state)
+                              int row_, int col_, bool state)
 {
 	Cell* cell = getCellAt (panelIndex_, tabIndex_, row_, col_);
 	if (state) {
@@ -179,6 +180,20 @@ void SharedState::noteToggle (int panelIndex_, int tabIndex_,
 
 void SharedState::clearTab (int panelIndex_, int tabIndex_)
 {
+   // Send inefficient clear to touchOSC controllers.
+   // This must be done *before* the actual clear.
+   // Only do if needed.
+   // XXX bug:72,76 - not broadcasting would be better
+   if (touchOscConnected) {
+      sendInefficientClearTab (panelIndex_, tabIndex_);
+   }
+   //#ifdef JUCE_DEBUG
+   else {
+      DBG ("Not sending inefficient clear tab for touchOSC compatability to panel="
+           + String(panelIndex_) + " tab=" + String(tabIndex_)
+           + " because no touchOSC controller has connected yet");
+   }
+   //#endif
 	Panel* panel = panels[panelIndex_];
 	panel->clearTab (tabIndex_);
 	oscOutput->sendClearTab (panelIndex_, tabIndex_);
@@ -237,10 +252,10 @@ String SharedState::getStringPanelState (int panelIndex_)
 	return valueString;	
 }
 
+// Set the state of a panel based on a serialized state string
 void SharedState::setStringPanelState (int panelIndex_, String state)
 {
-	// Set the state of a panel based on a serialized state string
-	int numTabs = 4;
+	int numTabs = Panel::kNumTabs;
 	int numRows = getTotalRows();
 	int numCols = getTotalCols();
 	
@@ -261,6 +276,76 @@ void SharedState::setStringPanelState (int panelIndex_, String state)
 	}		
 }
 
+// For touchOSC compatability
+// XXX bug:77 i suspect that maybe this should be per panel
+void SharedState::sendInefficientSync() {
+   DBG ("Sending inefficient sync for touchOSC compatability");
+
+   // we don't bother tracking a touch osc controller disconnecting.  if one ever connects, we assume one is connected.
+   touchOscConnected = true;
+
+   // iterate similarly like we do in getStringPanelState() below,
+   // but for all panels at once
+	int numTabs = Panel::kNumTabs;
+	int numRows = getTotalRows();
+	int numCols = getTotalCols();
+
+   for (int i = 0; i < kNumPanels; i++) {
+      for (int j = 0; j < numTabs; j++) {
+         for (int k = 0; k < numRows; k++) {
+            for (int l = 0; l < numCols; l++) {
+               Cell *cell = SharedState::getInstance()->getCellAt (/* panelIndex */ i,
+                                                                   /* tabIndex */ j,
+                                                                   /* row */ k,
+                                                                   /* col */ l);
+               bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
+               // XXX bug:76 - it would be nice to not broadcast this if not necessary
+               // (but currently the constant OscOutput::kRemoteHost is used)
+               oscOutput->sendNoteToggle(/* panelIndex */ i,
+                                         /* tabIndex */ j,
+                                         /* row */ k,
+                                         /* col */ l,
+                                         isOn);
+            }
+         }
+      }
+   }
+}
+
+// For touchOSC compatability
+// Note that this does *not* actually clear any internal state.
+// It just sends button off messages to all buttons that are on.
+// Which means that it is imperative that this be called *before* the tab is actually cleared.
+// An alternative would be to clear the tab and then send button off messages for everything,
+// but that would be even more inefficient than necessary.
+void SharedState::sendInefficientClearTab(int panelIndex_, int tabIndex_) {
+   DBG ("Sending inefficient clear tab for touchOSC compatability to panel="
+        + String(panelIndex_) + " tab=" + String(tabIndex_));
+
+	int numRows = getTotalRows();
+	int numCols = getTotalCols();
+
+   for (int k = 0; k < numRows; k++) {
+      for (int l = 0; l < numCols; l++) {
+         Cell *cell = SharedState::getInstance()->getCellAt (panelIndex_,
+                                                             tabIndex_,
+                                                             /* row */ k,
+                                                             /* col */ l);
+         bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
+         // send note off for all notes that are currently on
+         if (isOn) {
+            // XXX bug:76 - it would be nice to not broadcast this if not necessary
+            // (but currently the constant OscOutput::kRemoteHost is used)
+            oscOutput->sendNoteToggle(panelIndex_,
+                                      tabIndex_,
+                                      /* row */ k,
+                                      /* col */ l,
+                                      /* isNoteOn */ false);
+         }
+      }
+   }
+}
+
 void SharedState::update()
 {
 	for (int i = 0; i < kNumPanels; i++) {
@@ -278,5 +363,3 @@ void SharedState::setStarFieldActive (bool starFieldActive_)
 {
 	starFieldActive = starFieldActive_;
 }
-
-
