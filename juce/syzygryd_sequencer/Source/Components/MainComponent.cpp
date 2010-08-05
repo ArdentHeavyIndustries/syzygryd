@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  MainComponent.cpp
  *  syzygryd_sequencer
@@ -46,15 +47,15 @@ MainComponent::~MainComponent()
 // Component methods
 void MainComponent::paint (Graphics& g)
 {
-    g.fillAll (Colours::black);
-
+   g.fillAll (Colours::black);
+   
 	g.setGradientFill (ColourGradient (Colour::fromRGB (250, 250, 250), 0, 15,
-									   Colour::fromRGB (180, 180, 180), 0, 25,
-									   false));
+                                      Colour::fromRGB (180, 180, 180), 0, 25,
+                                      false));
 	
 	g.setFont (18.0, Font::bold);
-	g.drawText ("Syzygryd Sequencer r532", 10, 10, getWidth() - 20, 20, 
-				Justification::centredTop, false);
+	g.drawText ("Syzygryd Sequencer r533", 10, 10, getWidth() - 20, 20, 
+               Justification::centredTop, false);
 }
 
 void MainComponent::resized()

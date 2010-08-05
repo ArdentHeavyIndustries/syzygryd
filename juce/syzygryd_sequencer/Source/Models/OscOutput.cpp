@@ -32,7 +32,7 @@ OscOutput::OscOutput () :
 Thread ("OscOutput"),
 outSocket (0, true),
 lastPlayheadCol (-1),
-sleepIntervalMs (125),
+sleepIntervalMs (125),	// initialize based on 120 bpm
 syncCount(0)
 {
 	outSocket.connect (kRemoteHost, kRemotePort, kTimeoutMs);
@@ -153,11 +153,19 @@ void OscOutput::sendSync()
 // Thread methods
 void OscOutput::run()
 {
+   int64 prevTimeMs= -1;
 	while (! threadShouldExit()) {
 		// ms/col = ms/s / (col/beat * beat/min / s/min)
 		sleepIntervalMs = (int)(1000.0 / ((4.0 * SharedState::getInstance()->getBpm()) / 60.0));
-		//DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
+
+      if (prevTimeMs != -1) {
+         int64 nowMs = Time::currentTimeMillis();
+         sleepIntervalMs -= (unsigned int)(nowMs - prevTimeMs);
+      }
+
+      //DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
 		Thread::sleep (sleepIntervalMs);
+      prevTimeMs = Time::currentTimeMillis();
 		
 		int playheadCol = SharedState::getInstance()->getPlayheadCol();
 		
