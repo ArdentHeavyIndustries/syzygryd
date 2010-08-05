@@ -72,7 +72,7 @@ class Modulator
    /* (OscEventListener) */
    void oscEvent(OscMessage message) {
       try {
-         System.out.println("received (and rebroadcasting) oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
+         //System.out.println("received (and rebroadcasting) oscEvent(): " + message.addrPattern() + " " + message.typetag() + " " + message.toString());
 
          // bug:64
          // immediately echo the message back out, don't rely on MIDI send/receive
@@ -105,7 +105,7 @@ class Modulator
                   int oscModulator = Integer.parseInt(matcherSingle.group(2));
                   if (message.checkTypetag("f")) {
                      float oscValue = message.get(0).floatValue();
-                     System.out.println("received OSC: controller=" + oscController + " modulator=" + oscModulator + " value=" + oscValue);
+                     //System.out.println("received OSC: controller=" + oscController + " modulator=" + oscModulator + " value=" + oscValue);
                      oscToMidiSendSingle(oscController, oscModulator, oscValue);
                   } else {
                      System.err.println("WARNING: Unexpected type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
@@ -130,16 +130,16 @@ class Modulator
                         // save values for later use by return path
                         x[oscController-1] = oscValueX;
                         y[oscController-1] = oscValueY;
-                        System.out.println("received OSC: controller=" + oscController + " modulator=" + oscModulator + " valueX=" + oscValueX + " valueY=" + oscValueY);
+                        //System.out.println("received OSC: controller=" + oscController + " modulator=" + oscModulator + " valueX=" + oscValueX + " valueY=" + oscValueY);
                         int midiChannelX = oscControllerToMidiChannel(oscController, 9);
                         int midiChannelY = oscControllerToMidiChannel(oscController, 10);
                         int midiNumberX = oscToMidiModulator(oscController, 9);
                         int midiNumberY = oscToMidiModulator(oscController, 10);
                         int midiValueX = oscToMidiValue(oscValueX);
                         int midiValueY = oscToMidiValue(oscValueY);
-                        System.out.println("sending MIDI: channel=" + midiChannelX + " number=" + midiNumberX + " value=" + midiValueX);
+                        //System.out.println("sending MIDI: channel=" + midiChannelX + " number=" + midiNumberX + " value=" + midiValueX);
                         doSendControllerChange(midiChannelX, midiNumberX, midiValueX);
-                        System.out.println("sending MIDI: channel=" + midiChannelY + " number=" + midiNumberY + " value=" + midiValueY);
+                        //System.out.println("sending MIDI: channel=" + midiChannelY + " number=" + midiNumberY + " value=" + midiValueY);
                         doSendControllerChange(midiChannelY, midiNumberY, midiValueY);
                      } else {
                         System.err.println("WARNING: Unexpected type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
@@ -165,7 +165,7 @@ class Modulator
       int midiChannel = oscControllerToMidiChannel(oscController, oscModulator);
       int midiNumber = oscToMidiModulator(oscController, oscModulator);
       int midiValue = oscToMidiValue(oscValue);
-      System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
+      //System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
       doSendControllerChange(midiChannel, midiNumber, midiValue);
    }
 
@@ -185,19 +185,19 @@ class Modulator
       // so note that this has been sent, and we will ignore the next received MIDI controller change message for this channel/number pair.
       String id = canonicalizeControllerChange(channel, number);
       // each item in a set can only be present once
-      System.out.println("Will ignore next MIDI controller change received from " + id);
+      //System.out.println("Will ignore next MIDI controller change received from " + id);
       pendingControllerChanges_.add(id);
       midiBus_.sendControllerChange(channel, number, value);
    }
 
    /* SimpleMidiListener */
    void controllerChange(int channel, int number, int value) {
-      System.out.println("received MIDI: channel=" + channel + " number=" + number + " value=" + value);
+      //System.out.println("received MIDI: channel=" + channel + " number=" + number + " value=" + value);
 
       // bug:64
       String id = canonicalizeControllerChange(channel, number);
       if (pendingControllerChanges_.contains(id)) {
-         System.out.println("Ignoring MIDI controller change received from " + id);
+         //System.out.println("Ignoring MIDI controller change received from " + id);
          pendingControllerChanges_.remove(id);
          return;
       }
@@ -223,7 +223,7 @@ class Modulator
                   oscValue2 = oscValue;
                   y[oscController-1] = oscValue2;	// save for next time
                }
-               System.out.println("sending OSC: address=" + oscAddr + " value1=" + oscValue1 + " value2=" + oscValue2);
+               //System.out.println("sending OSC: address=" + oscAddr + " value1=" + oscValue1 + " value2=" + oscValue2);
                OscMessage message = new OscMessage(oscAddr);
                message.add(oscValue1);
                message.add(oscValue2);
@@ -234,7 +234,7 @@ class Modulator
             int oscModulator = midiToOscModulator(channel, number);
             String oscAddr = "/" + oscController + "_modulator/modulation" + oscModulator;
             float oscValue = midiToOscValue(value);
-            System.out.println("sending OSC: address=" + oscAddr + " value=" + oscValue);
+            //System.out.println("sending OSC: address=" + oscAddr + " value=" + oscValue);
             OscMessage message = new OscMessage(oscAddr);
             message.add(oscValue);
             oscP5_.send(message, oscBroadcast_);
