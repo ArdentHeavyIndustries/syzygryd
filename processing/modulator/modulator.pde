@@ -98,11 +98,7 @@ class Modulator
                   if (message.checkTypetag("f")) {
                      float oscValue = message.get(0).floatValue();
                      System.out.println("received OSC: controller=" + oscController + " modulator=" + oscModulator + " value=" + oscValue);
-                     int midiChannel = oscControllerToMidiChannel(oscController, oscModulator);
-                     int midiNumber = oscToMidiModulator(oscController, oscModulator);
-                     int midiValue = oscToMidiValue(oscValue);
-                     System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
-                     doSendControllerChange(midiChannel, midiNumber, midiValue);
+                     oscToMidiSendSingle(oscController, oscModulator, oscValue);
                   } else {
                      System.err.println("WARNING: Unexpected type tag (" + message.typetag() + ") in OSC message: " + oscAddr);
                   }
@@ -154,6 +150,15 @@ class Modulator
          System.err.println("WARNING: Caught exception " + e);
          e.printStackTrace();
       }
+   }
+
+   // broken out separately, b/c also used by keyPressed()
+   void oscToMidiSendSingle(int oscController, int oscModulator, float oscValue) {
+      int midiChannel = oscControllerToMidiChannel(oscController, oscModulator);
+      int midiNumber = oscToMidiModulator(oscController, oscModulator);
+      int midiValue = oscToMidiValue(oscValue);
+      System.out.println("sending MIDI: channel=" + midiChannel + " number=" + midiNumber + " value=" + midiValue);
+      doSendControllerChange(midiChannel, midiNumber, midiValue);
    }
 
    // /* OscEventListener */
@@ -355,6 +360,7 @@ void setup() {
 
    // set default midi in/out
    // should be complements of whatever Ableton Live is set to
+   // XXX should probably change these defaults for the mac to be different from each other, but i'm not sure what they should be
    String s_defaultMacMidiInput1 = "GridSequencer";
    String s_defaultMacMidiInput2  = "IAC Driver - Bus 1";
    String s_defaultMacMidiOutput1 = "GridSequencer";
@@ -429,6 +435,47 @@ void handleOptionEvents(GOption selected, GOption deselected) {
 
 void handleSliderEvents(GSlider slider) {
 }
+
+// bug:44
+void keyPressed() {
+   // XXX this should be selectable from the gui, but fixed for now
+   int oscController = 1;
+
+   int oscModulator = -1;
+   if (key == '1') {
+      oscModulator = 1;
+   } else if (key == '2') {
+      oscModulator = 2;
+   } else if (key == '3') {
+      oscModulator = 3;
+   } else if (key == '4') {
+      oscModulator = 4;
+   } else if (key == '5') {
+      oscModulator = 5;
+   } else if (key == '6') {
+      oscModulator = 6;
+   } else if (key == '7') {
+      oscModulator = 7;
+   } else if (key == '8') {
+      oscModulator = 8;
+   } else if (key == '9') {
+      oscModulator = 9;
+   } else if (key == '0') {
+      oscModulator = 10;
+   }
+
+   if (oscModulator == -1) {
+      // some other key pressed
+      return;
+   }
+
+   // the value is arbitrary, so pick in the middle
+   float oscValue = 0.5f;
+   
+   System.out.println("Sending MIDI controller change for controller=" + oscController + " (based on pulldown), modulator=" + oscModulator + " (based on keypress), value=" + oscValue + " (arbitrary)");
+   m_.oscToMidiSendSingle(oscController, oscModulator, oscValue);
+}
+
 
 // for testing osc to midi, see oscToMidi.notes
 // send with SendOSC, and look at output on processing console
