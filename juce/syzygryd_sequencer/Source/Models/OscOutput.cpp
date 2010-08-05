@@ -76,6 +76,7 @@ void OscOutput::sendNoteToggle (int panelIndex, int tabIndex, int row, int col,
 	outSocket.write (p.Data(), p.Size());	
 }
 
+// bug:78 - not currently used, but keep anyway
 void OscOutput::sendClearTab (int panelIndex, int tabIndex)
 {
 	char buffer[kOutputBufferSize];

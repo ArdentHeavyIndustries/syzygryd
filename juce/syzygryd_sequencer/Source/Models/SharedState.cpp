@@ -199,7 +199,8 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
    //#endif
 	Panel* panel = panels[panelIndex_];
 	panel->clearTab (tabIndex_);
-	oscOutput->sendClearTab (panelIndex_, tabIndex_);
+   // bug:78 - not currently needed
+	//oscOutput->sendClearTab (panelIndex_, tabIndex_);
 }
 
 // Update and get the bit compressed serialized state of a panel
