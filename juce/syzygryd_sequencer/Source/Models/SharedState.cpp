@@ -29,10 +29,10 @@ oscOutput (0),
 ppqPosition (0.0),
 timeInSeconds (0.0),
 bpm (120.0),
-touchOscConnected (false),
 starFieldActive (false)
 {
    blobs = new osc::Blob*[kNumPanels];
+   touchOscConnected = new bool[kNumPanels];
    int numValues = Panel::kNumTabs * totalRows * totalCols;
    int numBytes = numValues / (sizeof(unsigned char)*8);
    int numBits = numBytes * (sizeof(unsigned char)*8);
@@ -40,7 +40,7 @@ starFieldActive (false)
    if (paddingBits > 0) {
       numBytes++;
    }
-   
+
 	for (int i = 0; i < kNumPanels; i++) {
 		Panel* panel = new Panel (totalRows, totalCols);
 		panels.add (panel);
@@ -49,8 +49,10 @@ starFieldActive (false)
       unsigned char* values = (unsigned char*)calloc(numBytes, sizeof(unsigned char));
       blobs[i]->data = (void*) values;
       blobs[i]->size = numBytes * sizeof(unsigned char);
+
+      touchOscConnected[i] = false;
 	}
-	
+
 	oscInput = new OscInput();
 	oscOutput = new OscOutput();
 	oscInput->startThread();
@@ -68,6 +70,7 @@ SharedState::~SharedState()
       delete blobs[i];
    }
    delete [] blobs;
+   delete [] touchOscConnected;
 }
 
 bool SharedState::testAndSetPrimarySequencer()
@@ -184,7 +187,7 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
    // This must be done *before* the actual clear.
    // Only do if needed.
    // XXX bug:72,76 - not broadcasting would be better
-   if (touchOscConnected) {
+   if (touchOscConnected[panelIndex_]) {
       sendInefficientClearTab (panelIndex_, tabIndex_);
    }
    //#ifdef JUCE_DEBUG
@@ -277,12 +280,11 @@ void SharedState::setStringPanelState (int panelIndex_, String state)
 }
 
 // For touchOSC compatability
-// XXX bug:77 i suspect that maybe this should be per panel
-void SharedState::sendInefficientSync() {
-   DBG ("Sending inefficient sync for touchOSC compatability");
+void SharedState::sendInefficientSync (int panelIndex_) {
+   DBG ("Sending inefficient sync to panel " + String(panelIndex_) + " for touchOSC compatability");
 
    // we don't bother tracking a touch osc controller disconnecting.  if one ever connects, we assume one is connected.
-   touchOscConnected = true;
+   touchOscConnected[panelIndex_] = true;
 
    // iterate similarly like we do in getStringPanelState() below,
    // but for all panels at once
@@ -290,23 +292,21 @@ void SharedState::sendInefficientSync() {
 	int numRows = getTotalRows();
 	int numCols = getTotalCols();
 
-   for (int i = 0; i < kNumPanels; i++) {
-      for (int j = 0; j < numTabs; j++) {
-         for (int k = 0; k < numRows; k++) {
-            for (int l = 0; l < numCols; l++) {
-               Cell *cell = SharedState::getInstance()->getCellAt (/* panelIndex */ i,
-                                                                   /* tabIndex */ j,
-                                                                   /* row */ k,
-                                                                   /* col */ l);
-               bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
-               // XXX bug:76 - it would be nice to not broadcast this if not necessary
-               // (but currently the constant OscOutput::kRemoteHost is used)
-               oscOutput->sendNoteToggle(/* panelIndex */ i,
-                                         /* tabIndex */ j,
-                                         /* row */ k,
-                                         /* col */ l,
-                                         isOn);
-            }
+   for (int j = 0; j < numTabs; j++) {
+      for (int k = 0; k < numRows; k++) {
+         for (int l = 0; l < numCols; l++) {
+            Cell *cell = SharedState::getInstance()->getCellAt (panelIndex_,
+                                                                /* tabIndex */ j,
+                                                                /* row */ k,
+                                                                /* col */ l);
+            bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
+            // XXX bug:76 - it would be nice to not broadcast this if not necessary
+            // (but currently the constant OscOutput::kRemoteHost is used)
+            oscOutput->sendNoteToggle(panelIndex_,
+                                      /* tabIndex */ j,
+                                      /* row */ k,
+                                      /* col */ l,
+                                      isOn);
          }
       }
    }

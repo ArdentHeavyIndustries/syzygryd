@@ -66,8 +66,7 @@ void OscInput::run()
 		} else if (addressPattern.contains("tab")) {
 			changeTab (m);
       } else if (addressPattern.contains("_control/syncRequest")) {
-         // XXX bug:77 nicole has to verify the format of this message
-         inefficientSync();
+         inefficientSync (m);
 		} else {
 			DBG ("Unrecognized address pattern.")
 		}
@@ -207,11 +206,20 @@ void OscInput::changeTab (osc::ReceivedMessage m)
 	SharedState::getInstance()->setTabIndex (panelIndex, tabIndex);			
 }
 
-// XXX bug:77 i suspect that maybe this should be per panel
-// in which case we would need to parse (osc::ReceivedMessage m)
-void OscInput::inefficientSync() {
+void OscInput::inefficientSync (osc::ReceivedMessage m) {
    // [/1_control/syncRequest]
    // assume that this means that some touchOsc controller is connected,
-   // which will be needed 
-   SharedState::getInstance()->sendInefficientSync();
+   // which will be needed for the inefficient clear tab
+
+   // Parse panel
+   // XXX this is somewhat fragile, because it assumes that the number of panels only takes up a single digit
+   // but that's true for now, and generalizing it further wouldn't be too hard
+   jassert(SharedState::kNumPanels < 10);
+	String addressPattern (m.AddressPattern());
+	DBG (addressPattern);
+   int panelIndex = addressPattern.substring(1,2).getIntValue() - 1;
+   jassert(panelIndex >= 0 && panelIndex < SharedState::kNumPanels);
+
+   DBG ("Sending inefficient sync to panel " + String(panelIndex));
+   SharedState::getInstance()->sendInefficientSync (panelIndex);
 }

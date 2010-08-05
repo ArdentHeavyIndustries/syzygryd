@@ -30,7 +30,7 @@ private:
 	void noteToggle (osc::ReceivedMessage m);
 	void clearTab (osc::ReceivedMessage m);
 	void changeTab (osc::ReceivedMessage m);
-   void OscInput::inefficientSync();
+   void inefficientSync (osc::ReceivedMessage m);
 	
 	DatagramSocket inSocket;
 };

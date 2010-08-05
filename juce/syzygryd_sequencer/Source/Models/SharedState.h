@@ -53,14 +53,14 @@ public:
 	void broadcast (const void* sourceBuffer, int numBytesToWrite);
 	
 	void noteToggle (int panelIndex_, int tabIndex_, int row_, int col_, 
-					 bool state);
+                    bool state);
 	void clearTab (int panelIndex_, int tabIndex_);
 	
 	osc::Blob* updateAndGetCompressedPanelState (int panelIndex_); 
 	String getStringPanelState (int panelIndex_); 
 	void setStringPanelState (int panelIndex_, String state);
 
-   void sendInefficientSync();
+   void sendInefficientSync(int panelIndex_);
    void sendInefficientClearTab(int panelIndex_, int tabIndex_);
 	
 	void update();
@@ -95,8 +95,7 @@ private:
 
    // XXX bug:72,76 - it would be better to keep a list of IP addresses, but i
    // don't know how to get that info
-   // XXX bug:77 i suspect that maybe this should be per panel
-   bool touchOscConnected;
+   bool* touchOscConnected;
 	
 	bool starFieldActive; // perform starfield effect	
 };
