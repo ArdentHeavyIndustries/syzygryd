@@ -186,7 +186,7 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
    // Send inefficient clear to touchOSC controllers.
    // This must be done *before* the actual clear.
    // Only do if needed.
-   // XXX bug:72,76 - not broadcasting would be better
+   // XXX bug:79 - not broadcasting would be better
    if (touchOscConnected[panelIndex_]) {
       sendInefficientClearTab (panelIndex_, tabIndex_);
    }
@@ -300,7 +300,7 @@ void SharedState::sendInefficientSync (int panelIndex_) {
                                                                 /* row */ k,
                                                                 /* col */ l);
             bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
-            // XXX bug:76 - it would be nice to not broadcast this if not necessary
+            // XXX bug:79 - it would be nice to not broadcast this if not necessary
             // (but currently the constant OscOutput::kRemoteHost is used)
             oscOutput->sendNoteToggle(panelIndex_,
                                       /* tabIndex */ j,
@@ -334,7 +334,7 @@ void SharedState::sendInefficientClearTab(int panelIndex_, int tabIndex_) {
          bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
          // send note off for all notes that are currently on
          if (isOn) {
-            // XXX bug:76 - it would be nice to not broadcast this if not necessary
+            // XXX bug:79 - it would be nice to not broadcast this if not necessary
             // (but currently the constant OscOutput::kRemoteHost is used)
             oscOutput->sendNoteToggle(panelIndex_,
                                       tabIndex_,

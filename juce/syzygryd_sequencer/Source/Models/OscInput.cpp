@@ -173,7 +173,7 @@ void OscInput::clearTab (osc::ReceivedMessage m)
 	String msg;
 	msg << "Clearing tab " << tabIndex << " on panel " << panelIndex;
 	DBG (msg);
-   // XXX bug:72 also need to send inefficiently for touchosc
+   // bug:72 also need to send inefficiently for touchosc
 	SharedState::getInstance()->clearTab (panelIndex, tabIndex);	
 }
 

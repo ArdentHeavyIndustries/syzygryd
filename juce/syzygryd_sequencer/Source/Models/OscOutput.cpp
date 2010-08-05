@@ -16,7 +16,7 @@
 
 #include "OscOutput.h"
 
-const String kRemoteHost = "255.255.255.255";	// XXX bug:76 - more flexibility is desired
+const String kRemoteHost = "255.255.255.255";	// XXX bug:79 - more flexibility is desired
 const int kRemotePort = 9000;
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;

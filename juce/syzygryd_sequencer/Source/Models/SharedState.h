@@ -93,7 +93,7 @@ private:
 	OscInput* oscInput;
 	OscOutput* oscOutput;
 
-   // XXX bug:72,76 - it would be better to keep a list of IP addresses, but i
+   // XXX bug:79 - it would be better to keep a list of IP addresses, but i
    // don't know how to get that info
    bool* touchOscConnected;
 	
