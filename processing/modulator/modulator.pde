@@ -34,9 +34,13 @@ class Modulator
 
    Set<String> pendingControllerChanges_;
 
-   Modulator(PApplet parent, String midiInput, String midiOutput) {
+   int directMidiControllerChannel_;	// bug:44
+
+   Modulator(PApplet parent, String midiInput, String midiOutput, int channel) {
       // HashSet is *not* synchronized by default
       pendingControllerChanges_ = Collections.synchronizedSet(new HashSet<String>());
+
+      setChannel(channel);
       
       // this takes care of calling oscEvent() regardless, so we don't need to
       // add a listener and implement the full interface in this case (unlike
@@ -61,6 +65,10 @@ class Modulator
       midiBus_.addOutput(midiOutput);
    }
    
+   void setChannel(int selected) {
+      directMidiControllerChannel_ = selected + 1;
+   }
+
    /* (OscEventListener) */
    void oscEvent(OscMessage message) {
       try {
@@ -317,6 +325,7 @@ float[] y = new float [numControllers_-1];
 Modulator m_;
 GCombo comboIn_;
 GCombo comboOut_;
+GCombo comboChannel_;
 boolean redraw = false;
 
 void setup() {
@@ -347,14 +356,19 @@ void setup() {
    }
    System.out.println("\n");
 
-   int maxChoices = Math.max(availableIns.length, availableOuts.length);
+   String[] availableChannels = new String[numControllers_];
+   for (int i = 0; i < numControllers_; i++) {
+      availableChannels[i] = "" + (i+1);
+   }
+
+   int maxChoices = Math.max(Math.max(availableIns.length, availableOuts.length), availableChannels.length);
    // gui
    int dySmall = 20;
    int dyLarge = dySmall * maxChoices;
    int dxSmall = 10;
    int dxLarge = 200;
-   
-   size(3*dxSmall + 2*dxLarge, 2*dySmall + dyLarge);
+
+   size(4*dxSmall + 3*dxLarge, 2*dySmall + dyLarge);
    frameRate(10);
    redraw = true;
 
@@ -392,14 +406,18 @@ void setup() {
 
    GLabel labelIn  = new GLabel(this, "MIDI Input", dxSmall, dySmall, dxLarge);
    GLabel labelOut = new GLabel(this, "MIDI Output", 2*dxSmall + dxLarge, dySmall, dxLarge);
+   GLabel labelChannel = new GLabel(this, "Controller Channel", 3*dxSmall + 2*dxLarge, dySmall, dxLarge);
    comboIn_ = new GCombo(this, availableIns, maxChoices, dxSmall, 2*dySmall, dxLarge);
    comboOut_ = new GCombo(this, availableOuts, maxChoices, 2*dxSmall + dxLarge, 2*dySmall, dxLarge);
+   comboChannel_ = new GCombo(this, availableChannels, maxChoices, 3*dxSmall + 2*dxLarge, 2*dySmall, dxLarge);
    comboIn_.setSelected(i_defaultMidiInput);
    comboOut_.setSelected(i_defaultMidiOutput);
+   comboChannel_.setSelected(0);	// this is actually channel "1"
 
    m_ = new Modulator(this,
                       comboIn_.selectedText(),
-                      comboOut_.selectedText());
+                      comboOut_.selectedText(),
+                      comboChannel_.selectedIndex());
 
    // for testing only, see comments below
    //testMidiToOsc(m_);
@@ -421,6 +439,9 @@ void handleComboEvents(GCombo combo) {
    } else if (combo == comboOut_) {
       System.out.println("Selected combo out with index " + combo.selectedIndex() + " and text \"" + combo.selectedText() + "\"");
       m_.setOutput(combo.selectedText());
+   } else if (combo == comboChannel_) {
+      System.out.println("Selected direct MIDI controller channel " + combo.selectedIndex());
+      m_.setChannel(combo.selectedIndex());
    } else {
       System.err.println("WARNING: Received unexpected combo in callback");
    }
@@ -438,8 +459,7 @@ void handleSliderEvents(GSlider slider) {
 
 // bug:44
 void keyPressed() {
-   // XXX this should be selectable from the gui, but fixed for now
-   int oscController = 1;
+   int oscController = m_.directMidiControllerChannel_;
 
    int oscModulator = -1;
    if (key == '1') {
