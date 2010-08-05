@@ -124,12 +124,8 @@ void OscInput::noteToggle (osc::ReceivedMessage m)
 	row = SharedState::getInstance()->getTotalRows() - row;
 	col -= 1;
 	
-   //#ifdef JUCE_DEBUG
-	String msg;
-	msg << "Setting the status of cell " << row << ", " << col <<
-      " on tab " << tabIndex << " panel " << panelIndex << " to: " << status;
-	DBG (msg);
-   //#endif
+	DBG ("Setting the status of cell " + String(row) + ", " + String(col) +
+        " on tab " + String(tabIndex) + " panel " + String(panelIndex) + " to: " + String(status));
 	
 	// Update the shared sequencer state
 	Cell* cell = SharedState::getInstance()->getCellAt (panelIndex - 1, 
@@ -170,9 +166,7 @@ void OscInput::clearTab (osc::ReceivedMessage m)
 	}
 	int tabIndex = tabTokens[3].getIntValue() - 1;
 	
-	String msg;
-	msg << "Clearing tab " << tabIndex << " on panel " << panelIndex;
-	DBG (msg);
+	DBG ("Clearing tab " + String(tabIndex) + " on panel " + String(panelIndex));
    // bug:72 also need to send inefficiently for touchosc
 	SharedState::getInstance()->clearTab (panelIndex, tabIndex);	
 }
@@ -198,10 +192,8 @@ void OscInput::changeTab (osc::ReceivedMessage m)
 	int panelIndex = tabTokens[0].getIntValue() - 1;
 	int tabIndex = tabTokens[4].getIntValue() - 1;
 	
-	String msg;
-	msg << "Setting current tab to " << tabIndex 
-	<< " on panel " << panelIndex;
-	DBG (msg)
+	DBG ("Setting current tab to " + String(tabIndex)
+        + " on panel " + String(panelIndex));
 	
 	SharedState::getInstance()->setTabIndex (panelIndex, tabIndex);			
 }

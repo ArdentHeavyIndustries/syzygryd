@@ -88,11 +88,10 @@ void OscOutput::sendClearTab (int panelIndex, int tabIndex)
 	//[/1_control/clear/tab1]
 	String msg;
 	msg << "/" << panelIndex << "_control/clear/tab" << tabIndex;
-	
-	DBG (msg);
+   DBG (msg);
 	
 	p << osc::BeginMessage (msg.toUTF8())
-	<< osc::EndMessage;
+     << osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());		
 }
 
