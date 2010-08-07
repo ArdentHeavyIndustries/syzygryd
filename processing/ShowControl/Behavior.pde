@@ -258,7 +258,6 @@ class HueRotateBehavior extends ConstantBehavior {
 
     // get current color from fixture
     current = currentColor();
-    print("in constructor, blendMode = " + blendMode + "\n");
   }
 
 
