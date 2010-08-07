@@ -1,0 +1,332 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C92B86CE120BBFCC00B92ED2 /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92B86CD120BBFCC00B92ED2 /* Lighting.cpp */; };
+		C92B87E6120BD58D00B92ED2 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92B87E5120BD58D00B92ED2 /* Light.cpp */; };
+		C95D3AFD115E882B00C293DE /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3AFC115E882B00C293DE /* Carbon.framework */; };
+		C95D3AFF115E882C00C293DE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3AFE115E882C00C293DE /* Cocoa.framework */; };
+		C95D3B01115E882C00C293DE /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B00115E882C00C293DE /* CoreAudio.framework */; };
+		C95D3B03115E882C00C293DE /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B02115E882C00C293DE /* CoreMIDI.framework */; };
+		C95D3B05115E882C00C293DE /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B04115E882C00C293DE /* IOKit.framework */; };
+		C95D3B07115E882C00C293DE /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B06115E882C00C293DE /* OpenGL.framework */; };
+		C95D3B09115E882C00C293DE /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B08115E882C00C293DE /* QTKit.framework */; };
+		C95D3B0B115E882C00C293DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B0A115E882C00C293DE /* QuartzCore.framework */; };
+		C95D3B0D115E882C00C293DE /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B0C115E882C00C293DE /* QuickTime.framework */; };
+		C95D3B0F115E882C00C293DE /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B0E115E882C00C293DE /* WebKit.framework */; };
+		C95D3B11115E884D00C293DE /* libjucedebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C95D3B10115E884D00C293DE /* libjucedebug.a */; };
+		C95D3DE9115E8CD700C293DE /* JuceApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DE3115E8CD700C293DE /* JuceApp.cpp */; };
+		C95D3DEA115E8CD700C293DE /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DE6115E8CD700C293DE /* Main.cpp */; };
+		C95D3DEB115E8CD700C293DE /* MainWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DE7115E8CD700C293DE /* MainWindow.cpp */; };
+		C95D3DEE115E8CDF00C293DE /* MainComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DED115E8CDF00C293DE /* MainComponent.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C92B86CC120BBFCC00B92ED2 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
+		C92B86CD120BBFCC00B92ED2 /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lighting.cpp; sourceTree = "<group>"; };
+		C92B87E4120BD58D00B92ED2 /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
+		C92B87E5120BD58D00B92ED2 /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
+		C95D3AF5115E87DA00C293DE /* SyzygrydTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = SyzygrydTest.app; path = JuceTemplate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C95D3AF8115E87DA00C293DE /* App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "App-Info.plist"; sourceTree = "<group>"; };
+		C95D3AFC115E882B00C293DE /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		C95D3AFE115E882C00C293DE /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		C95D3B00115E882C00C293DE /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
+		C95D3B02115E882C00C293DE /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
+		C95D3B04115E882C00C293DE /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		C95D3B06115E882C00C293DE /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		C95D3B08115E882C00C293DE /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
+		C95D3B0A115E882C00C293DE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		C95D3B0C115E882C00C293DE /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = /System/Library/Frameworks/QuickTime.framework; sourceTree = "<absolute>"; };
+		C95D3B0E115E882C00C293DE /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
+		C95D3B10115E884D00C293DE /* libjucedebug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjucedebug.a; path = ../../../../../juce/juce/bin/libjucedebug.a; sourceTree = SOURCE_ROOT; };
+		C95D3DE3115E8CD700C293DE /* JuceApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JuceApp.cpp; sourceTree = "<group>"; };
+		C95D3DE4115E8CD700C293DE /* JuceApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JuceApp.h; sourceTree = "<group>"; };
+		C95D3DE5115E8CD700C293DE /* JuceHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JuceHeader.h; sourceTree = "<group>"; };
+		C95D3DE6115E8CD700C293DE /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
+		C95D3DE7115E8CD700C293DE /* MainWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainWindow.cpp; sourceTree = "<group>"; };
+		C95D3DE8115E8CD700C293DE /* MainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainWindow.h; sourceTree = "<group>"; };
+		C95D3DEC115E8CDF00C293DE /* MainComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainComponent.h; sourceTree = "<group>"; };
+		C95D3DED115E8CDF00C293DE /* MainComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainComponent.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C95D3AF3115E87DA00C293DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C95D3AFD115E882B00C293DE /* Carbon.framework in Frameworks */,
+				C95D3AFF115E882C00C293DE /* Cocoa.framework in Frameworks */,
+				C95D3B01115E882C00C293DE /* CoreAudio.framework in Frameworks */,
+				C95D3B03115E882C00C293DE /* CoreMIDI.framework in Frameworks */,
+				C95D3B05115E882C00C293DE /* IOKit.framework in Frameworks */,
+				C95D3B07115E882C00C293DE /* OpenGL.framework in Frameworks */,
+				C95D3B09115E882C00C293DE /* QTKit.framework in Frameworks */,
+				C95D3B0B115E882C00C293DE /* QuartzCore.framework in Frameworks */,
+				C95D3B0D115E882C00C293DE /* QuickTime.framework in Frameworks */,
+				C95D3B0F115E882C00C293DE /* WebKit.framework in Frameworks */,
+				C95D3B11115E884D00C293DE /* libjucedebug.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C92B86C8120BBF9F00B92ED2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C92B86CC120BBFCC00B92ED2 /* Lighting.h */,
+				C92B86CD120BBFCC00B92ED2 /* Lighting.cpp */,
+				C92B87E4120BD58D00B92ED2 /* Light.h */,
+				C92B87E5120BD58D00B92ED2 /* Light.cpp */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C95D3ACA115E83AD00C293DE = {
+			isa = PBXGroup;
+			children = (
+				C95D3AED115E870A00C293DE /* Source */,
+				C95D3DB4115E886500C293DE /* Resources */,
+				C95D3B12115E885100C293DE /* Frameworks */,
+				C95D3AF6115E87DA00C293DE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C95D3AED115E870A00C293DE /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				C92B86C8120BBF9F00B92ED2 /* Models */,
+				C95D3DE1115E8CD700C293DE /* Components */,
+				C95D3DE2115E8CD700C293DE /* Startup */,
+			);
+			name = Source;
+			path = ../../Source;
+			sourceTree = SOURCE_ROOT;
+		};
+		C95D3AF6115E87DA00C293DE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C95D3AF5115E87DA00C293DE /* SyzygrydTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C95D3B12115E885100C293DE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C95D3B10115E884D00C293DE /* libjucedebug.a */,
+				C95D3AFC115E882B00C293DE /* Carbon.framework */,
+				C95D3AFE115E882C00C293DE /* Cocoa.framework */,
+				C95D3B00115E882C00C293DE /* CoreAudio.framework */,
+				C95D3B02115E882C00C293DE /* CoreMIDI.framework */,
+				C95D3B04115E882C00C293DE /* IOKit.framework */,
+				C95D3B06115E882C00C293DE /* OpenGL.framework */,
+				C95D3B08115E882C00C293DE /* QTKit.framework */,
+				C95D3B0A115E882C00C293DE /* QuartzCore.framework */,
+				C95D3B0C115E882C00C293DE /* QuickTime.framework */,
+				C95D3B0E115E882C00C293DE /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C95D3DB4115E886500C293DE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C95D3AF8115E87DA00C293DE /* App-Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		C95D3DE1115E8CD700C293DE /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C95D3DEC115E8CDF00C293DE /* MainComponent.h */,
+				C95D3DED115E8CDF00C293DE /* MainComponent.cpp */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C95D3DE2115E8CD700C293DE /* Startup */ = {
+			isa = PBXGroup;
+			children = (
+				C95D3DE5115E8CD700C293DE /* JuceHeader.h */,
+				C95D3DE6115E8CD700C293DE /* Main.cpp */,
+				C95D3DE4115E8CD700C293DE /* JuceApp.h */,
+				C95D3DE3115E8CD700C293DE /* JuceApp.cpp */,
+				C95D3DE7115E8CD700C293DE /* MainWindow.cpp */,
+				C95D3DE8115E8CD700C293DE /* MainWindow.h */,
+			);
+			path = Startup;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C95D3AF4115E87DA00C293DE /* App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C95D3AFB115E87DB00C293DE /* Build configuration list for PBXNativeTarget "App" */;
+			buildPhases = (
+				C95D3AF1115E87DA00C293DE /* Resources */,
+				C95D3AF2115E87DA00C293DE /* Sources */,
+				C95D3AF3115E87DA00C293DE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = App;
+			productName = App;
+			productReference = C95D3AF5115E87DA00C293DE /* SyzygrydTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C95D3ACC115E83AD00C293DE /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C95D3ACF115E83AD00C293DE /* Build configuration list for PBXProject "syzygryd_lighting_driver2" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 0;
+			mainGroup = C95D3ACA115E83AD00C293DE;
+			productRefGroup = C95D3AF6115E87DA00C293DE /* Products */;
+			projectDirPath = "";
+			projectRoot = ../../../../../juce/my/syzygryd_lighting_driver22;
+			targets = (
+				C95D3AF4115E87DA00C293DE /* App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C95D3AF1115E87DA00C293DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C95D3AF2115E87DA00C293DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C95D3DE9115E8CD700C293DE /* JuceApp.cpp in Sources */,
+				C95D3DEA115E8CD700C293DE /* Main.cpp in Sources */,
+				C95D3DEB115E8CD700C293DE /* MainWindow.cpp in Sources */,
+				C95D3DEE115E8CDF00C293DE /* MainComponent.cpp in Sources */,
+				C92B86CE120BBFCC00B92ED2 /* Lighting.cpp in Sources */,
+				C92B87E6120BD58D00B92ED2 /* Light.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C95D3ACD115E83AD00C293DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		C95D3ACE115E83AD00C293DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			name = Release;
+		};
+		C95D3AF9115E87DB00C293DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = i386;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+				);
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce\"";
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../../../juce/my/syzygryd_lighting_driver22/Source\"/**";
+				INFOPLIST_FILE = "App-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce/bin\"";
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = JuceTemplate;
+			};
+			name = Debug;
+		};
+		C95D3AFA115E87DB00C293DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = i386;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+				);
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce\"";
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../../../juce/my/syzygryd_lighting_driver22/Source\"/**";
+				INFOPLIST_FILE = "App-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce/bin\"";
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = SyzygrydTest;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C95D3ACF115E83AD00C293DE /* Build configuration list for PBXProject "syzygryd_lighting_driver2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C95D3ACD115E83AD00C293DE /* Debug */,
+				C95D3ACE115E83AD00C293DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C95D3AFB115E87DB00C293DE /* Build configuration list for PBXNativeTarget "App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C95D3AF9115E87DB00C293DE /* Debug */,
+				C95D3AFA115E87DB00C293DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C95D3ACC115E83AD00C293DE /* Project object */;
+}
