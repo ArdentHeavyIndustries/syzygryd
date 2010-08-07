@@ -6,8 +6,9 @@
     <!-- http://www.rawmaterialsoftware.com/downloads.php -->
     <!-- Download JUCE, and unzip it -->
     <!-- Point VisualStudio2010 at the file juce/build/win32/vc8/JUCE.sln -->
-    <!-- This is a VisualStudio2008 project, so it will be converted to 2010 -->
-    <!-- Build the project, for both Debug and Release -->
+    <!-- This is a VisualStudio2008 project, so it will be converted to 2010 (ignore conversion warnings)-->
+    <!-- Build the project, for both Debug and Release (you can ignore Debug DLL and Release DLL options) -->
+    <!-- Ignore compiler warnings -->
     <!-- Point JuceHome below at the location of the top level within the unzipped directory tree -->
     <JuceHome>C:\cygwin\home\rich\juce-1.51\juce</JuceHome>
     <!-- XXX I can no longer find the download page within http://www.steinberg.net/en/home/ -->
