@@ -40,7 +40,7 @@ public:
 	void noteToggle (int panelIndex_, int tabIndex_, 
 					 int row_, int col_, bool isNoteOn);
 	void clearTab (int panelIndex_, int tabIndex_);
-	
+
 	int getSwingTicks();
 	void setSwingTicks (int swingTicks_);
 	int getMaxSwingTicks();
@@ -59,23 +59,23 @@ public:
 	
 private:
 	PluginAudioProcessor* pluginAudioProcessor;
-
-   // bug:51 - only one sequencer can be the primary one.  whichever asks first.
-   bool primary;
-
+	
+	// bug:51 - only one sequencer can be the primary one.  whichever asks first.
+	bool primary;
+	
 	double sampleRate;
-
+	
 	int speed; // playback speed multiplier
-
+	
 	int ticksPerCol;   // how many internal ticks per column of notes
 	int tickCount;     // how many total ticks counted
 	int lastTickCount; // how many total ticks counted during the last processing event
-
+	
 	int swingTicks;    // how many ticks should odd columns be delayed
-
+	
 	Array<noteOff> noteOffs; // all upcoming note-off events
 	int noteLength;  // note length in ticks
-
+	
 	double lastPlayheadColPrecise;
 };
 

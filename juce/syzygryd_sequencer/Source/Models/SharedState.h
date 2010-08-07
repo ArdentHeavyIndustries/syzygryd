@@ -26,8 +26,9 @@ class SharedState : public DeletedAtShutdown
 {
 public:
 	static const int kNumPanels;
-
-   bool testAndSetPrimarySequencer();
+	static const int kDegradeTimeInSeconds;
+	
+	bool testAndSetPrimarySequencer();
 	
 	int getTotalRows();
 	int getTotalCols();
@@ -64,18 +65,20 @@ public:
    void sendInefficientClearTab(int panelIndex_, int tabIndex_);
 	
 	void update();
-
+	
 	bool getStarFieldActive();
 	void setStarFieldActive (bool starFieldActive_);
-
+	
+	double getLastTouchSecond (int panelIndex_);
+	
 	juce_DeclareSingleton (SharedState, true)
 	
 private:
 	SharedState();
 	~SharedState();
-
-   CriticalSection primarySequencerCriticalSection;
-   bool primarySet;
+	
+	CriticalSection primarySequencerCriticalSection;
+	bool primarySet;
 	
 	const int totalRows;
 	const int totalCols;	

@@ -16,7 +16,8 @@
 const int Panel::kNumTabs = 4;
 
 Panel::Panel (int totalRows_, int totalCols_) :
-tabIndex (0)
+tabIndex (0),
+lastTouchSecond (0)
 {
 	for (int i = 0; i < kNumTabs; i++) {
 		Tab* tab = new Tab (totalRows_, totalCols_);
@@ -60,6 +61,16 @@ void Panel::update()
 	}
 	 */
 	tabs[tabIndex]->update();
+}
+
+double Panel::getLastTouchSecond()
+{
+	return lastTouchSecond;
+}
+
+void Panel::setLastTouchSecond (double lastTouchSecond_)
+{
+	lastTouchSecond = lastTouchSecond_;
 }
 
 

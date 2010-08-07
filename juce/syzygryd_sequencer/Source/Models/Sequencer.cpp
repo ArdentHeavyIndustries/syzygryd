@@ -175,10 +175,17 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	if (primary) {
 		SharedState::getInstance()->setPlayheadColPrecise (lastPlayheadColPrecise);
 	}		
-	
-	if (tickCount != lastTickCount) {
 
+	if (tickCount != lastTickCount) {
 		lastTickCount = tickCount;
+		
+		// Check if we should be degrading...
+		int panelIndex = pluginAudioProcessor->getPanelIndex();
+		if (SharedState::getInstance()->getTimeInSeconds() >= 
+			(SharedState::getInstance()->getLastTouchSecond(panelIndex) + 
+			 SharedState::kDegradeTimeInSeconds)) {
+			DBG("Time to degrade!")
+		}
 		
 		// Update starfield if necessary
 		if (SharedState::getInstance()->getStarFieldActive()) {

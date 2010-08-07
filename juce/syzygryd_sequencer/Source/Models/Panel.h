@@ -21,22 +21,27 @@ class Panel
 public:
 	Panel (int totalRows_, int totalCols_);
 	~Panel();
-
-   static const int kNumTabs;
-
+	
+	static const int kNumTabs;
+	
 	int getTabIndex();
 	void setTabIndex (int tabIndex_);
 	
 	Cell* getCellAt (int tabIndex_, int row_, int col_);	
-
+	
 	void clearTab (int tabIndex_);
 	
 	void update();
+
+	double getLastTouchSecond();
+	void setLastTouchSecond (double lastTouchSecond_);
 	
 private:
 	OwnedArray<Tab> tabs;	
 	
 	int tabIndex; // which tab is currently selected?
+	
+	double lastTouchSecond;
 };
 
 #endif

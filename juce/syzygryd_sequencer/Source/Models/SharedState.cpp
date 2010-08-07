@@ -17,6 +17,7 @@
 #include "SharedState.h"
 
 const int SharedState::kNumPanels = 3;
+const int SharedState::kDegradeTimeInSeconds = 2.5;
 
 juce_ImplementSingleton (SharedState)
 
@@ -61,8 +62,8 @@ starFieldActive (false)
 
 SharedState::~SharedState()
 {
-	oscInput->stopThread(2000);
-	oscOutput->stopThread(2000);
+	oscInput->stopThread(4000);
+	oscOutput->stopThread(4000);
 	delete oscInput;
 	delete oscOutput;
    for (int i = 0; i < kNumPanels; i++) {
@@ -110,6 +111,8 @@ int SharedState::getTabIndex (int panelIndex_)
 void SharedState::setTabIndex (int panelIndex_, int tabIndex_)
 {
 	Panel* panel = panels[panelIndex_];
+	panel->setLastTouchSecond (getTimeInSeconds());
+
 	panel->setTabIndex (tabIndex_);
 }
 
@@ -172,6 +175,9 @@ void SharedState::broadcast (const void* sourceBuffer, int numBytesToWrite)
 void SharedState::noteToggle (int panelIndex_, int tabIndex_, 
                               int row_, int col_, bool state)
 {
+	Panel* panel = panels[panelIndex_];
+	panel->setLastTouchSecond (getTimeInSeconds());
+	
 	Cell* cell = getCellAt (panelIndex_, tabIndex_, row_, col_);
 	if (state) {
 		cell->setNoteOn();
@@ -198,6 +204,8 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
    }
    //#endif
 	Panel* panel = panels[panelIndex_];
+	panel->setLastTouchSecond (getTimeInSeconds());
+	
 	panel->clearTab (tabIndex_);
    // bug:78 - not currently needed
 	//oscOutput->sendClearTab (panelIndex_, tabIndex_);
@@ -363,4 +371,10 @@ bool SharedState::getStarFieldActive()
 void SharedState::setStarFieldActive (bool starFieldActive_)
 {
 	starFieldActive = starFieldActive_;
+}
+
+double SharedState::getLastTouchSecond (int panelIndex_)
+{
+	Panel* panel = panels[panelIndex_];
+	return panel->getLastTouchSecond();
 }
