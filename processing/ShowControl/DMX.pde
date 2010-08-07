@@ -6,60 +6,51 @@
 public class DMX {
   ArrayList controllers = new ArrayList();
 
-  //Initializes the DMX manager, setting global refresh rate 
-  DMX(PApplet _processingObject, int _refreshRate){
+  //Initializes the DMX manager
+  DMX(PApplet _processingObject) {
     processingObject = _processingObject;
-    refreshRate = _refreshRate;
-    
-    // calculate timer interval (in ms) from refresh rate (in Hz)
-    long refreshInterval = round(1000 / refreshRate);
-    
-    //instantiate timer and task objects
-    boolean bgMode = true;
-    Timer refresh = new Timer(bgMode);
-    RefreshTask update = new RefreshTask();
-    
-    // begin refresh cycle
-    refresh.schedule(update, 0, refreshInterval);
   }
 
-  void addController(String port, int rate, int universeSize){
+  void addController(String port, int rate, int universeSize) {
     controllers.add(new Controller(port, rate, universeSize));
   }
-  
-  void addController(String port, int universeSize){
+
+  void addController(String port, int universeSize) {
     controllers.add(new Controller(port, 115200, universeSize));
   }
- 
-  void addController(String port){
+
+  void addController(String port) {
     controllers.add(new Controller(port, 115200, 512));
   }
 
-  byte getChannel(int controller, int address){
+  byte getChannel(int controller, int address) {
     try {
       Controller ctrlr = (Controller)controllers.get(controller);
       return ctrlr.getChannel(address);
-    } catch (IndexOutOfBoundsException e){
+    } 
+    catch (IndexOutOfBoundsException e) {
       System.err.println("Failed to get value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
       return -1;
     }
   }
 
-  int getChannelUnsigned(int controller, int address){
+  int getChannelUnsigned(int controller, int address) {
     try {
       Controller ctrlr = (Controller)controllers.get(controller);
       return ctrlr.getChannelUnsigned(address);
-    } catch (IndexOutOfBoundsException e){
+    } 
+    catch (IndexOutOfBoundsException e) {
       System.err.println("Failed to get value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
       return -1;
     }
   }
 
-  void setChannel(int controller, int address, byte value){
+  void setChannel(int controller, int address, byte value) {
     try {
       Controller ctrlr = (Controller)controllers.get(controller);
       ctrlr.setChannel(address, (byte)value);
-    } catch (IndexOutOfBoundsException e){
+    } 
+    catch (IndexOutOfBoundsException e) {
       System.err.println("Failed to set value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
     }
   }
@@ -67,11 +58,11 @@ public class DMX {
   /*
    * Attempts to allocate the next available DMX address on the given controller to the given fixture channel.
    */
-  int alloc(Fixture.Channel channel, int controller){
+  int alloc(Fixture.Channel channel, int controller) {
     Controller ctrlr = (Controller)controllers.get(controller);
     return ctrlr.alloc(channel);
   }
-   
+
   /*
    * Attempts to allocate a specific DMX address on the given controller to the given fixture channel. Fails if address already allocated.
    */
@@ -79,72 +70,70 @@ public class DMX {
     try {
       Controller ctrlr = (Controller)controllers.get(controller);
       return ctrlr.alloc(channel, address);
-    } catch (AddressAllocationException aae) {
+    } 
+    catch (AddressAllocationException aae) {
       System.err.println ("Address allocation failed. Address (" + address + ") already allocated on controller " + controller + ".\n");
       throw new AddressAllocationException();
-    } catch (ArrayIndexOutOfBoundsException aibe) {
+    } 
+    catch (ArrayIndexOutOfBoundsException aibe) {
       System.err.println ("Address allocation failed. Address (" + address + ") out of bounds on controller " + controller + ".\n");
       throw new ArrayIndexOutOfBoundsException();
     }
   }
- 
-  
-  /*
-   * Timer task to handle DMX refresh
-   */
-  class RefreshTask extends java.util.TimerTask {
-     void run() {
-       Controller ctrlr = null;
-      for (int i = 0; i < controllers.size(); i++){
-        ctrlr = (Controller)controllers.get(i);
-        if(ctrlr != null) {
-            ctrlr.sendFrame();
-        }
+
+  void update() {
+    Controller ctrlr = null;
+    for (int i = 0; i < controllers.size(); i++) {
+      ctrlr = (Controller)controllers.get(i);
+      if(ctrlr != null) {
+        ctrlr.sendFrame();
       }
     }
   }
-  
+
+
+
   class Controller {
     private int universeSize = 0;
     private PApplet parent = null;
     private Serial serialInterface = null;
     private byte[] frame;
     private Fixture.Channel[] allocMap;
-  
+
     Controller(String port, int rate, int _universeSize) {
       int dataSize = 0;
       parent = processingObject;
       serialInterface = new Serial(parent, port, rate);
       universeSize = _universeSize;
       dataSize = universeSize + 1;    
-      
+
       //create allocation map
       allocMap = new Fixture.Channel[universeSize];      
-      
+
       //create frame buffer
       frame = new byte[universeSize + 6];
-      
+
       // set up frame header
       frame[0] = DMX_FRAME_START;
       frame[1] = DMX_SEND_PACKET;
-      frame[2] = (byte)(dataSize & 255);
-      frame[3] = (byte)((dataSize >> 8) & 255);
-      frame[4] = 0;
-      
+      frame[2] = (byte)(dataSize & 255); //LSB of frame data size
+      frame[3] = (byte)((dataSize >> 8) & 255); //MSB of frame data size
+      frame[4] = 0; // delimiter - seperates header from body
+
       // initialize all channels to zero
       for (int i = 5; i <= universeSize + 4; i++) {
         frame[i] = 0;
       }
-      
+
       // close frame
-      frame[universeSize + 5] = DMX_FRAME_END;      
+      frame[universeSize + 5] = DMX_FRAME_END;
     }
-    
-    int universeSize(){
+
+    int universeSize() {
       return universeSize;
     }
-    
-    int alloc(Fixture.Channel channel){
+
+    int alloc(Fixture.Channel channel) {
       for (int addr = 0; addr < universeSize; addr++) {
         if (!(allocMap[addr] instanceof Fixture.Channel)) {
           allocMap[addr] = channel;
@@ -153,49 +142,51 @@ public class DMX {
       }
       return -1;
     }
-   
+
     int alloc(Fixture.Channel channel, int address) throws ArrayIndexOutOfBoundsException, AddressAllocationException {
       if (address > universeSize) {
         throw new ArrayIndexOutOfBoundsException();
-      } else {
+      } 
+      else {
         if (!(allocMap[address] instanceof Fixture.Channel)) {
           allocMap[address] = channel;
           return address;
-        } else {
+        } 
+        else {
           throw new AddressAllocationException();
         }
       }
     }
-  
-    byte getChannel(int address) throws ArrayIndexOutOfBoundsException{
+
+    byte getChannel(int address) throws ArrayIndexOutOfBoundsException {
       if (address > universeSize) {
         throw new ArrayIndexOutOfBoundsException();
       }
       return frame[address + 5];
     }
-    
-    int getChannelUnsigned(int address) throws ArrayIndexOutOfBoundsException{
+
+    int getChannelUnsigned(int address) throws ArrayIndexOutOfBoundsException {
       if (address > universeSize) {
         throw new ArrayIndexOutOfBoundsException();
       }
-     return ((int)frame[address+5] & 0xFF);
+      return ((int)frame[address+5] & 0xFF);
     }
-      
-  
+
+
     void setChannel(int address, byte value) throws ArrayIndexOutOfBoundsException {
       if (address > universeSize) {
         throw new ArrayIndexOutOfBoundsException();
       }
       frame[address + 5] = value;
     }
-  
-    void sendFrame(){
+
+    void sendFrame() {
       /* TODO? Could use some error handling to ensure port is successfully initialized before sending frames -- sadly, processing.serial traps its own errors,
        * preventing any further handling downstream. Possibly someone more familiar with Java than I knows how to circumvent this behavior?
        */
-      //  serialInterface.write(frame);
+      serialInterface.write(frame);
     }     
-  
+
     // DMX Control Codes 
     private final byte DMX_FRAME_START = (byte)(0x7E);
     private final byte DMX_FRAME_END = (byte)(0xE7);
@@ -209,4 +200,6 @@ public class DMX {
   private PApplet processingObject;
 }
 
-class AddressAllocationException extends Exception {}
+class AddressAllocationException extends Exception {
+}
+

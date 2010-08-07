@@ -50,12 +50,12 @@ void setup() {
   events = new EventDispatcher();
 
   //create new DMX manager object with a refresh rate of 200Hz
-  DMXManager = new DMX(this, 200);
+  DMXManager = new DMX(this);
 
   //add three controllers to manager
   DMXManager.addController("COM5",108);
-  DMXManager.addController("COM4",108);
-  DMXManager.addController("COM3",108);
+  //DMXManager.addController("COM4",108);
+  //DMXManager.addController("COM3",108);
 
   //create fixtures via fixture factory
   try {
@@ -70,13 +70,6 @@ void setup() {
   test2 = fixtures.get(1);
   test3 = fixtures.get(2);
   
-   // Create test group
-  FixtureGroup testGroup = new FixtureGroup("cube");
-  testGroup.addTrait("RGBColorMixing", new RGBColorMixingTrait(testGroup));
-  try{
-    testGroup.addFixture(test);
-    testGroup.addFixture(test2);
-  } catch (FixtureTypeMismatchException ftme){}
 
 
   // create DMX Monitor button
@@ -121,7 +114,8 @@ void draw(){
   
   events.flushExpired();
 
-  background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB()); 
+  background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
+  DMXManager.update();
 }
 
 void updateStepPosition(){
