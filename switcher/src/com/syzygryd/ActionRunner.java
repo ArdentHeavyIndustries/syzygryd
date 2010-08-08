@@ -131,21 +131,33 @@ public class ActionRunner extends Thread {
 	}
 	
 	/**
-	 * queue up an action
-	 * @param a
+	 * atomically queues up an action
+	 * @param a action to queue
 	 */
 	public synchronized void queue(Action a) {
 		actionQ.add(a);
 	}
 	
-	public synchronized Action getHead() {
+	/**
+	 * atomically remove front of queue
+	 * @return action from head of queue
+	 */
+	public Action getHead() {
 		return actionQ.poll();
 	}
 	
+	/**
+	 * atomically sets pendingAction
+	 * @param a new action
+	 */
 	public void setPendingAction(Action a) {
 		pendingAction.set(a);
 	}
 	
+	/**
+	 * atomically returns current pendingAction & clears it
+	 * @return current pendingAction
+	 */
 	public Action popPendingAction() {
 		return pendingAction.getAndSet(null);
 	}

@@ -3,6 +3,11 @@ package com.syzygryd;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Provides web interface that serves up pages (including setlist) and responds to
+ * actions
+ *
+ */
 public class Syzyweb extends NanoHTTPD {
 
 	public static String kActionUriPrefix = "/sz/";
@@ -64,12 +69,22 @@ public class Syzyweb extends NanoHTTPD {
 		}
 	}
 	
+	/**
+	 * Generate generic error response
+	 * @param code HTTP response code
+	 * @param msg HTML to inject into body
+	 * @return response
+	 */
 	protected Response errorResponse(String code, String msg) {
 		String out = "<html><head><title>O NOES!</title></head><body>" 
 			+ msg + "</body></html>";
 		return new Response(code, "text/html", out);
 	}
 	
+	/**
+	 * Generates generic, empty success response
+	 * @return response
+	 */
 	protected Response successResponse() {
 		return new Response("200", "text/html", "");
 	}

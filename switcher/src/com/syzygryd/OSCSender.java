@@ -6,6 +6,11 @@ import java.net.InetAddress;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPortOut;
 
+/**
+ * Wraps OSC send
+ * @author mh
+ *
+ */
 public class OSCSender {
 	private OSCPortOut sender;
 	public static final int OSC_SENDING_PORT = 9000;
@@ -28,11 +33,17 @@ public class OSCSender {
 		}
 	}
 	
+	/**
+	 * tells live to pause output
+	 */
 	public void livePlaybackStop() {
 		System.out.println("Sending OSC message: live stop...");
 		send(MSG_LIVE_PLAY_STOP);		
 	}
 	
+	/**
+	 * tells live to play audio
+	 */
 	public void livePlaybackStart() {
 		System.out.println("Sending OSC message: live play...");
 		send(MSG_LIVE_PLAY_START);		

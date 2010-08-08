@@ -7,6 +7,12 @@ import java.io.FileReader;
 import java.util.ListIterator;
 import java.util.Vector;
 
+/**
+ * An ordered list of Live sets that can be advanced forward and
+ * backwards linearly, or specifically chosen.  Instantiated with
+ * a configuration file.  Creates child Set objects upon instantiation
+ *
+ */
 public class Setlist {
 	private Vector<Set> list = null;
 	private ListIterator<Set> it = null;

@@ -76,6 +76,9 @@ public class Switcher {
 		
 	}
 	
+	/**
+	 * Opens socket to listen for Live OSC events
+	 */
 	public static void setupOSCListener() {
 		
 		// if we're already connected, then stop listening & close socket
@@ -104,6 +107,10 @@ public class Switcher {
 		
 	}
 
+	/**
+	 * Listens for set loaded event from Live; when it is loaded, sends
+	 * play event to live & tells ActionRunner that loading has finished
+	 */
 	public static OSCListener setLoadedListener = new OSCListener() {
 		
 		@Override

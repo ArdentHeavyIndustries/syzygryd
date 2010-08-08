@@ -2,6 +2,10 @@ package com.syzygryd;
 
 import java.util.Properties;
 
+/**
+ * An activity that is performed via ActionRunner
+ *
+ */
 public abstract class Action {
 	/**
 	 * types of actions we support:
