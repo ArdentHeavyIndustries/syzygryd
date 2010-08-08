@@ -53,6 +53,12 @@ public class Syzyweb extends NanoHTTPD {
 		case playprev:
 			runner.injectAction(shouldQueue, ActionFactory.createAction(a, params));
 			return successResponse();
+		case liveesc:
+			AppleScriptRunner.runLiveEsc();
+			return successResponse();
+		case livespace:
+			AppleScriptRunner.runLiveSpace();
+			return successResponse();
 		default:
 			return errorResponse("500", "Unimplemented action " + actionStr + ".  Move that ass, boy!");
 		}

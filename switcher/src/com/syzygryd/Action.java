@@ -10,7 +10,7 @@ public abstract class Action {
 	 * playprev: play previous track in setlist
 	 * 
 	 */
-	public enum ActionType { playthis, playnext, playprev }
+	public enum ActionType { playthis, playnext, playprev, livespace, liveesc }
 	
 	/***
 	 * indicates that this action plays until stopped
