@@ -22,6 +22,7 @@ public class AppleScriptRunner {
     }
     
     public static void runLiveQuit() {
+		System.out.println("Running live quit script...");
     	runScript(liveQuit);
     }
     

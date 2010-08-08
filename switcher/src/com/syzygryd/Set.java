@@ -42,16 +42,15 @@ public class Set {
 	}
 	
 	public void stop() {
-		System.out.println("stopping");
 		sender.livePlaybackStop();
 		try {
-			Thread.sleep(1500); 
+			Thread.sleep(2000); 
 		} catch (Exception e) {
 			// NOP
 		}
 		AppleScriptRunner.runLiveQuit();
 		try {
-			Thread.sleep(5000); 
+			Thread.sleep(2500); 
 		} catch (Exception e) {
 			// NOP
 		}

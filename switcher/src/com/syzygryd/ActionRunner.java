@@ -67,6 +67,7 @@ public class ActionRunner extends Thread {
 				// NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
 				if (currentAction.requiresLoad()) {
 					loaded = false;
+					System.out.println("Waiting for load...");
 					try {
 						loaded = loadPending.await(LOAD_TIMEOUT, TimeUnit.MILLISECONDS);
 					} catch (InterruptedException e) {
@@ -76,13 +77,16 @@ public class ActionRunner extends Thread {
 				
 				if (loaded) {
 					// action is now running; wait until it's done or someone interrupts us
+					System.out.println("Playing...");
 					try {
 						actionRunning.await(duration, TimeUnit.MILLISECONDS);
 					} catch (InterruptedException e) {
 						// NIL;
 					}
 				} 
+				System.out.println("Stopping...");
 				currentAction.stop();
+				System.out.println("Stopped.");
 			}
 			
 			// reset locks

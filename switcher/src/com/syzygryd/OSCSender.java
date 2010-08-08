@@ -29,10 +29,12 @@ public class OSCSender {
 	}
 	
 	public void livePlaybackStop() {
+		System.out.println("Sending OSC message: live stop...");
 		send(MSG_LIVE_PLAY_STOP);		
 	}
 	
 	public void livePlaybackStart() {
+		System.out.println("Sending OSC message: live play...");
 		send(MSG_LIVE_PLAY_START);		
 	}
 	
