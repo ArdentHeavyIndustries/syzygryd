@@ -1,5 +1,6 @@
 package com.syzygryd;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -10,7 +11,9 @@ import java.util.Properties;
  */
 public class Syzyweb extends NanoHTTPD {
 
-	public static String kActionUriPrefix = "/sz/";
+	public static final String ACTION_URI_PREFIX = "/sz/";
+	public static final int SECOND_IN_MILLIS = 1000;
+	public static final int SCREENSHOT_DELAY = 1 * SECOND_IN_MILLIS;
 	private ActionRunner runner = null;
 	public Syzyweb(int port, ActionRunner ar) throws IOException {
 		super(port);
@@ -19,8 +22,8 @@ public class Syzyweb extends NanoHTTPD {
 	
 	// passes on to our handlers if it starts with /sz/; otherwise falls through to theirs
 	public Response serve( String uri, String method, Properties header, Properties params ) {
-		if (uri != null && uri.length() > kActionUriPrefix.length() + 1) {
-			if (uri.startsWith(kActionUriPrefix)) {
+		if (uri != null && uri.length() > ACTION_URI_PREFIX.length() + 1) {
+			if (uri.startsWith(ACTION_URI_PREFIX)) {
 				Response r = act(uri,method,header,params);
 				if (r == null) {
 					r = super.serve(uri,method,header,params);
@@ -38,13 +41,13 @@ public class Syzyweb extends NanoHTTPD {
 		
 		endOfAction = (endOfAction > 0 ? endOfAction : uri.length());
 		
-		String actionStr = uri.substring(kActionUriPrefix.length(), endOfAction);
+		String actionStr = uri.substring(ACTION_URI_PREFIX.length(), endOfAction);
 		Action.ActionType a = null;
 		try {
 			a = Action.ActionType.valueOf(actionStr.toLowerCase());
 		} catch (IllegalArgumentException e) {
 			System.err.println("No such action " + actionStr);
-			return errorResponse("500", "Invalid action: " + actionStr + ". nice try, k1dd135.");
+			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Invalid action: " + actionStr + ". nice try, k1dd135.");
 		}
 		
 		boolean shouldQueue = false;
@@ -64,8 +67,16 @@ public class Syzyweb extends NanoHTTPD {
 		case livespace:
 			AppleScriptRunner.runLiveSpace();
 			return successResponse();
+		case livequit:
+			AppleScriptRunner.runLiveQuit();
+			return successResponse();
+		case loadtimeout:
+			runner.actionLoaded();
+			return successResponse();
+		case screenshot:
+			return screenshotWrapperResponse();
 		default:
-			return errorResponse("500", "Unimplemented action " + actionStr + ".  Move that ass, boy!");
+			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Unimplemented action " + actionStr + ".  Move that ass, boy!");
 		}
 	}
 	
@@ -86,7 +97,25 @@ public class Syzyweb extends NanoHTTPD {
 	 * @return response
 	 */
 	protected Response successResponse() {
-		return new Response("200", "text/html", "");
+		return new Response(NanoHTTPD.HTTP_OK, "text/html", "");
+	}
+	
+	/**
+	 * Generates response including screenshot
+	 * @return response
+	 */
+	protected Response screenshotWrapperResponse() {
+		try {
+			Runtime.getRuntime().exec("/usr/sbin/screencapture -x " + new File("").getAbsolutePath() + "/screenshot.png");
+			Thread.sleep(SCREENSHOT_DELAY);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "can't generate screenshot");
+		}
+		
+		String out = "<html><head><title>SEE!</title></head><body><img src='/screenshot.png'></body></html>";
+		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
 	}
 
 }

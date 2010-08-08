@@ -13,8 +13,17 @@ public abstract class Action {
 	 * playnext: play next track in setlist
 	 * playprev: play previous track in setlist
 	 * 
+	 * livespace: send space key to live
+	 * liveesc: send esc key to live
+	 * livequit: tell live to quit
+	 * 
+	 * screenshot: current state of the screen
+	 * loadtimeout: give up on loading and unblock actionrunner
+	 * 
 	 */
-	public enum ActionType { playthis, playnext, playprev, livespace, liveesc }
+	public enum ActionType { playthis, playnext, playprev, 
+							livespace, liveesc, livequit,
+							screenshot, loadtimeout }
 	
 	/***
 	 * indicates that this action plays until stopped

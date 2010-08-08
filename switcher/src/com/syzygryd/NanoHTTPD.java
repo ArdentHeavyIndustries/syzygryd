@@ -183,6 +183,8 @@ public class NanoHTTPD
 			{
 				public void run()
 				{
+					System.out.println( "Now serving files in port " + myTcpPort + " from \"" +
+							new File("").getAbsolutePath() + "\"" );
 					try
 					{
 						while( true )
