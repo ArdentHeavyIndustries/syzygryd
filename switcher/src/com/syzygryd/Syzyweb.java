@@ -73,6 +73,15 @@ public class Syzyweb extends NanoHTTPD {
 		case loadtimeout:
 			runner.actionLoaded();
 			return successResponse();
+		case quit:
+			quit();
+			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Goodbye.");
+		case restart:
+			restart();
+			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Back soon.");
+		case livescreenshot:
+			AppleScriptRunner.runLiveActivate();
+			// FALLS THROUGH 
 		case screenshot:
 			return screenshotWrapperResponse();
 		default:
@@ -116,6 +125,27 @@ public class Syzyweb extends NanoHTTPD {
 		
 		String out = "<html><head><title>SEE!</title></head><body><img src='/screenshot.png'></body></html>";
 		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
+	}
+	
+	void quit() {
+		System.err.println("Quitting.");
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.exit(0);			
+			}
+		}).start();
+	}
+	
+	void restart() {
+		System.err.println("Restarting -- not yet implemented");
 	}
 
 }

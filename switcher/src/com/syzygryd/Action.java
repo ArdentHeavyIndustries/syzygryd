@@ -16,14 +16,17 @@ public abstract class Action {
 	 * livespace: send space key to live
 	 * liveesc: send esc key to live
 	 * livequit: tell live to quit
+	 * livescreenshot: activate live, then grab screenshot
 	 * 
 	 * screenshot: current state of the screen
 	 * loadtimeout: give up on loading and unblock actionrunner
+	 * quit: quit set switcher
+	 * restart: after a delay, restart set switcher
 	 * 
 	 */
 	public enum ActionType { playthis, playnext, playprev, 
-							livespace, liveesc, livequit,
-							screenshot, loadtimeout }
+							livespace, liveesc, livequit, livescreenshot,
+							screenshot, loadtimeout, quit, restart }
 	
 	/***
 	 * indicates that this action plays until stopped
