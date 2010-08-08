@@ -145,6 +145,30 @@ public class ActionRunner extends Thread {
 	public Action getHead() {
 		return actionQ.poll();
 	}
+
+	/**
+	 * get all queued actions
+	 * @return array of queued actions, where 0 = head
+	 */
+	public Action[] getQueue() {
+		return (Action[])(actionQ.toArray());
+	}
+	
+	/**
+	 * removes a given action from the queue
+	 * @param a action to remove
+	 * @return true if item was in queue & removed
+	 */
+	public boolean removeFromQueue(Action a) {
+		return actionQ.remove(a);
+	}
+	
+	/**
+	 * clears out queue
+	 */
+	public void clearQueue() {
+		actionQ = new ConcurrentLinkedQueue<Action>();
+	}
 	
 	/**
 	 * atomically sets pendingAction
@@ -161,6 +185,7 @@ public class ActionRunner extends Thread {
 	public Action popPendingAction() {
 		return pendingAction.getAndSet(null);
 	}
+	
 	
 	
 	
