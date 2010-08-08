@@ -1,25 +1,23 @@
 package com.syzygryd;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Date;
 
 import com.illposed.osc.OSCListener;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPortIn;
-import com.illposed.osc.OSCPortOut;
 
 public class Switcher {
 
 	public static final int OSC_LISTENING_PORT = 9001;
-	public static final int OSC_SENDING_PORT = 9000;
 	public static final int WEB_SENDING_PORT = 31337;
 	
 	public static final int ARG_SETLISTFILENAME = 0;
-	private static OSCPortOut sender = null;
+	private static OSCSender sender = null;
 	private static Setlist list = null;
 	private static OSCPortIn portIn = null;
+	private static ActionRunner ar = null;
 	
 	
 	public static void main(String[] args) {
@@ -36,18 +34,25 @@ public class Switcher {
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
+		// install setlist
+		ActionSetPlay.setList(list);
 		
 		// setup sender
 		try {
-			sender = new OSCPortOut(InetAddress.getLocalHost(), OSC_SENDING_PORT);
+			sender = new OSCSender();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
+		// install sender
+		// TODO: after quitting live is implemented, sender will
+		// need to be reset
+		Set.setSender(sender);
+
 		setupOSCListener();
-		
+
 		// setup switcher queue thread
-		ActionRunner ar = new ActionRunner(list, sender);
+		ar = new ActionRunner();
 
 		// start it
 		ar.run();
@@ -105,8 +110,9 @@ public class Switcher {
 		public void acceptMessage(Date time, OSCMessage message) {
 			System.out.println("Live tells us that the set loaded: " + message.getAddress());
 			try {
-				sender.send(new OSCMessage("/live/play"));
-			} catch (IOException e) {
+				sender.livePlaybackStart();
+				ar.actionLoaded();
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				System.err.println("Couldn't send play message.");
 				e.printStackTrace();

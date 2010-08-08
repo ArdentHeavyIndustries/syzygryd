@@ -2,12 +2,15 @@ package com.syzygryd;
 
 import java.io.IOException;
 
-import com.illposed.osc.OSCMessage;
-import com.illposed.osc.OSCPortOut;
-
 public class Set {
+	private static OSCSender sender;
 	private String name = null;
 	private int length = 0;
+	
+	
+	static void setSender(OSCSender s) {
+		sender = s;
+	}
 	
 	public Set(String fileName, int duration) {
 		name = fileName;
@@ -38,11 +41,18 @@ public class Set {
 		}
 	}
 	
-	public void stop(OSCPortOut sender) {
+	public void stop() {
 		System.out.println("stopping");
+		sender.livePlaybackStop();
 		try {
-			sender.send(new OSCMessage("/live/stop"));
-		} catch (IOException e) {
+			Thread.sleep(1500); 
+		} catch (Exception e) {
+			// NOP
+		}
+		AppleScriptRunner.runLiveQuit();
+		try {
+			Thread.sleep(5000); 
+		} catch (Exception e) {
 			// NOP
 		}
 	}

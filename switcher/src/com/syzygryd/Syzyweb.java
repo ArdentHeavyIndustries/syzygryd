@@ -36,22 +36,22 @@ public class Syzyweb extends NanoHTTPD {
 		String actionStr = uri.substring(kActionUriPrefix.length()-1, endOfAction);
 		Action.ActionType a = null;
 		try {
-			a = Action.ActionType.valueOf(actionStr);
+			a = Action.ActionType.valueOf(actionStr.toLowerCase());
 		} catch (IllegalArgumentException e) {
 			System.err.println("No such action " + actionStr);
 			return errorResponse("500", "Invalid action: " + actionStr + ". nice try, k1dd135.");
 		}
 		
-		boolean queue = false;
+		boolean shouldQueue = false;
 		if (params != null) {
-			queue = params.getProperty("queue", "0").equals("1");
+			shouldQueue = params.getProperty("q", "0").equals("1");
 		}
 		
 		switch (a) {
-		case set:
-		case next:
-		case prev:
-			runner.doAction(queue, new Action(a, params));
+		case playthis:
+		case playnext:
+		case playprev:
+			runner.injectAction(shouldQueue, ActionFactory.createAction(a, params));
 			return successResponse();
 		default:
 			return errorResponse("500", "Unimplemented action " + actionStr + ".  Move that ass, boy!");
