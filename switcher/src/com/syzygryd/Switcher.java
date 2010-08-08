@@ -26,6 +26,7 @@ public class Switcher {
 			System.exit(-1);
 		}
 		
+		System.out.println("Loading setlist...");
 		// attempt to load setlist
 		try {
 			list = new Setlist(args[ARG_SETLISTFILENAME]);
@@ -37,6 +38,7 @@ public class Switcher {
 		// install setlist
 		ActionSetPlay.setList(list);
 		
+		System.out.println("Setting up OSC sender...");
 		// setup sender
 		try {
 			sender = new OSCSender();
@@ -48,15 +50,18 @@ public class Switcher {
 		// TODO: after quitting live is implemented, sender will
 		// need to be reset
 		Set.setSender(sender);
-
+		
+		System.out.println("Setting up OSC listener...");
 		setupOSCListener();
 
 		// setup switcher queue thread
+		System.out.println("Starting ActionRunner...");
 		ar = new ActionRunner();
 
 		// start it
-		ar.run();
+		ar.start();
 		
+		System.out.println("Starting webserver...");
 		// setup webserver
 		try {
 			@SuppressWarnings("unused")
@@ -66,6 +71,7 @@ public class Switcher {
 			e.printStackTrace();
 		}
 		
+		System.out.println("Running.");
 		// wait forever.
 		try {
 			ar.join();

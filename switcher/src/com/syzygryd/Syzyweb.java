@@ -38,7 +38,7 @@ public class Syzyweb extends NanoHTTPD {
 		
 		endOfAction = (endOfAction > 0 ? endOfAction : uri.length());
 		
-		String actionStr = uri.substring(kActionUriPrefix.length()-1, endOfAction);
+		String actionStr = uri.substring(kActionUriPrefix.length(), endOfAction);
 		Action.ActionType a = null;
 		try {
 			a = Action.ActionType.valueOf(actionStr.toLowerCase());
