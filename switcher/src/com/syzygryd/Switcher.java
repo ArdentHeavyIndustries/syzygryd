@@ -8,6 +8,10 @@ import com.illposed.osc.OSCListener;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPortIn;
 
+/**
+ * The main class for the set switching software
+ *
+ */
 public class Switcher {
 
 	public static final int OSC_LISTENING_PORT = 9001;
