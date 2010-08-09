@@ -198,9 +198,11 @@ public class NanoHTTPD
 		t.start();
 	}
 
+
 	/**
 	 * Starts as a standalone file server and waits for Enter.
 	 */
+	/*
 	public static void main( String[] args )
 	{
 		System.out.println( "NanoHTTPD 1.13 (C) 2001,2005-2010 Jarno Elonen\n" +
@@ -242,7 +244,8 @@ public class NanoHTTPD
 
 		try { System.in.read(); } catch( Throwable t ) {};
 	}
-
+*/
+	
 	/**
 	 * Handles one session, i.e. parses the HTTP request
 	 * and returns the response.
