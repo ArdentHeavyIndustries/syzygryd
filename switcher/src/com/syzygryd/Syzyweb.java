@@ -45,11 +45,11 @@ public class Syzyweb extends NanoHTTPD {
 	}
 	
 	/**
-	 * finds a command we support and passes on to it; otherwise returns null
+	 * finds a command we support and executes it, passing CGI parameters to it to it; otherwise returns null
 	 * @param uri URI = URL minus domain & protocol identifier
 	 * @param method GET/HEAD/POST
 	 * @param header all the headers 
-	 * @param params parsed GET/POST parameters
+	 * @param params parsed CGI GET/POST parameters
 	 * @return Response to send to web client
 	 */
 	protected Response act( String uri, String method, Properties header, Properties params ) {

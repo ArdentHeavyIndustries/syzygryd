@@ -45,7 +45,7 @@ public class ActionRunner extends Thread {
 		while (true) {  // don't stop til you get enough
 			// determine next action in this order:
 			
-			// 1. existing pending action (which would have been set via now())
+			// 1. existing pending action (which would have been set via actNow())
 			Action currentAction = popPendingAction();
 			
 			// 2. action at head of queue
