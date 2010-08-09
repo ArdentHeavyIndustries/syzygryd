@@ -20,7 +20,16 @@ public class Syzyweb extends NanoHTTPD {
 		runner = ar;
 	}
 	
-	// passes on to our handlers if it starts with /sz/; otherwise falls through to theirs
+	/**
+	 * 
+	 * Called each time an HTTP request arrives
+	 * 
+	 * @param uri URI = URL minus domain & protocol identifier
+	 * @param method GET/HEAD/POST
+	 * @param header all the headers 
+	 * @param params parsed GET/POST parameters
+	 * @return Response to send to web client
+	 */
 	public Response serve( String uri, String method, Properties header, Properties params ) {
 		if (uri != null && uri.length() > ACTION_URI_PREFIX.length() + 1) {
 			if (uri.startsWith(ACTION_URI_PREFIX)) {
@@ -35,7 +44,14 @@ public class Syzyweb extends NanoHTTPD {
 		return super.serve(uri, method, header, params);
 	}
 	
-	// finds a command we support and passes on to it; otherwise returns null
+	/**
+	 * finds a command we support and passes on to it; otherwise returns null
+	 * @param uri URI = URL minus domain & protocol identifier
+	 * @param method GET/HEAD/POST
+	 * @param header all the headers 
+	 * @param params parsed GET/POST parameters
+	 * @return Response to send to web client
+	 */
 	protected Response act( String uri, String method, Properties header, Properties params ) {
 		int endOfAction = uri.indexOf('?');
 		
@@ -127,6 +143,9 @@ public class Syzyweb extends NanoHTTPD {
 		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
 	}
 	
+	/**
+	 * Quit switcher; waits 2 seconds (hack!) to make sure the response is delivered
+	 */
 	void quit() {
 		System.err.println("Quitting.");
 		new Thread(new Runnable() {
@@ -144,6 +163,9 @@ public class Syzyweb extends NanoHTTPD {
 		}).start();
 	}
 	
+	/**
+	 * Restarts switcher
+	 */
 	void restart() {
 		System.err.println("Restarting -- not yet implemented");
 	}
