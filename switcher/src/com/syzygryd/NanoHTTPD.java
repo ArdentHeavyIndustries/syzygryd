@@ -699,9 +699,11 @@ public class NanoHTTPD
 		gmtFrmt.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
+	
 	/**
 	 * The distribution licence
 	 */
+	/*
 	private static final String LICENCE =
 		"Copyright (C) 2001,2005-2010 by Jarno Elonen <elonen@iki.fi>\n"+
 		"\n"+
@@ -727,4 +729,5 @@ public class NanoHTTPD
 		"THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"+
 		"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"+
 		"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.";
+		*/
 }
