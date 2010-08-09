@@ -32,19 +32,20 @@ class OSCManager {
   void oscEvent(OscMessage m) {
 
     // Enable the following line for OSC message debugging purposes
-    //println("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+    //println("oscEvent: addrPattern(): " + m.addrPattern());
 
     if (m.addrPattern().endsWith("/sync")) {
       
       lastSyncTimeInMs = millis();
-      timeSinceLastSyncInMs = 0;
-      
+         
       sequencerState.stepPosition = m.get(0).floatValue();      
+      //print("\nGot sync @ step position: " + sequencerState.stepPosition + ", BPM = " + sequencerState.bpm + "\nTime: " +lastSyncTimeInMs+"\n\n");
+
       sequencerState.ppqPosition = m.get(1).doubleValue();
       // double timeInSeconds = m.get(2).doubleValue(); // unlikely we'll need sequencer-relative time for anything
       sequencerState.bpm = m.get(3).doubleValue();
       int panelIndex = m.get(4).intValue();
-      int curTab = m.get(5).intValue();
+      sequencerState.curTab[panelIndex] = m.get(5).intValue();
       int numTabs = m.get(6).intValue();
       int numRows = m.get(7).intValue();
       int numCols = m.get(8).intValue();
@@ -53,7 +54,7 @@ class OSCManager {
         System.err.println("WARNING: null blob");
         return;
       }
-
+      
       int index = 0;
       for (int i = 0; i < numTabs; i++) {
         for (int j = 0; j < numRows; j++) {
@@ -64,11 +65,11 @@ class OSCManager {
             sequencerState.notes[panelIndex][i][k][j] = ((blob[byteSel] & (1 << (7 - bitSel))) != 0);
           }
         }
-      }
+      }   
+      
       return;
     }
 
-    // any other osc messages, ignore
   }
 
 }

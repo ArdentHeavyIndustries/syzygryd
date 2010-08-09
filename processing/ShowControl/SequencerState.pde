@@ -9,6 +9,7 @@ public class SequencerState {
   
   //timing information
   int curStep; // Number of current sequencer step.
+  int[] curTab = new int[PANELS];
   float stepPosition; // precise position within sequence
   double bpm;  // beats per minute
   double ppqPosition; // number of quarter notes since sequencer start

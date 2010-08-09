@@ -1,9 +1,14 @@
 import syzygryd.*;
 import processing.serial.*;
 import processing.core.*;
+import processing.net.*;
 import guicomponents.*;
 import oscP5.*;
 import netP5.*;
+
+boolean SYZYVYZ = false;
+
+Client syzygrydvyz;
 
 DMX DMXManager;
 OSCManager OSCConnection;
@@ -23,25 +28,29 @@ ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
 Fixture test, test2, test3, test4, test5;
 
 int lastSyncTimeInMs;
-int timeSinceLastSyncInMs;
 int lastDrawTimeInMs;
 
 private GButton btnStart;
 GWindow[] ctrlrWindow;
 
 void setup() {
-
+  
   lastSyncTimeInMs = 0;
-  timeSinceLastSyncInMs = 0;
   lastDrawTimeInMs = millis();
   
   /* example code*/
   colorMode(RGB);
   background(0);
-  frameRate(100);
+  frameRate(400);
+
+
+  if (SYZYVYZ) {
+    //Set up visualizer
+    syzygrydvyz = new Client(this, "127.0.0.1", 3333);
+  }
 
   //Set up OSC connection
-  OSCConnection = new OSCManager("localhost");
+  OSCConnection = new OSCManager("127.0.0.1");
 
   //Instantiate sequencer state storage
   sequencerState = new SequencerState();
@@ -88,11 +97,9 @@ void draw(){
   
   updateStepPosition();
   
+ 
   //step lighting program
   program.drawFrame();
-  
-  //the rest of this method is test code
-  //print(events.eventQueue);
   
   // render fixture behaviors.  do fixture groups first, then fixtures
   for (FixtureGroup group : fixtureGroups) {
@@ -112,35 +119,58 @@ void draw(){
     }
   }
   
+ 
+ // Enable following to debug contents of note array
+ ///* 
+ if(events.fired("step")){
+    for (int y = 0; y < 10; y++){
+      for (int p = 0; p < 3; p++){
+        for (int x = 0; x < 16; x++){
+          int t = sequencerState.curTab[p];
+          print(sequencerState.notes[p][t][x][y]?"X":"_");
+        }
+        print("   ");
+      }
+      print("\n");
+    }
+    print("\n\n\n");
+  }
+  //*/
+  
+  //remove expired events
   events.flushExpired();
 
   background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
+  
+  // send final state of lights to DMX controller(s)
   DMXManager.update();
 }
 
 void updateStepPosition(){
   if (lastSyncTimeInMs > 0) {
     int now = millis();
+    //print("Time: " + now + "\n");
     int timeSinceLastDrawInMs = now - lastDrawTimeInMs;
     lastDrawTimeInMs = now;
-    timeSinceLastSyncInMs += timeSinceLastDrawInMs;
   
-    sequencerState.stepPosition += getTimeAsColOffset(timeSinceLastSyncInMs);
+    sequencerState.stepPosition = (sequencerState.stepPosition + getTimeInSteps(timeSinceLastDrawInMs)) % 16;
+    //print("New position: " + sequencerState.stepPosition + "\n");
     
     int oldStep = sequencerState.curStep;
-    sequencerState.curStep = floor(sequencerState.stepPosition);
+    sequencerState.curStep = (int)floor(sequencerState.stepPosition);
     if (oldStep != sequencerState.curStep) {
       events.fire("step");
     }
-    print("Position: "+sequencerState.stepPosition+"\n");
   }
 }
 
 
-double getTimeAsColOffset (int time) {
-  double beatsPerCol = 4;
-  double msPerBeat = 60000 / (float)sequencerState.bpm;
-  double msPerCol = beatsPerCol * msPerBeat;
+float getTimeInSteps(int time) {
+  float stepsPerBeat = 4;
+  float msPerBeat = 60000 / (float)sequencerState.bpm;
+  float msPerStep = msPerBeat / stepsPerBeat;
 
-  return time * msPerCol;
+  float numSteps = time / msPerStep;
+  //print ("Adding  " + numSteps + " steps to position.\n");
+  return numSteps;
 }
