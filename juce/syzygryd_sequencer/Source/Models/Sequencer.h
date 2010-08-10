@@ -17,7 +17,8 @@
 #include "JuceHeader.h"
 
 // Holds data for an upcoming note-off event
-struct noteOff {
+class NoteOff {
+public:
 	int noteNumber;
 	int tick;
 };
@@ -73,8 +74,9 @@ private:
 	
 	int swingTicks;    // how many ticks should odd columns be delayed
 	
-	Array<noteOff> noteOffs; // all upcoming note-off events
+	OwnedArray<NoteOff> noteOffs; // all upcoming note-off events
 	int noteLength;  // note length in ticks
+	Array<bool> playingNotes; // which midi notes are currently playing
 	
 	double lastPlayheadColPrecise;
 };

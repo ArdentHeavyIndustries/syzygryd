@@ -24,7 +24,7 @@ lastSwingTicks (-1)
 	
 	addAndMakeVisible (noteLengthSlider = new Slider ("Note Length"));
 	noteLengthSlider->setSliderStyle (Slider::LinearHorizontal);
-	noteLengthSlider->setRange (0, sequencer->getMaxNoteLength(), 1.0);
+	noteLengthSlider->setRange (1, sequencer->getMaxNoteLength(), 1.0);
 	noteLengthSlider->setValue (1.0, false, false);
 	noteLengthSlider->setTextBoxStyle (Slider::NoTextBox, false, 100, 20);
 	noteLengthSlider->addListener (this);
