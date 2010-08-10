@@ -31,6 +31,7 @@ playButton (0)
 
 TransportComponent::~TransportComponent()
 {
+	bpmSlider->removeListener (this);
 	deleteAllChildren();
 }
 

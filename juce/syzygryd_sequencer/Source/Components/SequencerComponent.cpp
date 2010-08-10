@@ -48,6 +48,13 @@ lastToggledCellComponent (0)
 
 SequencerComponent::~SequencerComponent()
 {
+	for (int i = 0; i < sequencer->getTotalRows(); i++) {
+		for (int j = 0; j < sequencer->getTotalCols(); j++) {
+			CellComponent* cell = getCellAt (i, j);
+			cell->removeMouseListener (this);
+		}
+	}
+	
 	deleteAllChildren();
 }
 

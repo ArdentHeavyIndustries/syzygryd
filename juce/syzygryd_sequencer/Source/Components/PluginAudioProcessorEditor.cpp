@@ -30,6 +30,7 @@ standalone (false)
 
 PluginAudioProcessorEditor::~PluginAudioProcessorEditor()
 {
+	removeComponentListener (this);
 	deleteAllChildren();
 }
 

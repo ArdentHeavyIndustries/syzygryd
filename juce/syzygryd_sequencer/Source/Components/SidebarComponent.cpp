@@ -39,6 +39,7 @@ clearButton (0)
 SidebarComponent::~SidebarComponent()
 {
 	stopTimer();
+	clearButton->removeButtonListener (this);
 	deleteAllChildren();
 }
 

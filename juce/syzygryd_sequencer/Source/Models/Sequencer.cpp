@@ -26,8 +26,8 @@ swingTicks (2),
 noteLength (4),
 lastPlayheadColPrecise (0)
 {
-   primary = SharedState::getInstance()->testAndSetPrimarySequencer();
-   DBG ("Sequencer " + String(pluginAudioProcessor->getPanelIndex()) + (primary ? " IS" : " is NOT") + " the primary");
+	primary = SharedState::getInstance()->testAndSetPrimarySequencer();
+	DBG ("Sequencer " + String(pluginAudioProcessor->getPanelIndex()) + (primary ? " IS" : " is NOT") + " the primary");
 }
 
 Sequencer::~Sequencer()
@@ -53,7 +53,7 @@ void Sequencer::noteToggle (int panelIndex_, int tabIndex_,
                             int row_, int col_, bool isNoteOn)
 {
 	SharedState::getInstance()->noteToggle (panelIndex_, tabIndex_,
-                                           row_, col_, isNoteOn);
+											row_, col_, isNoteOn);
 }
 
 void Sequencer::clearTab (int panelIndex_, int tabIndex_)
@@ -125,14 +125,14 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
                               MidiBuffer& midiMessages)
 {
 	AudioPlayHead::CurrentPositionInfo pos (pluginAudioProcessor->lastPosInfo);	
-
+	
 	// If we aren't playing...
 	if (! pos.isPlaying) {
 		if (noteOffs.size() > 0) {
 			// Send any upcoming note-off events
 			Array<int> notesToRemove; 
 			for (int i = 0; i < noteOffs.size(); i++) {
-				MidiMessage m2 = MidiMessage::noteOff(1, noteOffs[i].noteNumber);
+				MidiMessage m2 = MidiMessage::noteOff (1, noteOffs[i].noteNumber);
 				midiMessages.addEvent (m2, 0);			
 				notesToRemove.add (i);
 			}
@@ -144,27 +144,27 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		}
 		return;
 	}
-
+	
 	double ppq = pos.ppqPosition;
-   double timeInSeconds = pos.timeInSeconds;
-   double bpm = pos.bpm;
-   if (primary) {
-      SharedState::getInstance()->setPpqPosition (ppq);
-      SharedState::getInstance()->setTimeInSeconds (timeInSeconds);
-      SharedState::getInstance()->setBpm (bpm);
-   }
-
+	double timeInSeconds = pos.timeInSeconds;
+	double bpm = pos.bpm;
+	if (primary) {
+		SharedState::getInstance()->setPpqPosition (ppq);
+		SharedState::getInstance()->setTimeInSeconds (timeInSeconds);
+		SharedState::getInstance()->setBpm (bpm);
+	}
+	
 	/*
-	int numerator = pos.timeSigNumerator;
-	int denominator = pos.timeSigDenominator;
-	
-	const int ppqPerBar = (numerator * 4 / denominator); // e.g. 4 if 4/4
-	const double beats = (fmod (ppq, ppqPerBar) / ppqPerBar) * numerator;
-	
-	const int bar = ((int) ppq) / ppqPerBar + 1;
-	const int beat = ((int) beats) + 1;
-	const int ticks = ((int) (fmod (beats, 1.0) * 960.0));	
-	*/
+	 int numerator = pos.timeSigNumerator;
+	 int denominator = pos.timeSigDenominator;
+	 
+	 const int ppqPerBar = (numerator * 4 / denominator); // e.g. 4 if 4/4
+	 const double beats = (fmod (ppq, ppqPerBar) / ppqPerBar) * numerator;
+	 
+	 const int bar = ((int) ppq) / ppqPerBar + 1;
+	 const int beat = ((int) beats) + 1;
+	 const int ticks = ((int) (fmod (beats, 1.0) * 960.0));	
+	 */
 	
 	double tickCountPrecise = fmod (ppq * speed * ticksPerCol, getTotalCols() * ticksPerCol);
 	tickCount = (int)tickCountPrecise;
@@ -175,7 +175,7 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	if (primary) {
 		SharedState::getInstance()->setPlayheadColPrecise (lastPlayheadColPrecise);
 	}		
-
+	
 	if (tickCount != lastTickCount) {
 		lastTickCount = tickCount;
 		
@@ -184,13 +184,13 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		if (SharedState::getInstance()->getTimeInSeconds() >= 
 			(SharedState::getInstance()->getLastTouchSecond(panelIndex) + 
 			 SharedState::kDegradeTimeInSeconds)) {
-			DBG("Time to degrade!")
-		}
+				DBG("Time to degrade!")
+			}
 		
 		// Update starfield if necessary
 		if (SharedState::getInstance()->getStarFieldActive()) {
 			if (pluginAudioProcessor->getPanelIndex() == 0) {
-				if (tickCount % 20 == 0) {			
+				if (tickCount % 10 == 0) {			
 					SharedState::getInstance()->update();
 				}
 			}
@@ -222,11 +222,40 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		int tickOffsetSamples = tickOffset * secPerBeat * sampleRate;
 		tickOffsetSamples = jmax (buffer.getNumSamples() - tickOffsetSamples - 1, 0);
 		
+		// Send any upcoming note-off events
+		Array<int> notesToRemove; 
+		for (int i = 0; i < noteOffs.size(); i++) {
+			if (noteOffs[i].tick <= tickCount) {
+				MidiMessage m2 = MidiMessage::noteOff (1, noteOffs[i].noteNumber);
+				midiMessages.addEvent (m2, tickOffsetSamples);			
+				notesToRemove.add (i);
+			}
+		}
+		for (int i = 0; i < notesToRemove.size(); i++) {
+			// Remove the event from the note-off event list
+			// (We do this in two steps so that the noteOffs array isn't modified inside a loop)
+			noteOffs.remove (notesToRemove[i]);
+		}		
+		
 		// If we should play the current column of notes
 		if (playCol) {
 			int panelIndex = pluginAudioProcessor->getPanelIndex();
 			int tabIndex = pluginAudioProcessor->getTabIndex();
 
+			// If this is column 1
+			if (getPlayheadCol() == 0) {
+				// Send note offs for the last column (hanging note bugfix)
+				int lastCol = getTotalCols() - 1;
+				for (int i = 0; i < getTotalRows(); i++) {
+					Cell* cell = getCellAt (panelIndex, tabIndex, i, lastCol);
+					int noteNumber = cell->getNoteNumber();
+					if (noteNumber != -1) {
+						MidiMessage m = MidiMessage::noteOff (1, noteNumber);
+						midiMessages.addEvent (m, tickOffsetSamples);
+					}
+				}
+			}
+			
 			for (int i = 0; i < getTotalRows(); i++) {
 				Cell* cell = getCellAt (panelIndex, tabIndex, i, getPlayheadCol());
 				int noteNumber = cell->getNoteNumber();
@@ -240,21 +269,6 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 					noteOffs.add (no);
 				}
 			}
-		}
-		
-		// Send any upcoming note-off events
-		Array<int> notesToRemove; 
-		for (int i = 0; i < noteOffs.size(); i++) {
-			if (noteOffs[i].tick <= tickCount) {
-				MidiMessage m2 = MidiMessage::noteOff(1, noteOffs[i].noteNumber);
-				midiMessages.addEvent (m2, tickOffsetSamples);			
-				notesToRemove.add (i);
-			}
-		}
-		for (int i = 0; i < notesToRemove.size(); i++) {
-			// Remove the event from the note-off event list
-			// (We do this in two steps so that the noteOffs array isn't modified inside a loop)
-			noteOffs.remove (notesToRemove[i]);
 		}
 	}
 }

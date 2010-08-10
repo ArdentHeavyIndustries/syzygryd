@@ -30,7 +30,7 @@ transportComponent (0)
 
 StandaloneComponent::~StandaloneComponent()
 {
-	deleteAndZero (transportComponent);
+	deleteAllChildren();
 }
 
 AudioProcessorEditor* StandaloneComponent::getAudioProcessorEditor()

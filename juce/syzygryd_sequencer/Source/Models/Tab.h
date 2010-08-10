@@ -35,6 +35,9 @@ private:
 	OwnedArray< OwnedArray<Cell> > rows;	
 	
 	StarField* starField;
+	
+	int updateCount;
+	bool firstUpdate;
 };
 
 #endif

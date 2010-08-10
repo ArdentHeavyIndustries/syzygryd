@@ -22,6 +22,7 @@ index (index_)
 
 TabComponent::~TabComponent()
 {
+	deleteAllChildren();
 }
 
 // Component methods

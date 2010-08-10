@@ -47,6 +47,13 @@ lastStarFieldActive (false)
 
 OptionsComponent::~OptionsComponent()
 {
+	for (int i = 0; i < kRadioSize; ++i) {
+		TextButton* radioButton = panelButtons[i];
+		radioButton->removeButtonListener (this);
+		removeChildComponent (radioButton);
+	}	
+	starFieldButton->removeButtonListener (this);
+	deleteAllChildren();
 }
 
 // Component methods

@@ -15,7 +15,7 @@
 StarField::StarField (int rows, int cols) :
 width (cols),
 height (rows),
-ovrlcnst (0.45L),
+ovrlcnst (0.15L),
 starnumber (35),
 xpixoffrt (380L),
 ypixofftop (140L), 

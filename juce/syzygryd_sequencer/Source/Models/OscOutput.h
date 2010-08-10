@@ -34,9 +34,10 @@ private:
 	DatagramSocket outSocket;
 	
 	int lastPlayheadCol;
-
-   unsigned int sleepIntervalMs;
-   unsigned int syncCount;
+	
+	unsigned int sleepIntervalMs;
+	unsigned int syncCount;
+	
 };
 
 #endif

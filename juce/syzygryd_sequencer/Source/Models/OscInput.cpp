@@ -23,10 +23,12 @@ OscInput::OscInput () :
 Thread ("OscInput"),
 inSocket (kLocalPort, false)
 {
+	startThread();
 }
 
 OscInput::~OscInput()
 {
+	stopThread (4000);
 	inSocket.close();
 }
 

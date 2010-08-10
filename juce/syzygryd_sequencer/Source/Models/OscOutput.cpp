@@ -36,10 +36,12 @@ sleepIntervalMs (125),	// initialize based on 120 bpm
 syncCount(0)
 {
 	outSocket.connect (kRemoteHost, kRemotePort, kTimeoutMs);
+	startThread();
 }
 
 OscOutput::~OscOutput()
 {
+	stopThread (4000);
 	outSocket.close();
 }
 
@@ -66,13 +68,13 @@ void OscOutput::sendNoteToggle (int panelIndex, int tabIndex, int row, int col,
 	// [/1_tab1/panel/6/9 float32:1]
 	String msg;
 	msg << "/" << panelIndex << "_tab" << tabIndex << "/panel/" << row 
-       << "/" << col;
+	<< "/" << col;
 	
 	float state = 0.0;
 	if (isNoteOn) state = 1.0;
 	
 	p << osc::BeginMessage (msg.toUTF8()) << state
-     << osc::EndMessage;
+	<< osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());	
 }
 
@@ -88,10 +90,10 @@ void OscOutput::sendClearTab (int panelIndex, int tabIndex)
 	//[/1_control/clear/tab1]
 	String msg;
 	msg << "/" << panelIndex << "_control/clear/tab" << tabIndex;
-   DBG (msg);
+	DBG (msg);
 	
 	p << osc::BeginMessage (msg.toUTF8())
-     << osc::EndMessage;
+	<< osc::EndMessage;
 	outSocket.write (p.Data(), p.Size());		
 }
 
@@ -130,6 +132,10 @@ void OscOutput::sendSync()
 		int numCols = SharedState::getInstance()->getTotalCols();
 		
 		for (int panelIndex = 0; panelIndex < numPanels; panelIndex++) {
+			if (threadShouldExit()) {
+				return;
+			}
+			
 			int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
 			osc::Blob* blob = SharedState::getInstance()->updateAndGetCompressedPanelState (panelIndex);
 			
@@ -152,19 +158,19 @@ void OscOutput::sendSync()
 // Thread methods
 void OscOutput::run()
 {
-   int64 prevTimeMs= -1;
+	int64 prevTimeMs= -1;
 	while (! threadShouldExit()) {
 		// ms/col = ms/s / (col/beat * beat/min / s/min)
 		sleepIntervalMs = (int)(1000.0 / ((4.0 * SharedState::getInstance()->getBpm()) / 60.0));
-
-      if (prevTimeMs != -1) {
-         int64 nowMs = Time::currentTimeMillis();
-         sleepIntervalMs -= (unsigned int)(nowMs - prevTimeMs);
-      }
-
-      //DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
+		
+		if (prevTimeMs != -1) {
+			int64 nowMs = Time::currentTimeMillis();
+			sleepIntervalMs -= (unsigned int)(nowMs - prevTimeMs);
+		}
+		
+		//DBG ("Sleeping for " + String(sleepIntervalMs) + " ms");
 		Thread::sleep (sleepIntervalMs);
-      prevTimeMs = Time::currentTimeMillis();
+		prevTimeMs = Time::currentTimeMillis();
 		
 		int playheadCol = SharedState::getInstance()->getPlayheadCol();
 		
@@ -177,7 +183,7 @@ void OscOutput::run()
 		if (!outSocket.waitUntilReady (false, kTimeoutMs)) {
 			continue;
 		}
-		
+				
 		sendTempo();
 		sendSync();
 	}

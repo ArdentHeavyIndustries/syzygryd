@@ -41,6 +41,8 @@ lastSwingTicks (-1)
 
 AdjustmentComponent::~AdjustmentComponent()
 {
+	noteLengthSlider->removeListener (this);
+	swingTicksSlider->removeListener (this);
 	deleteAllChildren();
 }
 

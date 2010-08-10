@@ -12,10 +12,14 @@
 
 #include "Tab.h"
 
+const int kUpdateSkip = 10;
+
 Tab::Tab (int totalRows_, int totalCols_) :
 totalRows (totalRows_),
 totalCols (totalCols_),
-starField (0)
+starField (0),
+updateCount (0),
+firstUpdate (true)
 {
 	// Initialize the cells
 	for (int i = 0; i < totalRows; i++) {
@@ -65,6 +69,19 @@ void Tab::clear()
 
 void Tab::update()
 {
+	if (firstUpdate) {
+		firstUpdate = false;
+		for (int i = 0; i < 20; i++) {
+			starField->update();
+		}
+	}
+	
+	updateCount++;
+	if (updateCount <= kUpdateSkip) {
+		return;
+	}
+	updateCount = 0;
+	
 	starField->update();
 	
 	for (int i = 0; i < totalRows; i++) {
