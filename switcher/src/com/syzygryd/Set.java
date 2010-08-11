@@ -59,7 +59,7 @@ public class Set {
 		System.out.println("Playing " + getName() + " - length:" + getLength() + " sec.");
 		
 		try {
-			Runtime.getRuntime().exec("open " + getName());
+			Runtime.getRuntime().exec("open \"" + getName() + "\"");
 		} catch (IOException e) {
 			// NOP
 		}
