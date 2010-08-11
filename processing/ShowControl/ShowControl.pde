@@ -8,9 +8,10 @@ import netP5.*;
 
 /* ------------------------- Program Configuration ------------------------- */
 
-int FRAMERATE = 40;
+int FRAMERATE = 200;
+boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
 
-boolean SYZYVYZ = true;
+boolean SYZYVYZ = false;
 boolean ASCII_SEQUENCER_DISPLAY = false;
 
 /* ----------------- Variable Declaration & Initialization ----------------- */
