@@ -39,7 +39,8 @@ class OSCManager {
       lastSyncTimeInMs = millis();
          
       sequencerState.stepPosition = m.get(0).floatValue();      
-      //print("\nGot sync @ step position: " + sequencerState.stepPosition + ", BPM = " + sequencerState.bpm + "\nTime: " +lastSyncTimeInMs+"\n\n");
+      
+      //print("\nTime: " +lastSyncTimeInMs+"\nGot sync @ step position: " + sequencerState.stepPosition + ", BPM = " + sequencerState.bpm + "\n\n");
 
       sequencerState.ppqPosition = m.get(1).doubleValue();
       // double timeInSeconds = m.get(2).doubleValue(); // unlikely we'll need sequencer-relative time for anything
@@ -55,6 +56,7 @@ class OSCManager {
         return;
       }
       
+      // Decompact state blob to get note values
       int index = 0;
       for (int i = 0; i < numTabs; i++) {
         for (int j = 0; j < numRows; j++) {
@@ -67,7 +69,6 @@ class OSCManager {
         }
       }   
       
-      return;
     }
 
   }

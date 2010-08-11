@@ -2,10 +2,10 @@
 
 public class SequencerState {
   // modify these definitions to change number or dimensions of panels
-  private final static int PANELS = 3;
-  private final static int TABS = 4;
-  private final static int STEPS = 16;
-  private final static int PITCHES = 10;
+  final static int PANELS = 3;
+  final static int TABS = 4;
+  final static int STEPS = 16;
+  final static int PITCHES = 10;
   
   //timing information
   int curStep; // Number of current sequencer step.

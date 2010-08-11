@@ -7,6 +7,7 @@ abstract class Behavior {
   Fixture fixture;
   int startTime;
   int state;
+  boolean initialized = false;
   
   public static final int ACTIVE = 1; // Currently running
   public static final int INACTIVE = 0; // Waiting to run, or disabled
@@ -16,6 +17,7 @@ abstract class Behavior {
   public int blendMode = REPLACE;
   
   void masterDrawFrame() {
+
     int currState = state();
     if (currState != ACTIVE) {
       if (currState == COMPLETE) {
@@ -24,12 +26,22 @@ abstract class Behavior {
       return;
     }
     else {
+      
+      if(!initialized){
+        initialize();
+        initialized = true;
+      }
+
       drawFrame();
     }
   }
   
-  void drawFrame() {
+  void initialize() {
     return;
+  }
+  
+  void drawFrame() {
+    setColor(currentColor());
   }
 
   public int state() {
@@ -69,8 +81,9 @@ abstract class TimedBehavior extends Behavior {
   TimedBehavior(Fixture _fixture, int _priority, int _startTime, int _duration) {
     fixture = _fixture;
     startTime = _startTime;
-    endTime = _startTime + _duration;
-    duration = _duration;
+    int overlap = (2 * int(1000/FRAMERATE)); // Hack: Add two frames to duration to ensure slight overlap between sequential behaviors. TODO: Find a better method to ensure behaviors chain properly.
+    endTime = _startTime + _duration + overlap; 
+    duration = _duration + overlap;
     priority = _priority;
     fixture.addBehavior(this, priority);
   }
@@ -110,13 +123,13 @@ abstract class TimedBehavior extends Behavior {
   }
 }
 
-abstract class ConstantBehavior extends Behavior {
+abstract class IndefiniteBehavior extends Behavior {
 
   int lastTime; // used by refresh()
   int refreshInterval; // used by refresh()
 
 
-  ConstantBehavior(Fixture _fixture, int _priority, int _startTime) {
+  IndefiniteBehavior(Fixture _fixture, int _priority, int _startTime) {
     fixture = _fixture;
     state = ACTIVE;
     startTime = _startTime;
@@ -126,7 +139,7 @@ abstract class ConstantBehavior extends Behavior {
   }
 
 
-  ConstantBehavior(Fixture _fixture, int _priority) {
+  IndefiniteBehavior(Fixture _fixture, int _priority) {
     this(_fixture, _priority, now());
   }
 
@@ -177,96 +190,100 @@ abstract class ConstantBehavior extends Behavior {
 
 
 
-/* ------------------------------------- Implementations ----------------------------------------- */
+/* ------------------------------------- Behavior Implementations ----------------------------------------- */
 
-class FadeBehavior extends TimedBehavior {
+// SetColor: Sets fixture/group to supplied color value. If optional "sticky" flag is set true, refreshes 
+// color every frame until behavior is cleared; otherwise sets color and clears itself.
+class SetColor extends IndefiniteBehavior {
+
+  color colorValue;
+  boolean sticky;
+  
+  SetColor(Fixture _fixture, int _priority, int _startTime, color _colorValue, boolean _sticky){
+    super(_fixture, _priority, _startTime);
+    colorValue = _colorValue;
+    sticky = _sticky;
+  }
+  
+  SetColor(Fixture _fixture, int _priority, color _colorValue, boolean _sticky){
+    this(_fixture, _priority, now(),_colorValue, _sticky);
+  }
+  
+  SetColor(Fixture _fixture, int _priority, color _colorValue){
+    this(_fixture, _priority, now(),_colorValue, false);
+  }
+  
+  void initialize(){
+    setColor(colorValue);
+    if (!sticky) {
+      state = COMPLETE;
+    }
+  }
+  
+  void drawFrame() {
+    if(sticky){
+      setColor(colorValue);
+    }
+  }
+  
+}
+
+
+
+// FadeTo: Fades from current color of fixture to specified color over specified duration.
+class FadeTo extends TimedBehavior {
 
   //Assign behavior-specific fields
   color startColor, endColor;
 
   //Behaviors should override both constructor signatures to support both immediate and scheduled invocation
-  FadeBehavior (Fixture _fixture, int _priority, int _startTime, int _duration, color _endColor) {
+  FadeTo (Fixture _fixture, int _priority, int _startTime, int _duration, color _endColor) {
     super(_fixture, _priority, _startTime, _duration);
     colorMode(RGB);
     endColor = _endColor;
-    startColor = currentColor();
   }
 
-  FadeBehavior(Fixture _fixture, int _priority, int _duration, color _endColor) {
+  FadeTo(Fixture _fixture, int _priority, int _duration, color _endColor) {
     this(_fixture, _priority, now(), _duration, _endColor);
   }
 
-  public void drawFrame() {
+  void initialize(){
+    startColor = currentColor();
+  }
 
-    colorMode(HSB);
-
-    float startHue, startSaturation, startValue;
-    float endHue, endSaturation, endValue;
-    float newHue, newSaturation, newValue;
-
-
-    startValue = brightness(startColor);
-    startSaturation = saturation(startColor);
-
-    /*
-     * if start hue is undefined (i.e., color is grayscale), 
-     * peg start hue to end hue to avoid unexpected color shifts
-     */
-    if (startSaturation == 0 || startValue == 0) {
-      startHue = hue(endColor);
-    }
-    else {
-      startHue = hue(startColor);
-    }
-
-    endValue = brightness(endColor);
-    endSaturation = hue(endColor);
-
-    /*
-     * if end hue is undefined (i.e., color is grayscale), 
-     * peg end hue to start hue to avoid unexpected color shifts
-     */
-    if (endSaturation == 0 || endValue == 0) {
-      endHue = hue(startColor);
-    }
-    else {
-      endHue = hue(endColor);
-    }
-
-    //interpolate H, S and V values over elapsed time interval
-    newValue = startValue + ((endValue - startValue) * proportionDone());
-    newSaturation = startSaturation + ((endSaturation - startSaturation) * proportionDone());
-    newHue = startHue + ((endHue - startHue) * proportionDone());
-
+  void drawFrame() {
+    
+    colorMode(RGB);
     //set new color on fixture
-    setColor(color(newHue, newSaturation, newValue));
+    setColor(lerpColor(startColor, endColor,proportionDone()));
 
-    //print("proportion done = " + proportionDone() + "\nhue = " + newHue + "\nsaturation = " + newSaturation + "\nvalue = " + newValue + "\n\n");
   }
 }
 
-class HueRotateBehavior extends ConstantBehavior {
+
+
+
+class HueRotate extends IndefiniteBehavior {
   
   color current;
 
   int frame; // debugging - remove
 
-  HueRotateBehavior(Fixture _fixture, int _priority, int _startTime) {
+  HueRotate(Fixture _fixture, int _priority, int _startTime) {
     super(_fixture, _priority, _startTime);
     setRate(30);
-    frame = 0; // debugging - remove
+  }
 
+  HueRotate(Fixture _fixture, int _priority) {
+    this(_fixture, _priority, now());
+  }
+
+  void initialize(){
     // get current color from fixture
     current = currentColor();
   }
 
-
-  HueRotateBehavior(Fixture _fixture, int _priority) {
-    this(_fixture, _priority, now());
-  }
-
-
-  public void drawFrame() {
+  void drawFrame() {
 
     if (refresh()) { // this behavior refreshes at a dependable rate set by setRate() in the constructor.
 
@@ -282,6 +299,7 @@ class HueRotateBehavior extends ConstantBehavior {
     else {
       setColor(current);
     }
+    colorMode(RGB);
   }
 }
 

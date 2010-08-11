@@ -78,6 +78,10 @@ class Fixture {
   public List getBehaviorList() {
     return currentBehaviors.getAll();
   }
+  
+  public void clearBehaviorList() {
+    currentBehaviors.clear();
+  }
 
   class Channel {
     private Fixture parent;

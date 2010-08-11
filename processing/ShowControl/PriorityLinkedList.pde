@@ -40,6 +40,7 @@ import java.util.NoSuchElementException;
  * 7/30/2010 - Byron Young
  *   - changed name from BasicPriorityLinkedList to PriorityLinkedList
  *   - added remove() methods
+ *
  */
 public class PriorityLinkedList {
 
@@ -132,7 +133,7 @@ public class PriorityLinkedList {
 
     return obj;
   }
-
+  
   public Object peekFirst() {
     Object obj = null;
 

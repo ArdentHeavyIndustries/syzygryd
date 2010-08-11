@@ -6,32 +6,45 @@ import guicomponents.*;
 import oscP5.*;
 import netP5.*;
 
-boolean SYZYVYZ = false;
+/* ------------------------- Program Configuration ------------------------- */
 
-Client syzygrydvyz;
+int FRAMERATE = 40;
 
+boolean SYZYVYZ = true;
+boolean ASCII_SEQUENCER_DISPLAY = false;
+
+/* ----------------- Variable Declaration & Initialization ----------------- */
+
+// DMX Control
 DMX DMXManager;
+
+// Sequencer State and Events
 OSCManager OSCConnection;
-
 SequencerState sequencerState;
-
 EventDispatcher events;
 
-LightingProgram program;
-
-FadeBehavior testBehavior;
-HueRotateBehavior testBehavior2;
-
-ArrayList<Fixture> fixtures = new ArrayList();
-ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
-
-Fixture test, test2, test3, test4, test5;
-
+// Time Tracking
 int lastSyncTimeInMs;
 int lastDrawTimeInMs;
 
+// Fixtures and Groups
+ArrayList<Fixture> fixtures = new ArrayList();
+ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
+FixtureGroup[] arm = new FixtureGroup[3];
+
+// Lighting Programs
+ArrayList<LightingProgram> programList = new ArrayList();
+int activeProgram = 0;
+LightingProgram program;
+
+// User Interface
 private GButton btnStart;
 GWindow[] ctrlrWindow;
+
+// Visualizer Connection
+String syzyVyzIP = "127.0.0.1";
+int syzyVyzPort = 3333;
+
 
 void setup() {
   
@@ -41,13 +54,7 @@ void setup() {
   /* example code*/
   colorMode(RGB);
   background(0);
-  frameRate(400);
-
-
-  if (SYZYVYZ) {
-    //Set up visualizer
-    syzygrydvyz = new Client(this, "127.0.0.1", 3333);
-  }
+  frameRate(FRAMERATE);
 
   //Set up OSC connection
   OSCConnection = new OSCManager("127.0.0.1");
@@ -58,13 +65,13 @@ void setup() {
   //set up event queue
   events = new EventDispatcher();
 
-  //create new DMX manager object with a refresh rate of 200Hz
+  //create new DMX manager object
   DMXManager = new DMX(this);
 
   //add three controllers to manager
   DMXManager.addController("COM5",108);
-  //DMXManager.addController("COM4",108);
-  //DMXManager.addController("COM3",108);
+  DMXManager.addController("COM4",108);
+  DMXManager.addController("COM3",108);
 
   //create fixtures via fixture factory
   try {
@@ -74,22 +81,29 @@ void setup() {
     print("An error occurred while parsing fixtures: " + e.getMessage() + "\n");
     exit();
   }
-  
-  test = fixtures.get(0);
-  test2 = fixtures.get(1);
-  test3 = fixtures.get(2);
-  
 
+  //create arm groups
+  for (int i = 0; i < 3; i++){
+    arm[i] = new FixtureGroup("cube");
+    arm[i].addTrait("RGBColorMixing", new RGBColorMixingTrait(arm[i]));
+    for (int j = i * 36; j < (i * 36) + 36; j++){
+      try{
+        arm[i].addFixture(fixtures.get(j));
+      } catch (FixtureTypeMismatchException ftme){}
+    }
+  }
 
   // create DMX Monitor button
   btnStart = new GButton(this, "DMX Monitor", 10,35,80,30);
-  btnStart.setColorScheme(new GCScheme().GREEN_SCHEME);
+  btnStart.setColorScheme(new GCScheme().GREY_SCHEME);
 
   
   //initialize lighting program
-  //need to add code here to initialize an array of lighting programs
-  program = new LightingProgram();
-  program.initialize();  
+  new TestProgram(); // Instantiate a program. This adds it automatically to the list of available lighting programs.
+  new TestProgram2(); // Add a second one
+  
+  program = programList.get(activeProgram); // Get active program
+  program.initialize();  // Initialize active program
 }
 
 
@@ -119,31 +133,43 @@ void draw(){
     }
   }
   
- 
- // Enable following to debug contents of note array
- ///* 
- if(events.fired("step")){
-    for (int y = 0; y < 10; y++){
-      for (int p = 0; p < 3; p++){
-        for (int x = 0; x < 16; x++){
-          int t = sequencerState.curTab[p];
-          print(sequencerState.notes[p][t][x][y]?"X":"_");
+ // textmode sequencer display -- useful for debugging. enable in config variables above.
+ if(ASCII_SEQUENCER_DISPLAY){ 
+   if(events.fired("step")){
+      for (int y = 0; y < 10; y++){
+        for (int p = 0; p < 3; p++){
+          for (int x = 0; x < 16; x++){
+            int t = sequencerState.curTab[p];
+            print(sequencerState.notes[p][t][x][y]?"X":(x==sequencerState.curStep?"|":"_"));
+          }
+          print("   ");
         }
-        print("   ");
+        print("\n");
       }
-      print("\n");
+      print("\n\n\n");
     }
-    print("\n\n\n");
-  }
-  //*/
+ }
   
   //remove expired events
   events.flushExpired();
 
-  background(((RGBColorMixingTrait)test.trait("RGBColorMixing")).getColorRGB());
+  //background(((RGBColorMixingTrait)arm[0].trait("RGBColorMixing")).getColorRGB());
   
   // send final state of lights to DMX controller(s)
   DMXManager.update();
+}
+
+void keyPressed(){
+  if (key == CODED) {
+    switch(keyCode) {
+      case RIGHT:
+        nextProgram();
+        break;
+      case LEFT:
+        prevProgram();
+        break;
+    }
+  }
 }
 
 void updateStepPosition(){
@@ -151,15 +177,32 @@ void updateStepPosition(){
     int now = millis();
     //print("Time: " + now + "\n");
     int timeSinceLastDrawInMs = now - lastDrawTimeInMs;
+    int timeSinceLastSyncInMs = now - lastSyncTimeInMs;
     lastDrawTimeInMs = now;
   
     sequencerState.stepPosition = (sequencerState.stepPosition + getTimeInSteps(timeSinceLastDrawInMs)) % 16;
     //print("New position: " + sequencerState.stepPosition + "\n");
     
+    // See if we've entered a new step; if so, fire the "step" event.
     int oldStep = sequencerState.curStep;
     sequencerState.curStep = (int)floor(sequencerState.stepPosition);
     if (oldStep != sequencerState.curStep) {
       events.fire("step");
+      //print("Step!\n");
+      
+      // See if we're playing any notes this step; if so, fire "notes" event.
+      boolean notesToPlay = false;
+      for (int i = 0; i < sequencerState.PANELS; i++){
+        for (int j = 0; j < sequencerState.PITCHES; j++){
+          if (sequencerState.notes[i][sequencerState.curTab[i]][sequencerState.curStep][j]){
+            notesToPlay = true;
+          }
+        }
+      }
+      if (notesToPlay) {
+        events.fire("notes");
+        //print("Notes!\n");
+      }
     }
   }
 }
@@ -174,3 +217,6 @@ float getTimeInSteps(int time) {
   //print ("Adding  " + numSteps + " steps to position.\n");
   return numSteps;
 }
+
+
+

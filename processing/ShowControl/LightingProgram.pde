@@ -1,35 +1,46 @@
-class LightingProgram {
-
+abstract class LightingProgram {
+  
   LightingProgram(){
+    print("Adding program.\n");
+    programList.add(this);
   }
   
   void initialize() {
-    
-    ((RGBColorMixingTrait)test.trait("RGBColorMixing")).setColorRGB(color(0,255,0));  //set start color   
-    ((RGBColorMixingTrait)test2.trait("RGBColorMixing")).setColorRGB(color(128,64,255));  //set start color   
-    
-    // Create test group
-    FixtureGroup testGroup = new FixtureGroup("cube");
-    testGroup.addTrait("RGBColorMixing", new RGBColorMixingTrait(testGroup));
-    try{
-      testGroup.addFixture(fixtures.get(0));
-      testGroup.addFixture(fixtures.get(1));
-      testGroup.addFixture(fixtures.get(2));
-      testGroup.addFixture(fixtures.get(3));
-      testGroup.addFixture(fixtures.get(4));
-      testGroup.addFixture(fixtures.get(5));
-      testGroup.addFixture(fixtures.get(6));
-      testGroup.addFixture(fixtures.get(7));
-      testGroup.addFixture(fixtures.get(8));
-    } catch (FixtureTypeMismatchException ftme){}
-
-    
-    new FadeBehavior(testGroup, 9, now()+10000, 10100, color(#ffffff));  // wait 10 secs, then fade to white over 10 secs
-    new FadeBehavior(testGroup, 8, now()+20000, 10000, color(#000000));  // wait 20 secs, then fade to black over 10 secs
-    new HueRotateBehavior(testGroup, 10); // color cycling    
   }
   
   void drawFrame() {
+  }
+}
+
+/* ----------------------------------------------------- Lighting Programs -------------------------------------------------------- */
+
+class TestProgram extends LightingProgram{
+ 
+  void initialize() {
+
+    new SetColor(arm[0], 10, color(#00ff00));  //set start color on base layer
+
+    new HueRotate(arm[0], 10); // begin color cycling on base layer
+    
+    new FadeTo(arm[0], 9, now()+10000, 10000, color(#ffffff));  // wait 10 secs, then fade to white over 10 secs
+    new FadeTo(arm[0], 8, now()+20000, 10000, color(#000000));  // wait 20 secs, then fade to black over 10 secs
+    new FadeTo(arm[0], 7, now()+30000, 30000, color(#ffffff)).blendMode=MULTIPLY;  // wait 30 secs, then fade up underlying animation over 30 secs
+  }
+}
+
+class TestProgram2 extends LightingProgram{
+ 
+  void initialize() {
+    
+    new SetColor(arm[0], 10, color(#ff0000));  //set start color
+     
+    new FadeTo(arm[0], 9, 10000, color(#ffffff));  // fade to white over 10 secs
+    new FadeTo(arm[0], 8, now()+10000, 10000, color(#000000));  // wait 10 secs, then fade to black over 10 secs
+    new FadeTo(arm[0], 7, now()+20000, 30000, color(#ffffff)).blendMode=MULTIPLY;  // wait 20 secs, then fade up underlying animation over 30 secs
+  }
+  
+  void drawFrame(){
+    ((RGBColorMixingTrait)arm[0].trait("RGBColorMixing")).setColorRGB(color(255,0,0));  //set start color   
   }
 }
 
