@@ -70,9 +70,10 @@ void setup() {
   DMXManager = new DMX(this);
 
   //add three controllers to manager
-  DMXManager.addController("COM5",108);
-  DMXManager.addController("COM4",108);
-  DMXManager.addController("COM3",108);
+  DMXManager.addController("COM5");
+  //DMXManager.addController("COM5",108);
+  //DMXManager.addController("COM4",108);
+  //DMXManager.addController("COM3",108);
 
   //create fixtures via fixture factory
   try {
