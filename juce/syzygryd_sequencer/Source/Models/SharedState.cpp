@@ -37,7 +37,7 @@ starFieldActive (false)
 	int numValues = Panel::kNumTabs * totalRows * totalCols;
 	int numBytes = numValues / (sizeof(unsigned char)*8);
 	int numBits = numBytes * (sizeof(unsigned char)*8);
-	int paddingBits = numValues - numBits;
+	paddingBits = numValues - numBits;
 	if (paddingBits > 0) {
 		numBytes++;
 	}
@@ -228,7 +228,7 @@ osc::Blob* SharedState::updateAndGetCompressedPanelState (int panelIndex_)
 	for (int i = 0; i < paddingBits; i++) {
 		values[numValues-1] <<= 1;
 	}
-	
+
 	return blobs[panelIndex_];
 }
 

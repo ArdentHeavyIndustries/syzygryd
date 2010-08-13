@@ -16,7 +16,8 @@
 
 #include "OscOutput.h"
 
-const String kRemoteHost = "255.255.255.255";	// XXX bug:79 - more flexibility is desired
+//const String kRemoteHost = "255.255.255.255";	// XXX bug:79 - more flexibility is desired
+const String kRemoteHost = "127.0.0.1";	// XXX bug:79 - more flexibility is desired
 const int kRemotePort = 9000;
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;
@@ -36,7 +37,7 @@ sleepIntervalMs (125),	// initialize based on 120 bpm
 syncCount(0)
 {
 	outSocket.connect (kRemoteHost, kRemotePort, kTimeoutMs);
-	startThread();
+	startThread (10);
 }
 
 OscOutput::~OscOutput()
@@ -135,10 +136,8 @@ void OscOutput::sendSync()
 			if (threadShouldExit()) {
 				return;
 			}
-			
 			int tabIndex = SharedState::getInstance()->getTabIndex (panelIndex);
 			osc::Blob* blob = SharedState::getInstance()->updateAndGetCompressedPanelState (panelIndex);
-			
 			p.Clear();
 			// XXX should there be the following in osc/OscOutboundPacketStream.cpp ?
 			//        OutboundPacketStream& OutboundPacketStream::operator<<( unsigned int rhs )
@@ -183,7 +182,7 @@ void OscOutput::run()
 		if (!outSocket.waitUntilReady (false, kTimeoutMs)) {
 			continue;
 		}
-				
+		
 		sendTempo();
 		sendSync();
 	}

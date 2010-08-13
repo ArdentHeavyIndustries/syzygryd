@@ -9,10 +9,11 @@
 
 #include "Cell.h"
 #include "StarField.h"
+#include "SharedState.h"
 
 #include "Tab.h"
 
-const int kUpdateSkip = 10;
+const int kUpdateSkip = 150;
 
 Tab::Tab (int totalRows_, int totalCols_) :
 totalRows (totalRows_),
@@ -82,20 +83,22 @@ void Tab::update()
 	}
 	updateCount = 0;
 	
-	starField->update();
-	
-	for (int i = 0; i < totalRows; i++) {
-		for (int j = 0; j < totalCols; j++) {
-			bool active = starField->getActiveAt (i, j);
-			
-			Cell* cell = getCellAt (i, j);
-			if (active) {
-				cell->setNoteOn();
-			} else {
-				cell->setNoteOff();
+	if (SharedState::getInstance()->getStarFieldActive()) {
+		starField->update();
+		
+		for (int i = 0; i < totalRows; i++) {
+			for (int j = 0; j < totalCols; j++) {
+				bool active = starField->getActiveAt (i, j);
+				
+				Cell* cell = getCellAt (i, j);
+				if (active) {
+					cell->setNoteOn();
+				} else {
+					cell->setNoteOff();
+				}
 			}
-		}
-	}		
+		}		
+	}
 	
 }
 

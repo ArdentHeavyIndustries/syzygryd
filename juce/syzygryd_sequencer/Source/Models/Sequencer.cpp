@@ -152,11 +152,11 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	double ppq = pos.ppqPosition;
 	double timeInSeconds = pos.timeInSeconds;
 	double bpm = pos.bpm;
-	if (primary) {
+	//if (primary) {
 		SharedState::getInstance()->setPpqPosition (ppq);
 		SharedState::getInstance()->setTimeInSeconds (timeInSeconds);
 		SharedState::getInstance()->setBpm (bpm);
-	}
+	//}
 	
 	/*
 	 int numerator = pos.timeSigNumerator;
@@ -176,9 +176,9 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 	lastPlayheadColPrecise = tickCountPrecise / ticksPerCol;
 	jassert (lastPlayheadColPrecise >= 0.0)
 	jassert (lastPlayheadColPrecise <= 16.0)
-	if (primary) {
+	//if (primary) {
 		SharedState::getInstance()->setPlayheadColPrecise (lastPlayheadColPrecise);
-	}		
+	//}		
 	
 	if (tickCount != lastTickCount) {
 		lastTickCount = tickCount;
@@ -191,13 +191,9 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 				//DBG("Time to degrade!")
 			}
 		
-		// Update starfield if necessary
-		if (SharedState::getInstance()->getStarFieldActive()) {
-			if (pluginAudioProcessor->getPanelIndex() == 0) {
-				if (tickCount % 10 == 0) {			
-					SharedState::getInstance()->update();
-				}
-			}
+		// Update shared state as needed
+		if (pluginAudioProcessor->getPanelIndex() == 0) {
+			SharedState::getInstance()->update();
 		}
 		
 		bool playCol = false;  // play the current column of notes?

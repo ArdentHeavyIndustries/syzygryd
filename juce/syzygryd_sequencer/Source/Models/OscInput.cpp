@@ -24,6 +24,7 @@ Thread ("OscInput"),
 inSocket (kLocalPort, false)
 {
 	startThread();
+	
 }
 
 OscInput::~OscInput()
