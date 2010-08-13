@@ -15,9 +15,11 @@ public class Syzyweb extends NanoHTTPD {
 	public static final int SECOND_IN_MILLIS = 1000;
 	public static final int SCREENSHOT_DELAY = 1 * SECOND_IN_MILLIS;
 	private ActionRunner runner = null;
-	public Syzyweb(int port, ActionRunner ar) throws IOException {
+	private Setlist list = null;
+	public Syzyweb(int port, ActionRunner ar, Setlist sl) throws IOException {
 		super(port);
 		runner = ar;
+		list = sl;
 	}
 	
 	/**
@@ -100,6 +102,8 @@ public class Syzyweb extends NanoHTTPD {
 			// FALLS THROUGH 
 		case screenshot:
 			return screenshotWrapperResponse();
+		case setlist:
+			return setListResponse();
 		default:
 			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Unimplemented action " + actionStr + ".  Move that ass, boy!");
 		}
@@ -140,6 +144,14 @@ public class Syzyweb extends NanoHTTPD {
 		}
 		
 		String out = "<html><head><title>SEE!</title></head><body><img src='/screenshot.png'></body></html>";
+		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
+	}
+	
+	protected Response setListResponse() {
+		String begin = "<html><head><title>Set List!</title></head><body>";
+		String end = "</body></html>";
+		String listString = list.toString();
+		String out = begin + listString + end;
 		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
 	}
 	

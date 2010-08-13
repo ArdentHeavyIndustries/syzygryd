@@ -26,7 +26,7 @@ public abstract class Action {
 	 */
 	public enum ActionType { playthis, playnext, playprev, 
 							livespace, liveesc, livequit, livescreenshot,
-							screenshot, loadtimeout, quit, restart }
+							screenshot, setlist, loadtimeout, quit, restart }
 	
 	/***
 	 * indicates that this action plays until stopped

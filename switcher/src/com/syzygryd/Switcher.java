@@ -69,7 +69,7 @@ public class Switcher {
 		// setup webserver
 		try {
 			@SuppressWarnings("unused")
-			Syzyweb web = new Syzyweb(WEB_SENDING_PORT, ar);
+			Syzyweb web = new Syzyweb(WEB_SENDING_PORT, ar, list);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -49,7 +49,7 @@ public class Set {
 	}
 	
 	public String toString() {
-		return "set: " + this.name + " length: " + this.length; 
+		return "<b>Set:</b> " + this.name + ", <b>Length:</b> " + this.length; 
 	}
 	
 	/**

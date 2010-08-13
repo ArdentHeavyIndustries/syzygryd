@@ -16,8 +16,10 @@ import java.util.Vector;
 public class Setlist {
 	private Vector<Set> list = null;
 	private ListIterator<Set> it = null;
+	private Set currentSet = null;
 	private static final int PARAM_NAME = 0;
 	private static final int PARAM_LEN_IN_SECS = 1;
+	private String file;
 	
 	/**
 	 * creates a new setlist from a file containing lines with comma-separated set filename & length in seconds
@@ -32,6 +34,7 @@ public class Setlist {
 		}
 		
 		list = new Vector<Set>();
+		file = fileName;
 		
 		File f = new File(fileName);
 		
@@ -69,15 +72,16 @@ public class Setlist {
 		if (!it.hasNext()) {
 			it = list.listIterator();
 		}
-		return it.next();
+		currentSet = it.next();
+		return currentSet;
 	}
 	
 	public Set getPrev() {
 		if (!it.hasPrevious()) {
 			it = list.listIterator(list.size()-1);
 		}
-	
-		return it.previous();
+		currentSet = it.previous();
+		return currentSet;
 	}
 	
 	public Set getSet(int s) {
@@ -87,5 +91,18 @@ public class Setlist {
 		it = list.listIterator(s);
 		
 		return it.next();
+	}
+	
+	public String toString() {
+		String out = "<h3>Current Set List</h3>";
+		out = out + "<br><b>Filename:</b> " + file + "<br>";
+		ListIterator<Set> si = list.listIterator();
+		while(si.hasNext()) {
+			Set s = si.next();
+			out = out + "<br>" + s.toString();
+		}
+		out = out + "<br><br><br><h3>Current Set</h3>";
+		out = out + "<br>" + currentSet.toString();
+		return out;
 	}
 }
