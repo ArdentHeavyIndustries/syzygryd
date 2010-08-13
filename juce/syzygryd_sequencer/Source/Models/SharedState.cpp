@@ -118,42 +118,42 @@ int SharedState::getPlayheadCol()
 	return (int)getPlayheadColPrecise();
 }
 
-double SharedState::getPlayheadColPrecise()
+float SharedState::getPlayheadColPrecise()
 {
 	return playheadColPrecise;
 }
 
-void SharedState::setPlayheadColPrecise (int playheadColPrecise_)
+void SharedState::setPlayheadColPrecise (float playheadColPrecise_)
 {
 	playheadColPrecise = playheadColPrecise_;
 }
 
-double SharedState::getPpqPosition()
+float SharedState::getPpqPosition()
 {
 	return ppqPosition;
 }
 
-void SharedState::setPpqPosition (double ppqPosition_)
+void SharedState::setPpqPosition (float ppqPosition_)
 {
 	ppqPosition = ppqPosition_;
 }
 
-double SharedState::getTimeInSeconds()
+float SharedState::getTimeInSeconds()
 {
 	return timeInSeconds;
 }
 
-void SharedState::setTimeInSeconds (double timeInSeconds_)
+void SharedState::setTimeInSeconds (float timeInSeconds_)
 {
 	timeInSeconds = timeInSeconds_;
 }
 
-double SharedState::getBpm()
+float SharedState::getBpm()
 {
 	return bpm;
 }
 
-void SharedState::setBpm (double bpm_)
+void SharedState::setBpm (float bpm_)
 {
 	bpm = bpm_;
 }

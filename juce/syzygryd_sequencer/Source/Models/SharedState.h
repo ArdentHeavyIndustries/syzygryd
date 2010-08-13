@@ -38,17 +38,17 @@ public:
 	
 	int getPlayheadCol(); // only used for playhead transmission
 	
-	double getPlayheadColPrecise(); // only used for playhead transmission
-	void setPlayheadColPrecise (int playheadColPrecise_);
+	float getPlayheadColPrecise(); // only used for playhead transmission
+	void setPlayheadColPrecise (float playheadColPrecise_);
 	
-	double getPpqPosition();
-	void setPpqPosition (double ppqPosition_);
+	float getPpqPosition();
+	void setPpqPosition (float ppqPosition_);
 	
-	double getTimeInSeconds();
-	void setTimeInSeconds (double timeInSeconds_);
+	float getTimeInSeconds();
+	void setTimeInSeconds (float timeInSeconds_);
 	
-	double getBpm();
-	void setBpm (double bpm_);
+	float getBpm();
+	void setBpm (float bpm_);
 	
 	Cell* getCellAt (int panelIndex_, int tabIndex_, int row_, int col_);
 	void broadcast (const void* sourceBuffer, int numBytesToWrite);
@@ -86,10 +86,10 @@ private:
 	osc::Blob** blobs;
 	int paddingBits;
 	
-	double playheadColPrecise; // only used for playhead transmission
-	double ppqPosition;
-	double timeInSeconds;
-	double bpm;
+	float playheadColPrecise; // only used for playhead transmission
+	float ppqPosition;
+	float timeInSeconds;
+	float bpm;
 	
 	OwnedArray<Panel> panels; // holds actual notation
 	
