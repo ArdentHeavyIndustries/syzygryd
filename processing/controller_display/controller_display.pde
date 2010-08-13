@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
+int lastEventReceived;
 
 /* Button Array for buttoning also tempo objects maybe more*/
 DrawablePanel[] panels;
@@ -125,6 +126,7 @@ void setup() {
 
   // start oscP5, listening for incoming messages at port 9000
   oscP5 = new OscP5(this, 9000);
+  lastEventReceived = millis();
 
   // myRemoteLocation is set to the address and port the sequencer
   // listens on
@@ -155,6 +157,13 @@ void draw() {
   selectedPanel.draw();
   temposweep.draw();
   scrollablemessage.msgDraw();
+
+  if (millis() - lastEventReceived > 10000) {
+    // Looks like someone quit Live.  Reinitialize OscP5
+    oscP5.dispose();
+    oscP5 = new OscP5(this, 9000);
+    lastEventReceived = millis();
+  }
 }
 
 void selectPanel(int id) {
@@ -177,6 +186,8 @@ void selectPanel(int id) {
 // }
 
 void oscEvent(OscMessage m) {
+  lastEventReceived = millis();
+
   try {
     // if(!m.addrPattern().endsWith("/sync")) {
     //   log("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
