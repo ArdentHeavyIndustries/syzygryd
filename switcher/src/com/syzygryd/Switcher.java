@@ -127,7 +127,8 @@ public class Switcher {
 		public void acceptMessage(Date time, OSCMessage message) {
 			System.out.println("Live tells us that the set loaded: " + message.getAddress());
 			try {
-				sender.livePlaybackStart();
+				//sender.livePlaybackStart();
+				AppleScriptRunner.runLiveSpace();
 				ar.actionLoaded();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
