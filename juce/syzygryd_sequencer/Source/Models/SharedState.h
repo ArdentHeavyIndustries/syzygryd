@@ -26,7 +26,10 @@ class SharedState : public DeletedAtShutdown
 {
 public:
 	static const int kNumPanels;
-	static const int kDegradeTimeInSeconds;
+   static const int kDegradeAfterInactiveSec;
+   static const int kDegradeSlowSec;
+   static const int kDegradeSlowSecPerDelete;
+   static const int kDegradeFastSec;
 	
 	bool testAndSetPrimarySequencer();
 	
@@ -64,12 +67,15 @@ public:
    void sendInefficientSync(int panelIndex_);
    void sendInefficientClearTab(int panelIndex_, int tabIndex_);
 	
-	void update();
-	
+	void updateStarField();
 	bool getStarFieldActive();
 	void setStarFieldActive (bool starFieldActive_);
-	
+
+   // bug:67
 	double getLastTouchSecond (int panelIndex_);
+   int getState (int panelIndex_);
+   void startDegrade (int panelIndex_);
+   void degradeStep (int panelIndex_);
 	
 	juce_DeclareSingleton (SharedState, true)
 	

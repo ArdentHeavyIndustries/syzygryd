@@ -79,6 +79,8 @@ private:
 	Array<bool> playingNotes; // which midi notes are currently playing
 	
 	double lastPlayheadColPrecise;
+
+   bool columnZeroDegradeUpdate;	// to ensure that we only try to degrade once per tempo sweep
 };
 
 #endif

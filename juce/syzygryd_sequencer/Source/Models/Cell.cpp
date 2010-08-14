@@ -18,6 +18,8 @@ const int Cell::scale[] = {
    81, 79, 76, 74, 72, 69, 67, 64, 62, 60
 };
 
+const int Cell::NOTE_OFF = -1;
+
 Cell::Cell (int row_, int col_) :
 northCell (0),
 westCell (0),
@@ -25,7 +27,7 @@ eastCell (0),
 southCell (0),
 row (row_),
 col (col_),
-noteNumber (-1)
+noteNumber (NOTE_OFF)
 {
 }
 
@@ -102,6 +104,11 @@ int Cell::getNoteNumber()
 	return noteNumber;
 }
 
+bool Cell::isOn()
+{
+   return (noteNumber != NOTE_OFF);
+}
+
 void Cell::setNoteNumber (int noteNumber_)
 {
 	noteNumber = noteNumber_;
@@ -109,7 +116,7 @@ void Cell::setNoteNumber (int noteNumber_)
 
 void Cell::setNoteOff()
 {
-	setNoteNumber (-1);	
+	setNoteNumber (NOTE_OFF);	
 }
 
 void Cell::setNoteOn()

@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  Tab.cpp
  *  syzygryd_sequencer
@@ -13,14 +14,14 @@
 
 #include "Tab.h"
 
-const int kUpdateSkip = 150;
+const int Tab::kUpdateStarFieldSkip = 150;
 
 Tab::Tab (int totalRows_, int totalCols_) :
 totalRows (totalRows_),
 totalCols (totalCols_),
 starField (0),
-updateCount (0),
-firstUpdate (true)
+updateStarFieldCount (0),
+firstUpdateStarField (true)
 {
 	// Initialize the cells
 	for (int i = 0; i < totalRows; i++) {
@@ -68,20 +69,21 @@ void Tab::clear()
 	}		
 }
 
-void Tab::update()
+void Tab::updateStarField()
 {
-	if (firstUpdate) {
-		firstUpdate = false;
+   DBG("Tab::updateStarField()");
+	if (firstUpdateStarField) {
+		firstUpdateStarField = false;
 		for (int i = 0; i < 20; i++) {
 			starField->update();
 		}
 	}
 	
-	updateCount++;
-	if (updateCount <= kUpdateSkip) {
+	updateStarFieldCount++;
+	if (updateStarFieldCount <= kUpdateStarFieldSkip) {
 		return;
 	}
-	updateCount = 0;
+	updateStarFieldCount = 0;
 	
 	if (SharedState::getInstance()->getStarFieldActive()) {
 		starField->update();
@@ -99,9 +101,4 @@ void Tab::update()
 			}
 		}		
 	}
-	
 }
-
-
-
-

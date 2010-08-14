@@ -24,7 +24,8 @@ tickCount (0),
 lastTickCount (-1),
 swingTicks (2),
 noteLength (4),
-lastPlayheadColPrecise (0)
+lastPlayheadColPrecise (0),
+columnZeroDegradeUpdate (false)
 {
 	primary = SharedState::getInstance()->testAndSetPrimarySequencer();
 	DBG ("Sequencer " + String(pluginAudioProcessor->getPanelIndex()) + (primary ? " IS" : " is NOT") + " the primary");
@@ -185,15 +186,39 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 		
 		// Check if we should be degrading...
 		int panelIndex = pluginAudioProcessor->getPanelIndex();
-		if (SharedState::getInstance()->getTimeInSeconds() >= 
-			(SharedState::getInstance()->getLastTouchSecond(panelIndex) + 
-			 SharedState::kDegradeTimeInSeconds)) {
-				//DBG("Time to degrade!")
-			}
+      int state = SharedState::getInstance()->getState(panelIndex);
+      if (state == Panel::DEGRADING_SLOW ||
+          state == Panel::DEGRADING_FAST) {
+         // degrade at most once per tempo sweep, in column 0
+         if (getPlayheadCol() == 0) {
+            if (!columnZeroDegradeUpdate) {
+               SharedState::getInstance()->degradeStep(panelIndex);
+               columnZeroDegradeUpdate = true;
+            }
+         } else {
+            columnZeroDegradeUpdate = false;
+         }
+      } else {
+         columnZeroDegradeUpdate = false;
+         if (state == Panel::ACTIVE) {
+            // XXX bug:67 - switch to Time::currentTimeMillis() ?
+            if (SharedState::getInstance()->getTimeInSeconds() >= 
+                (SharedState::getInstance()->getLastTouchSecond(panelIndex) + 
+                 SharedState::kDegradeAfterInactiveSec)) {
+               DBG("Start degrading panel " + String(panelIndex));
+               SharedState::getInstance()->startDegrade(panelIndex);
+            }
+         }
+      }
 		
-		// Update shared state as needed
-		if (pluginAudioProcessor->getPanelIndex() == 0) {
-			SharedState::getInstance()->update();
+		// Update starfield if necessary
+      // XXX bug:67 verify state ?
+		if (SharedState::getInstance()->getStarFieldActive()) {
+			if (pluginAudioProcessor->getPanelIndex() == 0) {
+				if (tickCount % 10 == 0) {			
+					SharedState::getInstance()->updateStarField();
+				}
+			}
 		}
 		
 		bool playCol = false;  // play the current column of notes?
@@ -247,8 +272,8 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
 
 			for (int i = 0; i < getTotalRows(); i++) {
 				Cell* cell = getCellAt (panelIndex, tabIndex, i, getPlayheadCol());
-				int noteNumber = cell->getNoteNumber();
-				if (noteNumber != -1) {
+            if (cell->isOn()) {
+               int noteNumber = cell->getNoteNumber();
 					// If this note is currently playing
 					if (playingNotes[noteNumber] == true) {
 						Array<NoteOff*> notesToRemove;

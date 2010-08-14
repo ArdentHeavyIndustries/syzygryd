@@ -17,7 +17,19 @@
 #include "SharedState.h"
 
 const int SharedState::kNumPanels = 3;
-const int SharedState::kDegradeTimeInSeconds = 2.5;
+
+// bug:67
+const int SharedState::kDegradeAfterInactiveSec = 120;
+const int SharedState::kDegradeSlowSec = 30;
+const int SharedState::kDegradeSlowSecPerDelete = 3;
+const int SharedState::kDegradeFastSec = 270;
+// below is for testing...
+// const int SharedState::kDegradeAfterInactiveSec = 30;
+// const int SharedState::kDegradeSlowSec = 10;
+// const int SharedState::kDegradeSlowSecPerDelete = 3;
+// const int SharedState::kDegradeFastSec = 30;
+// in fast mode, the slowest rate (so max secPerDelete) is the same as the slow rate
+// the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the alloted time
 
 juce_ImplementSingleton (SharedState)
 
@@ -108,6 +120,7 @@ int SharedState::getTabIndex (int panelIndex_)
 void SharedState::setTabIndex (int panelIndex_, int tabIndex_)
 {
 	Panel* panel = panels[panelIndex_];
+   // XXX bug:67 - switch to Time::currentTimeMillis() ?
 	panel->setLastTouchSecond (getTimeInSeconds());
 	
 	panel->setTabIndex (tabIndex_);
@@ -173,6 +186,7 @@ void SharedState::noteToggle (int panelIndex_, int tabIndex_,
                               int row_, int col_, bool state)
 {
 	Panel* panel = panels[panelIndex_];
+   // XXX bug:67 - switch to Time::currentTimeMillis() ?
 	panel->setLastTouchSecond (getTimeInSeconds());
 	
 	Cell* cell = getCellAt (panelIndex_, tabIndex_, row_, col_);
@@ -193,14 +207,15 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
 	if (touchOscConnected[panelIndex_]) {
 		sendInefficientClearTab (panelIndex_, tabIndex_);
 	}
-	//#ifdef JUCE_DEBUG
+#ifdef JUCE_DEBUG
 	else {
 		DBG ("Not sending inefficient clear tab for touchOSC compatability to panel="
 			 + String(panelIndex_) + " tab=" + String(tabIndex_)
 			 + " because no touchOSC controller has connected yet");
 	}
-	//#endif
+#endif
 	Panel* panel = panels[panelIndex_];
+   // XXX bug:67 - switch to Time::currentTimeMillis() ?
 	panel->setLastTouchSecond (getTimeInSeconds());
 	
 	panel->clearTab (tabIndex_);
@@ -220,7 +235,7 @@ osc::Blob* SharedState::updateAndGetCompressedPanelState (int panelIndex_)
 				int n = j*getTotalRows()*getTotalCols() + k*getTotalCols() + l;
 				int byte = n / (sizeof(unsigned char)*8);
 				Cell *cell = SharedState::getInstance()->getCellAt (panelIndex_, j, k, l);
-				unsigned char isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
+				unsigned char isOn = (cell->isOn()) ? 1 : 0;
 				values[byte] = (values[byte] << 1) | isOn;
 			}
 		}
@@ -252,8 +267,8 @@ String SharedState::getStringPanelState (int panelIndex_)
 		for (int k = 0; k < numRows; k++) {
 			for (int l = 0; l < numCols; l++) {
 				Cell *cell = SharedState::getInstance()->getCellAt (panelIndex_, j, k, l);
-				bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
-				valueString << isOn;
+            // XXX what does it mean to shift a bool into a string?  is there some implicit casting going on here?
+				valueString << cell->isOn();
 			}
 		}
 	}	
@@ -305,14 +320,13 @@ void SharedState::sendInefficientSync (int panelIndex_) {
 																	/* tabIndex */ j,
 																	/* row */ k,
 																	/* col */ l);
-				bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
 				// XXX bug:79 - it would be nice to not broadcast this if not necessary
 				// (but currently the constant OscOutput::kRemoteHost is used)
 				oscOutput->sendNoteToggle(panelIndex_,
-										  /* tabIndex */ j,
-										  /* row */ k,
-										  /* col */ l,
-										  isOn);
+                                      /* tabIndex */ j,
+                                      /* row */ k,
+                                      /* col */ l,
+                                      cell->isOn());
 			}
 		}
 	}
@@ -337,26 +351,25 @@ void SharedState::sendInefficientClearTab(int panelIndex_, int tabIndex_) {
 																tabIndex_,
 																/* row */ k,
 																/* col */ l);
-			bool isOn = (cell->getNoteNumber() > 0) ? 1 : 0;
 			// send note off for all notes that are currently on
-			if (isOn) {
+			if (cell->isOn()) {
 				// XXX bug:79 - it would be nice to not broadcast this if not necessary
 				// (but currently the constant OscOutput::kRemoteHost is used)
 				oscOutput->sendNoteToggle(panelIndex_,
-										  tabIndex_,
-										  /* row */ k,
-										  /* col */ l,
-										  /* isNoteOn */ false);
+                                      tabIndex_,
+                                      /* row */ k,
+                                      /* col */ l,
+                                      /* isNoteOn */ false);
 			}
 		}
 	}
 }
 
-void SharedState::update()
+void SharedState::updateStarField()
 {
 	for (int i = 0; i < kNumPanels; i++) {
 		Panel* panel = panels[i];
-		panel->update();
+		panel->updateStarField();
 	}
 }
 
@@ -374,4 +387,22 @@ double SharedState::getLastTouchSecond (int panelIndex_)
 {
 	Panel* panel = panels[panelIndex_];
 	return panel->getLastTouchSecond();
+}
+
+int SharedState::getState (int panelIndex_)
+{
+	Panel* panel = panels[panelIndex_];
+	return panel->getState();
+}
+
+void SharedState::startDegrade (int panelIndex_)
+{
+	Panel* panel = panels[panelIndex_];
+	panel->startDegrade();
+}
+
+void SharedState::degradeStep (int panelIndex_)
+{
+	Panel* panel = panels[panelIndex_];
+	panel->degradeStep();
 }

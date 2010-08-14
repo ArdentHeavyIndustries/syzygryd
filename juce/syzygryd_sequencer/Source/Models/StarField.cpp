@@ -49,6 +49,7 @@ StarField::~StarField()
 
 void StarField::update()
 {
+   DBG("StarField::update()");
 	updateForeground();
 }
 

@@ -35,6 +35,7 @@ public:
 	void setCol (int col_);
 	
 	int getNoteNumber();
+   bool isOn();
 
 	void setNoteOff();
 	void setNoteOn();
@@ -43,6 +44,7 @@ private:
 	void setNoteNumber (int noteNumber_);
 
    static const int scale[];
+   static const int NOTE_OFF;
 	
 	Cell* northCell;
 	Cell* westCell;

@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  Tab.h
  *  syzygryd_sequencer
@@ -26,7 +27,7 @@ public:
 
 	void clear();
 	
-	void update();
+	void updateStarField();
 	
 private:
 	const int totalRows;
@@ -34,10 +35,10 @@ private:
 	
 	OwnedArray< OwnedArray<Cell> > rows;	
 	
+   static const int kUpdateStarFieldSkip;
 	StarField* starField;
-	
-	int updateCount;
-	bool firstUpdate;
+	int updateStarFieldCount;
+	bool firstUpdateStarField;
 };
 
 #endif

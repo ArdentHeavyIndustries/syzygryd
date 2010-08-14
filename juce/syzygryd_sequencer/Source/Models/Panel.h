@@ -21,6 +21,8 @@ class Panel
 public:
 	Panel (int totalRows_, int totalCols_);
 	~Panel();
+
+   enum PanelState { ACTIVE, DEGRADING_SLOW, DEGRADING_FAST, DEGRADED, ATTRACT };
 	
 	static const int kNumTabs;
 	
@@ -31,17 +33,33 @@ public:
 	
 	void clearTab (int tabIndex_);
 	
-	void update();
+	void updateStarField();
 
+   // bug:67
+   // XXX change these to use Time::currentTimeMillis() ?
 	double getLastTouchSecond();
 	void setLastTouchSecond (double lastTouchSecond_);
+   void setState(int state_);
+   int getState();
+   void startDegrade();
+   void degradeStep();
+   void degradeOne();
+   void stopDegrade();
+   bool isDegrading();
 	
 private:
 	OwnedArray<Tab> tabs;	
 	
 	int tabIndex; // which tab is currently selected?
-	
+
+   // bug:67
 	double lastTouchSecond;
+   int state;
+   Random* random;
+   Array<Cell*> cellsToDegrade;
+   int64 timeStartDegradeMs;
+   int64 timeDegradeStepMs;
+   float fastSecPerDelete;
 };
 
 #endif
