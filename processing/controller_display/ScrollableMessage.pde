@@ -3,6 +3,8 @@
 class ScrollableMessage {
   
   String[] message;       //array to hold the scrollable messages
+  String setAttribution = "We Are SYZYGRYD!!";
+  String spacing = "          ";
   float[] messageWidth;   // array to hold the length(in pixels) of each of the above messages. Length is dependent on font used.  
   int messageSelect = 0;  // tracks which message is currently displayed
   float messageXPos;      // tracks the x-position of the current message as it scrolls
@@ -26,7 +28,9 @@ class ScrollableMessage {
   
   void msgDraw(){
     textFont(msgFont);
-    fill(0,0,99);  //white
+     DrawableTab t = (DrawableTab) panels[0].tabs[0];
+     DrawableButton b = t.getButtonFromTabCoords(0, 0);
+    fill(b.getHue(), 50, 40, 40);  //draw message same color as current buttons on tab, constant brigntness and alpha
     textAlign(LEFT);
     text(message[messageSelect], messageXPos, height - 8);
     messageXPos -= 1.8;    
