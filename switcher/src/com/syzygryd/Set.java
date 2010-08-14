@@ -59,7 +59,8 @@ public class Set {
 		System.out.println("Playing " + getName() + " - length:" + getLength() + " sec.");
 		
 		try {
-			Runtime.getRuntime().exec("open \"" + getName() + "\"");
+			String[] params = {"open", getName()};
+			Runtime.getRuntime().exec(params);
 		} catch (IOException e) {
 			// NOP
 		}
@@ -69,7 +70,8 @@ public class Set {
 	 * Pauses live playback then quits live
 	 */
 	public void stop() {
-		sender.livePlaybackStop();
+		//sender.livePlaybackStop();
+		AppleScriptRunner.runLiveSpace();
 		try {
 			Thread.sleep(2000); 
 		} catch (Exception e) {
