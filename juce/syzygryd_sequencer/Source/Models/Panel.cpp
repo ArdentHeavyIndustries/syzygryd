@@ -60,7 +60,7 @@ void Panel::clearTab (int tabIndex_)
 
 void Panel::updateStarField()
 {
-   //DBG("Panel::updateStarField()");
+   //DBG(String(Time::currentTimeMillis()) + " " + "Panel::updateStarField()");
    // only update the active tab with a star field, not all of the tabs
 	/*
 	for (int i = 0; i < kNumTabs; i++) {
@@ -77,14 +77,35 @@ double Panel::getLastTouchSecond()
 }
 
 // this should only be called if a panel is touched
+// bug:67 - for propertly coming out of attract mode, it is important that this is called *before* any other action on the touch is taken
+void Panel::setLastTouchSecond (double lastTouchSecond_, bool fromStopAttract_)
+{
+   // DBG(String(Time::currentTimeMillis()) + " "
+   //     + "Setting lastTouchSecond on panel " + String(panelIndex) + " to " + String(lastTouchSecond_) + " fromStopAttract=" + String(fromStopAttract_));
+
+   // this is needed so that we don't get stuck in an endless loop
+   if (!fromStopAttract_) {
+      if (isAttracting()) {
+#ifdef JUCE_DEBUG
+         if (!SharedState::getInstance()->allAttracting()) {
+            DBG(String(Time::currentTimeMillis()) + " "
+                + "WARNING: Panel " + String(panelIndex) + " is about to leave attract mode, but not all panels are in attract mode, which they should be");
+         }
+#endif
+         DBG (String(Time::currentTimeMillis()) + " "
+              + "Panel " + String(panelIndex) + " has been touched, stopping attract on all panels");
+         SharedState::getInstance()->stopAttract();
+      } else if (isDegrading()) {
+         stopDegrade();
+      }
+      setState(ACTIVE);
+   }
+	lastTouchSecond = lastTouchSecond_;
+}
+
 void Panel::setLastTouchSecond (double lastTouchSecond_)
 {
-   //DBG(String(Time::currentTimeMillis()) + " " + "Setting lastTouchSecond on panel " + String(panelIndex) + " to " + String(lastTouchSecond_));
-   if (isDegrading()) {
-      stopDegrade();
-   }
-   setState(ACTIVE);
-	lastTouchSecond = lastTouchSecond_;
+   setLastTouchSecond(lastTouchSecond_, /* fromStopAttract */ false);
 }
 
 void Panel::setState(int state_)
@@ -93,7 +114,8 @@ void Panel::setState(int state_)
 #ifdef JUCE_DEBUG
    // XXX outputting a real string would be better
    if (state_ != state) {
-      DBG(String(Time::currentTimeMillis()) + " " + "Changing state on panel " + String(panelIndex) + " from " + String(state) + " to " + String(state_));
+      DBG(String(Time::currentTimeMillis()) + " "
+          + "Changing state on panel " + String(panelIndex) + " from " + String(state) + " to " + String(state_));
    }
 #endif
    state = state_;
@@ -106,7 +128,8 @@ int Panel::getState()
 
 void Panel::startDegrade()
 {
-   DBG(String(Time::currentTimeMillis()) + " " + "Start degrading panel " + String(panelIndex));
+   DBG(String(Time::currentTimeMillis()) + " "
+       + "Start degrading panel " + String(panelIndex));
    jassert(state == ACTIVE);
 
    // go through all of the cells that are on, and randomly insert them into
@@ -114,20 +137,23 @@ void Panel::startDegrade()
    // degrading.
    // should already be empty, but just in case
    cellsToDegrade.clear();
-   DBG(String(Time::currentTimeMillis()) + " " + "Randomly adding on cells to array of cells to degrade for panel " + String(panelIndex));
+   DBG(String(Time::currentTimeMillis()) + " "
+       + "Randomly adding ON cells to array of cells to degrade for panel " + String(panelIndex));
    for (int tab = 0; tab < kNumTabs; tab++) {
       for (int row = 0; row < SharedState::getInstance()->getTotalRows(); row++) {
          for (int col = 0; col < SharedState::getInstance()->getTotalCols(); col++) {
             Cell* cell = getCellAt(tab, row, col);
             if (cell->isOn()) {
                int index = random->nextInt(cellsToDegrade.size() + 1);
-               DBG (String(Time::currentTimeMillis()) + " " + "Adding cell on panel" + String(panelIndex) + " at tab" + String(tab) + "/row" + String(row) + "/col" + String(col) + " to index " + String(index));
+               // DBG (String(Time::currentTimeMillis()) + " "
+               //      + "Adding cell on panel" + String(panelIndex) + " at tab" + String(tab) + "/row" + String(row) + "/col" + String(col) + " to index " + String(index));
                cellsToDegrade.insert(index, cell);
             }
          }
       }
    }
-   DBG(String(Time::currentTimeMillis()) + " " + "Number of cells to degrade for panel " + String(panelIndex) + ": " + String(cellsToDegrade.size()));
+   DBG(String(Time::currentTimeMillis()) + " "
+       + "Number of cells to degrade for panel " + String(panelIndex) + ": " + String(cellsToDegrade.size()));
 
    timeStartDegradeMs = Time::currentTimeMillis();
    timeDegradeStepMs = Time::currentTimeMillis();
@@ -157,7 +183,8 @@ void Panel::degradeStep()
          // could be <1, in which case we really have delete per sec
          fastSecPerDelete = jmin((float)SharedState::kDegradeSlowSecPerDelete,
                                  (float)SharedState::kDegradeFastSec / (float)cellsToDegrade.size());
-         DBG(String(Time::currentTimeMillis()) + " " + "Set fastSecPerDelete to " + String(fastSecPerDelete) + " for panel " + String(panelIndex));
+         DBG(String(Time::currentTimeMillis()) + " "
+             + "Set fastSecPerDelete to " + String(fastSecPerDelete) + " for panel " + String(panelIndex));
       }
    } else {
       // DEGRADING_FAST
@@ -178,19 +205,22 @@ void Panel::degradeStep()
 void Panel::degradeOne() {
    if (cellsToDegrade.size() > 0) {
       Cell* toDegrade = cellsToDegrade.getFirst();
-      DBG(String(Time::currentTimeMillis()) + " " + "Degrading cell on panel/" + String(panelIndex) + " tab/" + String(tabIndex) + " at row/" + String(toDegrade->getRow()) + " col/" + String(toDegrade->getCol()));
+      // DBG(String(Time::currentTimeMillis()) + " "
+      //     + "Degrading cell on panel/" + String(panelIndex) + " tab/" + String(tabIndex) + " at row/" + String(toDegrade->getRow()) + " col/" + String(toDegrade->getCol()));
       toDegrade->setNoteOff();
       cellsToDegrade.remove(0);
    }
    if (cellsToDegrade.size() == 0) {
-      DBG(String(Time::currentTimeMillis()) + " " + "Panel " + String(panelIndex) + " should be fully degraded");
+      DBG(String(Time::currentTimeMillis()) + " "
+          + "Panel " + String(panelIndex) + " should be fully degraded");
       // but let's make sure
       for (int tab = 0; tab < kNumTabs; tab++) {
          for (int row = 0; row < SharedState::getInstance()->getTotalRows(); row++) {
             for (int col = 0; col < SharedState::getInstance()->getTotalCols(); col++) {
                Cell* cell = getCellAt(tab, row, col);
                if (cell->isOn()) {
-                  DBG (String(Time::currentTimeMillis()) + " " + "WARNING: Found cell on when we expected full degradation on panel/" + String(panelIndex) + " at tab" + String(tab) + "/row" + String(row) + "/col" + String(col));
+                  DBG (String(Time::currentTimeMillis()) + " "
+                       + "WARNING: Found cell on when we expected full degradation on panel/" + String(panelIndex) + " at tab" + String(tab) + "/row" + String(row) + "/col" + String(col));
                   cell->setNoteOff();
                }
             }
@@ -199,7 +229,8 @@ void Panel::degradeOne() {
       setState(DEGRADED);
       // set all panels to ATTRACT iff. they are all DEGRADED
       if (SharedState::getInstance()->allDegraded()) {
-         DBG (String(Time::currentTimeMillis()) + " " + "All panels are degraded (ending with panel " + String(panelIndex) + ", starting attract");
+         DBG (String(Time::currentTimeMillis()) + " "
+              + "All panels are degraded (ending with panel " + String(panelIndex) + ", starting attract");
          SharedState::getInstance()->startAttract();
       }
    }
@@ -207,7 +238,8 @@ void Panel::degradeOne() {
 
 void Panel::stopDegrade()
 {
-   DBG(String(Time::currentTimeMillis()) + " " + "Stop degrading panel " + String(panelIndex));
+   DBG(String(Time::currentTimeMillis()) + " "
+       + "Stop degrading panel " + String(panelIndex));
    cellsToDegrade.clear();
 }
 
@@ -215,4 +247,9 @@ bool Panel::isDegrading()
 {
    return (state == DEGRADING_SLOW ||
            state == DEGRADING_FAST);
+}
+
+bool Panel::isAttracting()
+{
+   return state == ATTRACT;
 }

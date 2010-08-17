@@ -121,6 +121,9 @@ int SharedState::getTabIndex (int panelIndex_)
 
 void SharedState::setTabIndex (int panelIndex_, int tabIndex_)
 {
+   // DBG(String(Time::currentTimeMillis()) + " "
+   //     + "Panel " + String(panelIndex_) + " touched to set tab to " + String(tabIndex_));
+
 	Panel* panel = panels[panelIndex_];
    // XXX bug:67 - switch to Time::currentTimeMillis() ?
 	panel->setLastTouchSecond (getTimeInSeconds());
@@ -187,6 +190,9 @@ void SharedState::broadcast (const void* sourceBuffer, int numBytesToWrite)
 void SharedState::noteToggle (int panelIndex_, int tabIndex_, 
                               int row_, int col_, bool state)
 {
+   // DBG(String(Time::currentTimeMillis()) + " "
+   //     + "Panel " + String(panelIndex_) + " touched to set note at tab" + String(tabIndex_) + "/row" + String(row_) + "/col" + String(col_)  + " to " + String(state));
+
 	Panel* panel = panels[panelIndex_];
    // XXX bug:67 - switch to Time::currentTimeMillis() ?
 	panel->setLastTouchSecond (getTimeInSeconds());
@@ -200,8 +206,18 @@ void SharedState::noteToggle (int panelIndex_, int tabIndex_,
 	oscOutput->sendNoteToggle (panelIndex_, tabIndex_, row_, col_, state);
 }
 
-void SharedState::clearTab (int panelIndex_, int tabIndex_)
+void SharedState::clearTab (int panelIndex_, int tabIndex_, bool fromStopAttract_)
 {
+#ifdef JUCE_DEBUG
+   if (!fromStopAttract_) {
+      DBG (String(Time::currentTimeMillis()) + " "
+           + "Panel " + String(panelIndex_) + " touched to clear tab " + String(tabIndex_));
+   } else {
+      DBG (String(Time::currentTimeMillis()) + " "
+           + "Clearing panel " + String(panelIndex_) + " because all panels are being cleared to end attract mode)");
+   }
+#endif
+
 	// Send inefficient clear to touchOSC controllers.
 	// This must be done *before* the actual clear.
 	// Only do if needed.
@@ -211,19 +227,41 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_)
 	}
 #ifdef JUCE_DEBUG
 	else {
-		DBG ("Not sending inefficient clear tab for touchOSC compatability to panel="
-			 + String(panelIndex_) + " tab=" + String(tabIndex_)
-			 + " because no touchOSC controller has connected yet");
+		DBG (String(Time::currentTimeMillis()) + " "
+           + "Not sending inefficient clear tab for touchOSC compatability to panel="
+           + String(panelIndex_) + " tab=" + String(tabIndex_)
+           + " because no touchOSC controller has connected yet");
 	}
 #endif
 	Panel* panel = panels[panelIndex_];
    // XXX bug:67 - switch to Time::currentTimeMillis() ?
-	panel->setLastTouchSecond (getTimeInSeconds());
+	panel->setLastTouchSecond (getTimeInSeconds(), fromStopAttract_);
 	
 	panel->clearTab (tabIndex_);
 	// bug:78 - not currently needed
 	//oscOutput->sendClearTab (panelIndex_, tabIndex_);
 }
+
+
+void SharedState::clearCurrentTab (int panelIndex_, bool fromStopAttract_)
+{
+   DBG (String(Time::currentTimeMillis()) + " "
+        + "Clearing current tab on panel " + String(panelIndex_) + " from stopAttract " + String(fromStopAttract_));
+	Panel* panel = panels[panelIndex_];
+   clearTab(panelIndex_, panel->getTabIndex(), fromStopAttract_);
+}
+
+void SharedState::clearTab (int panelIndex_, int tabIndex_)
+{
+   clearTab(panelIndex_, tabIndex_, /* fromStopAttract */ false);
+}
+
+void SharedState::clearCurrentTab (int panelIndex_)
+{
+   clearCurrentTab(panelIndex_, /* fromStopAttract */ false);
+}
+
+// default is that we are *not* coming from stopAttract()
 
 // Update and get the bit compressed serialized state of a panel
 osc::Blob* SharedState::updateAndGetCompressedPanelState (int panelIndex_)
@@ -304,7 +342,8 @@ void SharedState::setStringPanelState (int panelIndex_, String state)
 
 // For touchOSC compatability
 void SharedState::sendInefficientSync (int panelIndex_) {
-	DBG ("Sending inefficient sync to panel " + String(panelIndex_) + " for touchOSC compatability");
+	DBG (String(Time::currentTimeMillis()) + " "
+        + "Sending inefficient sync to panel " + String(panelIndex_) + " for touchOSC compatability");
 	
 	// we don't bother tracking a touch osc controller disconnecting.  if one ever connects, we assume one is connected.
 	touchOscConnected[panelIndex_] = true;
@@ -341,8 +380,9 @@ void SharedState::sendInefficientSync (int panelIndex_) {
 // An alternative would be to clear the tab and then send button off messages for everything,
 // but that would be even more inefficient than necessary.
 void SharedState::sendInefficientClearTab(int panelIndex_, int tabIndex_) {
-	DBG ("Sending inefficient clear tab for touchOSC compatability to panel="
-		 + String(panelIndex_) + " tab=" + String(tabIndex_));
+	DBG (String(Time::currentTimeMillis()) + " "
+        + "Sending inefficient clear tab for touchOSC compatability to panel="
+        + String(panelIndex_) + " tab=" + String(tabIndex_));
 	
 	int numRows = getTotalRows();
 	int numCols = getTotalCols();
@@ -385,7 +425,8 @@ void SharedState::setStarFieldActive (bool starFieldActive_)
 	starFieldActive = starFieldActive_;
 }
 
-void SharedState::enableStarField() {
+void SharedState::enableStarField()
+{
    // so that the button reflects the change in state done internally, without pressing the button
    // XXX bug:67 - this is a ToggleButton* in OptionsComponent -- how do i get a handle to it?
    // MainComponent has a pointer to OptionsComponent, but how do i get a handle to that?
@@ -394,6 +435,14 @@ void SharedState::enableStarField() {
    // mainComponent->optionsComponent->starFieldButton->setToggleState(/* shouldBeOn */ true,
    //                                                                  /* sendChangeNotification */ false);
    setStarFieldActive(true);
+}
+
+void SharedState::disableStarField()
+{
+   // XXX bug:67 - see same discussion above wrt ToggleButton* in OptionsComponent
+   // mainComponent->optionsComponent->starFieldButton->setToggleState(/* shouldBeOn */ false,
+   //                                                                  /* sendChangeNotification */ false);
+   setStarFieldActive(false);
 }
 
 double SharedState::getLastTouchSecond (int panelIndex_)
@@ -434,10 +483,40 @@ bool SharedState::allDegraded()
 
 void SharedState::startAttract()
 {
-   DBG(String(Time::currentTimeMillis()) + " " + "Starting attract mode");
+   DBG(String(Time::currentTimeMillis()) + " "
+       + "Starting attract mode");
    for (int panelIndex = 0; panelIndex < kNumPanels; panelIndex++) {
       Panel* panel = panels[panelIndex];
       panel->setState(Panel::ATTRACT);
    }
    enableStarField();
 }
+
+#ifdef JUCE_DEBUG
+bool SharedState::allAttracting()
+{
+   for (int panelIndex = 0; panelIndex < kNumPanels; panelIndex++) {
+      Panel* panel = panels[panelIndex];
+      if (panel->getState() != Panel::ATTRACT) {
+         return false;
+      }
+   }
+   // we will only get here if all panels are in state ATTRACT
+   return true;
+}
+#endif
+
+void SharedState::stopAttract()
+{
+   DBG(String(Time::currentTimeMillis()) + " "
+       + "Stopping attract mode");
+   disableStarField();
+   for (int panelIndex = 0; panelIndex < kNumPanels; panelIndex++) {
+      // we don't need to explicitly reset the last touched time, b/c the following call will do that for us.
+      // but we do need to specify that this is coming from stopAttract() so that we don't get stuck in an endless loop
+      clearCurrentTab(panelIndex, /* fromStopAttract */ true);
+      Panel* panel = panels[panelIndex];
+      panel->setState(Panel::ACTIVE);
+   }
+}
+

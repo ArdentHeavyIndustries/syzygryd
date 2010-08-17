@@ -58,7 +58,10 @@ public:
 	
 	void noteToggle (int panelIndex_, int tabIndex_, int row_, int col_, 
                     bool state);
+	void clearTab (int panelIndex_, int tabIndex_, bool fromStopAttract_);
+   void clearCurrentTab (int panelIndex_, bool fromStopAttract_);
 	void clearTab (int panelIndex_, int tabIndex_);
+   void clearCurrentTab (int panelIndex_);
 	
 	osc::Blob* updateAndGetCompressedPanelState (int panelIndex_); 
 	String getStringPanelState (int panelIndex_); 
@@ -71,6 +74,7 @@ public:
 	bool getStarFieldActive();
 	void setStarFieldActive (bool starFieldActive_);
    void enableStarField();
+   void disableStarField();
 
    // bug:67
 	double getLastTouchSecond (int panelIndex_);
@@ -79,6 +83,10 @@ public:
    void degradeStep (int panelIndex_);
    bool allDegraded();
    void startAttract();
+#ifdef JUCE_DEBUG
+   bool allAttracting();
+#endif
+   void stopAttract();
 	
 	juce_DeclareSingleton (SharedState, true)
 	

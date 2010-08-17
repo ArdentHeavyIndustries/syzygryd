@@ -206,7 +206,8 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
                 SharedState::getInstance()->getTimeInSeconds() >= 
                 (SharedState::getInstance()->getLastTouchSecond(panelIndex) + 
                  SharedState::kDegradeAfterInactiveSec)) {
-               DBG(String(Time::currentTimeMillis()) + " " + "Start degrading panel " + String(panelIndex));
+               DBG(String(Time::currentTimeMillis()) + " "
+                   + "Start degrading panel " + String(panelIndex));
                SharedState::getInstance()->startDegrade(panelIndex);
             }
          }

@@ -38,6 +38,7 @@ public:
    // bug:67
    // XXX change these to use Time::currentTimeMillis() ?
 	double getLastTouchSecond();
+	void setLastTouchSecond (double lastTouchSecond_, bool fromStopAttract_);
 	void setLastTouchSecond (double lastTouchSecond_);
    void setState(int state_);
    int getState();
@@ -46,6 +47,7 @@ public:
    void degradeOne();
    void stopDegrade();
    bool isDegrading();
+   bool isAttracting();
 	
 private:
    int panelIndex; // the index of this panel
