@@ -19,18 +19,19 @@
 const int SharedState::kNumPanels = 3;
 
 // bug:67
+// XXX it would be much better if we could set these as runtime properties and not have to recompile
 const int SharedState::kDegradeAfterInactiveSec = 120;	// set to a negative value to disable
 const int SharedState::kDegradeSlowSec = 30;
 const int SharedState::kDegradeSlowSecPerDelete = 3;
 const int SharedState::kDegradeFastSec = 270;
+// in fast mode, the slowest rate (so max secPerDelete) is the same as the slow rate
+// the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the alloted time
 // below is for testing...
-// //const int SharedState::kDegradeAfterInactiveSec = 30;
-// const int SharedState::kDegradeAfterInactiveSec = -1;	// test disable
+// const int SharedState::kDegradeAfterInactiveSec = 30;
+// //const int SharedState::kDegradeAfterInactiveSec = -1;	// test disable
 // const int SharedState::kDegradeSlowSec = 10;
 // const int SharedState::kDegradeSlowSecPerDelete = 3;
 // const int SharedState::kDegradeFastSec = 30;
-// in fast mode, the slowest rate (so max secPerDelete) is the same as the slow rate
-// the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the alloted time
 
 juce_ImplementSingleton (SharedState)
 
@@ -56,7 +57,7 @@ starFieldActive (false)
 	}
 	
 	for (int i = 0; i < kNumPanels; i++) {
-		Panel* panel = new Panel (totalRows, totalCols);
+		Panel* panel = new Panel (totalRows, totalCols, i);
 		panels.add (panel);
 		
 		blobs[i] = new osc::Blob();
@@ -384,6 +385,17 @@ void SharedState::setStarFieldActive (bool starFieldActive_)
 	starFieldActive = starFieldActive_;
 }
 
+void SharedState::enableStarField() {
+   // so that the button reflects the change in state done internally, without pressing the button
+   // XXX bug:67 - this is a ToggleButton* in OptionsComponent -- how do i get a handle to it?
+   // MainComponent has a pointer to OptionsComponent, but how do i get a handle to that?
+   // for now commented out pending an answer from matt
+   // although in practice this doesn't appear to be needed?  (i see the button checked)
+   // mainComponent->optionsComponent->starFieldButton->setToggleState(/* shouldBeOn */ true,
+   //                                                                  /* sendChangeNotification */ false);
+   setStarFieldActive(true);
+}
+
 double SharedState::getLastTouchSecond (int panelIndex_)
 {
 	Panel* panel = panels[panelIndex_];
@@ -406,4 +418,26 @@ void SharedState::degradeStep (int panelIndex_)
 {
 	Panel* panel = panels[panelIndex_];
 	panel->degradeStep();
+}
+
+bool SharedState::allDegraded()
+{
+   for (int panelIndex = 0; panelIndex < kNumPanels; panelIndex++) {
+      Panel* panel = panels[panelIndex];
+      if (panel->getState() != Panel::DEGRADED) {
+         return false;
+      }
+   }
+   // we will only get here if all panels are in state DEGRADED
+   return true;
+}
+
+void SharedState::startAttract()
+{
+   DBG(String(Time::currentTimeMillis()) + " " + "Starting attract mode");
+   for (int panelIndex = 0; panelIndex < kNumPanels; panelIndex++) {
+      Panel* panel = panels[panelIndex];
+      panel->setState(Panel::ATTRACT);
+   }
+   enableStarField();
 }

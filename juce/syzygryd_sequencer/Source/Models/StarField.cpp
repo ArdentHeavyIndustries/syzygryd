@@ -1,3 +1,4 @@
+/* -*- mode: C++; c-basic-offset: 3; indent-tabs-mode: nil -*- */
 /*
  *  StarField.cpp
  *  starfield2
@@ -49,7 +50,7 @@ StarField::~StarField()
 
 void StarField::update()
 {
-   DBG("StarField::update()");
+   //DBG("StarField::update()");
 	updateForeground();
 }
 

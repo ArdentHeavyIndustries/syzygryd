@@ -19,7 +19,7 @@ class Tab;
 class Panel 
 {
 public:
-	Panel (int totalRows_, int totalCols_);
+	Panel (int totalRows_, int totalCols_, int panelIndex_);
 	~Panel();
 
    enum PanelState { ACTIVE, DEGRADING_SLOW, DEGRADING_FAST, DEGRADED, ATTRACT };
@@ -48,8 +48,8 @@ public:
    bool isDegrading();
 	
 private:
+   int panelIndex; // the index of this panel
 	OwnedArray<Tab> tabs;	
-	
 	int tabIndex; // which tab is currently selected?
 
    // bug:67

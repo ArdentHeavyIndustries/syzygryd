@@ -70,12 +70,15 @@ public:
 	void updateStarField();
 	bool getStarFieldActive();
 	void setStarFieldActive (bool starFieldActive_);
+   void enableStarField();
 
    // bug:67
 	double getLastTouchSecond (int panelIndex_);
    int getState (int panelIndex_);
    void startDegrade (int panelIndex_);
    void degradeStep (int panelIndex_);
+   bool allDegraded();
+   void startAttract();
 	
 	juce_DeclareSingleton (SharedState, true)
 	

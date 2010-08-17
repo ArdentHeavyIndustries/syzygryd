@@ -71,7 +71,7 @@ void Tab::clear()
 
 void Tab::updateStarField()
 {
-   DBG("Tab::updateStarField()");
+   //DBG("Tab::updateStarField()");
 	if (firstUpdateStarField) {
 		firstUpdateStarField = false;
 		for (int i = 0; i < 20; i++) {
