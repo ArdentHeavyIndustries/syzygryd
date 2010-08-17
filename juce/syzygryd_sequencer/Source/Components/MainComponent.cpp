@@ -54,7 +54,7 @@ void MainComponent::paint (Graphics& g)
                                       false));
 	
 	g.setFont (18.0, Font::bold);
-	g.drawText ("Syzygryd Sequencer r574", 10, 10, getWidth() - 20, 20, 
+	g.drawText ("Syzygryd Sequencer r579", 10, 10, getWidth() - 20, 20, 
                Justification::centredTop, false);
 }
 

@@ -202,7 +202,8 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
          columnZeroDegradeUpdate = false;
          if (state == Panel::ACTIVE) {
             // XXX bug:67 - switch to Time::currentTimeMillis() ?
-            if (SharedState::getInstance()->getTimeInSeconds() >= 
+            if (SharedState::kDegradeAfterInactiveSec > 0 &&
+                SharedState::getInstance()->getTimeInSeconds() >= 
                 (SharedState::getInstance()->getLastTouchSecond(panelIndex) + 
                  SharedState::kDegradeAfterInactiveSec)) {
                DBG("Start degrading panel " + String(panelIndex));

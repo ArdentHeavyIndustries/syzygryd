@@ -19,12 +19,13 @@
 const int SharedState::kNumPanels = 3;
 
 // bug:67
-const int SharedState::kDegradeAfterInactiveSec = 120;
+const int SharedState::kDegradeAfterInactiveSec = 120;	// set to a negative value to disable
 const int SharedState::kDegradeSlowSec = 30;
 const int SharedState::kDegradeSlowSecPerDelete = 3;
 const int SharedState::kDegradeFastSec = 270;
 // below is for testing...
-// const int SharedState::kDegradeAfterInactiveSec = 30;
+// //const int SharedState::kDegradeAfterInactiveSec = 30;
+// const int SharedState::kDegradeAfterInactiveSec = -1;	// test disable
 // const int SharedState::kDegradeSlowSec = 10;
 // const int SharedState::kDegradeSlowSecPerDelete = 3;
 // const int SharedState::kDegradeFastSec = 30;
