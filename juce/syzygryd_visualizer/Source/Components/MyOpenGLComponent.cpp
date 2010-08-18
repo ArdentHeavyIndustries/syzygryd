@@ -114,6 +114,12 @@ MyOpenGLComponent::MyOpenGLComponent()
 MyOpenGLComponent::~MyOpenGLComponent()
 {
 	anim = false;
+	syzygryd->dmx.stopThread (3000);
+}
+
+const String& MyOpenGLComponent::getLastData()
+{
+	return syzygryd->dmx.getLastData();
 }
 
 // OpenGLComponent methods

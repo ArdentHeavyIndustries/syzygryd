@@ -13,11 +13,22 @@
 
 MainComponent::MainComponent() :
 Component (T("Main Component")),
-myOpenGLComponent (0)
+myOpenGLComponent (0),
+dataText (0)
 {
 	addAndMakeVisible (myOpenGLComponent = new MyOpenGLComponent());
+	addAndMakeVisible (dataText = new TextEditor ("dataLabel"));
+
+	Font dataFont (10);
+	dataFont.setTypefaceName (Font::getDefaultMonospacedFontName());
+	
+	dataText->setText ("No data received.", false);
+	dataText->setMultiLine (true, true);
+	dataText->setFont (dataFont);
 	
 	setSize (600, 400);
+	
+	startTimer (50);
 }
 
 MainComponent::~MainComponent()
@@ -33,8 +44,20 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
-	myOpenGLComponent->setBoundsInset (BorderSize(10));
+	myOpenGLComponent->setBounds (10, 10, getWidth() - 20, getHeight() - 100);
+	dataText->setBounds (10, getHeight() - 80, getWidth() - 20, 70);
 }
+
+// Timer methods
+void MainComponent::timerCallback()
+{
+	if (lastData != myOpenGLComponent->getLastData()) {
+		lastData = myOpenGLComponent->getLastData();
+		dataText->setText (lastData, false);
+		repaint();
+	}
+}
+
 
 
 

@@ -92,6 +92,7 @@ void recv_new_message( StreamingSocket& socket, uint8_t start, uint8_t *command,
 		socket.read(&start, 1, false);
 		if( start!=0xE7 )
 		{
+			printf ("Failed to read the packet footer.\n");
 			// failed
 			free(*data);
 			*data = NULL;
@@ -127,6 +128,11 @@ DMX::~DMX()
 		listenSocket->close();
 	}
 	socket.close();
+}
+
+const String& DMX::getLastData()
+{
+	return lastData;
 }
 
 // Thread methods
@@ -206,14 +212,21 @@ void DMX::run()
 				printf ("command: %d dataSize: %d\n", command, dataSize);
 				if( data )
 				{
+					// Preprocess J's DMX data from the socket
+					if (command == 6) {
+						command = 5;
+					}
 					// dmx receive
 					if( command == 5)
 					{
 						//String dbg;
 						//dbg << "DATA: ";
+						lastData = String::empty;
 						for (int i = 0; i < dataSize; i++) {
 							printf ("%02X", data[i]);
-							//dbg << String::toHexString (data[i]);
+							String newData = String::toHexString (data[i]);
+							newData = newData.paddedLeft ('0', 2).toUpperCase();
+							lastData << newData << " ";
 						}
 						//dbg << "\n";
 						printf ("\n");
@@ -224,8 +237,8 @@ void DMX::run()
 						{
 							//f.appendText (dbg);
 							// copy to output world
-							memcpy(world, data-1, MIN(DMX_COUNT,dataSize-1));
-							memcpy(world2, data-1, MIN(DMX_COUNT,dataSize-1));
+							memcpy(world, data, MIN(DMX_COUNT,dataSize-1));
+							memcpy(world2, data, MIN(DMX_COUNT,dataSize-1));
 							frame_count++;
 						}
 					}
@@ -275,11 +288,12 @@ void DMX::run()
 			
 			//pthread_testcancel();
 		}
-		
+		/*
 		if (listenSocket != 0) {
 			listenSocket->close();
 			deleteAndZero (listenSocket);
 		}
+		 */
 /*	
 }
 	else

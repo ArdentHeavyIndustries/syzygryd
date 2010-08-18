@@ -23,6 +23,8 @@ public:
 	DMX();
 	~DMX();
 	
+	const String& getLastData();
+	
 	// Thread methods
 	virtual void run();
 	
@@ -43,6 +45,8 @@ private:
 	//pthread_t _thread;
 	char* _path;
 	int _dmxFd;
+	
+	String lastData;
 	
 	StreamingSocket socket;
 	StreamingSocket* listenSocket;

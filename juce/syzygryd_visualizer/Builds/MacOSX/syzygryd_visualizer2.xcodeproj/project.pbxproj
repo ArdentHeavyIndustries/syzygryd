@@ -49,7 +49,7 @@
 		C92B89A4120C7B6A00B92ED2 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		C95D049D117D7D70009EE494 /* MyOpenGLComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyOpenGLComponent.h; sourceTree = "<group>"; };
 		C95D049E117D7D70009EE494 /* MyOpenGLComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MyOpenGLComponent.cpp; sourceTree = "<group>"; };
-		C95D3AF5115E87DA00C293DE /* JuceTemplate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JuceTemplate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C95D3AF5115E87DA00C293DE /* SyzygrydVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SyzygrydVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C95D3AF8115E87DA00C293DE /* App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "App-Info.plist"; sourceTree = "<group>"; };
 		C95D3AFC115E882B00C293DE /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		C95D3AFE115E882C00C293DE /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -147,7 +147,7 @@
 		C95D3AF6115E87DA00C293DE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C95D3AF5115E87DA00C293DE /* JuceTemplate.app */,
+				C95D3AF5115E87DA00C293DE /* SyzygrydVisualizer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -219,7 +219,7 @@
 			);
 			name = App;
 			productName = App;
-			productReference = C95D3AF5115E87DA00C293DE /* JuceTemplate.app */;
+			productReference = C95D3AF5115E87DA00C293DE /* SyzygrydVisualizer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
