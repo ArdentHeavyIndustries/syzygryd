@@ -165,19 +165,18 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
   }
 
   void draw() {
-    // XXX are we just trying to see if 5 seconds have elapsed?  if so, couldn't we just check (second() - curSecond >= 5) ?
-    if(second() % 5 == 0 && second() != curSecond) { //does changing the modulo here make color cycle faster or slower?
-      masterHue++;
-      if(masterHue > 100){
-        masterHue -=100; 
-      }
-      curSecond = second();
-    }
-
+    // no longer automatically cycling in the controller, but just comment out in case we want this later
+    // // XXX are we just trying to see if 5 seconds have elapsed?  if so, couldn't we just check (second() - curSecond >= 5) ?
+    // if(second() % 5 == 0 && second() != curSecond) { //does changing the modulo here make color cycle faster or slower?
+    //   masterHue++;
+    //   if(masterHue > 100){
+    //     masterHue -=100; 
+    //   }
+    //   curSecond = second();
+    // }
     
     for (int i = 0; i < gridWidth; i++) {
       for (int j = 0; j < gridHeight; j++) {
-        ((DrawableButton) buttons[i][j]).setBaseHue(masterHue);
         if (isSelected()) {
           ((DrawableButton) buttons[i][j]).draw();
         }

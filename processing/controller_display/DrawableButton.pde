@@ -38,7 +38,6 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   int x, y, sqLength;
   int sweepX, sweepY;
   int miniX, miniY, miniLength;
-  int sqHue = 100;
   int sqBright = 100;
   int sqAlphaDefault = 20;
   int sqAlpha = sqAlphaDefault;
@@ -67,18 +66,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     miniLength = _miniLength;
   }
 
-  void setBaseHue(int _newHue){
-    sqHue = _newHue;
-  }
-
   int getHue() {
-    int hue = sqHue + 33 * panel.id;
-    // TODO: Instead of this if statement can we just take this mod 100?
-    if (hue > 100) {
-      hue -= 100;
-    }
-
-    return hue;
+    return masterHues[panel.id];
   }
 
   /**
@@ -130,8 +119,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
    */
   void drawMiniTabButton() {
     noStroke();
-    fill(getHue(), 50, sqBright, sqAlpha);   //This was the original line that (allegedly) kept the minitabs on the wrong color
-//    fill(masterHue, 50, sqBright, sqAlpha);	// this has all minitabs showing the color of panel 0, so i'm going back to the above line
+    fill(getHue(), 50, sqBright, sqAlpha);
     rect(miniX, miniY, miniLength, miniLength);
   }
 

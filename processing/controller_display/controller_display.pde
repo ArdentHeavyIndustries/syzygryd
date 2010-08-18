@@ -28,8 +28,9 @@ DrawablePanel selectedPanel;
 Temposweep temposweep;
 LinkedList animations = new LinkedList();
 
-/* Sets an initial Hue for colors to cycle from. Changes almost immediately */
-int masterHue = 1;
+/* Sets an initial Hue for panel colors. Lighting can change this. */
+/* Hues are in the range [0-100] (see colorMode() below) */
+int[] masterHues;
 
 /* Last Pressable object selected by the user. */
 Pressable lastSelectedPressable;
@@ -114,7 +115,10 @@ void setup() {
   int numTabs = 4;
 
   panels = new DrawablePanel[numPanels];
+  masterHues = new int[numPanels];
   for (int i = 0; i < panels.length; i++) {
+    // initialize to even distributions in the range 0-100
+    masterHues[i] = (i * 100) / panels.length;
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
   selectPanel(0);
@@ -199,7 +203,7 @@ void oscEvent(OscMessage m) {
     //   return;
     // }
 
-    if (m.addrPattern().endsWith("/sync")) {
+    if (m.addrPattern().equals("/sync")) {
       syncCount++;
       if (syncSkip == 0 || syncCount >= syncSkip) {
         //log("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
@@ -298,6 +302,16 @@ void oscEvent(OscMessage m) {
       // }
       return;
     } 
+
+    // colors are in the form ARGB, converted to hue, then scaled
+    if (m.addrPattern().equals("/color")) {
+      for (int i = 0; i < panels.length; i++) {
+        color c = color(m.get(i).intValue());
+        // need to scale from 0-255 range to 0-100
+        masterHues[i] = (int)((hue(c) * 100.0) / 255.0);
+        log("Setting panel " + i + " to hue " + masterHues[i] + " based on color " + c);
+      }
+    }
 
     /* check if the typetag is the right one. */
     // if (m.checkTypetag("")) {
