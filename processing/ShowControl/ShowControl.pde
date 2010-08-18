@@ -6,15 +6,18 @@ import guicomponents.*;
 import oscP5.*;
 import netP5.*;
 
-/* ------------------------- Program Configuration ------------------------- */
+// ------------------------- Program Configuration ------------------------- 
+
+int CUBES_PER_ARM = 36;
+int EFFECTS_PER_ARM = 8;
 
 int FRAMERATE = 200;
 boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
 
-boolean SYZYVYZ = false;
-boolean ASCII_SEQUENCER_DISPLAY = false;
+boolean SYZYVYZ = true;
+boolean ASCII_SEQUENCER_DISPLAY = true;
 
-/* ----------------- Variable Declaration & Initialization ----------------- */
+// ----------------- Variable Declaration & Initialization -----------------
 
 // DMX Control
 DMX DMXManager;
@@ -33,6 +36,9 @@ ArrayList<Fixture> fixtures = new ArrayList();
 ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
 FixtureGroup[] arm = new FixtureGroup[3];
 
+// Active layer list
+ArrayList<Layer> layers = new ArrayList();
+
 // Lighting Programs
 ArrayList<LightingProgram> programList = new ArrayList();
 int activeProgram = 0;
@@ -46,13 +52,12 @@ GWindow[] ctrlrWindow;
 String syzyVyzIP = "127.0.0.1";
 int syzyVyzPort = 3333;
 
-
 void setup() {
   
   lastSyncTimeInMs = 0;
   lastDrawTimeInMs = millis();
   
-  /* example code*/
+  // example code
   colorMode(RGB);
   background(0);
   frameRate(FRAMERATE);
@@ -88,7 +93,7 @@ void setup() {
   for (int i = 0; i < 3; i++){
     arm[i] = new FixtureGroup("cube");
     arm[i].addTrait("RGBColorMixing", new RGBColorMixingTrait(arm[i]));
-    for (int j = i * 36; j < (i * 36) + 36; j++){
+    for (int j = i * 36; j < (i * 36) + 36; j++){  // 36 cubes per arm
       try{
         arm[i].addFixture(fixtures.get(j));
       } catch (FixtureTypeMismatchException ftme){}
@@ -99,22 +104,53 @@ void setup() {
   btnStart = new GButton(this, "DMX Monitor", 10,35,80,30);
   btnStart.setColorScheme(new GCScheme().GREY_SCHEME);
 
-  
   //initialize lighting program
+/*
   new TestProgram(); // Instantiate a program. This adds it automatically to the list of available lighting programs.
   new TestProgram2(); // Add a second one
   
   program = programList.get(activeProgram); // Get active program
   program.initialize();  // Initialize active program
+*/
+
+  layers.add(new HueRotateLayer(color(#8f0000), 5.0));
+  
 }
 
 
 void draw(){
   
-  updateStepPosition();
+  float elapsedSteps = updateStepPosition();
   
+  LightingState state = new LightingState();  // starts black
+  
+  Iterator layerIter = layers.iterator();
+  for (Layer layer : layers) {
+
+    layer.advance(elapsedSteps);
+    if (!layer.finished()) {
+      state.blendOverSelf(layer.state, layer.blendMode);
+    } 
+  }
+
+  state.output();
  
+  color[] seq = new color[] {color(50, 50, 50), color(170, 170, 170), color(255, 255, 255)};
+    
+  if (events.fired("notes")) {
+    layers.add(new ChaseLayer(0, seq, 0.1, -3));
+  }
+  
+  // Remove all finished layers
+  for (int i=0; i<layers.size(); i++) {
+    if (layers.get(i).finished()) {
+      layers.remove(i);
+      i--;
+    }
+  }
+  
   //step lighting program
+/*
   program.drawFrame();
   
   // render fixture behaviors.  do fixture groups first, then fixtures
@@ -134,7 +170,8 @@ void draw(){
       b.masterDrawFrame();
     }
   }
-  
+*/
+
  // textmode sequencer display -- useful for debugging. enable in config variables above.
  if(ASCII_SEQUENCER_DISPLAY){ 
    if(events.fired("step")){
@@ -155,7 +192,7 @@ void draw(){
   //remove expired events
   events.flushExpired();
 
-  //background(((RGBColorMixingTrait)arm[0].trait("RGBColorMixing")).getColorRGB());
+  //background(((RGBColorMixingTrait)arm[0].trait("RGBColorMixing")).getColorRGB());  
   
   // send final state of lights to DMX controller(s)
   DMXManager.update();
@@ -174,14 +211,20 @@ void keyPressed(){
   }
 }
 
-void updateStepPosition(){
+
+// Returns steps elapsed since last call
+float updateStepPosition(){
+  float elapsed = 0;
+  
   if (lastSyncTimeInMs > 0) {
     int now = millis();
     //print("Time: " + now + "\n");
     int timeSinceLastDrawInMs = now - lastDrawTimeInMs;
     int timeSinceLastSyncInMs = now - lastSyncTimeInMs;
     lastDrawTimeInMs = now;
-  
+
+    elapsed = getTimeInSteps(timeSinceLastDrawInMs);
+    
     sequencerState.stepPosition = (sequencerState.stepPosition + getTimeInSteps(timeSinceLastDrawInMs)) % 16;
     //print("New position: " + sequencerState.stepPosition + "\n");
     
@@ -207,6 +250,8 @@ void updateStepPosition(){
       }
     }
   }
+  
+  return elapsed;
 }
 
 
@@ -220,5 +265,6 @@ float getTimeInSteps(int time) {
   return numSteps;
 }
 
-
-
+float curTimeInSteps() {
+  return getTimeInSteps(now());
+}
