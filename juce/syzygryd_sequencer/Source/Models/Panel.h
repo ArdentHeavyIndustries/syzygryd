@@ -35,11 +35,9 @@ public:
 	
 	void updateStarField();
 
-   // bug:67
-   // XXX change these to use Time::currentTimeMillis() ?
-	double getLastTouchSecond();
-	void setLastTouchSecond (double lastTouchSecond_, bool fromStopAttract_);
-	void setLastTouchSecond (double lastTouchSecond_);
+	int64 getLastTouchElapsedMs();
+   void updateLastTouch(bool fromStopAttract_);
+   void updateLastTouch();
    void setState(int state_);
    int getState();
    void startDegrade();
@@ -54,8 +52,9 @@ private:
 	OwnedArray<Tab> tabs;	
 	int tabIndex; // which tab is currently selected?
 
-   // bug:67
-	double lastTouchSecond;
+   // bug:67 - degrade/attract
+   // XXX - this probably doesn't dtrt wrt the touchosc controllers.  that's okay for now.
+	int64 lastTouchMs;
    int state;
    Random* random;
    Array<Cell*> cellsToDegrade;

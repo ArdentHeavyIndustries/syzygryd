@@ -19,7 +19,7 @@ const int Panel::kNumTabs = 4;
 Panel::Panel (int totalRows_, int totalCols_, int panelIndex_) :
 panelIndex (panelIndex_),
 tabIndex (0),
-lastTouchSecond (0),
+lastTouchMs (Time::currentTimeMillis()),
 state (ACTIVE)
 {
 	for (int i = 0; i < kNumTabs; i++) {
@@ -71,28 +71,32 @@ void Panel::updateStarField()
 	tabs[tabIndex]->updateStarField();
 }
 
-double Panel::getLastTouchSecond()
+int64 Panel::getLastTouchElapsedMs()
 {
-	return lastTouchSecond;
+   int64 now = Time::currentTimeMillis();
+
+	return now - lastTouchMs;
 }
 
 // this should only be called if a panel is touched
-// bug:67 - for propertly coming out of attract mode, it is important that this is called *before* any other action on the touch is taken
-void Panel::setLastTouchSecond (double lastTouchSecond_, bool fromStopAttract_)
+// bug:67 - for properly coming out of attract mode, it is important that this is called *before* any other action on the touch is taken
+void Panel::updateLastTouch(bool fromStopAttract_)
 {
-   // DBG(String(Time::currentTimeMillis()) + " "
-   //     + "Setting lastTouchSecond on panel " + String(panelIndex) + " to " + String(lastTouchSecond_) + " fromStopAttract=" + String(fromStopAttract_));
+   int64 now = Time::currentTimeMillis();
+
+   // DBG(String(now) + " "
+   //     + "Setting lastTouchMs on panel " + String(panelIndex) + " to " + String(now) + " fromStopAttract=" + String(fromStopAttract_));
 
    // this is needed so that we don't get stuck in an endless loop
    if (!fromStopAttract_) {
       if (isAttracting()) {
 #ifdef JUCE_DEBUG
          if (!SharedState::getInstance()->allAttracting()) {
-            DBG(String(Time::currentTimeMillis()) + " "
+            DBG(String(now) + " "
                 + "WARNING: Panel " + String(panelIndex) + " is about to leave attract mode, but not all panels are in attract mode, which they should be");
          }
 #endif
-         DBG (String(Time::currentTimeMillis()) + " "
+         DBG (String(now) + " "
               + "Panel " + String(panelIndex) + " has been touched, stopping attract on all panels");
          SharedState::getInstance()->stopAttract();
       } else if (isDegrading()) {
@@ -100,17 +104,17 @@ void Panel::setLastTouchSecond (double lastTouchSecond_, bool fromStopAttract_)
       }
       setState(ACTIVE);
    }
-	lastTouchSecond = lastTouchSecond_;
+	lastTouchMs = now;
 }
 
-void Panel::setLastTouchSecond (double lastTouchSecond_)
+void Panel::updateLastTouch()
 {
-   setLastTouchSecond(lastTouchSecond_, /* fromStopAttract */ false);
+   updateLastTouch(/* fromStopAttract */ false);
 }
 
 void Panel::setState(int state_)
 {
-   // XXX bug:67 add code to verify state transitions ?
+   // XXX bug:67 - we could add code to verify the state transitions
 #ifdef JUCE_DEBUG
    // XXX outputting a real string would be better
    if (state_ != state) {

@@ -201,11 +201,9 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
       } else {
          columnZeroDegradeUpdate = false;
          if (state == Panel::ACTIVE) {
-            // XXX bug:67 - switch to Time::currentTimeMillis() ?
             if (SharedState::kDegradeAfterInactiveSec > 0 &&
-                SharedState::getInstance()->getTimeInSeconds() >= 
-                (SharedState::getInstance()->getLastTouchSecond(panelIndex) + 
-                 SharedState::kDegradeAfterInactiveSec)) {
+                (SharedState::getInstance()->getLastTouchElapsedMs(panelIndex) >= 
+                 SharedState::kDegradeAfterInactiveSec * 1000)) {
                DBG(String(Time::currentTimeMillis()) + " "
                    + "Start degrading panel " + String(panelIndex));
                SharedState::getInstance()->startDegrade(panelIndex);
@@ -214,8 +212,10 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
       }
 		
 		// Update starfield if necessary
-      // XXX bug:67 verify state ?
 		if (SharedState::getInstance()->getStarFieldActive()) {
+         // bug:67 - for production running, we could assert that the following is true:
+         //    SharedState::getInstance()->allAttracting()
+         // but that won't work if someone turns on the star field by hand via the sequencer GUI
 			if (pluginAudioProcessor->getPanelIndex() == 0) {
 				if (tickCount % 10 == 0) {			
 					SharedState::getInstance()->updateStarField();

@@ -18,14 +18,14 @@
 
 const int SharedState::kNumPanels = 3;
 
+// XXX bug:86 - it would be much better if we could set these as runtime properties and not have to recompile
 // bug:67
-// XXX it would be much better if we could set these as runtime properties and not have to recompile
 const int SharedState::kDegradeAfterInactiveSec = 120;	// set to a negative value to disable
 const int SharedState::kDegradeSlowSec = 30;
 const int SharedState::kDegradeSlowSecPerDelete = 3;
 const int SharedState::kDegradeFastSec = 270;
 // in fast mode, the slowest rate (so max secPerDelete) is the same as the slow rate
-// the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the alloted time
+// the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the allotted time
 // below is for testing...
 // const int SharedState::kDegradeAfterInactiveSec = 30;
 // //const int SharedState::kDegradeAfterInactiveSec = -1;	// test disable
@@ -125,8 +125,7 @@ void SharedState::setTabIndex (int panelIndex_, int tabIndex_)
    //     + "Panel " + String(panelIndex_) + " touched to set tab to " + String(tabIndex_));
 
 	Panel* panel = panels[panelIndex_];
-   // XXX bug:67 - switch to Time::currentTimeMillis() ?
-	panel->setLastTouchSecond (getTimeInSeconds());
+	panel->updateLastTouch();
 	
 	panel->setTabIndex (tabIndex_);
 }
@@ -194,8 +193,7 @@ void SharedState::noteToggle (int panelIndex_, int tabIndex_,
    //     + "Panel " + String(panelIndex_) + " touched to set note at tab" + String(tabIndex_) + "/row" + String(row_) + "/col" + String(col_)  + " to " + String(state));
 
 	Panel* panel = panels[panelIndex_];
-   // XXX bug:67 - switch to Time::currentTimeMillis() ?
-	panel->setLastTouchSecond (getTimeInSeconds());
+	panel->updateLastTouch();
 	
 	Cell* cell = getCellAt (panelIndex_, tabIndex_, row_, col_);
 	if (state) {
@@ -234,8 +232,7 @@ void SharedState::clearTab (int panelIndex_, int tabIndex_, bool fromStopAttract
 	}
 #endif
 	Panel* panel = panels[panelIndex_];
-   // XXX bug:67 - switch to Time::currentTimeMillis() ?
-	panel->setLastTouchSecond (getTimeInSeconds(), fromStopAttract_);
+	panel->updateLastTouch(fromStopAttract_);
 	
 	panel->clearTab (tabIndex_);
 	// bug:78 - not currently needed
@@ -427,28 +424,29 @@ void SharedState::setStarFieldActive (bool starFieldActive_)
 
 void SharedState::enableStarField()
 {
-   // so that the button reflects the change in state done internally, without pressing the button
-   // XXX bug:67 - this is a ToggleButton* in OptionsComponent -- how do i get a handle to it?
-   // MainComponent has a pointer to OptionsComponent, but how do i get a handle to that?
-   // for now commented out pending an answer from matt
-   // although in practice this doesn't appear to be needed?  (i see the button checked)
+   // bug:67 - i'm not quite sure how, but it appears to *not* be necessary to
+   // set the following by hand, the ToggleButton* in OptionsComponent gets
+   // its state properly updated.  which is good, b/c we can't easily get a
+   // handle to it (and matt advises against doing so)
    // mainComponent->optionsComponent->starFieldButton->setToggleState(/* shouldBeOn */ true,
    //                                                                  /* sendChangeNotification */ false);
+
    setStarFieldActive(true);
 }
 
 void SharedState::disableStarField()
 {
-   // XXX bug:67 - see same discussion above wrt ToggleButton* in OptionsComponent
+   // bug:67 - see same discussion above wrt ToggleButton* in OptionsComponent
    // mainComponent->optionsComponent->starFieldButton->setToggleState(/* shouldBeOn */ false,
    //                                                                  /* sendChangeNotification */ false);
+
    setStarFieldActive(false);
 }
 
-double SharedState::getLastTouchSecond (int panelIndex_)
+int64 SharedState::getLastTouchElapsedMs (int panelIndex_)
 {
 	Panel* panel = panels[panelIndex_];
-	return panel->getLastTouchSecond();
+	return panel->getLastTouchElapsedMs();
 }
 
 int SharedState::getState (int panelIndex_)

@@ -77,7 +77,7 @@ public:
    void disableStarField();
 
    // bug:67
-	double getLastTouchSecond (int panelIndex_);
+	int64 getLastTouchElapsedMs (int panelIndex_);
    int getState (int panelIndex_);
    void startDegrade (int panelIndex_);
    void degradeStep (int panelIndex_);
