@@ -25,11 +25,14 @@ class OscOutput;
 class SharedState : public DeletedAtShutdown
 {
 public:
+   static const String kConfigFile;
 	static const int kNumPanels;
    static const int kDegradeAfterInactiveSec;
    static const int kDegradeSlowSec;
    static const int kDegradeSlowSecPerDelete;
    static const int kDegradeFastSec;
+
+   void readConfig();
 	
 	bool testAndSetPrimarySequencer();
 	

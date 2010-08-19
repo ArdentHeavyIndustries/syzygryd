@@ -16,6 +16,14 @@
 
 #include "SharedState.h"
 
+#include <hash_map>
+
+#if JUCE_WINDOWS
+const String SharedState::kConfigFile = "C:\\syzygryd\\etc\\sequencer.properties";
+#else
+const String SharedState::kConfigFile = "/opt/syzygryd/etc/sequencer.properties";
+#endif
+
 const int SharedState::kNumPanels = 3;
 
 // XXX bug:86 - it would be much better if we could set these as runtime properties and not have to recompile
@@ -46,6 +54,8 @@ timeInSeconds (0.0),
 bpm (120.0),
 starFieldActive (false)
 {
+   readConfig();
+
 	blobs = new osc::Blob*[kNumPanels];
 	touchOscConnected = new bool[kNumPanels];
 	int numValues = Panel::kNumTabs * totalRows * totalCols;
@@ -83,6 +93,41 @@ SharedState::~SharedState()
 	}
 	delete [] blobs;
 	delete [] touchOscConnected;
+}
+
+void SharedState::readConfig()
+{
+   //std::cout << "testing" << std::endl;
+
+   //std::hash_map<String, String> config;
+   //std::hash_map<const char*, String> config;
+   std::hash_map<int64, String> config;
+
+   File* file = new File(kConfigFile);
+   if (file->exists()) {
+      DBG("Reading config file " + kConfigFile);
+      FileInputStream* is = new FileInputStream(*file);
+      while (!is->isExhausted()) {
+         String line = is->readNextLine();
+         //DBG(line);
+         int equalsIdx = line.indexOf("=");
+         if (equalsIdx != -1) {
+            String key = line.substring(0, equalsIdx);
+            String value = line.substring(equalsIdx + 1);
+            DBG(key + " => " + value);
+            // XXX this doesn't work
+            //config[key] = value;
+            // XXX can't really do this, need to copy
+            //config[key.toUTF8()] = value;
+            // this is easier
+            config[key.hashCode64()] = value;
+         }
+      }
+      delete is;
+   } else {
+      DBG("WARNING: Couldn't not find config file " + kConfigFile);
+   }
+   delete file;
 }
 
 bool SharedState::testAndSetPrimarySequencer()
