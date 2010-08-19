@@ -29,6 +29,11 @@ public class SequencerState {
     } 
   }
   
+  
+  // Accessor for the thing that light programs will want most
+  boolean isNoteAtCurTime(int panel, int pitch) {
+    return notes[panel][curTab[panel]][floor(stepPosition)][pitch];
+  } 
     
   /*
    * Returns time in milliseconds between beats at current BPM

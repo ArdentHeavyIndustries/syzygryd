@@ -102,13 +102,52 @@ class NoteChaseModule extends TransientLayerModule {
     
     for (int i=0; i<3; i++) {   
       if (events.fired("notes" + Integer.toString(i))) {
-        myLayers.add(new ChaseLayer(i, whitePulse, 0.2, -3));
+        
+        // Create a moving texture that erases itself when it goes completely off the arm
+        TextureLayer cl = new TextureLayer(i, whitePulse, -3);
+        cl.motionSpeed = 0.2;
+        cl.terminateWhenOffscreen = true;
+        
+        myLayers.add(cl);
       }
     }
   }
   
 }
 
+// Note display triggers a fixed set of cubes for each note. Linear and permuted modes, other tricks.
+class NoteDisplayModule extends TransientLayerModule {
+  
+  color[] whitePulse = new color[] {color(100, 100, 100), color(200, 200, 200), color(100, 100, 100)};  
+  
+  // translates grid position (0-9) into a cube location. There is where spacing, permutation, randomization, etc. happen
+  float notePosition(int noteIndex) {
+    // convert 0-9 into 0-35, somehow
+    return noteIndex*3 + 4;
+  }
+  
+  void advance(float elapsed) {
+    super.advance(elapsed);
+
+    for (int arm=0; arm<3; arm++) {   
+      if (events.fired("notes" + Integer.toString(arm))) {
+   
+        for (int pitch=0; pitch<sequencerState.PITCHES; pitch++) {
+            if (sequencerState.isNoteAtCurTime(arm, pitch)) {
+
+              // Create a static texture that fades out
+              TextureLayer cl = new TextureLayer(arm, whitePulse, notePosition(pitch) - 1); // -1 cause the texture is 3 wide, so center it
+              cl.fadeSpeed = 0.2;
+              cl.terminateWhenFaded = true;
+        
+              myLayers.add(cl);
+            }
+        }
+      }
+    }
+  }
+  
+}
 
 // Globals parameters that control the program. These are exposed to the operator through touchOSC
 
@@ -139,6 +178,7 @@ class FrameBrulee extends LightingProgram {
     
   // On top of these we have transient layers for chases
   NoteChaseModule    noteChase;
+  NoteDisplayModule  noteDisplay;
   
   // Top permanent layers
   //TintLayer          tintLayer;
@@ -147,6 +187,7 @@ class FrameBrulee extends LightingProgram {
     // Bottom layer is a hue rotate
     baseHueRotate = new HueRotateLayer(color(#8f0000), 5.0);
     noteChase = new NoteChaseModule();
+    noteDisplay = new NoteDisplayModule();
   }
 
   int randomMode() {
@@ -167,13 +208,15 @@ class FrameBrulee extends LightingProgram {
  
     baseHueRotate.advance(elapsedSteps);
     noteChase.advance(elapsedSteps);
+    noteDisplay.advance(elapsedSteps);
 
   }
   
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode
   void render(LightingState state) {
     baseHueRotate.apply(state);
-    noteChase.apply(state);
+   // noteChase.apply(state);
+    noteDisplay.apply(state);
   }
 
 }
