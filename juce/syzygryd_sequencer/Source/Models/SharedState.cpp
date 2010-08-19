@@ -119,7 +119,7 @@ String SharedState::getConfigString(String key, String defaultValue)
 {
    String value;
 
-   hash_map<int32, String>::const_iterator iter = config.find(key.hashCode64());
+   hash_map<int32, String>::const_iterator iter = config.find(key.hashCode());
    if (iter != config.end()) {
       value = iter->second;
    } else {
@@ -134,7 +134,7 @@ int SharedState::getConfigInt(String key, int defaultValue)
 {
    int value;
 
-   hash_map<int32, String>::const_iterator iter = config.find(key.hashCode64());
+   hash_map<int32, String>::const_iterator iter = config.find(key.hashCode());
    if (iter != config.end()) {
       value = (iter->second).getIntValue();
    } else {
