@@ -22,7 +22,7 @@ const String SharedState::kConfigFile = "C:\\syzygryd\\etc\\sequencer.properties
 const String SharedState::kConfigFile = "/opt/syzygryd/etc/sequencer.properties";
 #endif
 
-std::hash_map<int64, String> SharedState::config;
+hash_map<int32, String> SharedState::config;
 int SharedState::kDegradeAfterInactiveSec;
 int SharedState::kDegradeSlowSec;
 int SharedState::kDegradeSlowSecPerDelete;
@@ -104,7 +104,7 @@ void SharedState::readConfig()
                String key = line.substring(0, equalsIdx);
                String value = line.substring(equalsIdx + 1);
                DBG("Reading config: " + key + " => " + value);
-               config[key.hashCode64()] = value;
+               config[key.hashCode()] = value;
             }
          }
       }
@@ -119,7 +119,7 @@ String SharedState::getConfigString(String key, String defaultValue)
 {
    String value;
 
-   std::hash_map<int64, String>::const_iterator iter = config.find(key.hashCode64());
+   hash_map<int32, String>::const_iterator iter = config.find(key.hashCode64());
    if (iter != config.end()) {
       value = iter->second;
    } else {
@@ -134,7 +134,7 @@ int SharedState::getConfigInt(String key, int defaultValue)
 {
    int value;
 
-   std::hash_map<int64, String>::const_iterator iter = config.find(key.hashCode64());
+   hash_map<int32, String>::const_iterator iter = config.find(key.hashCode64());
    if (iter != config.end()) {
       value = (iter->second).getIntValue();
    } else {

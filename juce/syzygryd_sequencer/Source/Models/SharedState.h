@@ -15,7 +15,19 @@
 
 #include "JuceHeader.h"
 
+#if JUCE_WINDOWS
 #include <hash_map>
+using std::hash_map;
+#else
+// mac
+#include <ext/hash_map>
+// copied from http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=295052
+ #  if (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || __GNUC__ >= 4))
+ using __gnu_cxx::hash_map;
+ #  else
+ using std::hash_map;
+ #  endif
+#endif
 
 class Cell;
 class Panel;
@@ -28,8 +40,14 @@ class SharedState : public DeletedAtShutdown
 {
 public:
    static const String kConfigFile;
-   // std::hash_map doesn't work with a JUCE String as a Key
-   static std::hash_map<int64, String> config;
+   // hash_map doesn't work with a JUCE String as a Key
+   // with std::hash_map (windows), we can use an int64 as the Key
+   // with __gnu_cxx::hash_map (mac), this doesn't work
+   // we could condition all uses of this to be either a 32b or 64b hash for
+   // the key, but it's just not worth it, as our probability of collision is
+   // so low, and the mac is the "real" platform anyway.  so just use int32
+   // everywhere for convenience (aka laziness)
+   static hash_map<int32, String> config;
 
 	static const int kNumPanels;
 
