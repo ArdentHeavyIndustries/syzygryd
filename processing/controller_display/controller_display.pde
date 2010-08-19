@@ -389,6 +389,10 @@ void oscEvent(OscMessage m) {
 
 void startSet() {
   log("Starting set");
+
+  // this deals with the svn r569 (nobug) issue, just in case the timing of the restart on stopSet() is timed wrong wrt the Live restart due to a race condition
+  restartOsc();
+
   setStopped = false;
 }
 
@@ -410,6 +414,11 @@ void stopSet() {
     }
   }
 
+  restartOsc();
+}
+
+void restartOsc() {
+  log("Restarting osc");
   oscP5.dispose();
   oscP5 = new OscP5(this, OSC_LISTENING_PORT);
 }
