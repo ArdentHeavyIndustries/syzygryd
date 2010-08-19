@@ -104,6 +104,8 @@ public class Syzyweb extends NanoHTTPD {
 			return screenshotWrapperResponse();
 		case setlist:
 			return setListResponse();
+		case queue:
+			return queueResponse();
 		default:
 			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Unimplemented action " + actionStr + ".  Move that ass, boy!");
 		}
@@ -152,6 +154,14 @@ public class Syzyweb extends NanoHTTPD {
 		String end = "</body></html>";
 		String listString = list.toString();
 		String out = begin + listString + end;
+		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
+	}
+	
+	protected Response queueResponse() {
+		String begin = "<html><head><title>Queue!</title></head><body>";
+		String end = "</body></html>";
+		String queueString = runner.queueToString();
+		String out = begin + queueString + end;
 		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
 	}
 	

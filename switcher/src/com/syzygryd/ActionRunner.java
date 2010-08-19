@@ -186,7 +186,11 @@ public class ActionRunner extends Thread {
 		return pendingAction.getAndSet(null);
 	}
 	
-	
+	public String queueToString() {
+		String queueString = "<h3>Queue</h3><br>" + actionQ.toString();
+		String pendingString = "<h3>Pending Action</h3><br>" + pendingAction.toString();
+		return queueString + pendingString;
+	}
 	
 	
 }
