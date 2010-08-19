@@ -10,6 +10,9 @@ abstract class LightingProgram {
   
   void update(float elapsedTime) {
   }
+  
+  void drawFrame() {
+  }
 }
 
 // ----------------------------------------------------- Test Lighting Program -------------------------------------------------------- 
