@@ -15,6 +15,8 @@
 
 #include "JuceHeader.h"
 
+#include <hash_map>
+
 class Cell;
 class Panel;
 
@@ -26,13 +28,23 @@ class SharedState : public DeletedAtShutdown
 {
 public:
    static const String kConfigFile;
-	static const int kNumPanels;
-   static const int kDegradeAfterInactiveSec;
-   static const int kDegradeSlowSec;
-   static const int kDegradeSlowSecPerDelete;
-   static const int kDegradeFastSec;
+   // std::hash_map doesn't work with a JUCE String as a Key
+   static std::hash_map<int64, String> config;
 
+	static const int kNumPanels;
+
+   // bug:67
+   static int kDegradeAfterInactiveSec;	// set to a negative value to disable
+   static int kDegradeSlowSec;
+   static int kDegradeSlowSecPerDelete;
+   static int kDegradeFastSec;
+   // in fast mode, the slowest rate (so max secPerDelete) is the same as the slow rate
+   // the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the allotted time
+
+   // bug:86
    void readConfig();
+   String getConfigString(String key, String defaultValue);
+   int getConfigInt(String key, int defaultValue);
 	
 	bool testAndSetPrimarySequencer();
 	

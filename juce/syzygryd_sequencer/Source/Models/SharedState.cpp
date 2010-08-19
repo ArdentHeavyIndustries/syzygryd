@@ -16,30 +16,19 @@
 
 #include "SharedState.h"
 
-#include <hash_map>
-
 #if JUCE_WINDOWS
 const String SharedState::kConfigFile = "C:\\syzygryd\\etc\\sequencer.properties";
 #else
 const String SharedState::kConfigFile = "/opt/syzygryd/etc/sequencer.properties";
 #endif
 
-const int SharedState::kNumPanels = 3;
+std::hash_map<int64, String> SharedState::config;
+int SharedState::kDegradeAfterInactiveSec;
+int SharedState::kDegradeSlowSec;
+int SharedState::kDegradeSlowSecPerDelete;
+int SharedState::kDegradeFastSec;
 
-// XXX bug:86 - it would be much better if we could set these as runtime properties and not have to recompile
-// bug:67
-const int SharedState::kDegradeAfterInactiveSec = 120;	// set to a negative value to disable
-const int SharedState::kDegradeSlowSec = 30;
-const int SharedState::kDegradeSlowSecPerDelete = 3;
-const int SharedState::kDegradeFastSec = 270;
-// in fast mode, the slowest rate (so max secPerDelete) is the same as the slow rate
-// the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the allotted time
-// below is for testing...
-// const int SharedState::kDegradeAfterInactiveSec = 30;
-// //const int SharedState::kDegradeAfterInactiveSec = -1;	// test disable
-// const int SharedState::kDegradeSlowSec = 10;
-// const int SharedState::kDegradeSlowSecPerDelete = 3;
-// const int SharedState::kDegradeFastSec = 30;
+const int SharedState::kNumPanels = 3;
 
 juce_ImplementSingleton (SharedState)
 
@@ -55,6 +44,11 @@ bpm (120.0),
 starFieldActive (false)
 {
    readConfig();
+
+   SharedState::kDegradeAfterInactiveSec = getConfigInt("degradeAfterInactiveSec", 120);
+   SharedState::kDegradeSlowSec = getConfigInt("degradeSlowSec", 30);
+   SharedState::kDegradeSlowSecPerDelete = getConfigInt("degradeSlowSecPerDelete", 3);
+   SharedState::kDegradeFastSec = getConfigInt("degradeFastSec", 270);
 
 	blobs = new osc::Blob*[kNumPanels];
 	touchOscConnected = new bool[kNumPanels];
@@ -97,30 +91,21 @@ SharedState::~SharedState()
 
 void SharedState::readConfig()
 {
-   //std::cout << "testing" << std::endl;
-
-   //std::hash_map<String, String> config;
-   //std::hash_map<const char*, String> config;
-   std::hash_map<int64, String> config;
-
    File* file = new File(kConfigFile);
    if (file->exists()) {
       DBG("Reading config file " + kConfigFile);
       FileInputStream* is = new FileInputStream(*file);
       while (!is->isExhausted()) {
          String line = is->readNextLine();
-         //DBG(line);
-         int equalsIdx = line.indexOf("=");
-         if (equalsIdx != -1) {
-            String key = line.substring(0, equalsIdx);
-            String value = line.substring(equalsIdx + 1);
-            DBG(key + " => " + value);
-            // XXX this doesn't work
-            //config[key] = value;
-            // XXX can't really do this, need to copy
-            //config[key.toUTF8()] = value;
-            // this is easier
-            config[key.hashCode64()] = value;
+         // ignore comment lines
+         if (line.indexOf("#") != 0) {
+            int equalsIdx = line.indexOf("=");
+            if (equalsIdx != -1) {
+               String key = line.substring(0, equalsIdx);
+               String value = line.substring(equalsIdx + 1);
+               DBG("Reading config: " + key + " => " + value);
+               config[key.hashCode64()] = value;
+            }
          }
       }
       delete is;
@@ -128,6 +113,36 @@ void SharedState::readConfig()
       DBG("WARNING: Couldn't not find config file " + kConfigFile);
    }
    delete file;
+}
+
+String SharedState::getConfigString(String key, String defaultValue)
+{
+   String value;
+
+   std::hash_map<int64, String>::const_iterator iter = config.find(key.hashCode64());
+   if (iter != config.end()) {
+      value = iter->second;
+   } else {
+      value = defaultValue;
+   }
+
+   DBG("Returning config: " + key + " => " + value);
+   return value;
+}
+
+int SharedState::getConfigInt(String key, int defaultValue)
+{
+   int value;
+
+   std::hash_map<int64, String>::const_iterator iter = config.find(key.hashCode64());
+   if (iter != config.end()) {
+      value = (iter->second).getIntValue();
+   } else {
+      value = defaultValue;
+   }
+
+   DBG("Returning config: " + key + " => " + String(value));
+   return value;
 }
 
 bool SharedState::testAndSetPrimarySequencer()
