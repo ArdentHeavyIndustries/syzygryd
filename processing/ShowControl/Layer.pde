@@ -83,10 +83,12 @@ class HueRotateLayer extends ImageLayer {
 
   color baseColor;
   float startTime; // in steps
+  float phase;
   public float degreesPerStep;
   public float degreesSpread;
 
   HueRotateLayer(color _baseColor, float _degreesPerStep) {
+    phase = 0;
     baseColor = _baseColor;
     degreesPerStep = _degreesPerStep;
     degreesSpread = 120;
@@ -96,12 +98,12 @@ class HueRotateLayer extends ImageLayer {
   void advance(float steps) {
     super.advance(steps);
 
-    float phase = stepsSinceBirth*degreesPerStep;
+    phase += steps*degreesPerStep;
 
     colorMode(HSB,360,100,100);
     state.fillArm(0, color((phase + hue(baseColor)) % 360, saturation(baseColor), brightness(baseColor)));
     state.fillArm(1, color((phase + hue(baseColor) + degreesSpread) % 360, saturation(baseColor), brightness(baseColor)));
-    state.fillArm(2, color((phase + hue(baseColor) + degreesSpread) % 360, saturation(baseColor), brightness(baseColor)));
+    state.fillArm(2, color((phase + hue(baseColor) - degreesSpread) % 360, saturation(baseColor), brightness(baseColor)));
     colorMode(RGB);
   }
 }

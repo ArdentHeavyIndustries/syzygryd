@@ -10,7 +10,7 @@ float fbIntensity = 0.5;       // how much stuff is going on?
 float fbAnimationSpeed = 1;    // relative to steps
 
 float baseHueRotationSpeed = 1;    // degrees/sec
-float baseHueRotationSpread = 120; // degrees lead/lag
+float baseHueSpread = 120; // degrees lead/lag
 
 color fbTint = color(#808080); // central hue and sat 
 float fbChroma = 1.0;          // 1.0 means full range, 0 means monochromatic
@@ -18,14 +18,16 @@ float fbChroma = 1.0;          // 1.0 means full range, 0 means monochromatic
 
 // OSC receiver function that modifies these globals
 void processOSCLightEvent(OscMessage m) {
+
+//    println(m.addrPattern());
   
-  if (m.addrPattern() == "/advanced_lighting/baseHueSpeed") {
-    baseHueRotationSpeed = m.get(0).floatValue();  
-  } else if (m.addrPattern() == "/advanced_lighting/baseHueSpeed") {
-    baseHueSpread = m.get(0).floatValue();  
-  } else if (m.addrPattern() == "/advanced_lighting/baseHueSpread") {
-  }
-  
+  if (m.addrPattern().startsWith("/advanced_lighting/baseHueSpeed")) {
+    baseHueRotationSpeed = m.get(0).floatValue() * 10;
+   // println("speed");
+  } else if (m.addrPattern().startsWith("/advanced_lighting/baseHueSpread")) {
+    baseHueSpread = m.get(0).floatValue() * 120;  
+ //   println("spread");
+  } 
 }
 
 // ------------------------------------------------- FrameBrulee core --------------------------------------

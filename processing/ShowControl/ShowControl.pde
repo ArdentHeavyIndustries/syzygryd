@@ -15,7 +15,7 @@ int FRAMERATE = 200;
 boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
 
 boolean SYZYVYZ = true;
-boolean ASCII_SEQUENCER_DISPLAY = true;
+boolean ASCII_SEQUENCER_DISPLAY = false;
 
 // ----------------- Variable Declaration & Initialization -----------------
 
@@ -24,6 +24,7 @@ DMX DMXManager;
 
 // Sequencer State and Events
 OSCManager OSCConnection;
+OSCManager OSCConnection_touchOSC;
 SequencerState sequencerState;
 EventDispatcher events;
 
@@ -65,7 +66,9 @@ void setup() {
   frameRate(FRAMERATE);
 
   //Set up OSC connection
-  OSCConnection = new OSCManager("127.0.0.1");
+  OSCConnection = new OSCManager("255.255.255.255",9000,8000);
+    OSCConnection = new OSCManager("255.255.255.255",8005,9005);
+
 
   //Instantiate sequencer state storage
   sequencerState = new SequencerState();

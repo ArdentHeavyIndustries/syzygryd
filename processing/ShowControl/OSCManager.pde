@@ -10,15 +10,15 @@ class OSCManager {
   /*
    * Creates network connection to sequencer to listen for OSC messages
    */
-  OSCManager(String _remoteHost){
+  OSCManager(String _remoteHost, int _incomingPort, int _outgoingPort){
     NetAddress myRemoteLocation;
 
     // start oscP5, listening for incoming messages on port 9000
-    oscP5 = new OscP5(this, 9000);
+    oscP5 = new OscP5(this, _incomingPort);
 
     // myRemoteLocation is set to the address and port the sequencer
     // listens on
-    myRemoteLocation = new NetAddress(_remoteHost, 8000);
+    myRemoteLocation = new NetAddress(_remoteHost, _outgoingPort);
 
     // Connect to the server
     OscMessage connect = new OscMessage("/server/connect");
@@ -69,9 +69,11 @@ class OSCManager {
         }
       }   
       
+    } else if (m.addrPattern().startsWith("/advanced_lighting/") || m.addrPattern().startsWith("/lighting/") ) {
+      processOSCLightEvent(m);
+ //     println("zomg");
     }
-
-  }
+  } 
 
 }
 
