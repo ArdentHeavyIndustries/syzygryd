@@ -44,7 +44,12 @@ class LightingState {
     for (int i=0; i<3; i++) {   
       for (int j=0; j<CUBES_PER_ARM; j++) {
         Fixture f = arm[i].members.get(j);
-        ((RGBColorMixingTrait)f.trait("RGBColorMixing")).setColorRGB(armColor[i][j]);        
+        if (f.traits.containsKey("RGBColorMixing")){
+          ((RGBColorMixingTrait)f.trait("RGBColorMixing")).setColorRGB(armColor[i][j]);
+        } else
+        if (f.traits.containsKey("Fire")){
+          ((FireTrait)f.trait("Fire")).color2Fire(armColor[i][j]);
+        }
       }
       for (int j=0; j<EFFECTS_PER_ARM; j++) {
         armEffect[i][j] = false;

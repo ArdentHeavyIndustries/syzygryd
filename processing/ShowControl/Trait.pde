@@ -55,7 +55,25 @@ class FireTrait extends Trait {
   }
 
   boolean isBurning() {
-    return parent.getChannel("fire") > 0; //TODO: change this to final threshold value
+    return parent.getChannel("fire") == 55; //TODO: change this to final threshold value
+  }
+
+  public void color2Fire(color clr) {
+    if (parent instanceof FixtureGroup) {
+      color2FireGroup(clr);
+    } 
+    else if (parent instanceof Fixture) {
+      if (brightness(clr) > 50){
+        parent.setChannel("fire", 55);
+      }
+    }
+  }
+  
+  private void color2FireGroup(color clr) {
+    ArrayList<Fixture> groupFixtures = (ArrayList)((FixtureGroup)parent).members;
+    for (int i = 0; i < groupFixtures.size(); i++) {
+      ((FireTrait)groupFixtures.get(i).trait("Fire")).color2Fire(clr);
+    }
   }
 
   public void fireOn() {
@@ -63,14 +81,14 @@ class FireTrait extends Trait {
       fireOnGroup();
     } 
     else if (parent instanceof Fixture) {
-      parent.setChannel("fire", 255);
+      parent.setChannel("fire", 55);
     }
   }
   
   private void fireOnGroup() {
     ArrayList<Fixture> groupFixtures = (ArrayList)((FixtureGroup)parent).members;
     for (int i = 0; i < groupFixtures.size(); i++) {
-      ((FireTrait)groupFixtures.get(i).trait("FireTrait")).fireOn();
+      ((FireTrait)groupFixtures.get(i).trait("Fire")).fireOn();
     }
   }
   
@@ -87,7 +105,7 @@ class FireTrait extends Trait {
   private void fireOffGroup() {
     ArrayList<Fixture> groupFixtures = (ArrayList)((FixtureGroup)parent).members;
     for (int i = 0; i < groupFixtures.size(); i++) {
-      ((FireTrait)groupFixtures.get(i).trait("FireTrait")).fireOff();
+      ((FireTrait)groupFixtures.get(i).trait("Fire")).fireOff();
     }
   }
 }
