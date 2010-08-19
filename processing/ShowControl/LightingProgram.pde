@@ -8,8 +8,10 @@ abstract class LightingProgram {
   void initialize() {
   }
   
-  void update(float elapsedTime) {
+  void advance(float elapsedTime) {
   }
+  
+  void render(LightingState state) {
   
   void drawFrame() {
   }
@@ -63,4 +65,6 @@ class PlayheadChaseProgram extends LightingProgram{
     chaseQueue[0].addFirst(color(#ffffff));
   }
   
+
 }
+

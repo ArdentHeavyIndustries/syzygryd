@@ -51,7 +51,7 @@ abstract class TimedLayer extends Layer {
   float curSteps;
   float totalSteps;
   
-  TimedBehavior(float duration) {  // duration in steps
+  void TimedBehavior(float duration) {  // duration in steps
      curSteps = 0;
      totalSteps = duration;
   }

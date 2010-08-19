@@ -1,5 +1,6 @@
 // Syzygryd lighting and effect strate representaiton
 // Used both for communication of the final state to the DMX, and for representation of each effect layer
+
 class LightingState {
   color[][] armColor = new color[3][CUBES_PER_ARM];
   boolean[][] armEffect = new boolean[3][EFFECTS_PER_ARM];

@@ -44,6 +44,8 @@ ArrayList<LightingProgram> programList = new ArrayList();
 int activeProgram = 0;
 LightingProgram program;
 
+LightingState renderedLightState = new LightingState();
+
 // User Interface
 private GButton btnStart;
 GWindow[] ctrlrWindow;
@@ -107,43 +109,21 @@ void setup() {
   new FrameBrulee(); // Instantiate a program. This adds it automatically to the list of available lighting programs.
   new TestProgram(); 
   new TestProgram2(); 
-  
-  program = programList.get(activeProgram); // Get active program
-  program.initialize();  // Initialize active program
-
-}
-
+}  
 
 void draw(){
   
   // Move active program forward
   float elapsedSteps = updateStepPosition();
-  program.update(elapsedSteps);
+  program.advance(elapsedSteps);
   
   // Composite layers in order, accumulating to a LightingState
-  
-  LightingState state = new LightingState();  // starts black
-  Iterator layerIter = layers.iterator();
-  for (Layer layer : layers) {
-
-    layer.advance(elapsedSteps);
-    if (!layer.finished()) {
-      layer.apply(state);
-    } 
-  }
+  renderedLightState.clear();
+  program.render(renderedLightState);
   
   // Set dem lights!
-  state.output();
+  renderedLightState.output();
   
-  // Remove all finished layers
-  for (int i=0; i<layers.size(); i++) {
-    if (layers.get(i).finished()) {
-      layers.remove(i);
-      i--;
-    }
-  }
-  
-
   program.drawFrame();
   
   // render fixture behaviors.  do fixture groups first, then fixtures
@@ -184,8 +164,6 @@ void draw(){
   
   //remove expired events
   events.flushExpired();
-
-  //background(((RGBColorMixingTrait)arm[0].trait("RGBColorMixing")).getColorRGB());  
   
   // send final state of lights to DMX controller(s)
   DMXManager.update();
@@ -271,4 +249,9 @@ float getTimeInSteps(int time) {
 
 float curTimeInSteps() {
   return getTimeInSteps(now());
+<<<<<<< .mine
 }
+
+=======
+}
+>>>>>>> .r593
