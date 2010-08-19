@@ -453,7 +453,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-   /* XXX this copies the plugin to the same location (~/Library/Audio/Plug-Ins/VST/MyJucePlugins/syzygryd_sequencer.vst/Contents/MacOS/syzygryd_sequencer) regardless of whether it is a Debug or Release build, and there is no easy way to tell the difference after the fact */
 		682A2D945B3B23F841DD0D0D /* Copy to the different plugin folders */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
