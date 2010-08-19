@@ -83,11 +83,13 @@ class HueRotateLayer extends ImageLayer {
 
   color baseColor;
   float startTime; // in steps
-  float degreesPerStep;
+  public float degreesPerStep;
+  public float degreesSpread;
 
   HueRotateLayer(color _baseColor, float _degreesPerStep) {
     baseColor = _baseColor;
     degreesPerStep = _degreesPerStep;
+    degreesSpread = 120;
     startTime = curTimeInSteps();
   }
 
@@ -98,13 +100,13 @@ class HueRotateLayer extends ImageLayer {
 
     colorMode(HSB,360,100,100);
     state.fillArm(0, color((phase + hue(baseColor)) % 360, saturation(baseColor), brightness(baseColor)));
-    state.fillArm(1, color((phase + hue(baseColor) + 120) % 360, saturation(baseColor), brightness(baseColor)));
-    state.fillArm(2, color((phase + hue(baseColor) + 240) % 360, saturation(baseColor), brightness(baseColor)));
+    state.fillArm(1, color((phase + hue(baseColor) + degreesSpread) % 360, saturation(baseColor), brightness(baseColor)));
+    state.fillArm(2, color((phase + hue(baseColor) + degreesSpread) % 360, saturation(baseColor), brightness(baseColor)));
     colorMode(RGB);
   }
 }
 
-// ---------------------------------------- ChaseLayer ----------------------------------------- 
+// ---------------------------------------- TextureLayer ----------------------------------------- 
 
 // Render one texture into another with a float offset, lerping between pixels of src. Outside src is considered black.
 void copy1DTexture(color[] src, color[] dst, float offset) {

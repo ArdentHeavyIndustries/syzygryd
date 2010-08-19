@@ -3,8 +3,103 @@
 // Jonathan Stray, August 2010
 
 
+// ------------------------------------------------- FrameBrulee globals  --------------------------------------
+// Globals parameters that control the program. These are exposed to the operator through touchOSC
+
+float fbIntensity = 0.5;       // how much stuff is going on?
+float fbAnimationSpeed = 1;    // relative to steps
+
+float baseHueRotationSpeed = 1;    // degrees/sec
+float baseHueRotationSpread = 120; // degrees lead/lag
+
+color fbTint = color(#808080); // central hue and sat 
+float fbChroma = 1.0;          // 1.0 means full range, 0 means monochromatic
+
+
+// OSC receiver function that modifies these globals
+void processOSCLightEvent(OscMessage m) {
+  
+  if (m.addrPattern() == "/advanced_lighting/baseHueSpeed") {
+    baseHueRotationSpeed = m.get(0).floatValue();  
+  } else if (m.addrPattern() == "/advanced_lighting/baseHueSpeed") {
+    baseHueSpread = m.get(0).floatValue();  
+  } else if (m.addrPattern() == "/advanced_lighting/baseHueSpread") {
+  }
+  
+}
+
+// ------------------------------------------------- FrameBrulee core --------------------------------------
+
+class FrameBrulee extends LightingProgram {
+
+  // mode constants
+  static final int MODE_PULSE = 1;
+  static final int MODE_DIRECT = 2;
+  static final int MODE_PERMUTE = 3;
+  static final int MODE_BLACK_PULSE = 4;
+
+  // which mode?
+  int currentMode = MODE_PULSE;
+  
+  // Bottom Permanent layers
+  HueRotateLayer     baseHueRotate;       // constant hueRotate layer on bottom
+  //RippleLayer        baseRipple;          // ripple the base hue (multiplied)
+  //DirectDisplayLayer noteDisplay;         // show up the notes directly
+  //DirectDisplayLayer permutedNoteDisplay; // display the notes on random cubes
+    
+  // On top of these we have transient layers for chases
+  NoteChaseModule    noteChase;
+  NoteDisplayModule  noteDisplay;
+  
+  // Top permanent layers
+  //TintLayer          tintLayer;
+   
+  void initialize() {
+    // Bottom layer is a hue rotate
+    baseHueRotate = new HueRotateLayer(color(#8f0000), baseHueRotationSpeed);
+    noteChase = new NoteChaseModule();
+    noteDisplay = new NoteDisplayModule();
+  }
+
+  int randomMode() {
+    float r = random(4);
+    if (r<1) 
+      return MODE_PULSE;
+    else if (r<2)
+      return MODE_DIRECT;
+    else if (r<3)
+     return MODE_PERMUTE;
+    else
+     return MODE_BLACK_PULSE; 
+  }
+  
+  
+  // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
+  void advance(float elapsedSteps) {
+ 
+    baseHueRotate.degreesPerStep = baseHueRotationSpeed;
+    baseHueRotate.degreesSpread = baseHueSpread;
+    baseHueRotate.advance(elapsedSteps);
+    
+    noteChase.advance(elapsedSteps);
+    
+    noteDisplay.advance(elapsedSteps);
+  }
+  
+  // This is the core rendering stack, that applies all the right modules in the right order, according to mode
+  void render(LightingState state) {
+    baseHueRotate.apply(state);
+    noteChase.apply(state);
+    noteDisplay.apply(state);
+  }
+
+}
+
+
+// ------------------------------------------------- Modules for FrameBrulee --------------------------------------
 // A BruleeModule is a Layer with some parameters
-// It is sensitive to intensity and change messages, and will fade in and out
+// It is sensitive to intensity and change messages, and knows how to fade in and out
+
 class BruleeModule extends Layer {
   
   boolean active;    // fading or running
@@ -95,7 +190,7 @@ class TransientLayerModule extends BruleeModule {
 // Note chase sends a pulse down the arm for each step where a note is on
 class NoteChaseModule extends TransientLayerModule {
 
-  color[] whitePulse = new color[] {color(50, 50, 50), color(100, 100, 100), color(200, 200, 200)}; // simple lighting "pulse" for chase layers 
+  color[] whitePulse = new color[] {color(150, 150, 00), color(150, 0, 150), color(0, 150, 150)}; // simple lighting "pulse" for chase layers 
  
   void advance(float elapsed) {
     super.advance(elapsed);
@@ -103,12 +198,15 @@ class NoteChaseModule extends TransientLayerModule {
     for (int i=0; i<3; i++) {   
       if (events.fired("notes" + Integer.toString(i))) {
         
-        // Create a moving texture that erases itself when it goes completely off the arm
-        TextureLayer cl = new TextureLayer(i, whitePulse, -3);
-        cl.motionSpeed = 0.2;
-        cl.terminateWhenOffscreen = true;
-        
-        myLayers.add(cl);
+        if (floor(sequencerState.stepPosition) % 8 == 0) {
+          
+          // Create a moving texture that erases itself when it goes completely off the arm
+          TextureLayer cl = new TextureLayer(i, whitePulse, -3);
+          cl.motionSpeed = 4;
+          cl.terminateWhenOffscreen = true;
+          
+          myLayers.add(cl);
+        }
       }
     }
   }
@@ -123,7 +221,7 @@ class NoteDisplayModule extends TransientLayerModule {
   // translates grid position (0-9) into a cube location. There is where spacing, permutation, randomization, etc. happen
   float notePosition(int noteIndex) {
     // convert 0-9 into 0-35, somehow
-    return noteIndex*3 + 4;
+    return noteIndex*3;
   }
   
   void advance(float elapsed) {
@@ -148,76 +246,3 @@ class NoteDisplayModule extends TransientLayerModule {
   }
   
 }
-
-// Globals parameters that control the program. These are exposed to the operator through touchOSC
-
-float fbIntensity = 0.5;       // how much stuff is going on?
-
-float fbAnimationSpeed = 1;    // relative to steps
-
-color fbTint = color(#808080); // central hue and sat 
-float fbChroma = 1.0;          // 1.0 means full range, 0 means monochromatic
-
-
-class FrameBrulee extends LightingProgram {
-
-  // mode constants
-  static final int MODE_PULSE = 1;
-  static final int MODE_DIRECT = 2;
-  static final int MODE_PERMUTE = 3;
-  static final int MODE_BLACK_PULSE = 4;
-
-  // which mode?
-  int currentMode = MODE_PULSE;
-  
-  // Bottom Permanent layers
-  HueRotateLayer     baseHueRotate;       // constant hueRotate layer on bottom
-  //RippleLayer        baseRipple;          // ripple the base hue (multiplied)
-  //DirectDisplayLayer noteDisplay;         // show up the notes directly
-  //DirectDisplayLayer permutedNoteDisplay; // display the notes on random cubes
-    
-  // On top of these we have transient layers for chases
-  NoteChaseModule    noteChase;
-  NoteDisplayModule  noteDisplay;
-  
-  // Top permanent layers
-  //TintLayer          tintLayer;
-   
-  void initialize() {
-    // Bottom layer is a hue rotate
-    baseHueRotate = new HueRotateLayer(color(#8f0000), 5.0);
-    noteChase = new NoteChaseModule();
-    noteDisplay = new NoteDisplayModule();
-  }
-
-  int randomMode() {
-    float r = random(4);
-    if (r<1) 
-      return MODE_PULSE;
-    else if (r<2)
-      return MODE_DIRECT;
-    else if (r<3)
-     return MODE_PERMUTE;
-    else
-     return MODE_BLACK_PULSE; 
-  }
-  
-  
-  // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
-  void advance(float elapsedSteps) {
- 
-    baseHueRotate.advance(elapsedSteps);
-    noteChase.advance(elapsedSteps);
-    noteDisplay.advance(elapsedSteps);
-
-  }
-  
-  // This is the core rendering stack, that applies all the right modules in the right order, according to mode
-  void render(LightingState state) {
-    baseHueRotate.apply(state);
-   // noteChase.apply(state);
-    noteDisplay.apply(state);
-  }
-
-}
-
