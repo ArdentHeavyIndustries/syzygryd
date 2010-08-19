@@ -106,11 +106,12 @@ void setup() {
   btnStart = new GButton(this, "DMX Monitor", 10,35,80,30);
   btnStart.setColorScheme(new GCScheme().GREY_SCHEME);
 
-  //initialize lighting program
-  // $$ set switching here?
-  program = new FrameBrulee();
-  program.initialize();
-  
+  new FrameBrulee(); // Instantiate a program. This adds it automatically to the list of available lighting programs.
+  new TestProgram();
+  new TestProgram2();
+
+  program = programList.get(activeProgram); // Get active program
+  program.initialize();  // Initialize active program  
 
 }
 
