@@ -144,7 +144,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
    * @param value one of the constants Button.ON or Button.OFF
    */
   void setValue(float value) {
-    setValue(value, false);
+    setValue(value, /* sendMessage */ false);
   }
 
   /**

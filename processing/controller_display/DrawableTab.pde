@@ -155,13 +155,22 @@ class DrawableTab extends syzygryd.GridPatternTab implements Drawable {
 
   /**
    * clear clears the current pattern on this tab
+   *
+   * @param sendMessage whether or not to send messages to announce the state change of the buttons
    */
-  void clear() {
+  void clear(boolean sendMessage) {
     for (int i = 0; i < gridWidth; i++) {
       for (int j = 0; j < gridHeight; j++) {
-        ((DrawableButton) buttons[i][j]).setValue(ToggleButton.OFF, false);
+        DrawableButton button = (DrawableButton) buttons[i][j];
+        if (button.isOn) {
+          button.setValue(ToggleButton.OFF, sendMessage);
+        }
       }
     }
+  }
+
+  void clear() {
+    clear(/* sendMessage */ false);
   }
 
   void draw() {

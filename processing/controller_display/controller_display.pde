@@ -20,7 +20,8 @@ import java.util.regex.Matcher;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
-int lastEventReceived;
+// added for some unnumbered bug (svn r569), i don't think we need this any more with proper set switching (bug:69)
+//int lastEventReceived;
 
 /* Button Array for buttoning also tempo objects maybe more*/
 DrawablePanel[] panels;
@@ -32,8 +33,9 @@ LinkedList animations = new LinkedList();
 /* Hues are in the range [0-100] (see colorMode() below) */
 int[] masterHues;
 
+// Uncomment re-implement dragging.
 /* Last Pressable object selected by the user. */
-Pressable lastSelectedPressable;
+// Pressable lastSelectedPressable;
 
 //Font for messages at the bottom of the display
 PFont msgFont;
@@ -56,6 +58,16 @@ Pattern tabClearPattern =
 // set to 0 to disable.  (so 1 is effectively the same as 0)
 final int syncSkip = 0;
 int syncCount;
+
+// i think it's probably more correct to initialize this to true, and wait for
+// confirmation that a set is running.  but i don't see too much of a downside
+// of initializing it to false, and it certainly makes it easier to run small
+// scale tests.  in the worst case, we think we're running during the first
+// set switching.
+boolean setStopped = false;
+
+final int OSC_LISTENING_PORT = 9000;
+final int OSC_SENDING_PORT = 8000;
 
 void setup() {
   // controller display can be made to grab the screen's current
@@ -128,9 +140,9 @@ void setup() {
 
   syncCount = 0;
 
-  // start oscP5, listening for incoming messages at port 9000
-  oscP5 = new OscP5(this, 9000);
-  lastEventReceived = millis();
+  // start oscP5, listening for incoming messages
+  oscP5 = new OscP5(this, OSC_LISTENING_PORT);
+  //lastEventReceived = millis();
 
   // myRemoteLocation is set to the address and port the sequencer
   // listens on
@@ -162,12 +174,12 @@ void draw() {
   temposweep.draw();
   scrollablemessage.msgDraw();
 
-  if (millis() - lastEventReceived > 10000) {
-    // Looks like someone quit Live.  Reinitialize OscP5
-    oscP5.dispose();
-    oscP5 = new OscP5(this, 9000);
-    lastEventReceived = millis();
-  }
+  // if (millis() - lastEventReceived > 10000) {
+  //   // Looks like someone quit Live.  Reinitialize OscP5
+  //   oscP5.dispose();
+  //   oscP5 = new OscP5(this, OSC_LISTENING_PORT);
+  //   lastEventReceived = millis();
+  // }
 }
 
 void selectPanel(int id) {
@@ -190,7 +202,7 @@ void selectPanel(int id) {
 // }
 
 void oscEvent(OscMessage m) {
-  lastEventReceived = millis();
+  //lastEventReceived = millis();
 
   try {
     // if(!m.addrPattern().endsWith("/sync")) {
@@ -204,6 +216,10 @@ void oscEvent(OscMessage m) {
     // }
 
     if (m.addrPattern().equals("/sync")) {
+      if (setStopped) {
+        //log("Ignorning sync msg because set is stopped");
+        return;
+      }
       syncCount++;
       if (syncSkip == 0 || syncCount >= syncSkip) {
         //log("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
@@ -311,6 +327,17 @@ void oscEvent(OscMessage m) {
         masterHues[i] = (int)((hue(c) * 100.0) / 255.0);
         log("Setting panel " + i + " to hue " + masterHues[i] + " based on color " + c);
       }
+      return;
+    }
+
+    if (m.addrPattern().equals("/timeRemaining")) {
+      int timeRemainingMs = m.get(0).intValue();
+      log("Time remaining in set: " + timeRemainingMs + " ms");
+      if (timeRemainingMs > 0 && setStopped) {
+        startSet();
+      } else if (timeRemainingMs <= 0) {
+        stopSet();
+      }
     }
 
     /* check if the typetag is the right one. */
@@ -360,14 +387,43 @@ void oscEvent(OscMessage m) {
   }
 }
 
+void startSet() {
+  log("Starting set");
+  setStopped = false;
+}
+
+void stopSet() {
+  log("Stopping set");
+  setStopped = true;
+
+  // a smooth transition of buttons going away would be nicer
+  for (int i = 0; i < panels.length; i++) {
+    DrawablePanel panel = panels[i];
+    for (int j = 0; j < panel.tabs.length; j++) {
+      DrawableTab tab = (DrawableTab)panel.tabs[j];
+      // the first clear is to send a message to the sequencer for it to clear its state
+      // the second clear is to actually clear our internal state
+      // we can't count on getting the echo from the sequencer, b/c we've set setStopped and are therefore ignoring sync msgs
+      // and button transitions behave differently depending on whether or not a msg is being sent to the weird nature of our architecture
+      tab.clear(/* sendMessage */ true);
+      tab.clear(/* sendMessage */ false);
+    }
+  }
+
+  oscP5.dispose();
+  oscP5 = new OscP5(this, OSC_LISTENING_PORT);
+}
+
 // TOUCHSCREEN!
 // For the touchscreen, change mouseClicked() to mousePressed()
 // bug:63 i'm not sure if i agree with the above statement.  always use mousePressed() for now.
 void mousePressed() {
   //log("mousePressed()");
-  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
-  if (p != null) {
-    p.press();
+  if (!setStopped) {
+    Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
+    if (p != null) {
+      p.press();
+    }
   }
 }
 
@@ -375,10 +431,11 @@ void mousePressed() {
 //   log("mouseClicked()");
 // }
 
-void mouseReleased() {
-  //log("mouseReleased()");
-  lastSelectedPressable = null;
-}
+// Uncomment mouseReleased() to re-implement dragging.
+// void mouseReleased() {
+//   //log("mouseReleased()");
+//   lastSelectedPressable = null;
+// }
 
 // Uncomment mouseDragged() to re-implement dragging.
 // void mouseDragged() {
