@@ -335,7 +335,7 @@ void oscEvent(OscMessage m) {
       log("Time remaining in set: " + timeRemainingMs + " ms");
       if (timeRemainingMs > 0 && setStopped) {
         startSet();
-      } else if (timeRemainingMs <= 0) {
+      } else if (timeRemainingMs <= 0 && !setStopped) {
         stopSet();
       }
     }
