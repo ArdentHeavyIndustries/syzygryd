@@ -105,6 +105,10 @@ void setup() {
   btnStart.setColorScheme(new GCScheme().GREY_SCHEME);
 
   //initialize lighting program
+  // set switching here?
+  program = new FrameBrulee();
+  program.initialize();
+  
 /*
   new TestProgram(); // Instantiate a program. This adds it automatically to the list of available lighting programs.
   new TestProgram2(); // Add a second one
@@ -113,33 +117,29 @@ void setup() {
   program.initialize();  // Initialize active program
 */
 
-  layers.add(new HueRotateLayer(color(#8f0000), 5.0));
-  
 }
 
 
 void draw(){
   
+  // Move active program forward
   float elapsedSteps = updateStepPosition();
+  program.update(elapsedSteps);
+  
+  // Composite layers in order, accumulating to a LightingState
   
   LightingState state = new LightingState();  // starts black
-  
   Iterator layerIter = layers.iterator();
   for (Layer layer : layers) {
 
     layer.advance(elapsedSteps);
     if (!layer.finished()) {
-      state.blendOverSelf(layer.state, layer.blendMode);
+      layer.apply(state);
     } 
   }
-
+  
+  // Set dem lights!
   state.output();
- 
-  color[] seq = new color[] {color(50, 50, 50), color(170, 170, 170), color(255, 255, 255)};
-    
-  if (events.fired("notes")) {
-    layers.add(new ChaseLayer(0, seq, 0.1, -3));
-  }
   
   // Remove all finished layers
   for (int i=0; i<layers.size(); i++) {
@@ -149,7 +149,6 @@ void draw(){
     }
   }
   
-  //step lighting program
 /*
   program.drawFrame();
   
@@ -235,18 +234,29 @@ float updateStepPosition(){
       events.fire("step");
       //print("Step!\n");
       
+      if (sequencerState.curStep == 0) {
+        events.fire("bar");
+      }
+      
       // See if we're playing any notes this step; if so, fire "notes" event.
-      boolean notesToPlay = false;
+      boolean[] notesToPlay = new boolean[3];
       for (int i = 0; i < sequencerState.PANELS; i++){
         for (int j = 0; j < sequencerState.PITCHES; j++){
           if (sequencerState.notes[i][sequencerState.curTab[i]][sequencerState.curStep][j]){
-            notesToPlay = true;
+            notesToPlay[i] = true;
           }
         }
       }
-      if (notesToPlay) {
+      
+      boolean anyNotesToPlay = false;
+      for (int i=0; i<3; i++)
+        if (notesToPlay[i]) {
+          events.fire("notes" + Integer.toString(i));
+          anyNotesToPlay = true;
+        }
+        
+      if (anyNotesToPlay) {
         events.fire("notes");
-        //print("Notes!\n");
       }
     }
   }

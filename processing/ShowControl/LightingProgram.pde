@@ -8,11 +8,11 @@ abstract class LightingProgram {
   void initialize() {
   }
   
-  void drawFrame() {
+  void update(float elapsedTime) {
   }
 }
 
-/* ----------------------------------------------------- Lighting Programs -------------------------------------------------------- */
+// ----------------------------------------------------- Test Lighting Program -------------------------------------------------------- 
 
 class TestProgram extends LightingProgram{
  

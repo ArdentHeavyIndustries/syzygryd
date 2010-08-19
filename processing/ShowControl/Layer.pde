@@ -1,16 +1,17 @@
 
 // A layer is a single animation (across lights and effects.)
 // It runs until it completes or is removed.
-// Layers are blended on on top of the other to produce the final result
+// Layers are rendered sequentially, modifying a lighting state, to produce the final result
 
-// This layer goes on forever. If you want it to end, you have to remove it manually with finished()
+// Most basic layer abstraction
 abstract class Layer {
     
-  public int blendMode = ADD;
-  public LightingState state = new LightingState();
   boolean finishedFlag = false;
-    
   float stepsSinceBirth = 0;
+  
+  // public, controllable paramters
+  public float animationSpeed = 1;    // measured w.r.t in steps
+  public float opacity = 1;           // when opacity = 0, applpy should be a NOP
   
   // call Layer.advance() if you want to use stepsSinceBirth
   void advance(float steps) {
@@ -23,6 +24,23 @@ abstract class Layer {
   
   void finish() {
     finishedFlag = true;
+  }
+  
+  // Apply this layer to the given state. 
+  void apply(LightingState otherState) {
+  }
+}
+
+// This is a layer that has a lighting image and applies itself by blending
+abstract class ImageLayer extends Layer {
+    
+  public int blendMode = ADD;
+  public LightingState state = new LightingState();
+  boolean finishedFlag = false;
+  
+  // Apply ourself to the image underneath
+  void apply(LightingState otherState) {
+    otherState.blendOverSelf(state, blendMode);
   }
 }
 
@@ -61,7 +79,7 @@ abstract class TimedLayer extends Layer {
 // ---------------------------------------- HueRotateLayer ----------------------------------------- 
 // Cycles hues across arms. Always 120 degrees apart, using saturation, brightness, and initial phase of baseColor
 
-class HueRotateLayer extends Layer {
+class HueRotateLayer extends ImageLayer {
   
   color baseColor;
   float startTime; // in steps
@@ -92,7 +110,7 @@ class HueRotateLayer extends Layer {
 //  - cubesPerStep controls speed, normally out->in, but can be negative for in->out. 
 //  - startCube is the index of seq[0]. So -seq.length() if the head of the sequence starts at cube 0
 // Terminates when the pattern falls completely off the end 
-class ChaseLayer extends Layer {
+class ChaseLayer extends ImageLayer {
    color[] seq;
    float cubesPerStep;
    float offset;
@@ -150,7 +168,8 @@ class ChaseLayer extends Layer {
      
      } // for
   
-     offset += cubesPerStep;
+     // animate
+     offset += cubesPerStep * animationSpeed;
     
      // if the pattern is completely off the arm in the direction of travel, remove this layer
      if ( ((cubesPerStep > 0) && (offset >= state.armColor[arm].length)) ||
