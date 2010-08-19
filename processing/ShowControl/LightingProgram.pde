@@ -12,8 +12,6 @@ abstract class LightingProgram {
   }
   
   void render(LightingState state) {
-  
-  void drawFrame() {
   }
 }
 
@@ -65,6 +63,5 @@ class PlayheadChaseProgram extends LightingProgram{
     chaseQueue[0].addFirst(color(#ffffff));
   }
   
-
 }
 

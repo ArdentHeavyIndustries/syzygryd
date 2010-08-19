@@ -106,10 +106,14 @@ void setup() {
   btnStart = new GButton(this, "DMX Monitor", 10,35,80,30);
   btnStart.setColorScheme(new GCScheme().GREY_SCHEME);
 
-  new FrameBrulee(); // Instantiate a program. This adds it automatically to the list of available lighting programs.
-  new TestProgram(); 
-  new TestProgram2(); 
-}  
+  //initialize lighting program
+  // $$ set switching here?
+  program = new FrameBrulee();
+  program.initialize();
+  
+
+}
+
 
 void draw(){
   
@@ -123,8 +127,6 @@ void draw(){
   
   // Set dem lights!
   renderedLightState.output();
-  
-  program.drawFrame();
   
   // render fixture behaviors.  do fixture groups first, then fixtures
   for (FixtureGroup group : fixtureGroups) {
@@ -249,9 +251,5 @@ float getTimeInSteps(int time) {
 
 float curTimeInSteps() {
   return getTimeInSteps(now());
-<<<<<<< .mine
 }
 
-=======
-}
->>>>>>> .r593
