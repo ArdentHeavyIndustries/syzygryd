@@ -20,8 +20,8 @@ import java.util.regex.Matcher;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
-// added for some unnumbered bug (svn r569), i don't think we need this any more with proper set switching (bug:69)
-//int lastEventReceived;
+int lastEventReceived;
+final int OSC_WATCHDOG_SEC = 10;
 
 /* Button Array for buttoning also tempo objects maybe more*/
 DrawablePanel[] panels;
@@ -141,15 +141,15 @@ void setup() {
   syncCount = 0;
 
   // start oscP5, listening for incoming messages
-  oscP5 = new OscP5(this, OSC_LISTENING_PORT);
-  //lastEventReceived = millis();
+  startOsc();
 
   // myRemoteLocation is set to the address and port the sequencer
   // listens on
   // TOUCHSCREEN!
   // for the touchscreen, change the localhost to whatever the fuck 
   // the ip address is for the sequencer machine
-  myRemoteLocation = new NetAddress("localhost", 8000);
+  // XXX in the long term, why don't we just sensibly choose ports so that there aren't conflicts and send to the broadcast address?
+  myRemoteLocation = new NetAddress("localhost", OSC_SENDING_PORT);
 
   // Connect to the server
   // OscMessage connect = new OscMessage("/server/connect");
@@ -174,12 +174,10 @@ void draw() {
   temposweep.draw();
   scrollablemessage.msgDraw();
 
-  // if (millis() - lastEventReceived > 10000) {
-  //   // Looks like someone quit Live.  Reinitialize OscP5
-  //   oscP5.dispose();
-  //   oscP5 = new OscP5(this, OSC_LISTENING_PORT);
-  //   lastEventReceived = millis();
-  // }
+  if (millis() - lastEventReceived > OSC_WATCHDOG_SEC * 1000) {
+    // Looks like someone quit Live.  Reinitialize OscP5
+    restartOsc();
+  }
 }
 
 void selectPanel(int id) {
@@ -419,8 +417,17 @@ void stopSet() {
 
 void restartOsc() {
   log("Restarting osc");
+  stopOsc();
+  startOsc();
+}
+
+void stopOsc() {
   oscP5.dispose();
+}
+
+void startOsc() {
   oscP5 = new OscP5(this, OSC_LISTENING_PORT);
+  lastEventReceived = millis();
 }
 
 // TOUCHSCREEN!
