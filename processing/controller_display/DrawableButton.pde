@@ -185,12 +185,12 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
       oscP5.send(m, myRemoteLocation);
     } else {
       if (value != OFF) {
-        log("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
+        //log("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = true;
         ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
         // log(getOscAddress() + " on");
       } else {
-        log("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
+        //log("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = false;
         ((DrawableTab) tab).onButtons.remove(getOscAddress());
         // log(getOscAddress() + " off");

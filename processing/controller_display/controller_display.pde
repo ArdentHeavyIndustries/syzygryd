@@ -290,8 +290,8 @@ void oscEvent(OscMessage m) {
                 // the previous OSC message that was sent was lost.  In that
                 // case, we respond by resending the message.
                 // if (!myButton.isDirty) {
-                  log("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                      + " " + myButton.isOn + "=>" + isOn);
+                  // log("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                  //     + " " + myButton.isOn + "=>" + isOn);
                   float f_isOn =  isOn ? 1.0f : 0.0f;
                   // This actually changes the button's state in the
                   // controller, which was not done earlier when the button
