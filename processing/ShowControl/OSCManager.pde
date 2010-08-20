@@ -69,7 +69,7 @@ class OSCManager {
         }
       }   
       
-    } else if (m.addrPattern().startsWith("/advanced_lighting/") || m.addrPattern().startsWith("/lighting/") ) {
+    } else if (m.addrPattern().startsWith("/advanced_lighting/") || m.addrPattern().startsWith("/basic_lighting/") ) {
       processOSCLightEvent(m);
  //     println("zomg");
     }

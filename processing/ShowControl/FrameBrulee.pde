@@ -3,29 +3,61 @@
 // Jonathan Stray, August 2010
 
 
-// ------------------------------------------------- FrameBrulee globals  --------------------------------------
-// Globals parameters that control the program. These are exposed to the operator through touchOSC
+// ------------------------------------------------- FrameBrulee parameter block  --------------------------------------
+// These are all the parameters of a FrameBrulee program. 
+// Can be saved/restored. Some are controllable via OSC.
+// Individual modules know how to configure their own parameters from the global state.
+// The defaults are also here.
 
-float fbIntensity = 0.5;       // how much stuff is going on?
-float fbAnimationSpeed = 1;    // relative to steps
+class FBParams {
+  // overall control
+  public float intensity = 0.5;       // how much stuff is going on?
+  public float animationSpeed = 1;    // relative to steps
 
-float baseHueRotationSpeed = 1;    // degrees/sec
-float baseHueSpread = 120; // degrees lead/lag
+  // hue rotation controls
+  public float baseHueRotationSpeed = 1;    // degrees/sec
+  public float baseHueSpread = 60; // degrees lead/lag
+  public float baseHueSat = 80;
+  public float baseHueBright = 60;
 
-color fbTint = color(#808080); // central hue and sat 
-float fbChroma = 1.0;          // 1.0 means full range, 0 means monochromatic
+  // note display settings
+  public float pulseWidth = 1;          // number of cubes that a single pulse lights up
+  public float jitter = 3;              // jitter for displays that permute/shift note positions
+  public float jitterAcrossArms = 0;    // probability that a note display will be jittered across arms
+  
+  // final color correction params
+  public color fbTint = color(#808080); // central hue and sat 
+  public float fbChroma = 1.0;          // 1.0 means full range, 0 means monochromatic
+};
+
+// Current FB state
+FBParams curFBParams = new FBParams();
 
 
-// OSC receiver function that modifies these globals
+// OSC receiver function that modifies the global state 
+// Also does OSC control ranges
 void processOSCLightEvent(OscMessage m) {
 
-//    println(m.addrPattern());
+// println(m.addrPattern());
   
   if (m.addrPattern().startsWith("/advanced_lighting/baseHueSpeed")) {
-    baseHueRotationSpeed = m.get(0).floatValue() * 10;
+  
+    curFBParams. baseHueRotationSpeed = pow(m.get(0).floatValue(), 4) * 150;    // add nonlinearity to widen lower end of the scale
    // println("speed");
-  } else if (m.addrPattern().startsWith("/advanced_lighting/baseHueSpread")) {
-    baseHueSpread = m.get(0).floatValue() * 120;  
+  } 
+  
+  else if (m.addrPattern().startsWith("/advanced_lighting/baseHueSpread")) {
+    curFBParams.baseHueSpread = m.get(0).floatValue() * 120;                    // 120 degrees is max spread, for three arms
+ //   println("spread");
+  } 
+  
+  else if (m.addrPattern().startsWith("/advanced_lighting/baseHueSaturation")) {
+    curFBParams.baseHueSat = m.get(0).floatValue() * 100;  
+ //   println("spread");
+  } 
+  
+  else if (m.addrPattern().startsWith("/advanced_lighting/baseHueBrightness")) {
+    curFBParams.baseHueBright = m.get(0).floatValue() * 100;  
  //   println("spread");
   } 
 }
@@ -52,15 +84,17 @@ class FrameBrulee extends LightingProgram {
   // On top of these we have transient layers for chases
   NoteChaseModule    noteChase;
   NoteDisplayModule  noteDisplay;
+  NotePermuteModule  notePermute;
   
   // Top permanent layers
   //TintLayer          tintLayer;
    
   void initialize() {
     // Bottom layer is a hue rotate
-    baseHueRotate = new HueRotateLayer(color(#8f0000), baseHueRotationSpeed);
+    baseHueRotate = new HueRotateLayer(baseHueRotationSpeed);
     noteChase = new NoteChaseModule();
     noteDisplay = new NoteDisplayModule();
+    notePermute = new NotePermuteModule();
   }
 
   int randomMode() {
@@ -79,172 +113,25 @@ class FrameBrulee extends LightingProgram {
   // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
   void advance(float elapsedSteps) {
  
+    // get baseHue parameters from the OSC-driven globals
     baseHueRotate.degreesPerStep = baseHueRotationSpeed;
     baseHueRotate.degreesSpread = baseHueSpread;
+    baseHueRotate.sat = baseHueSat;
+    baseHueRotate.bright = baseHueBright;
     baseHueRotate.advance(elapsedSteps);
     
     noteChase.advance(elapsedSteps);
-    
     noteDisplay.advance(elapsedSteps);
+    notePermute.advance(elapsedSteps);
   }
   
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode
   void render(LightingState state) {
     baseHueRotate.apply(state);
-    noteChase.apply(state);
-    noteDisplay.apply(state);
+    //noteChase.apply(state);
+    //noteDisplay.apply(state);
+    notePermute.apply(state);
   }
 
 }
 
-
-// ------------------------------------------------- Modules for FrameBrulee --------------------------------------
-// A BruleeModule is a Layer with some parameters
-// It is sensitive to intensity and change messages, and knows how to fade in and out
-
-class BruleeModule extends Layer {
-  
-  boolean active;    // fading or running
-  float fadeInSpeed;
-  float fadeOutSpeed;
-  
-  BruleeModule() {
-    active = true;
-    fadeInSpeed = 0;
-    fadeOutSpeed = 0;
-  }
-  
-  // fades in to 100 opacity from current level, duration is time from 0 to 100
-  void startFadeIn(float duration) {
-    fadeOutSpeed = 0;
-    fadeInSpeed = 1/duration;
-    active = true;
-  }
-  
-  // fades to 0 opacity from current level, duration is time from 100 to 0
-  void startFadeOut(float duration) {
-    fadeOutSpeed = 0;
-    fadeInSpeed = 1/duration;
-    active = true;
-  }
-
-  void animateFades(float elapsedSteps) {
-    if (active) {
-      
-      if (fadeInSpeed > 0) {
-        opacity += elapsedSteps * fadeInSpeed;
-        if (opacity >= 1) {
-          fadeInSpeed = 0;
-          opacity = 1;
-        }
-      } else if (fadeOutSpeed > 0) {
-         opacity -= elapsedSteps * fadeOutSpeed;
-         if (opacity <= 0) {
-           fadeOutSpeed = 0;
-           opacity = 0;
-           active = false;
-         }   
-      }
-    }
-  }
-  
-  void advance(float elapsedSteps) {
-    animateFades(elapsedSteps);
-  }
-  
-  // we hit a bar or the operator pressed a button or something... change up the parameters
-  void change() {
-  }
-  
-}
-
-
-// TransientLayerModule is a BruleeModule that maintains a bunch of layers that animate on their own. Useful for e.g. note displays
-class TransientLayerModule extends BruleeModule {
-  
-  ArrayList<Layer> myLayers = new ArrayList();
-  
-  void apply(LightingState state) {    
-    for (int i=0; i<myLayers.size(); i++) {
-      Layer l = myLayers.get(i);
-      
-      if (!l.finished()) {
-        l.apply(state);
-      } else {
-        myLayers.remove(i);
-        i--;
-      }
-    }
-  }
- 
-  // over-ride update() with something that creates layers, then call super.update() to move all layers forward in time 
-  void advance(float elapsedTime) {
-    for (Layer layer : myLayers) {
-      if (!layer.finished()) {
-        layer.advance(elapsedTime);
-      } 
-    }
-  }
-  
-}
-
-
-// Note chase sends a pulse down the arm for each step where a note is on
-class NoteChaseModule extends TransientLayerModule {
-
-  color[] whitePulse = new color[] {color(150, 150, 00), color(150, 0, 150), color(0, 150, 150)}; // simple lighting "pulse" for chase layers 
- 
-  void advance(float elapsed) {
-    super.advance(elapsed);
-    
-    for (int i=0; i<3; i++) {   
-      if (events.fired("notes" + Integer.toString(i))) {
-        
-        if (floor(sequencerState.stepPosition) % 8 == 0) {
-          
-          // Create a moving texture that erases itself when it goes completely off the arm
-          TextureLayer cl = new TextureLayer(i, whitePulse, -3);
-          cl.motionSpeed = 4;
-          cl.terminateWhenOffscreen = true;
-          
-          myLayers.add(cl);
-        }
-      }
-    }
-  }
-  
-}
-
-// Note display triggers a fixed set of cubes for each note. Linear and permuted modes, other tricks.
-class NoteDisplayModule extends TransientLayerModule {
-  
-  color[] whitePulse = new color[] {color(100, 100, 100), color(200, 200, 200), color(100, 100, 100)};  
-  
-  // translates grid position (0-9) into a cube location. There is where spacing, permutation, randomization, etc. happen
-  float notePosition(int noteIndex) {
-    // convert 0-9 into 0-35, somehow
-    return noteIndex*3;
-  }
-  
-  void advance(float elapsed) {
-    super.advance(elapsed);
-
-    for (int arm=0; arm<3; arm++) {   
-      if (events.fired("notes" + Integer.toString(arm))) {
-   
-        for (int pitch=0; pitch<sequencerState.PITCHES; pitch++) {
-            if (sequencerState.isNoteAtCurTime(arm, pitch)) {
-
-              // Create a static texture that fades out
-              TextureLayer cl = new TextureLayer(arm, whitePulse, notePosition(pitch) - 1); // -1 cause the texture is 3 wide, so center it
-              cl.fadeSpeed = 0.2;
-              cl.terminateWhenFaded = true;
-        
-              myLayers.add(cl);
-            }
-        }
-      }
-    }
-  }
-  
-}

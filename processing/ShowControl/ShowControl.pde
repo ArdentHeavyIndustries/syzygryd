@@ -11,11 +11,14 @@ import netP5.*;
 int CUBES_PER_ARM = 36;
 int EFFECTS_PER_ARM = 8;
 
+int PANELS = 3;
+int PITCHES = 10;
+
 int FRAMERATE = 200;
 boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
 
 boolean SYZYVYZ = true;
-boolean ASCII_SEQUENCER_DISPLAY = false;
+boolean ASCII_SEQUENCER_DISPLAY = true;
 
 // ----------------- Variable Declaration & Initialization -----------------
 
