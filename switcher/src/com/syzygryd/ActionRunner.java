@@ -13,7 +13,7 @@ public class ActionRunner extends Thread {
 	private static int QUIT_TIMEOUT = 10 * SECOND_IN_MILLIS;
 	private static int INTERVAL_BETWEEN_DURATION_NOTIFICATIONS = 5 * SECOND_IN_MILLIS;
 	
-	private boolean playing = false;
+	private boolean running = false;
 	
 	private OSCSender[] statusRecipients = null;
 	
@@ -73,7 +73,7 @@ public class ActionRunner extends Thread {
 			
 			// attempt to start.  if it succeeds, perform load
 			if(currentAction.start()) {
-				setPlaying(true);
+				setRunning(true);
 				boolean loaded = true;
 				int duration = currentAction.getDuration();
 				int remaining = duration;
@@ -108,7 +108,7 @@ public class ActionRunner extends Thread {
 					sendTimeRemainingMessage(currentAction.getId(), 0);
 					
 				} 
-				setPlaying(false);
+				setRunning(false);
 				System.out.println("Stopping...");
 				currentAction.stop();
 				try {
@@ -148,6 +148,10 @@ public class ActionRunner extends Thread {
 		loadPending.countDown();
 	}
 	
+	/**
+	 * called after an action that requires shutdown 
+	 * has finished shutting down
+	 */
 	public void actionEnded() {
 		endPending.countDown();
 	}
@@ -227,7 +231,7 @@ public class ActionRunner extends Thread {
 	}
 	
 	public boolean isPlaying() {
-		return playing;
+		return running;
 	}
 	
 	public String queueToString() {
@@ -236,14 +240,28 @@ public class ActionRunner extends Thread {
 		return queueString + pendingString;
 	}
 
-	private void setPlaying(boolean state) {
-		playing = state;
+	/**
+	 * indicates that an action is actually in progress
+	 * @param state
+	 */
+	private void setRunning(boolean state) {
+		running = state;
 	}
 	
+	/**
+	 * provide a list of OSC senders through which time status messages will be sent
+	 * to other system components
+	 * @param senders
+	 */
 	public void setStatusRecipients(OSCSender[] senders) {
 		statusRecipients = senders;
 	}
 	
+	/**
+	 * actually send the time remaining message & set id
+	 * @param id of set -- line number in setlist.txt
+	 * @param time milliseconds remaining before set ends
+	 */
 	private void sendTimeRemainingMessage(int id, int time) {
 		for (OSCSender s : statusRecipients) {
 			s.sendTimeRemaining(id, time);

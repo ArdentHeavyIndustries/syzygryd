@@ -64,6 +64,12 @@ public class OSCSender {
 		send(MSG_LIVE_PLAY_START);		
 	}
 	
+	/**
+	 * tells other system components that a set is playing & that it has
+	 * some time left
+	 * @param set id (index of line in setlist.txt)
+	 * @param time milliseconds remaining
+	 */
 	public void sendTimeRemaining(int set, int time) {
 		System.out.println("OSC: set " + set + " time remaining " + time);
 		Object[] args = { (Object)set, (Object)time };

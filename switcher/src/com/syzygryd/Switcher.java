@@ -17,6 +17,9 @@ public class Switcher {
 	public static final int OSC_LISTENING_PORT = 9001;
 	public static final int OSC_SENDING_PORT_LIVE = 9000;
 	
+	/**
+	 * ports for the rest of the system
+	 */
 	public static final int OSC_SENDING_PORT_SEQUENCER = 9999;
 	public static final int OSC_SENDING_PORT_LIGHTING = 9000;
 	public static final int OSC_SENDING_PORT_CONTROLLER = 9000;
