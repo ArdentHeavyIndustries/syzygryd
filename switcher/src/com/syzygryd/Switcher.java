@@ -15,10 +15,21 @@ import com.illposed.osc.OSCPortIn;
 public class Switcher {
 
 	public static final int OSC_LISTENING_PORT = 9001;
+	public static final int OSC_SENDING_PORT_LIVE = 9000;
+	
+	public static final int OSC_SENDING_PORT_SEQUENCER = 9999;
+	public static final int OSC_SENDING_PORT_LIGHTING = 9000;
+	public static final int OSC_SENDING_PORT_CONTROLLER = 9000;
+	
 	public static final int WEB_SENDING_PORT = 31337;
 	
 	public static final int ARG_SETLISTFILENAME = 0;
-	private static OSCSender sender = null;
+	private static OSCSender senderLive = null;
+	
+	private static OSCSender senderSequencer = null;
+	private static OSCSender senderLighting = null;
+	private static OSCSender senderController = null;
+	
 	private static Setlist list = null;
 	private static OSCPortIn portIn = null;
 	private static ActionRunner ar = null;
@@ -42,18 +53,27 @@ public class Switcher {
 		// install setlist
 		ActionSetPlay.setList(list);
 		
-		System.out.println("Setting up OSC sender...");
+		System.out.println("Setting up OSC sender to live...");
 		// setup sender
 		try {
-			sender = new OSCSender();
+			senderLive = new OSCSender(OSC_SENDING_PORT_LIVE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		// install sender
+		// install sender for live
 		// TODO: after quitting live is implemented, sender will
-		// need to be reset
-		Set.setSender(sender);
+		// need to be reset.  or not!
+		Set.setSender(senderLive);
+		
+		// create senders for controller, lighting, and sequencer
+		senderSequencer = new OSCSender(OSC_SENDING_PORT_SEQUENCER);
+		
+		/*
+		senderLighting = new OSCSender(OSC_SENDING_PORT_LIGHTING);
+		senderController = new OSCSender(OSC_SENDING_PORT_CONTROLLER);
+		*/
+		OSCSender[] statusRecipients = { senderSequencer/* , senderLighting, senderController*/ };
 		
 		System.out.println("Setting up OSC listener...");
 		setupOSCListener();
@@ -61,7 +81,8 @@ public class Switcher {
 		// setup switcher queue thread
 		System.out.println("Starting ActionRunner...");
 		ar = new ActionRunner();
-
+		ar.setStatusRecipients(statusRecipients);
+		
 		// start it
 		ar.start();
 		

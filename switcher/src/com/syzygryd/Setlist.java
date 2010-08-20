@@ -89,8 +89,11 @@ public class Setlist {
 			s = 0;
 		}
 		it = list.listIterator(s);
-		
 		return it.next();
+	}
+	
+	public int getCurrentId() {
+		return it.nextIndex() - 1;
 	}
 	
 	public String toString() {

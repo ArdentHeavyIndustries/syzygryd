@@ -59,4 +59,8 @@ public class ActionSetPlay extends Action {
 			s.stop();
 		}
 	}
+	
+	public int getId() {
+		return list.getCurrentId();
+	}
 }

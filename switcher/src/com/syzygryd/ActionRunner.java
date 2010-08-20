@@ -11,7 +11,11 @@ public class ActionRunner extends Thread {
 	private static int LOAD_TIMEOUT = 600 * SECOND_IN_MILLIS;
 	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 2 * SECOND_IN_MILLIS;
 	private static int QUIT_TIMEOUT = 10 * SECOND_IN_MILLIS;
+	private static int INTERVAL_BETWEEN_DURATION_NOTIFICATIONS = 5 * SECOND_IN_MILLIS;
+	
 	private boolean playing = false;
+	
+	private OSCSender[] statusRecipients = null;
 	
 	private ConcurrentLinkedQueue<Action> actionQ = new ConcurrentLinkedQueue<Action>();
 	
@@ -72,6 +76,7 @@ public class ActionRunner extends Thread {
 				setPlaying(true);
 				boolean loaded = true;
 				int duration = currentAction.getDuration();
+				int remaining = duration;
 				// first wait for the action to load if necessary
 				// NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
 				if (currentAction.requiresLoad()) {
@@ -82,16 +87,26 @@ public class ActionRunner extends Thread {
 					} catch (InterruptedException e) {
 						// NIL;
 					}
+
 				}
 				
 				if (loaded) {
 					// action is now running; wait until it's done or someone interrupts us
 					System.out.println("Playing...");
-					try {
-						actionRunning.await(duration, TimeUnit.MILLISECONDS);
-					} catch (InterruptedException e) {
-						// NIL;
+					boolean interrupted = false;
+					while(remaining > 0 && !interrupted) {
+						int sleepDuration = Math.min(INTERVAL_BETWEEN_DURATION_NOTIFICATIONS, remaining);
+						sendTimeRemainingMessage(currentAction.getId(), remaining );
+						try {
+							interrupted = actionRunning.await(sleepDuration, TimeUnit.MILLISECONDS);
+						} catch (InterruptedException e) {
+							// NIL;
+						}
+						remaining -= INTERVAL_BETWEEN_DURATION_NOTIFICATIONS;
 					}
+					
+					sendTimeRemainingMessage(currentAction.getId(), 0);
+					
 				} 
 				setPlaying(false);
 				System.out.println("Stopping...");
@@ -225,5 +240,14 @@ public class ActionRunner extends Thread {
 		playing = state;
 	}
 	
+	public void setStatusRecipients(OSCSender[] senders) {
+		statusRecipients = senders;
+	}
+	
+	private void sendTimeRemainingMessage(int id, int time) {
+		for (OSCSender s : statusRecipients) {
+			s.sendTimeRemaining(id, time);
+		}
+	}
 	
 }

@@ -2,6 +2,7 @@ package com.syzygryd;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPortOut;
@@ -13,11 +14,25 @@ import com.illposed.osc.OSCPortOut;
  */
 public class OSCSender {
 	private OSCPortOut sender;
-	public static final int OSC_SENDING_PORT = 9000;
+	public final int OSC_SENDING_PORT;
+	private InetAddress addr;
 	public static final String MSG_LIVE_PLAY_STOP = "/live/stop";
 	public static final String MSG_LIVE_PLAY_START = "/live/play";
+	public static final String MSG_SET_TIME_REMAINING = "/syzygryd/remaining";
+
+	OSCSender(InetAddress address, int port) {
+		this(port);
+		addr = address;
+	}
+
 	
-	OSCSender() {
+	OSCSender(int port) {
+		OSC_SENDING_PORT = port;
+		try {
+			addr =  InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+		}
 		init();
 	}
 	
@@ -27,7 +42,7 @@ public class OSCSender {
 	public void init() {
 	
 		try {
-			sender = new OSCPortOut(InetAddress.getLocalHost(), OSC_SENDING_PORT);
+			sender = new OSCPortOut(addr, OSC_SENDING_PORT);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -49,13 +64,30 @@ public class OSCSender {
 		send(MSG_LIVE_PLAY_START);		
 	}
 	
+	public void sendTimeRemaining(int set, int time) {
+		System.out.println("OSC: set " + set + " time remaining " + time);
+		Object[] args = { (Object)set, (Object)time };
+		send(MSG_SET_TIME_REMAINING, args);
+	}
+	
 	/**
 	 * actually sends message.  if live went away, reconnects
 	 * @param msg
 	 */
 	public void send(String msg) {
+		send(msg, null);
+	}
+	
+	public void send(String msg, Object[] args) {
+		OSCMessage oscmsg;
+		if (args != null) {
+			oscmsg = new OSCMessage(msg, args);
+		} else {
+			oscmsg = new OSCMessage(msg);
+		}
+		
 		try {
-			sender.send(new OSCMessage(msg));
+			sender.send(oscmsg);
 		} catch (IOException e) {
 			// TODO: reconnect
 			// init();

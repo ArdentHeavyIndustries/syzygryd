@@ -71,4 +71,12 @@ public abstract class Action {
 		return duration;
 	}
 	
+	/**
+	 * returns id associated with this action
+	 * @return id
+	 */
+	public int getId() {
+		return -1;
+	}
+	
 }
