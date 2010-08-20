@@ -72,6 +72,7 @@ public class Set {
 	public void stop() {
 		//sender.livePlaybackStop();
 		AppleScriptRunner.runLiveSpace();
+		/*
 		try {
 			Thread.sleep(2000); 
 		} catch (Exception e) {
@@ -83,5 +84,6 @@ public class Set {
 		} catch (Exception e) {
 			// NOP
 		}
+		*/
 	}
 }

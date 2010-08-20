@@ -111,6 +111,7 @@ public class Switcher {
 		} 
 		
 		portIn.addListener("/remix/echo", setLoadedListener);
+		portIn.addListener("/live/play", setStoppedListener);
 		portIn.startListening();
 		System.out.println("Now listening on port " + OSC_LISTENING_PORT);
 		
@@ -135,6 +136,25 @@ public class Switcher {
 				System.err.println("Couldn't send play message.");
 				e.printStackTrace();
 				System.exit(-1);
+			}
+		}
+	};
+	
+	public static OSCListener setStoppedListener = new OSCListener() {
+		@Override
+		public void acceptMessage(Date time, OSCMessage message) {
+			Integer state = (Integer)(message.getArguments()[0]);
+			System.out.println("Live tells us that the set play state is: " + state);
+			if (!(ar.isPlaying()) && state == 1) {
+				try {
+					AppleScriptRunner.runLiveQuit();
+					ar.actionEnded();
+				} catch (Exception e) {
+					System.err.println("Couldn't send quit.");
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("State is not playing: " + state);
 			}
 		}
 	};

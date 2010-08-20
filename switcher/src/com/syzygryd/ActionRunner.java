@@ -9,6 +9,9 @@ public class ActionRunner extends Thread {
 	
 	private static int SECOND_IN_MILLIS = 1000;
 	private static int LOAD_TIMEOUT = 600 * SECOND_IN_MILLIS;
+	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 2 * SECOND_IN_MILLIS;
+	private static int QUIT_TIMEOUT = 10 * SECOND_IN_MILLIS;
+	private boolean playing = false;
 	
 	private ConcurrentLinkedQueue<Action> actionQ = new ConcurrentLinkedQueue<Action>();
 	
@@ -27,6 +30,11 @@ public class ActionRunner extends Thread {
 	 */
 	private CountDownLatch actionRunning;
 	
+	/**
+	 * blocks until action has ended
+	 */
+	private CountDownLatch endPending;
+	
 	public ActionRunner() {
 		initLocks();
 	}
@@ -37,6 +45,7 @@ public class ActionRunner extends Thread {
 	private void initLocks() {
 		loadPending = new CountDownLatch(1);
 		actionRunning = new CountDownLatch(1);
+		endPending = new CountDownLatch(1);
 	}
 	
 	@Override
@@ -60,7 +69,7 @@ public class ActionRunner extends Thread {
 			
 			// attempt to start.  if it succeeds, perform load
 			if(currentAction.start()) {
-				
+				setPlaying(true);
 				boolean loaded = true;
 				int duration = currentAction.getDuration();
 				// first wait for the action to load if necessary
@@ -84,9 +93,21 @@ public class ActionRunner extends Thread {
 						// NIL;
 					}
 				} 
+				setPlaying(false);
 				System.out.println("Stopping...");
 				currentAction.stop();
+				try {
+					endPending.await(QUIT_TIMEOUT, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e1) {
+					// NOP
+				}
 				System.out.println("Stopped.");
+				try {
+					Thread.sleep(ARBITRARY_SLEEP_BETWEEN_SETS);
+				} catch (InterruptedException e) {
+					// 
+					// NOP
+				}
 			}
 			
 			// reset locks
@@ -110,6 +131,10 @@ public class ActionRunner extends Thread {
 	 */
 	public void actionLoaded() {
 		loadPending.countDown();
+	}
+	
+	public void actionEnded() {
+		endPending.countDown();
 	}
 	
 	/**
@@ -186,10 +211,18 @@ public class ActionRunner extends Thread {
 		return pendingAction.getAndSet(null);
 	}
 	
+	public boolean isPlaying() {
+		return playing;
+	}
+	
 	public String queueToString() {
 		String queueString = "<h3>Queue</h3><br>" + actionQ.toString();
 		String pendingString = "<h3>Pending Action</h3><br>" + pendingAction.toString();
 		return queueString + pendingString;
+	}
+
+	private void setPlaying(boolean state) {
+		playing = state;
 	}
 	
 	
