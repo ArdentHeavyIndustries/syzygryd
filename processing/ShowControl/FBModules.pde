@@ -1,15 +1,15 @@
 // ------------------------------------------------- Modules for FrameBrulee -----------------------------------------
-// A BruleeModule is a Layer with some parameters, which it can set from an FBParams block.
+// An FBModule is a Layer with some parameters, which it can set from an FBParams block.
 // It is sensitive to intensity and change messages, and knows how to fade in and out
 
 
-abstract class BruleeModule extends Layer {
+abstract class FBModule extends Layer {
   
   boolean active;    // fading or running
   float fadeInSpeed;
   float fadeOutSpeed;
   
-  BruleeModule() {
+  FBModule() {
     active = true;
     fadeInSpeed = 0;
     fadeOutSpeed = 0;
@@ -52,8 +52,9 @@ abstract class BruleeModule extends Layer {
     }
   }
   
-  void advance(float elapsedSteps) {
+  void masterAdvance(float elapsedSteps) {
     animateFades(elapsedSteps);
+    advance(elapsedSteps);
   }
   
   // we hit a bar or the operator pressed a button or something... change up the parameters
@@ -68,10 +69,57 @@ float MUTATE_BAR = 0.25;
 float MUTATE_4BAR = 0.5;
 float MUTATE_SET = 1.0;
 
+
+//------------------------------------------------- HueRotateModule -----------------------------------------
+// Cycles hues across arms. Always 120 degrees apart, using saturation, brightness, and initial phase of baseColor
+
+class HueRotateModule extends FBModule {
+
+  float phase;
+  
+  // we use 
+  //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) chases
+  //   - FBParams.wifth to set the chase width
+  float degreesPerStep = 1;
+  float degreeSpread = 120;
+  float sat = 100;
+  float bright = 100;
+  
+  void setParams(FBParams fb) {
+     super.setParams(fb);
+     degreesPerStep = fb.baseHueRotationSpeed;
+     degreeSpread   = fb.baseHueSpread;
+     sat = fb.baseHueSat;
+     bright = fb.baseHueBright;
+  }
+
+  HueRotateModule() {
+    phase = 0;
+  }
+
+  void advance(float steps) {
+    phase += steps*degreesPerStep;
+  }
+  
+  void apply(LightingState dst)
+  {
+    LightingState state = new LightingState();
+
+    colorMode(HSB,360,100,100);
+    state.fillArm(0, color(phase % 360, sat, bright));
+    state.fillArm(1, color((phase + degreeSpread) % 360, sat, bright));
+    state.fillArm(2, color((phase - degreeSpread) % 360, sat, bright));
+    colorMode(RGB);
+    
+    dst.blendOverSelf(state, blendMode, opacity);    
+  }
+  
+}
+
 //------------------------------------------------- TransientLayerModule -----------------------------------------
 // TransientLayerModule is a BruleeModule that maintains a bunch of layers that animate on their own. Useful for e.g. note displays
 
-class TransientLayerModule extends BruleeModule {
+class TransientLayerModule extends FBModule {
   
   ArrayList<Layer> myLayers = new ArrayList();
   
@@ -232,7 +280,7 @@ class NotePermuteModule extends NoteDisplayModule {
   int noteArm(int panel, int pitch) {
     return permArms[panel][pitch];
   }
-/*
+
   // create a permutation for one arm
   void generateSinglePanelPerm(int panel) {
 
@@ -243,7 +291,7 @@ class NotePermuteModule extends NoteDisplayModule {
     randomPermute(permArray , intensity);
     
     // Start with even, integer spacing, then jitter
-    int spacing = 3  // so, 3 for lighting arms (as opposed to fire arms);
+    int spacing = 3;  // so, 3 for lighting arms (as opposed to fire arms);
     int start = 3;
  
     // Permote pitches, space them out evenly on the arms, then move to some to other arms with probability jitterAcrossArms     
@@ -291,7 +339,7 @@ class NotePermuteModule extends NoteDisplayModule {
     permArms[panel][idx2] = generateArmNumber(panel);          
     }
   }
-*/  
+  
   // Set up a map between notes and positions on the arms, a jittered permutation.
   void initialize() {      
     randomSeed(permuteSeed);
@@ -308,13 +356,13 @@ class NotePermuteModule extends NoteDisplayModule {
     
     initialized = true;
   }
-  
+
   // If the change is at least 4 bar, re-seed the permutation 
   void mutate(float howMuch) {
-    super.change();
+    super.mutate(howMuch);
     
     if (howMuch >= MUTATE_4BAR) {
-      permSeed = floor(random(1000));
+      permuteSeed = floor(random(1000));
       panelsIdentical = (intensity < random(1));  // lower intensity, more likely the panels are identical  
       initialize();
     } else {
@@ -329,7 +377,7 @@ class NotePermuteModule extends NoteDisplayModule {
       }
     }
   }
-
+ 
 }
 
 // Knuth's algorithm for random permutation, but we only do a swap with probability p
@@ -343,5 +391,6 @@ void randomPermute(int[] a, float p) {
     }
   }
 }
+
 
 

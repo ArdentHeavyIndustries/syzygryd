@@ -76,7 +76,7 @@ class FrameBrulee extends LightingProgram {
   int currentMode = MODE_PULSE;
   
   // Bottom Permanent layers
-  HueRotateLayer     baseHueRotate;       // constant hueRotate layer on bottom
+  HueRotateModule     baseHueRotate;       // constant hueRotate layer on bottom
   //RippleLayer        baseRipple;          // ripple the base hue (multiplied)
   //DirectDisplayLayer noteDisplay;         // show up the notes directly
   //DirectDisplayLayer permutedNoteDisplay; // display the notes on random cubes
@@ -91,38 +91,27 @@ class FrameBrulee extends LightingProgram {
    
   void initialize() {
     // Bottom layer is a hue rotate
-    baseHueRotate = new HueRotateLayer(baseHueRotationSpeed);
+    baseHueRotate = new HueRotateModule();
     noteChase = new NoteChaseModule();
     noteDisplay = new NoteDisplayModule();
     notePermute = new NotePermuteModule();
   }
 
-  int randomMode() {
-    float r = random(4);
-    if (r<1) 
-      return MODE_PULSE;
-    else if (r<2)
-      return MODE_DIRECT;
-    else if (r<3)
-     return MODE_PERMUTE;
-    else
-     return MODE_BLACK_PULSE; 
-  }
-  
   
   // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
   void advance(float elapsedSteps) {
  
-    // get baseHue parameters from the OSC-driven globals
-    baseHueRotate.degreesPerStep = baseHueRotationSpeed;
-    baseHueRotate.degreesSpread = baseHueSpread;
-    baseHueRotate.sat = baseHueSat;
-    baseHueRotate.bright = baseHueBright;
-    baseHueRotate.advance(elapsedSteps);
+    baseHueRotate.setParams(curFBParams);
+    baseHueRotate.masterAdvance(elapsedSteps);
+
+    noteChase.setParams(curFBParams);    
+    noteChase.masterAdvance(elapsedSteps);
     
-    noteChase.advance(elapsedSteps);
-    noteDisplay.advance(elapsedSteps);
-    notePermute.advance(elapsedSteps);
+    noteDisplay.setParams(curFBParams);
+    noteDisplay.masterAdvance(elapsedSteps);
+    
+    notePermute.setParams(curFBParams);
+    notePermute.masterAdvance(elapsedSteps);
   }
   
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode

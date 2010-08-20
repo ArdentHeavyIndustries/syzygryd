@@ -6,6 +6,8 @@
 // Most basic layer abstraction
 abstract class Layer {
 
+  public int blendMode = ADD;
+
   boolean finishedFlag = false;
   float stepsSinceBirth = 0;
 
@@ -34,9 +36,7 @@ abstract class Layer {
 // This is a layer that has a lighting image and applies itself by blending
 abstract class ImageLayer extends Layer {
 
-  public int blendMode = ADD;
   public LightingState state = new LightingState();
-  boolean finishedFlag = false;
 
   // Apply ourself to the image underneath
   void apply(LightingState otherState) {
@@ -75,40 +75,6 @@ abstract class ImageLayer extends Layer {
  }
  }
  */
-
-// ---------------------------------------- HueRotateLayer ----------------------------------------- 
-// Cycles hues across arms. Always 120 degrees apart, using saturation, brightness, and initial phase of baseColor
-
-class HueRotateLayer extends ImageLayer {
-
-  float startTime; // in steps
-  float phase;
-  public float degreesPerStep;
-  public float degreesSpread;
-  public float sat;
-  public float bright;
-
-  HueRotateLayer(float _degreesPerStep) {
-    phase = 0;
-    degreesPerStep = _degreesPerStep;
-    degreesSpread = 120;
-    sat = 100;
-    bright = 100;
-    startTime = curTimeInSteps();
-  }
-
-  void advance(float steps) {
-    super.advance(steps);
-
-    phase += steps*degreesPerStep;
-
-    colorMode(HSB,360,100,100);
-    state.fillArm(0, color(phase % 360, sat, bright));
-    state.fillArm(1, color((phase + degreesSpread) % 360, sat, bright));
-    state.fillArm(2, color((phase - degreesSpread) % 360, sat, bright));
-    colorMode(RGB);
-  }
-}
 
 // ---------------------------------------- TextureLayer ----------------------------------------- 
 
