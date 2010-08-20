@@ -69,7 +69,7 @@ void setup() {
   frameRate(FRAMERATE);
 
   //Set up OSC connection
-  OSCConnection = new OSCManager("255.255.255.255",9000,8000);
+  OSCConnection = new OSCManager("255.255.255.255",9000,9000);
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
 
 
