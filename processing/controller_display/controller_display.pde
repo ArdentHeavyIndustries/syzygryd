@@ -200,7 +200,7 @@ void selectPanel(int id) {
 // }
 
 void oscEvent(OscMessage m) {
-  //lastEventReceived = millis();
+  lastEventReceived = millis();
 
   try {
     // if(!m.addrPattern().endsWith("/sync")) {
