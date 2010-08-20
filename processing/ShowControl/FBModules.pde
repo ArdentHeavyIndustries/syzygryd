@@ -8,14 +8,17 @@ abstract class FBModule extends Layer {
   boolean active;    // fading or running
   float fadeInSpeed;
   float fadeOutSpeed;
+  FBParams fb;
   
-  FBModule() {
+  FBModule(FBParams _fb) {
+    fb = _fb;
     active = true;
     fadeInSpeed = 0;
     fadeOutSpeed = 0;
   }
   
-  void setParams(FBParams fb) {
+  void setParams(FBParams _fb) {
+    fb = _fb;
   }
   
   // fades in to 100 opacity from current level, duration is time from 0 to 100
@@ -77,28 +80,13 @@ class HueRotateModule extends FBModule {
 
   float phase;
   
-  // we use 
-  //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) chases
-  //   - FBParams.wifth to set the chase width
-  float degreesPerStep = 1;
-  float degreeSpread = 120;
-  float sat = 100;
-  float bright = 100;
-  
-  void setParams(FBParams fb) {
-     super.setParams(fb);
-     degreesPerStep = fb.baseHueRotationSpeed;
-     degreeSpread   = fb.baseHueSpread;
-     sat = fb.baseHueSat;
-     bright = fb.baseHueBright;
-  }
-
-  HueRotateModule() {
+  HueRotateModule(FBParams _fb) {
+    super(_fb);
     phase = 0;
   }
 
   void advance(float steps) {
-    phase += steps*degreesPerStep;
+    phase += steps*fb.baseHueRotationSpeed*fb.animationSpeed;
   }
   
   void apply(LightingState dst)
@@ -106,9 +94,9 @@ class HueRotateModule extends FBModule {
     LightingState state = new LightingState();
 
     colorMode(HSB,360,100,100);
-    state.fillArm(0, color(phase % 360, sat, bright));
-    state.fillArm(1, color((phase + degreeSpread) % 360, sat, bright));
-    state.fillArm(2, color((phase - degreeSpread) % 360, sat, bright));
+    state.fillArm(0, color(phase % 360, fb.baseHueSat, fb.baseHueBright));
+    state.fillArm(1, color((phase + fb.baseHueSpread) % 360, fb.baseHueSat, fb.baseHueBright));
+    state.fillArm(2, color((phase - fb.baseHueSpread) % 360, fb.baseHueSat, fb.baseHueBright));
     colorMode(RGB);
     
     dst.blendOverSelf(state, blendMode, opacity);    
@@ -120,6 +108,10 @@ class HueRotateModule extends FBModule {
 // TransientLayerModule is a BruleeModule that maintains a bunch of layers that animate on their own. Useful for e.g. note displays
 
 class TransientLayerModule extends FBModule {
+  
+  TransientLayerModule(FBParams _fb) {
+    super(_fb);
+  }
   
   ArrayList<Layer> myLayers = new ArrayList();
   
@@ -154,32 +146,42 @@ color[] CMYPulseTexture = new color[] {color(150, 150, 00), color(150, 0, 150), 
 color[] whitePulseTexture = new color[] {color(100, 100, 100), color(200, 200, 200), color(100, 100, 100)};  
 
 // Note chase sends a pulse down the arm for each step where a note is on
+// we use 
+//   - FBParams.intensity controls how often we can fire (every bar --> every note)
+//   - FBParams.jitter controls whether we fire predictably (for current intensity level) or probabilistically 
+//   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) chases
+//   - FBParams.width to set the chase width
 class NoteChaseModule extends TransientLayerModule {
 
-  // we use 
-  //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) chases
-  //   - FBParams.wifth to set the chase width
-  float animationSpeed;
-  float pulseWidth;
-  void setParams(FBParams fb) {
-     super.setParams(fb);
-     animationSpeed = fb.animationSpeed;
-     pulseWidth = fb.pulseWidth;
+  NoteChaseModule(FBParams _fb) {
+    super(_fb);
   }
   
   void advance(float elapsed) {
     super.advance(elapsed);
+
+    // Trigger always every 4 bars, then every 2, 1, half, quarter, beat as intensity increases
+    // but jitter the intensity to throw in some randomness. compute outside the arm loop to keep all arms firing together         
+    float trigger = fb.intensity;
+    trigger += fb.jitter*(random(1)-0.5);
     
     for (int i=0; i<3; i++) {   
       if (events.fired("notes" + Integer.toString(i))) {
+          
+        int pos = floor(sequencerState.stepPosition);
+        boolean canFire = (pos % 64)==0;  // every four bars, always
+        canFire |= (trigger > 0.2) && (pos % 32)==0;
+        canFire |= (trigger > 0.4) && (pos % 16)==0;
+        canFire |= (trigger > 0.6) && (pos % 8)==0;
+        canFire |= (trigger > 0.8) && (pos % 4)==0;
+        canFire |= (trigger > 0.9);
         
-        if (floor(sequencerState.stepPosition) % 8 == 0) {
-  
-          // $$ use chaseWidth          
+        if (canFire) {
+          // $$ use pulseWidth          
           // Create a moving texture that erases itself when it goes completely off the arm
           TextureLayer cl = new TextureLayer(i, CMYPulseTexture, -3);
           cl.terminateWhenOffscreen = true;
-          cl.motionSpeed = 4 * animationSpeed;
+          cl.motionSpeed = 4 * fb.animationSpeed;
           
           myLayers.add(cl);
         }
@@ -190,22 +192,17 @@ class NoteChaseModule extends TransientLayerModule {
 }
 
 // Note display triggers a fixed set of cubes for each note. 
+// we use 
+//   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) fades
+//   - FBParams.pulseWidth to set the width of note display
+//   - FBParams.jitter to mix it up a bit
 class NoteDisplayModule extends TransientLayerModule {
   
-  // we use 
-  //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) fades
-  //   - FBParams.pulseWidth to set the width of note display
-  //   - FBParams.jitter to mix it up a bit
-  float animationSpeed;
-  float pulseWidth;
-  float jitter;
-  void setParams(FBParams fb) {
-     super.setParams(fb);
-     animationSpeed = fb.animationSpeed;
-     pulseWidth = fb.pulseWidth;
-     jitter = fb.jitter;
+  
+  NoteDisplayModule(FBParams _fb) {
+    super(_fb);
   }
-    
+  
   // translates grid position (0-9) into a cube location on the sculpute. There is where spacing, permutation, randomization, etc. happen
   // Subclass for funkier permuted displays
   float notePosition(int panel, int pitch) {
@@ -229,7 +226,7 @@ class NoteDisplayModule extends TransientLayerModule {
 
               // Create a static texture that fades out
               TextureLayer cl = new TextureLayer(noteArm(arm, pitch), whitePulseTexture, notePosition(arm, pitch) - 1); // -1 cause the texture is 3 wide, so center it
-              cl.fadeSpeed = 0.2;
+              cl.fadeSpeed = fb.animationSpeed * 0.2;
               cl.terminateWhenFaded = true;
         
               myLayers.add(cl);
@@ -240,34 +237,29 @@ class NoteDisplayModule extends TransientLayerModule {
   }
 }
 
-// Note permute is very similar but 
+// Note permute is very similar but scrambles the notes so they're no longer sequential, or necessarily on the same arm 
+// parameters
+// Globals:
+//   - FBParams.jitterAcrossArms
+//   - FBParams.intensity;
+// Local:
+//   - permuteSeed
+//   - panelsIdentical
 class NotePermuteModule extends NoteDisplayModule {
 
+  NotePermuteModule(FBParams _fb) {
+    super(_fb);
+  }
+  
   boolean initialized = false;
   
-  // parameters
-  // Globals:
-  //   - FBParams.jitterAcrossArms
-  //   - FBParams.intensity;
-  // Local:
-  //   - permuteSeed
-  //   - panelsIdentical
-  float jitterAcrossArms;
-  float intensity;
   int permuteSeed = 1;         // start here, can change()
   boolean panelsIdentical;     // same permutation (rotated) for all panels?
-
-  void setParams(FBParams fb) {
-    super.setParams(fb);
-    jitterAcrossArms = fb.jitterAcrossArms;
-    intensity = fb.intensity;
-  }
   
   // Store the permuted note positions here
   float[][] permOffsets = new float[PANELS][PITCHES];
   int[][] permArms = new int[PANELS][PITCHES];
-  
- 
+   
   // Set note position and arm from these arrays   
   float notePosition(int panel, int pitch) {
     if (!initialized) {
@@ -288,7 +280,7 @@ class NotePermuteModule extends NoteDisplayModule {
     int[] permArray = new int[PITCHES];   
     for (int i=0; i<PITCHES; i++)
       permArray[i] = i;
-    randomPermute(permArray , intensity);
+    randomPermute(permArray, fb.intensity);
     
     // Start with even, integer spacing, then jitter
     int spacing = 3;  // so, 3 for lighting arms (as opposed to fire arms);
@@ -296,7 +288,7 @@ class NotePermuteModule extends NoteDisplayModule {
  
     // Permote pitches, space them out evenly on the arms, then move to some to other arms with probability jitterAcrossArms     
     for (int i=0; i<PITCHES; i++) {
-      permOffsets[panel][i] = start + spacing*permArray[i] + random(jitter) - jitter/2;
+      permOffsets[panel][i] = start + spacing*permArray[i] + 10*(random(fb.jitter) - fb.jitter/2);  // move +/-5 cubes when jitter=1
    
       permArms[panel][i] = generateArmNumber(panel);
     }
@@ -316,7 +308,7 @@ class NotePermuteModule extends NoteDisplayModule {
   // generate an arm number for a note on a specific panel
   // always = panel # if jitterAcrossArms is 0, otherwise shifted with some probability
   int generateArmNumber(int panel) {
-      if (jitterAcrossArms > random(1)) {
+      if (fb.permuteAcrossArms > random(1)) {
         return floor(random(PANELS));
       } else {
         return panel;
@@ -363,7 +355,7 @@ class NotePermuteModule extends NoteDisplayModule {
     
     if (howMuch >= MUTATE_4BAR) {
       permuteSeed = floor(random(1000));
-      panelsIdentical = (intensity < random(1));  // lower intensity, more likely the panels are identical  
+      panelsIdentical = (fb.intensity < random(1));  // lower intensity, more likely the panels are identical  
       initialize();
     } else {
       int numToSwap = floor(2 * (howMuch / MUTATE_BAR));  // switch up about 2 per bar  
@@ -392,5 +384,50 @@ void randomPermute(int[] a, float p) {
   }
 }
 
+/*
+//------------------------------------------------- PulseOut --------------------------------------------
+// This runs a single colored pulse out from the center to the edges, when triggered
+
+class PulseOut extends TransientLayerModule {
+
+  PulseOut(FBParams _fb) {
+    super(_fb);
+  }
+  
+  void advance(float elapsed) {
+    super.advance(elapsed);
+
+    // Trigger always every 4 bars, then every 2, 1, half, quarter, beat as intensity increases
+    // but jitter the intensity to throw in some randomness. compute outside the arm loop to keep all arms firing together         
+    float trigger = fb.intensity;
+    trigger += fb.jitter*(random(1)-0.5);
+    
+    for (int i=0; i<3; i++) {   
+      if (events.fired("notes" + Integer.toString(i))) {
+          
+        int pos = floor(sequencerState.stepPosition);
+        boolean canFire = (pos % 64)==0;  // every four bars, always
+        canFire |= (trigger > 0.2) && (pos % 32)==0;
+        canFire |= (trigger > 0.4) && (pos % 16)==0;
+        canFire |= (trigger > 0.6) && (pos % 8)==0;
+        canFire |= (trigger > 0.8) && (pos % 4)==0;
+        canFire |= (trigger > 0.9);
+        
+        if (canFire) {
+          // $$ use pulseWidth          
+          // Create a moving texture that erases itself when it goes completely off the arm
+          TextureLayer cl = new TextureLayer(i, CMYPulseTexture, -3);
+          cl.terminateWhenOffscreen = true;
+          cl.motionSpeed = 4 * fb.animationSpeed;
+          
+          myLayers.add(cl);
+        }
+      }
+    }
+  }
+  
+}
+
+*/
 
 

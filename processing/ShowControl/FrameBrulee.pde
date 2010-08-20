@@ -13,17 +13,17 @@ class FBParams {
   // overall control
   public float intensity = 0.5;       // how much stuff is going on?
   public float animationSpeed = 1;    // relative to steps
+  public float jitter = 0.1;          // general unpredictability of positions and timing
 
   // hue rotation controls
-  public float baseHueRotationSpeed = 1;    // degrees/sec
-  public float baseHueSpread = 60; // degrees lead/lag
+  public float baseHueRotationSpeed = 1; // degrees/sec
+  public float baseHueSpread = 60;       // degrees lead/lag
   public float baseHueSat = 80;
   public float baseHueBright = 60;
 
   // note display settings
-  public float pulseWidth = 1;          // number of cubes that a single pulse lights up
-  public float jitter = 3;              // jitter for displays that permute/shift note positions
-  public float jitterAcrossArms = 0;    // probability that a note display will be jittered across arms
+  public float pulseWidth = 1;            // number of cubes that a single pulse lights up
+  public float permuteAcrossArms = 0;     // probability that a note display will be jittered across arms
   
   // final color correction params
   public color fbTint = color(#808080); // central hue and sat 
@@ -66,20 +66,10 @@ void processOSCLightEvent(OscMessage m) {
 
 class FrameBrulee extends LightingProgram {
 
-  // mode constants
-  static final int MODE_PULSE = 1;
-  static final int MODE_DIRECT = 2;
-  static final int MODE_PERMUTE = 3;
-  static final int MODE_BLACK_PULSE = 4;
-
-  // which mode?
-  int currentMode = MODE_PULSE;
   
   // Bottom Permanent layers
   HueRotateModule     baseHueRotate;       // constant hueRotate layer on bottom
   //RippleLayer        baseRipple;          // ripple the base hue (multiplied)
-  //DirectDisplayLayer noteDisplay;         // show up the notes directly
-  //DirectDisplayLayer permutedNoteDisplay; // display the notes on random cubes
     
   // On top of these we have transient layers for chases
   NoteChaseModule    noteChase;
@@ -91,36 +81,80 @@ class FrameBrulee extends LightingProgram {
    
   void initialize() {
     // Bottom layer is a hue rotate
-    baseHueRotate = new HueRotateModule();
-    noteChase = new NoteChaseModule();
-    noteDisplay = new NoteDisplayModule();
-    notePermute = new NotePermuteModule();
+    baseHueRotate = new HueRotateModule(curFBParams);
+    noteChase = new NoteChaseModule(curFBParams);
+    noteDisplay = new NoteDisplayModule(curFBParams);
+    notePermute = new NotePermuteModule(curFBParams);
   }
 
   
   // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
   void advance(float elapsedSteps) {
- 
-    baseHueRotate.setParams(curFBParams);
+    
+    float mutation = 0;
+/*    if (events.fired("step")) {
+      mutation = MUTATE_BEAT;
+    } else if (events.fired("bar")) {
+      mutation = MUTATE_BAR;
+    } else if (events.fired("4bars")) {
+      mutation = MUTATE_4BAR;
+    }
+  */ 
+    if (events.fired("4bars")) {
+      mutation = 1;
+    }
+      
+    if (mutation != 0) {
+      // mutate globals first since they affect mutations
+      curFBParams.intensity = mutateValue(curFBParams.intensity, mutation, 1);
+      curFBParams.jitter = mutateValue(curFBParams.jitter, mutation, 1);
+  
+      // animation speed is a little different: we jitter in log space to give more range to small values
+      float logSpeed = log(curFBParams.animationSpeed);
+      logSpeed += signedRandom(mutation);
+      logSpeed = clip(logSpeed, -2, 2);    // approx 1/8 to 8 (e^2)
+      curFBParams.animationSpeed = exp(logSpeed);
+      
+      baseHueRotate.mutate(mutation);
+      noteChase.mutate(mutation);
+      noteDisplay.mutate(mutation);
+      notePermute.mutate(mutation);
+    }
+    
     baseHueRotate.masterAdvance(elapsedSteps);
-
-    noteChase.setParams(curFBParams);    
     noteChase.masterAdvance(elapsedSteps);
-    
-    noteDisplay.setParams(curFBParams);
     noteDisplay.masterAdvance(elapsedSteps);
-    
-    notePermute.setParams(curFBParams);
-    notePermute.masterAdvance(elapsedSteps);
+    notePermute.masterAdvance(elapsedSteps);    
   }
   
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode
   void render(LightingState state) {
     baseHueRotate.apply(state);
-    //noteChase.apply(state);
-    //noteDisplay.apply(state);
+    noteChase.apply(state);
+//    noteDisplay.apply(state);
     notePermute.apply(state);
   }
 
+}
+
+
+// returns uniformly distributed in [-v, +v)
+float signedRandom(float v) {
+  return random(v*2)-v;
+}
+
+
+float mutateValue(float v, float mutation, float maxV) {
+  v += (random(maxV) - maxV/2) * mutation;
+  if (v<0) {
+    v=0;
+  } else if (v>maxV) {
+    v=maxV;
+  }
+  return v;
+}
+
+float clip (float v, float a, float b) {
+  return min(b, max(a, v));
 }
 

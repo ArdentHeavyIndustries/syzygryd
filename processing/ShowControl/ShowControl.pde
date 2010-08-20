@@ -215,8 +215,12 @@ float updateStepPosition(){
       events.fire("step");
       //print("Step!\n");
       
+      // fire events on the bar and 4 bar marks
       if (sequencerState.curStep == 0) {
         events.fire("bar");
+      }
+      if ((sequencerState.ppqPosition % 16) == 0) {
+        events.fire("4bars");
       }
       
       // See if we're playing any notes this step; if so, fire "notes" event.
@@ -239,6 +243,7 @@ float updateStepPosition(){
       if (anyNotesToPlay) {
         events.fire("notes");
       }
+      
     }
   }
   
@@ -259,7 +264,4 @@ float getTimeInSteps(int time) {
 float curTimeInSteps() {
   return getTimeInSteps(now());
 }
-
-
-
 

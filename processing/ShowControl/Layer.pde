@@ -75,8 +75,89 @@ abstract class ImageLayer extends Layer {
  }
  }
  */
+ 
+// ---------------------------------------- MoveableShapeLayer ----------------------------------------- 
+// Animates a shape across an arm.
+
+// Built in support for motion and opacity animation.
+//  - motionSpeed controls speed, normally out->in, but can be negative for in->out. 
+//  - offset is the index of the outer edge of the shape. So -length if the head of the shape is to start at cube 0
+// Terminates when:
+//  - a moving the pattern falls completely off one end of the arm, if terminateWhenOffscreen is true
+//  - opacity hits zero, if terminateWhenFaded is true
+
+abstract class MoveableShapeLayer extends ImageLayer {
+
+  public int arm;
+  public float offset;
+
+  public float motionSpeed = 0;
+  public float fadeSpeed = 0;    // positive means losing opacity. 
+
+  public boolean terminateWhenOffscreen = false;
+  public boolean terminateWhenFaded = false;
+
+  MoveableShapeLayer(int _arm, float _offset) {
+    arm = _arm;
+    offset = _offset;
+  }
+
+  // Children need to define render and shapeWidth 
+  void render(color[] armColor, float offset) {
+  }
+  
+  float shapeWidth() {
+    return 0;
+  }
+  
+  // Draw, then advance (so first frame is aligned with starting offset)
+  void advance(float steps) {
+    super.advance(steps);
+
+    // zero length seq protection
+    if (shapeWidth() <= 0) {
+      finish();
+      return;
+    }
+
+    // render the shape at offset
+    render(state.armColor[arm], offset);
+  
+    // animate
+    offset += motionSpeed * animationSpeed * steps;
+    opacity -= fadeSpeed * animationSpeed * steps;
+
+    // stop fades if we hit opacity limits   
+    if (opacity >= 1) {
+      opacity = 1;
+      fadeSpeed = 0;
+    }
+
+    if (opacity <= 0) {
+      // remove when opacity hits zero, if told to do so
+      if (terminateWhenFaded) {
+        finish();
+        return;
+      } 
+      else {
+        opacity = 0;
+        fadeSpeed = 0;
+      }
+    }
+
+    // if the pattern is completely off the arm in the direction of travel, remove this layer, if told to do so
+    if (terminateWhenOffscreen) {
+      if ( ((motionSpeed > 0) && (offset >= state.armColor[arm].length)) ||
+        ((motionSpeed < 0) && (offset <= -shapeWidth())) ) {
+        finish();
+      }
+    }
+  }
+}
 
 // ---------------------------------------- TextureLayer ----------------------------------------- 
+
+// A MovableShape layer that renders with a texture
 
 // Render one texture into another with a float offset, lerping between pixels of src. Outside src is considered black.
 void copy1DTexture(color[] src, color[] dst, float offset) {
@@ -124,66 +205,21 @@ void copy1DTexture(color[] src, color[] dst, float offset) {
 //  - a moving the pattern falls completely off one end of the arm, if terminateWhenOffscreen is true
 //  - opacity hits zero, if terminateWhenFaded is true
 
-class TextureLayer extends ImageLayer {
+class TextureLayer extends MoveableShapeLayer {
   public color[] tex;
-  public int arm;
-  public float offset;
-
-  public float motionSpeed = 0;
-  public float fadeSpeed = 0;    // positive means losing opacity. 
-
-  public boolean terminateWhenOffscreen = false;
-  public boolean terminateWhenFaded = false;
 
   TextureLayer(int _arm, color[] _tex, float _offset) {
+    super(_arm, _offset);    
     tex = _tex;
-    arm = _arm;
-    offset = _offset;
-    blendMode = ADD;
   }
 
-  // Draw, then advance (so first frame is aligned with starting offset)
-  void advance(float steps) {
-    super.advance(steps);
-
-    // zero length seq protection
-    if (tex.length < 1) {
-      finish();
-      return;
-    }
-
-    // render
-    copy1DTexture(tex, state.armColor[arm], offset);
-
-    // animate
-    offset += motionSpeed * animationSpeed * steps;
-    opacity -= fadeSpeed * animationSpeed * steps;
-
-    // stop fades if we hit opacity limits   
-    if (opacity >= 1) {
-      opacity = 1;
-      fadeSpeed = 0;
-    }
-
-    if (opacity <= 0) {
-      // remove when opacity hits zero, if told to do so
-      if (terminateWhenFaded) {
-        finish();
-        return;
-      } 
-      else {
-        opacity = 0;
-        fadeSpeed = 0;
-      }
-    }
-
-    // if the pattern is completely off the arm in the direction of travel, remove this layer, if told to do so
-    if (terminateWhenOffscreen) {
-      if ( ((motionSpeed > 0) && (offset >= state.armColor[arm].length)) ||
-        ((motionSpeed < 0) && (offset <= -tex.length)) ) {
-        finish();
-      }
-    }
+  // Children need to define render and shapeWidth 
+  void render(color[] armColor, float offset) {
+    copy1DTexture(tex, armColor, offset);    
+  }
+  
+  float shapeWidth() {
+    return tex.length;
   }
 }
 
