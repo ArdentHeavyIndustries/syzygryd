@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
-int lastEventReceived;
+int lastEventReceived = millis();
 final int OSC_WATCHDOG_SEC = 10;
 
 /* Button Array for buttoning also tempo objects maybe more*/
