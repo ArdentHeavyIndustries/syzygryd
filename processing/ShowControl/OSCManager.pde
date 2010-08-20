@@ -24,7 +24,6 @@ class OSCManager {
     OscMessage connect = new OscMessage("/server/connect");
     oscP5.send(connect, myRemoteLocation);
   }
-}
 
 /*
  * Listens for incoming OSC messages and acts upon them
@@ -74,6 +73,7 @@ void oscEvent(OscMessage m) {
     processOSCLightEvent(m);
  //     println("zomg");
   }
-} 
+}
 
+}
 
