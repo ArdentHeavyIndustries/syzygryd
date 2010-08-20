@@ -126,21 +126,24 @@ void OscInput::noteToggle (osc::ReceivedMessage m)
 	// Adjust XY Coordinate system
 	row = SharedState::getInstance()->getTotalRows() - row;
 	col -= 1;
+
+        // bug:93 - XXX it's a real pain in the ass that the osc messages start counting things at 1, and everything else starts counting at 0
 	
-	DBG ("Setting the status of cell " + String(row) + ", " + String(col) +
-        " on tab " + String(tabIndex) + " panel " + String(panelIndex) + " to: " + String(status));
+	DBG (String(Time::currentTimeMillis()) + " " + "Setting the status of cell " + String(row) + ", " + String(col) +
+             " on tab " + String(tabIndex) + " panel " + String(panelIndex) + " to: " + String(status));
 	
 	// Update the shared sequencer state
+        // XXX but the off by 1 issue (see above) is only for panelIndex and tabIndex, not row and col ?  that's even worse...
 	Cell* cell = SharedState::getInstance()->getCellAt (panelIndex - 1, 
-                                                       tabIndex - 1, 
-                                                       row, col);
+                                                            tabIndex - 1, 
+                                                            row, col);
 
    // bug:93 - all other calls to this are directly in SharedState, invoking
    // the panel but here we're bypassing that by getting the cell and changing
    // its state directly and the cell doesn't have a handle to the panel to
    // call updateLastTouch() so for now call this to get around that.
    // ultimately i'd like to make this cleaner.
-   SharedState::getInstance()->updateLastTouch(panelIndex);
+   SharedState::getInstance()->updateLastTouch(panelIndex - 1);
 
 	if (status) {
 		cell->setNoteOn();
