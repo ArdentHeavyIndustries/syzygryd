@@ -250,7 +250,7 @@ void SharedState::noteToggle (int panelIndex_, int tabIndex_,
                               int row_, int col_, bool state)
 {
    // DBG(String(Time::currentTimeMillis()) + " "
-   //     + "Panel " + String(panelIndex_) + " touched to set note at tab" + String(tabIndex_) + "/row" + String(row_) + "/col" + String(col_)  + " to " + String(state));
+   //     + "SharedState: Panel " + String(panelIndex_) + " touched to set note at tab" + String(tabIndex_) + "/row" + String(row_) + "/col" + String(col_)  + " to " + String(state));
 
 	Panel* panel = panels[panelIndex_];
 	panel->updateLastTouch();
@@ -462,6 +462,13 @@ void SharedState::sendInefficientClearTab(int panelIndex_, int tabIndex_) {
 			}
 		}
 	}
+}
+
+// for updating touch outside of SharedState, by something that has the panel index, but not a handle to the panel
+void SharedState::updateLastTouch(int panelIndex_)
+{
+	Panel* panel = panels[panelIndex_];
+	panel->updateLastTouch();
 }
 
 void SharedState::updateStarField()

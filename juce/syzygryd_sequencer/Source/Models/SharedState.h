@@ -102,6 +102,8 @@ public:
 
    void sendInefficientSync(int panelIndex_);
    void sendInefficientClearTab(int panelIndex_, int tabIndex_);
+
+   void updateLastTouch(int panelIndex_);
 	
 	void updateStarField();
 	bool getStarFieldActive();

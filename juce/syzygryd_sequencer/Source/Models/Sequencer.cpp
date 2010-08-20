@@ -57,8 +57,11 @@ Cell* Sequencer::getCellAt (int panelIndex_, int tabIndex_, int row_, int col_)
 void Sequencer::noteToggle (int panelIndex_, int tabIndex_,
                             int row_, int col_, bool isNoteOn)
 {
+   // DBG(String(Time::currentTimeMillis()) + " "
+   //     + "Sequencer: Panel " + String(panelIndex_) + " touched to set note at tab" + String(tabIndex_) + "/row" + String(row_) + "/col" + String(col_)  + " to " + String(isNoteOn));
+
 	SharedState::getInstance()->noteToggle (panelIndex_, tabIndex_,
-											row_, col_, isNoteOn);
+                                           row_, col_, isNoteOn);
 }
 
 void Sequencer::clearTab (int panelIndex_, int tabIndex_)

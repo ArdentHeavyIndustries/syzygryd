@@ -132,8 +132,16 @@ void OscInput::noteToggle (osc::ReceivedMessage m)
 	
 	// Update the shared sequencer state
 	Cell* cell = SharedState::getInstance()->getCellAt (panelIndex - 1, 
-														tabIndex - 1, 
-														row, col);
+                                                       tabIndex - 1, 
+                                                       row, col);
+
+   // bug:93 - all other calls to this are directly in SharedState, invoking
+   // the panel but here we're bypassing that by getting the cell and changing
+   // its state directly and the cell doesn't have a handle to the panel to
+   // call updateLastTouch() so for now call this to get around that.
+   // ultimately i'd like to make this cleaner.
+   SharedState::getInstance()->updateLastTouch(panelIndex);
+
 	if (status) {
 		cell->setNoteOn();
 	} else {
