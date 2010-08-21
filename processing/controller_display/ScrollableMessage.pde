@@ -28,9 +28,11 @@ class ScrollableMessage {
   
   void msgDraw(){
     textFont(msgFont);
-     DrawableTab t = (DrawableTab) panels[0].tabs[0];
-     DrawableButton b = t.getButtonFromTabCoords(0, 0);
-    fill(b.getHue(), 50, 40, 40);  //draw message same color as current buttons on tab, constant brightness and alpha
+    // XXX bug:84 - this isn't working right yet, so for now undo part of svn r573 and revert to white
+//     DrawableTab t = (DrawableTab) panels[0].tabs[0];
+//     DrawableButton b = t.getButtonFromTabCoords(0, 0);
+//     fill(b.getHue(), 50, 40, 40);  //draw message same color as current buttons on tab, constant brightness and alpha
+    fill(0,0,99);  // white 
     textAlign(LEFT);
     text(message[messageSelect], messageXPos, height - 8);
     messageXPos -= 1.8;    
