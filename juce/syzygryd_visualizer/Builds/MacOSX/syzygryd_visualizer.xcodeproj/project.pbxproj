@@ -30,7 +30,26 @@
 		C95D3DEA115E8CD700C293DE /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DE6115E8CD700C293DE /* Main.cpp */; };
 		C95D3DEB115E8CD700C293DE /* MainWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DE7115E8CD700C293DE /* MainWindow.cpp */; };
 		C95D3DEE115E8CDF00C293DE /* MainComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DED115E8CDF00C293DE /* MainComponent.cpp */; };
+		C9642F56121FA9C6005A4BC7 /* libjuce.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9642F55121FA9C6005A4BC7 /* libjuce.a */; };
+		C9642FD0121FAD07005A4BC7 /* syzygryd_lights.obj in Resources */ = {isa = PBXBuildFile; fileRef = C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */; };
+		C9642FD1121FAD07005A4BC7 /* syzygryd_model.obj in Resources */ = {isa = PBXBuildFile; fileRef = C9642FCF121FAD07005A4BC7 /* syzygryd_model.obj */; };
+		C9642FD2121FAD0A005A4BC7 /* syzygryd_lights.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */; };
+		C9642FD3121FAD0A005A4BC7 /* syzygryd_model.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C9642FCF121FAD07005A4BC7 /* syzygryd_model.obj */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C9642FCD121FACF5005A4BC7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				C9642FD2121FAD0A005A4BC7 /* syzygryd_lights.obj in CopyFiles */,
+				C9642FD3121FAD0A005A4BC7 /* syzygryd_model.obj in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C92B8993120C7B6A00B92ED2 /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
@@ -49,7 +68,7 @@
 		C92B89A4120C7B6A00B92ED2 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		C95D049D117D7D70009EE494 /* MyOpenGLComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyOpenGLComponent.h; sourceTree = "<group>"; };
 		C95D049E117D7D70009EE494 /* MyOpenGLComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MyOpenGLComponent.cpp; sourceTree = "<group>"; };
-		C95D3AF5115E87DA00C293DE /* SyzygrydVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SyzygrydVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C95D3AF5115E87DA00C293DE /* JuceTemplate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JuceTemplate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C95D3AF8115E87DA00C293DE /* App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "App-Info.plist"; sourceTree = "<group>"; };
 		C95D3AFC115E882B00C293DE /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		C95D3AFE115E882C00C293DE /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -70,6 +89,9 @@
 		C95D3DE8115E8CD700C293DE /* MainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainWindow.h; sourceTree = "<group>"; };
 		C95D3DEC115E8CDF00C293DE /* MainComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainComponent.h; sourceTree = "<group>"; };
 		C95D3DED115E8CDF00C293DE /* MainComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainComponent.cpp; sourceTree = "<group>"; };
+		C9642F55121FA9C6005A4BC7 /* libjuce.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjuce.a; path = ../../../../../../juce/juce/bin/libjuce.a; sourceTree = SOURCE_ROOT; };
+		C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_lights.obj; path = ../../Objects/syzygryd_lights.obj; sourceTree = SOURCE_ROOT; };
+		C9642FCF121FAD07005A4BC7 /* syzygryd_model.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_model.obj; path = ../../Objects/syzygryd_model.obj; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +110,7 @@
 				C95D3B0D115E882C00C293DE /* QuickTime.framework in Frameworks */,
 				C95D3B0F115E882C00C293DE /* WebKit.framework in Frameworks */,
 				C95D3B11115E884D00C293DE /* libjucedebug.a in Frameworks */,
+				C9642F56121FA9C6005A4BC7 /* libjuce.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +149,7 @@
 		C95D3ACA115E83AD00C293DE = {
 			isa = PBXGroup;
 			children = (
+				C9642F55121FA9C6005A4BC7 /* libjuce.a */,
 				C95D3AED115E870A00C293DE /* Source */,
 				C95D3DB4115E886500C293DE /* Resources */,
 				C95D3B12115E885100C293DE /* Frameworks */,
@@ -147,7 +171,7 @@
 		C95D3AF6115E87DA00C293DE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C95D3AF5115E87DA00C293DE /* SyzygrydVisualizer.app */,
+				C95D3AF5115E87DA00C293DE /* JuceTemplate.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -173,6 +197,8 @@
 		C95D3DB4115E886500C293DE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */,
+				C9642FCF121FAD07005A4BC7 /* syzygryd_model.obj */,
 				C95D3AF8115E87DA00C293DE /* App-Info.plist */,
 			);
 			name = Resources;
@@ -212,6 +238,7 @@
 				C95D3AF1115E87DA00C293DE /* Resources */,
 				C95D3AF2115E87DA00C293DE /* Sources */,
 				C95D3AF3115E87DA00C293DE /* Frameworks */,
+				C9642FCD121FACF5005A4BC7 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -219,7 +246,7 @@
 			);
 			name = App;
 			productName = App;
-			productReference = C95D3AF5115E87DA00C293DE /* SyzygrydVisualizer.app */;
+			productReference = C95D3AF5115E87DA00C293DE /* JuceTemplate.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -227,7 +254,7 @@
 /* Begin PBXProject section */
 		C95D3ACC115E83AD00C293DE /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = C95D3ACF115E83AD00C293DE /* Build configuration list for PBXProject "syzygryd_visualizer2" */;
+			buildConfigurationList = C95D3ACF115E83AD00C293DE /* Build configuration list for PBXProject "syzygryd_visualizer" */;
 			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 0;
 			mainGroup = C95D3ACA115E83AD00C293DE;
@@ -245,6 +272,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C9642FD0121FAD07005A4BC7 /* syzygryd_lights.obj in Resources */,
+				C9642FD1121FAD07005A4BC7 /* syzygryd_model.obj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,13 +313,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../../../../../juce/juce\"";
 			};
 			name = Release;
 		};
 		C95D3AF9115E87DB00C293DE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = i386;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -300,41 +330,50 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"<Multiple",
+					"values>",
+					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
 				);
 				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce\"";
 				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../../../juce/my/syzygryd_visualizer2/Source\"/**";
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../../../juce/juce\"";
 				INFOPLIST_FILE = "App-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce/bin\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../../../../juce/juce/bin\"";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = JuceTemplate;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 			};
 			name = Debug;
 		};
 		C95D3AFA115E87DB00C293DE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = i386;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
-					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"<Multiple",
+					"values>",
+					"$(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
 				);
 				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce\"";
 				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../../../juce/my/syzygryd_visualizer2/Source\"/**";
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../../../juce/juce\"";
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../../../../../../juce/juce\"";
 				INFOPLIST_FILE = "App-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -342,9 +381,12 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce/bin\"";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = SyzygrydVisualizer;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -352,7 +394,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C95D3ACF115E83AD00C293DE /* Build configuration list for PBXProject "syzygryd_visualizer2" */ = {
+		C95D3ACF115E83AD00C293DE /* Build configuration list for PBXProject "syzygryd_visualizer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C95D3ACD115E83AD00C293DE /* Debug */,
