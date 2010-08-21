@@ -102,7 +102,7 @@ static class FixtureFactory {
         trait = parent.new RGBColorMixingTrait(fixture);
       } 
       else if ("Fire".equals(traitName)) {
-        trait = parent.new RGBColorMixingTrait(fixture);
+        trait = parent.new FireTrait(fixture);
       } 
       else {
         throw new DataFormatException("No known trait " + traitName);

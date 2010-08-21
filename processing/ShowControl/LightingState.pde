@@ -68,11 +68,12 @@ class LightingState {
   // Mirror ourself to current fixture state
   void output() {
     for (int i=0; i<arm.length; i++) {   
-      for (int j=0; j<armResolution(i); j++) {        
+      for (int j=0; j<armResolution(i); j++) {
         Fixture f = arm[i].members.get(j);
-        if (f.trait("RGBColorMixing") instanceof RGBColorMixingTrait){
+        if (f.type.equals("cube")){
           ((RGBColorMixingTrait)f.trait("RGBColorMixing")).setColorRGB(armColor[i][j]);
-        } else if (f.trait("Fire") instanceof FireTrait){
+        } else
+        if (f.type.equals("fire")){
           ((FireTrait)f.trait("Fire")).color2Fire(armColor[i][j]);
         }
       }
