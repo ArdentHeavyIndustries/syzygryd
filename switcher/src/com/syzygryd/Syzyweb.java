@@ -153,7 +153,7 @@ public class Syzyweb extends NanoHTTPD {
 		String begin = "<html><head><title>Set List!</title></head><body>";
 		String end = "</body></html>";
 		String listString = list.toString();
-		String out = begin + listString + end;
+		String out = begin + listString + navigationString() + end;
 		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
 	}
 	
@@ -161,8 +161,14 @@ public class Syzyweb extends NanoHTTPD {
 		String begin = "<html><head><title>Queue!</title></head><body>";
 		String end = "</body></html>";
 		String queueString = runner.queueToString();
-		String out = begin + queueString + end;
+		String out = begin + queueString + navigationString() + end;
 		return new Response(NanoHTTPD.HTTP_OK, "text/html", out);
+	}
+	
+	private String navigationString() {
+		String nextString = "<br><a href=\"playnext\">Play Next</a>";
+		String prevString = "<br><a href=\"playprev\">Play Previous</a>";
+		return nextString + prevString;
 	}
 	
 	/**
