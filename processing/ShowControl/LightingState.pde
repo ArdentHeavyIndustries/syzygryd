@@ -1,23 +1,48 @@
 // Syzygryd lighting and effect strate representaiton
 // Used both for communication of the final state to the DMX, and for representation of each effect layer
 
+// Utility functions to deal with the abstraction of effects as three more "arms"
+int armResolution(int arm) {
+  if (arm < 3)
+    return CUBES_PER_ARM;
+  else
+    return EFFECTS_PER_ARM;
+}
+
+int panelToArmLights(int panel) {
+  return panel;
+}
+
+int panelToArmFire(int panel) {
+  return panel+3;
+}
+
 class LightingState {
-  color[][] armColor = new color[3][CUBES_PER_ARM];
-  boolean[][] armEffect = new boolean[3][EFFECTS_PER_ARM];
+  color[][] armColor;    // 0-2 are lights, 3-5 are flame effects
+  
   boolean[] armHiPressure = new boolean[3];
   boolean poofer;
   boolean tornado;  
+    
+  LightingState() {
+    armColor = new color[6][];
+    armColor[0] = new color[CUBES_PER_ARM];
+    armColor[1] = new color[CUBES_PER_ARM];
+    armColor[2] = new color[CUBES_PER_ARM];
+    armColor[3] = new color[EFFECTS_PER_ARM];
+    armColor[4] = new color[EFFECTS_PER_ARM];
+    armColor[5] = new color[EFFECTS_PER_ARM];
+  }
   
   // Turns off all lights, shuts off all fire
   void clear() {
-    for (int a=0; a<3; a++) {   
-      for (int i=0; i<CUBES_PER_ARM; i++) {
+    for (int a=0; a<6; a++) {   
+//      println(a + ", " + armResolution(a) + ", " + armColor[a].length);
+      for (int i=0; i<armResolution(a); i++) {
         armColor[a][i] = color(0,0,0);
       }
-      for (int i=0; i<EFFECTS_PER_ARM; i++) {
-        armEffect[a][i] = false;
-      }
-      armHiPressure[a] = false;
+      if (a<3)
+        armHiPressure[a] = false;
     }
     poofer = false;
     tornado = false;
@@ -42,8 +67,8 @@ class LightingState {
   
   // Mirror ourself to current fixture state
   void output() {
-    for (int i=0; i<3; i++) {   
-      for (int j=0; j<CUBES_PER_ARM; j++) {
+    for (int i=0; i<arm.length; i++) {   
+      for (int j=0; j<armResolution(i); j++) {        
         Fixture f = arm[i].members.get(j);
         if (f.traits.containsKey("RGBColorMixing")){
           ((RGBColorMixingTrait)f.trait("RGBColorMixing")).setColorRGB(armColor[i][j]);
@@ -52,14 +77,8 @@ class LightingState {
           ((FireTrait)f.trait("Fire")).color2Fire(armColor[i][j]);
         }
       }
-      for (int j=0; j<EFFECTS_PER_ARM; j++) {
-        armEffect[i][j] = false;
-      }
-      armHiPressure[i] = false;  
     }
-    poofer = false;
-    tornado = false;
-  }
-    
+    // $$ output arm pressure, poofer, tornado
+  }    
 }
 

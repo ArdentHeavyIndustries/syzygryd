@@ -156,13 +156,12 @@ abstract class MoveableShapeLayer extends ImageLayer {
   // Children need to define render and shapeWidth 
   void render(color[] armColor, float position, float scaling) {
   }
-  
   float shapeWidth() {
     return 0;
   }
   
   // Update all animation parameters (motion, fades)
-  // terminate self if the terminateWhenFaded or terminateWhenOffscreen flags are set
+  // terminate self if any of the various terminateWith... conditions are met
   void advance(float steps) {
   
     // animate
@@ -190,6 +189,7 @@ abstract class MoveableShapeLayer extends ImageLayer {
         if ( ((motionSpeed > 0) && (position >= state.armColor[arm].length)) ||
              ((motionSpeed < 0) && (position <= -shapeWidth())) ) {
           finish();
+ //         println("Killed it. position: " + position + ", shapeWidth: " + shapeWidth());
           return;
         }
       }
@@ -212,6 +212,34 @@ abstract class MoveableShapeLayer extends ImageLayer {
     otherState.blendOverSelf(state, blendMode, opacity);
   }
 }
+
+// ---------------------------------------- SimpleChaseLayer ----------------------------------------- 
+// A MoveableShape that lights exactly one fixture at a time, stepping without anti-aliasing
+// Good for testing, and flame effects
+class SimpleChaseLayer extends MoveableShapeLayer {
+  
+  SimpleChaseLayer(int arm) {
+    super(arm, 0);  // default to position 0, speed 1 (outside in)
+    motionSpeed = 1;
+    terminateWithPosition = true;
+  }
+
+  float shapeWidth() {
+    return 1;
+  }
+  
+   // Children need to define render and shapeWidth 
+  void render(color[] armColor, float position, float scaling) {
+    state.clear();
+    int pos = floor(position+0.5);
+//    if (events.fired("step")) println(pos);
+    if ((pos >= 0) && (pos < armResolution(arm))) {
+      state.armColor[arm][pos] = color(255,255,255);
+    }
+  }
+ 
+}
+
 
 // ---------------------------------------- TextureLayer ----------------------------------------- 
 // A MovableShape layer that renders with a texture

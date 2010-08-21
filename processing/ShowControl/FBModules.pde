@@ -342,61 +342,18 @@ void randomPermute(int[] a, float p) {
 }
 
 
-//------------------------------------------------- PulseOut --------------------------------------------
-// This runs a single colored pulse out from the center to the edges, when triggered
-/*
-class PulseOut extends TransientLayerModule {
-
-  PulseOut(FBParams _fb) {
-    super(_fb);
-  }
-  
-  void advance(float elapsed) {
-    super.advance(elapsed);
-
-    // Trigger always every 4 bars, then every 2, 1, half, quarter, beat as intensity increases
-    // but jitter the intensity to throw in some randomness. compute outside the arm loop to keep all arms firing together         
-    float trigger = fb.intensity;
-    trigger += fb.jitter*(random(1)-0.5);
-    
-    for (int i=0; i<3; i++) {   
-      if (events.fired("notes" + Integer.toString(i))) {
-          
-        int pos = floor(sequencerState.stepPosition);
-        boolean canFire = (pos % 64)==0;  // every four bars, always
-        canFire |= (trigger > 0.2) && (pos % 32)==0;
-        canFire |= (trigger > 0.4) && (pos % 16)==0;
-        canFire |= (trigger > 0.6) && (pos % 8)==0;
-        canFire |= (trigger > 0.8) && (pos % 4)==0;
-        canFire |= (trigger > 0.9);
-        
-        if (canFire) {
-          // $$ use pulseWidth          
-          // Create a moving texture that erases itself when it goes completely off the arm
-          TextureLayer cl = new TextureLayer(i, CMYPulseTexture, -3);
-          cl.terminateWhenOffscreen = true;
-          cl.motionSpeed = 4 * fb.animationSpeed;
-          
-          myLayers.add(cl);
-        }
-      }
-    }
-  }
-  
-}
-
-*/
-
-//------------------------------------------------- PulseOut -------------------------------------------------
-// This runs a single colored pulse out from the center to the edges, when triggered by notes in the bass lines
+//------------------------------------------------- ColorRamps -------------------------------------------------
+// And code to initialize them from arrays of colors
 
 boolean rampsInitialized = false;
 
 ColorVertex[] fireRamp;    // black to red, orange, yellow, white
 float fireRampLength;      // so we can set the origin correctly
-ColorVertex[] basicPulse;  // just white, triangular (black-white-black) so only a single cube lights when integer offset, scale=1
+ColorVertex[] basicPulse;  // just white, triangular (black-white-black) so only a single fixture lights when integer offset, scale=1
+ColorVertex[] squarePulse; // width=1 full on pulse. To center on a fixture you need a half-pixel offset
 
 color basicPulseColors[] = {color(0,0,0), color(255,255,255), color(0,0,0)};
+color squarePulseColors[] = {color(255,255,255), color(255,255,255)};
 color fireRampColors[] = {color(50,0,0), color(100, 0, 0), color(255, 255, 0), color(255,255,255)};
 
 // create a ColorVertex ramp from an array of colors, setting the width of each segment to 1
@@ -419,6 +376,7 @@ void initializeRamps() {
     return;
     
   basicPulse = initVertices(basicPulseColors);
+  squarePulse = initVertices(squarePulseColors);
   
   // fireRamp segments get smaller and smaller, so yellow->white segment is just the tip
   fireRamp = initVertices(fireRampColors);
@@ -429,6 +387,9 @@ void initializeRamps() {
  
   rampsInitialized = true;
 }
+
+//------------------------------------------------- BassPulse -------------------------------------------------
+// This runs a single colored pulse out from the center to the edges, when triggered by notes in the bass lines
 
 //figures out the lowest note set on the given sequencer panel. Lower = lower pitch, actually higher index  
 int findLowestNote(int panel) {
@@ -486,4 +447,38 @@ class BassPulse extends TransientLayerModule {
 }
 
 
+//------------------------------------------------- FireChase -------------------------------------------------
+// Do a fire chase... at the end of every bar, for the moment, for testing 
+class FireChaseModule extends TransientLayerModule {
+  
+    // if true, pulses go from panels in, otherwise center out
+  boolean fromOutside;
+  
+  FireChaseModule(FBParams _fb) {
+    super(_fb);
+    fromOutside = false;
+  }
+  
+  void advance(float elapsed) {
+    super.advance(elapsed);    
+    
+    for (int panel=0; panel<3; panel++) {   
+      if (events.fired("bar")) {
+
+        SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
+          
+        if (fromOutside) {
+          sc.position = 0;
+          sc.motionSpeed = fb.animationSpeed;
+        } else {
+          sc.position = armResolution(sc.arm) - 1;
+          sc.motionSpeed = -1;
+        }
+          
+        myLayers.add(sc);
+      }
+    }
+  }
+
+}
 

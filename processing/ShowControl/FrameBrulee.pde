@@ -92,6 +92,7 @@ class FrameBrulee extends LightingProgram {
   NoteDisplayModule  noteDisplay;
   NotePermuteModule  notePermute;
   BassPulse          bassPulse;
+  FireChaseModule    fireChase;
   
   // Top permanent layers
   //TintLayer          tintLayer;
@@ -100,35 +101,32 @@ class FrameBrulee extends LightingProgram {
     // Bottom layer is a hue rotate
     baseHueRotate = new HueRotateModule(curFBParams);
     noteChase = new NoteChaseModule(curFBParams);
-    noteDisplay = new NoteDisplayModule(curFBParams);
+ //   noteDisplay = new NoteDisplayModule(curFBParams);
     notePermute = new NotePermuteModule(curFBParams);
     bassPulse = new BassPulse(curFBParams);
+    fireChase = new FireChaseModule(curFBParams);
   }
 
   
   // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
-  void advance(float elapsedSteps) {
-    baseHueRotate.masterAdvance(elapsedSteps);
-    noteChase.masterAdvance(elapsedSteps);
-    noteDisplay.masterAdvance(elapsedSteps);
-    notePermute.masterAdvance(elapsedSteps);    
-    bassPulse.masterAdvance(elapsedSteps);
+  void advance(float steps) {
+    baseHueRotate.masterAdvance(steps);
+    noteChase.masterAdvance(steps);
+//    noteDisplay.masterAdvance(steps);
+    notePermute.masterAdvance(steps);    
+    bassPulse.masterAdvance(steps);
+    fireChase.masterAdvance(steps);
   }
   
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode
   void render(LightingState state) {
     baseHueRotate.apply(state);
-//    noteChase.apply(state);
+    noteChase.apply(state);
 //    noteDisplay.apply(state);
-    notePermute.apply(state);
-    bassPulse.apply(state);
-/*     
-     ColorRampLayer cr = new ColorRampLayer(0, fireRamp, 0);
-     cr.scaling = curFBParams.pulseWidth;
-     cr.apply(state);
-*/
+   notePermute.apply(state);
+   bassPulse.apply(state);
+   fireChase.apply(state);
   }
-
 }
 
 
