@@ -6,6 +6,7 @@
 
 class OSCManager {
   OscP5 oscP5;
+  NetAddress myRemoteLocation;
 
   /*
    * Creates network connection to sequencer to listen for OSC messages
@@ -69,7 +70,7 @@ void oscEvent(OscMessage m) {
     }   
     
   } 
-  else if (m.addrPattern().startsWith("/advanced_lighting/") || m.addrPattern().startsWith("/lighting/") ) {
+  else if (m.addrPattern().startsWith("/lightingControls/") || m.addrPattern().startsWith("/lightingColor/") ) {
     processOSCLightEvent(m);
  //     println("zomg");
   }

@@ -482,3 +482,62 @@ class FireChaseModule extends TransientLayerModule {
 
 }
 
+
+// ---------------------------------------- TintModule ----------------------------------------- 
+// This is layer that modulates the state it's applied to. It's a color correction.
+// Uses
+//  - fb.ccTint
+//  - fb.ccChroma
+//  - fb.ccBrightness
+
+class TintModule extends FBModule {
+  
+  TintModule(FBParams _fb) {
+    super(_fb);
+  }
+
+  // advance is a NOP, we don't animate (yet?)
+  
+  color correct(color in) {
+    colorMode(HSB,360,100,100);
+
+    float inhue = radians(hue(in));
+    float insat = saturation(in);
+    float inx = insat*cos(inhue);
+    float iny = insat*sin(inhue);
+    
+    float tinthue = radians(hue(fb.ccTint));
+    float tintsat = saturation(fb.ccTint);
+    float tintx = tintsat*cos(tinthue);
+    float tinty = tintsat*sin(tinthue);
+
+    inx *= fb.ccChroma;
+    iny *= fb.ccChroma;
+    inx += tintx;
+    iny += tinty;
+    
+    float outhue = (degrees(atan2(iny, inx))+360)%360;   // color ctor doesn't like negative hue
+    float outsat = sqrt(inx*inx + iny*iny);
+    
+    if (outsat > 100) {
+      outsat = 100;
+    } else if (outsat < 0) {
+      outsat = 0;
+    }
+      
+    color out = color(outhue, outsat, brightness(in)*fb.ccBrightness);
+
+    colorMode(RGB, 255);
+    
+ //   out = fb.tintColor; 
+    return out;
+  }
+ 
+  void apply(LightingState state) {
+    for (int arm=0; arm<3; arm++) // only bother with lighting arms
+      for (int i=0; i<armResolution(arm); i++) {
+        state.armColor[arm][i] = correct(state.armColor[arm][i]);
+      }
+  }
+}
+
