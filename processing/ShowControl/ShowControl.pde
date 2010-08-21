@@ -38,7 +38,7 @@ int lastDrawTimeInMs;
 // Fixtures and Groups
 ArrayList<Fixture> fixtures = new ArrayList();
 ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
-FixtureGroup[] arm = new FixtureGroup[6];
+FixtureGroup[] arm = new FixtureGroup[3];
 
 // Lighting Programs
 ArrayList<LightingProgram> programList = new ArrayList();
@@ -95,25 +95,13 @@ void setup() {
     exit();
   }
 
-  //create cube arm groups
+  //create arm groups
   for (int i = 0; i < 3; i++){
     arm[i] = new FixtureGroup("cube");
     arm[i].addTrait("RGBColorMixing", new RGBColorMixingTrait(arm[i]));
-    for (int j = i * 66; j < (i * 66)+36; j++){  // 36 cubes per arm
+    for (int j = i * 36; j < (i * 36) + 36; j++){  // 36 cubes per arm
       try{
         arm[i].addFixture(fixtures.get(j));
-      } catch (FixtureTypeMismatchException ftme){}
-    }
-  }
-
-  //create fire arm groups
-  int k = 36;
-  for (int i = 3; i < 5; i++){
-    arm[i] = new FixtureGroup("fire");
-    arm[i].addTrait("Fire", new RGBColorMixingTrait(arm[i]));
-    for (int j = 0; j < 8; j++){  
-      try{
-        arm[i].addFixture(fixtures.get(k++));
       } catch (FixtureTypeMismatchException ftme){}
     }
   }
