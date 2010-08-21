@@ -74,7 +74,10 @@ void setup() {
   // resolution and apply it to the sketch, but for development
   // purposes we just smash to 1280x720
   // size(screen.width,screen.height,OPENGL);
-  size(1280,720);
+  // normal computer
+  //size(1280,720);
+  // touchscreen
+  size(1366,768);
   smooth();
   //hide the mouse cursor (if not on touchscreen comment out!)
   //noCursor();
@@ -149,7 +152,10 @@ void setup() {
   // for the touchscreen, change the localhost to whatever the fuck 
   // the ip address is for the sequencer machine
   // XXX in the long term, why don't we just sensibly choose ports so that there aren't conflicts and send to the broadcast address?
-  myRemoteLocation = new NetAddress("localhost", OSC_SENDING_PORT);
+  // local testing
+  //myRemoteLocation = new NetAddress("localhost", OSC_SENDING_PORT);
+  // this is the syzyputer.  DON'T FUCK WITH IT NOW.
+  myRemoteLocation = new NetAddress("10.10.10.10", OSC_SENDING_PORT);
 
   // Connect to the server
   // OscMessage connect = new OscMessage("/server/connect");
