@@ -14,6 +14,8 @@ class FBParams {
   public float intensity = 0.5;       // how much stuff is going on?
   public float animationSpeed = 1;    // relative to steps
   public float jitter = 0.1;          // general unpredictability of positions and timing
+  public float attack = 0.1;          // how fast does stuff come on?
+  public float decay = 1;             // how fast dues stuff go off?
 
   // hue rotation controls
   public float baseHueRotationSpeed = 1; // degrees/sec
@@ -60,6 +62,20 @@ void processOSCLightEvent(OscMessage m) {
     curFBParams.baseHueBright = m.get(0).floatValue() * 100;  
  //   println("spread");
   } 
+  
+  else if (m.addrPattern().startsWith("/advanced_lighting/pulseWidth")) {
+    curFBParams.pulseWidth = m.get(0).floatValue() * 36;  
+ //  println("pulseWidth:" + curFBParams.pulseWidth);
+  } 
+
+  else if (m.addrPattern().startsWith("/advanced_lighting/attack")) {
+    curFBParams.attack = m.get(0).floatValue() * 16;  
+  } 
+
+  else if (m.addrPattern().startsWith("/advanced_lighting/decay")) {
+    curFBParams.decay = m.get(0).floatValue() * 16;  
+  } 
+
 }
 
 // ------------------------------------------------- FrameBrulee core --------------------------------------
@@ -75,6 +91,7 @@ class FrameBrulee extends LightingProgram {
   NoteChaseModule    noteChase;
   NoteDisplayModule  noteDisplay;
   NotePermuteModule  notePermute;
+  BassPulse          bassPulse;
   
   // Top permanent layers
   //TintLayer          tintLayer;
@@ -85,54 +102,31 @@ class FrameBrulee extends LightingProgram {
     noteChase = new NoteChaseModule(curFBParams);
     noteDisplay = new NoteDisplayModule(curFBParams);
     notePermute = new NotePermuteModule(curFBParams);
+    bassPulse = new BassPulse(curFBParams);
   }
 
   
   // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
   void advance(float elapsedSteps) {
-    
-    float mutation = 0;
-/*    if (events.fired("step")) {
-      mutation = MUTATE_BEAT;
-    } else if (events.fired("bar")) {
-      mutation = MUTATE_BAR;
-    } else if (events.fired("4bars")) {
-      mutation = MUTATE_4BAR;
-    }
-  */ 
-    if (events.fired("4bars")) {
-      mutation = 1;
-    }
-      
-    if (mutation != 0) {
-      // mutate globals first since they affect mutations
-      curFBParams.intensity = mutateValue(curFBParams.intensity, mutation, 1);
-      curFBParams.jitter = mutateValue(curFBParams.jitter, mutation, 1);
-  
-      // animation speed is a little different: we jitter in log space to give more range to small values
-      float logSpeed = log(curFBParams.animationSpeed);
-      logSpeed += signedRandom(mutation);
-      logSpeed = clip(logSpeed, -2, 2);    // approx 1/8 to 8 (e^2)
-      curFBParams.animationSpeed = exp(logSpeed);
-      
-      baseHueRotate.mutate(mutation);
-      noteChase.mutate(mutation);
-      noteDisplay.mutate(mutation);
-      notePermute.mutate(mutation);
-    }
-    
     baseHueRotate.masterAdvance(elapsedSteps);
     noteChase.masterAdvance(elapsedSteps);
     noteDisplay.masterAdvance(elapsedSteps);
     notePermute.masterAdvance(elapsedSteps);    
+    bassPulse.masterAdvance(elapsedSteps);
   }
   
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode
   void render(LightingState state) {
     baseHueRotate.apply(state);
-    noteChase.apply(state);
+//    noteChase.apply(state);
 //    noteDisplay.apply(state);
     notePermute.apply(state);
+    bassPulse.apply(state);
+/*     
+     ColorRampLayer cr = new ColorRampLayer(0, fireRamp, 0);
+     cr.scaling = curFBParams.pulseWidth;
+     cr.apply(state);
+*/
   }
 
 }

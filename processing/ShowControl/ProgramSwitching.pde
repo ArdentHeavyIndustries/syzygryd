@@ -2,7 +2,6 @@ void loadProgram(int programNumber){
   if (programNumber >= 0 && programNumber < programList.size()){
     program = programList.get(programNumber);
     flushBehaviors(); // Clear any uncompleted behaviors
-    layers.clear(); // Clear any uncompleted behaviors
     program.initialize();
     activeProgram = programNumber;
     print("Loaded program: " + activeProgram + "\n");

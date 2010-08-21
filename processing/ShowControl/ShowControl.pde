@@ -18,7 +18,7 @@ int FRAMERATE = 200;
 boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
 
 boolean SYZYVYZ = true;
-boolean ASCII_SEQUENCER_DISPLAY = true;
+boolean ASCII_SEQUENCER_DISPLAY = false;
 
 // ----------------- Variable Declaration & Initialization -----------------
 
@@ -39,9 +39,6 @@ int lastDrawTimeInMs;
 ArrayList<Fixture> fixtures = new ArrayList();
 ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
 FixtureGroup[] arm = new FixtureGroup[3];
-
-// Active layer list
-ArrayList<Layer> layers = new ArrayList();
 
 // Lighting Programs
 ArrayList<LightingProgram> programList = new ArrayList();

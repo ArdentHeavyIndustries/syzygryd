@@ -6,60 +6,17 @@
 abstract class FBModule extends Layer {
   
   boolean active;    // fading or running
-  float fadeInSpeed;
-  float fadeOutSpeed;
   FBParams fb;
   
   FBModule(FBParams _fb) {
     fb = _fb;
     active = true;
-    fadeInSpeed = 0;
-    fadeOutSpeed = 0;
   }
   
   void setParams(FBParams _fb) {
     fb = _fb;
   }
-  
-  // fades in to 100 opacity from current level, duration is time from 0 to 100
-  void startFadeIn(float duration) {
-    fadeOutSpeed = 0;
-    fadeInSpeed = 1/duration;
-    active = true;
-  }
-  
-  // fades to 0 opacity from current level, duration is time from 100 to 0
-  void startFadeOut(float duration) {
-    fadeOutSpeed = 0;
-    fadeInSpeed = 1/duration;
-    active = true;
-  }
-
-  void animateFades(float elapsedSteps) {
-    if (active) {
-      
-      if (fadeInSpeed > 0) {
-        opacity += elapsedSteps * fadeInSpeed;
-        if (opacity >= 1) {
-          fadeInSpeed = 0;
-          opacity = 1;
-        }
-      } else if (fadeOutSpeed > 0) {
-         opacity -= elapsedSteps * fadeOutSpeed;
-         if (opacity <= 0) {
-           fadeOutSpeed = 0;
-           opacity = 0;
-           active = false;
-         }   
-      }
-    }
-  }
-  
-  void masterAdvance(float elapsedSteps) {
-    animateFades(elapsedSteps);
-    advance(elapsedSteps);
-  }
-  
+    
   // we hit a bar or the operator pressed a button or something... change up the parameters
   // howMuch is from 0..1, see constants below
   void mutate(float howMuch) {
@@ -132,7 +89,7 @@ class TransientLayerModule extends FBModule {
   void advance(float elapsedTime) {
     for (Layer layer : myLayers) {
       if (!layer.finished()) {
-        layer.advance(elapsedTime);
+        layer.masterAdvance(elapsedTime);
       } 
     }
   }
@@ -180,7 +137,7 @@ class NoteChaseModule extends TransientLayerModule {
           // $$ use pulseWidth          
           // Create a moving texture that erases itself when it goes completely off the arm
           TextureLayer cl = new TextureLayer(i, CMYPulseTexture, -3);
-          cl.terminateWhenOffscreen = true;
+          cl.terminateWithPosition = true;
           cl.motionSpeed = 4 * fb.animationSpeed;
           
           myLayers.add(cl);
@@ -226,8 +183,8 @@ class NoteDisplayModule extends TransientLayerModule {
 
               // Create a static texture that fades out
               TextureLayer cl = new TextureLayer(noteArm(arm, pitch), whitePulseTexture, notePosition(arm, pitch) - 1); // -1 cause the texture is 3 wide, so center it
-              cl.fadeSpeed = fb.animationSpeed * 0.2;
-              cl.terminateWhenFaded = true;
+              cl.opacityEnvelope = new AttackDecayEnvelope(fb.attack, fb.decay, 0, 1);
+              cl.terminateWithOpacity = true;
         
               myLayers.add(cl);
             }
@@ -384,10 +341,10 @@ void randomPermute(int[] a, float p) {
   }
 }
 
-/*
+
 //------------------------------------------------- PulseOut --------------------------------------------
 // This runs a single colored pulse out from the center to the edges, when triggered
-
+/*
 class PulseOut extends TransientLayerModule {
 
   PulseOut(FBParams _fb) {
@@ -429,5 +386,104 @@ class PulseOut extends TransientLayerModule {
 }
 
 */
+
+//------------------------------------------------- PulseOut -------------------------------------------------
+// This runs a single colored pulse out from the center to the edges, when triggered by notes in the bass lines
+
+boolean rampsInitialized = false;
+
+ColorVertex[] fireRamp;    // black to red, orange, yellow, white
+float fireRampLength;      // so we can set the origin correctly
+ColorVertex[] basicPulse;  // just white, triangular (black-white-black) so only a single cube lights when integer offset, scale=1
+
+color basicPulseColors[] = {color(0,0,0), color(255,255,255), color(0,0,0)};
+color fireRampColors[] = {color(50,0,0), color(100, 0, 0), color(255, 255, 0), color(255,255,255)};
+
+// create a ColorVertex ramp from an array of colors, setting the width of each segment to 1
+// often, that's all you'll need
+ColorVertex[] initVertices(color[] colors) {
+  ColorVertex[] result = new ColorVertex[colors.length];
+  for (int i=0; i<colors.length; i++) {
+    result[i] = new ColorVertex();
+    result[i].c = colors[i];
+    result[i].w = 1;
+  }
+  return result;
+}
+
+// What a terribly awkward way to initialize these structures. Makes me want aggregate initializers ala C++
+// though I suppose I could start with color arrays, which can be initialized 
+void initializeRamps() {
+
+  if (rampsInitialized) 
+    return;
+    
+  basicPulse = initVertices(basicPulseColors);
+  
+  // fireRamp segments get smaller and smaller, so yellow->white segment is just the tip
+  fireRamp = initVertices(fireRampColors);
+  fireRamp[0].w = 3;
+  fireRamp[1].w = 2;
+  fireRamp[2].w = 1;
+  fireRampLength = 6;
+ 
+  rampsInitialized = true;
+}
+
+//figures out the lowest note set on the given sequencer panel. Lower = lower pitch, actually higher index  
+int findLowestNote(int panel) {
+  for (int pitch=sequencerState.PITCHES-1; pitch>=0; pitch--) 
+    for (int step=0; step<sequencerState.STEPS; step++) 
+      if (sequencerState.notes[panel][sequencerState.curTab[panel]][step][pitch])
+        return pitch;
+
+  return 0; // no notes, but we're going to use this an an index into the steps, so don't do -1 or something silly
+}
+
+
+// Uses:
+//  - fb.pulseWith to control overall size
+//  - fb.attack, fb.decay to contol animation
+
+class BassPulse extends TransientLayerModule {
+
+  // if true, pulses go from panels in, otherwise center out
+  boolean fromOutside;
+  
+  BassPulse(FBParams _fb) {
+    super(_fb);
+    initializeRamps();
+    fromOutside = false;
+  }
+  
+  void advance(float elapsed) {
+    super.advance(elapsed);    
+    
+    for (int arm=0; arm<3; arm++) {   
+      if (events.fired("notes" + Integer.toString(arm))) {
+
+        int lowestPitch = findLowestNote(arm);
+        
+        if (sequencerState.isNoteAtCurTime(arm, lowestPitch)) {           // bottom row on sequencer triggers
+ //         println("bass!");
+          ColorRampLayer cr = new ColorRampLayer(arm, fireRamp, 0);
+  
+          if (fromOutside) {
+            cr.scaleEnvelope = new AttackDecayEnvelope(fb.attack, fb.decay, 0, fb.pulseWidth*10 / fireRampLength);  // scale up to 10 cubes
+          } else {
+            cr.scaleEnvelope = new AttackDecayEnvelope(fb.attack, fb.decay, 0, -fb.pulseWidth*10 / fireRampLength);  // scale is negative because we're going the other way
+            cr.position = CUBES_PER_ARM - 1;
+          }
+          
+          cr.terminateWithScale = true;
+          
+          myLayers.add(cr);
+        }
+      }
+    }
+  }
+  
+}
+
 
 

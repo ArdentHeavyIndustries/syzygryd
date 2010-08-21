@@ -30,11 +30,20 @@ public class SequencerState {
   }
   
   
-  // Accessor for the thing that light programs will want most
+  // Accessors for the thing that light programs will want most
   boolean isNoteAtCurTime(int panel, int pitch) {
     return notes[panel][curTab[panel]][floor(stepPosition)][pitch];
   } 
-    
+/*
+  // used for triggering in advance of attack time
+  // returns true if a note goes on in the specified interval (which must be < 1)
+  boolean isNoteTriggeredInFutureInterval(int panel, int pitch, float futureTime1, futureTime2 ) {
+    boolean noteAtStart = notes[panel][curTab[panel]][floor(stepPosition + futureTime1) % STEPS][pitch];
+    boolean noteAtEnd = notes[panel][curTab[panel]][floor(stepPosition + futureTime2) % STEPS][pitch];
+    return (!noteAtStart && noteAtEnd);
+  } 
+ */
+ 
   /*
    * Returns time in milliseconds between beats at current BPM
    */ 

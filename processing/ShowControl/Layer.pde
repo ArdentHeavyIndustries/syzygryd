@@ -6,18 +6,21 @@
 // Most basic layer abstraction
 abstract class Layer {
 
+  // public, controllable paramters
+  public float opacity = 1;           // when opacity = 0, applpy should be a NOP
   public int blendMode = ADD;
 
   boolean finishedFlag = false;
   float stepsSinceBirth = 0;
 
-  // public, controllable paramters
-  public float animationSpeed = 1;    // measured w.r.t in steps
-  public float opacity = 1;           // when opacity = 0, applpy should be a NOP
-
-  // call Layer.advance() if you want to use stepsSinceBirth
-  void advance(float steps) {
+ // move any animation forward
+ void masterAdvance(float steps) {
     stepsSinceBirth += steps;
+    advance(steps);
+  }
+
+  // subclasses to override this one
+  void advance(float time) { 
   }
 
   boolean finished() {
@@ -44,119 +47,173 @@ abstract class ImageLayer extends Layer {
   }
 }
 
-/*
-// TimedLayer automatically removes itself from the master layer after a specified number of steps have elapsed
- // Used for things like single pulses that travels an arm and then is gone 
- abstract class TimedLayer extends Layer {
- float curSteps;
- float totalSteps;
- 
- void TimedBehavior(float duration) {  // duration in steps
- curSteps = 0;
- totalSteps = duration;
- }
- 
- 
- // Returns proportion of scheduled duration already passed, as a value between 0 (not started) and 1 (complete).
- public float proportionDone() {
- return min(1, curSteps / totalSteps);
- }
- 
- void advance(float steps) {
- curSteps += steps;
- if (curSteps >= totalSteps)
- finish();
- else
- draw(curSteps / totalSteps);
- }  
- 
- void drawFrame(float proportionDone) {
- // your rendering code here
- }
- }
- */
- 
-// ---------------------------------------- MoveableShapeLayer ----------------------------------------- 
-// Animates a shape across an arm.
+// ---------------------------------------- Envelopes ----------------------------------------- 
+// Classes that implement 1D animation, for a pre-specified finite interval
 
-// Built in support for motion and opacity animation.
-//  - motionSpeed controls speed, normally out->in, but can be negative for in->out. 
-//  - offset is the index of the outer edge of the shape. So -length if the head of the shape is to start at cube 0
+abstract class Envelope {
+  boolean isFinished() {    // animation over
+    return true;
+  }  
+  
+  float getVal() {          // current value
+    return 0;
+  }
+  
+  void advance(float time) {  // move the envelope forward
+  }
+}
+
+// A small class that animates a value from off to on value (off may be >  on) over specified attack/decay time
+class AttackDecayEnvelope extends Envelope {
+  float attackTime;
+  float decayTime;
+  float offVal;
+  float onVal;
+  boolean hitPeak;
+  float elapsedTime;
+  boolean finished;
+  
+  AttackDecayEnvelope(float _attackTime, float _decayTime, float _offVal, float _onVal) {
+    attackTime = _attackTime;
+    decayTime = _decayTime;
+    if (attackTime > 0) { 
+      hitPeak = false;
+    } else {
+      hitPeak = true;
+    }
+    elapsedTime = 0;
+    offVal = _offVal;
+    onVal = _onVal;
+    if (attackTime + decayTime > 0) {
+      finished = false;
+    } else {
+      finished = true;
+    }
+  }
+  
+  boolean isFinished() {
+    return finished;
+  }
+  
+  float getVal() {
+    if (finished) {
+      return offVal;
+    } else {
+      if (!hitPeak) {
+        return offVal + (elapsedTime / attackTime) * (onVal - offVal); // in attack
+      } else {
+        return offVal + (1-(elapsedTime / decayTime)) * (onVal - offVal); // in decay
+      }
+    } 
+  }
+  
+  void advance(float time) {
+    elapsedTime += time;
+    if (!hitPeak) {
+      if (elapsedTime > attackTime) {
+        elapsedTime = elapsedTime - attackTime;  // switch from attack to decay
+        hitPeak = true;
+      }
+    }
+      
+    if (hitPeak) {
+      if (elapsedTime > decayTime) {
+        finished = true;                          // switch from decay to finished
+      }
+    }
+  }
+  
+}
+
+// ---------------------------------------- MoveableShapeLayer ----------------------------------------- 
+// Animates a shape across an arm. Motion and opacity controlled with envelopes.
 // Terminates when:
 //  - a moving the pattern falls completely off one end of the arm, if terminateWhenOffscreen is true
-//  - opacity hits zero, if terminateWhenFaded is true
+//  - opacity hits zero when decaySpeed is positive, if terminateWhenFaded is true
 
 abstract class MoveableShapeLayer extends ImageLayer {
 
   public int arm;
-  public float offset;
 
-  public float motionSpeed = 0;
-  public float fadeSpeed = 0;    // positive means losing opacity. 
+  public Envelope opacityEnvelope;
+  
+  public Envelope positionEnvelope;
+  public float position;                  // used if no envelope
+  public float motionSpeed;
 
-  public boolean terminateWhenOffscreen = false;
-  public boolean terminateWhenFaded = false;
+  public Envelope scaleEnvelope;
+  public float scaling;                 // used if no envelope
 
-  MoveableShapeLayer(int _arm, float _offset) {
+  public boolean terminateWithOpacity = false;
+  public boolean terminateWithPosition = false;
+  public boolean terminateWithScale = false;
+  
+  MoveableShapeLayer(int _arm, float _position) {
     arm = _arm;
-    offset = _offset;
+    position = _position;
   }
 
   // Children need to define render and shapeWidth 
-  void render(color[] armColor, float offset) {
+  void render(color[] armColor, float position, float scaling) {
   }
   
   float shapeWidth() {
     return 0;
   }
   
-  // Draw, then advance (so first frame is aligned with starting offset)
+  // Update all animation parameters (motion, fades)
+  // terminate self if the terminateWhenFaded or terminateWhenOffscreen flags are set
   void advance(float steps) {
-    super.advance(steps);
-
-    // zero length seq protection
-    if (shapeWidth() <= 0) {
-      finish();
-      return;
-    }
-
-    // render the shape at offset
-    render(state.armColor[arm], offset);
   
     // animate
-    offset += motionSpeed * animationSpeed * steps;
-    opacity -= fadeSpeed * animationSpeed * steps;
-
-    // stop fades if we hit opacity limits   
-    if (opacity >= 1) {
-      opacity = 1;
-      fadeSpeed = 0;
-    }
-
-    if (opacity <= 0) {
-      // remove when opacity hits zero, if told to do so
-      if (terminateWhenFaded) {
+    if (opacityEnvelope != null) {
+      opacityEnvelope.advance(steps);
+      if (terminateWithOpacity && opacityEnvelope.isFinished()) {
         finish();
         return;
-      } 
-      else {
-        opacity = 0;
-        fadeSpeed = 0;
       }
+      opacity = opacityEnvelope.getVal();
     }
 
-    // if the pattern is completely off the arm in the direction of travel, remove this layer, if told to do so
-    if (terminateWhenOffscreen) {
-      if ( ((motionSpeed > 0) && (offset >= state.armColor[arm].length)) ||
-        ((motionSpeed < 0) && (offset <= -shapeWidth())) ) {
+    if (positionEnvelope != null) {
+      positionEnvelope.advance(steps);
+      if (terminateWithPosition && positionEnvelope.isFinished()) {
         finish();
+        return;
+      }
+      position = positionEnvelope.getVal();
+    } else {
+      
+      // manual animation, no motion envelope, move at constant rate, terminate when offscreen
+      position += motionSpeed * steps;  
+      if (terminateWithPosition) {
+        if ( ((motionSpeed > 0) && (position >= state.armColor[arm].length)) ||
+             ((motionSpeed < 0) && (position <= -shapeWidth())) ) {
+          finish();
+          return;
+        }
       }
     }
+    
+    if (scaleEnvelope != null) {
+      scaleEnvelope.advance(steps);
+      if (terminateWithScale && scaleEnvelope.isFinished()) {
+        finish();
+        return;
+      }
+      scaling = scaleEnvelope.getVal();
+ //     println("scaling: " + scaling);
+    } 
+  }
+  
+  // render the shape at offset
+  void apply(LightingState otherState) {
+    render(state.armColor[arm], position, scaling);
+    otherState.blendOverSelf(state, blendMode, opacity);
   }
 }
 
 // ---------------------------------------- TextureLayer ----------------------------------------- 
-
 // A MovableShape layer that renders with a texture
 
 // Render one texture into another with a float offset, lerping between pixels of src. Outside src is considered black.
@@ -213,13 +270,155 @@ class TextureLayer extends MoveableShapeLayer {
     tex = _tex;
   }
 
-  // Children need to define render and shapeWidth 
-  void render(color[] armColor, float offset) {
-    copy1DTexture(tex, armColor, offset);    
+  // Render just copies the texture
+  void render(color[] armColor, float offset, float scaling) {
+    copy1DTexture(tex, armColor, offset);      // scaling ignored! because I haven't written a texture scaler... not hard, but...
   }
   
   float shapeWidth() {
     return tex.length;
+  }
+}
+
+
+// ---------------------------------------- ColorRampLayer ----------------------------------------- 
+// This is a MovableShapeLayer that renders a color ramp, with an arbitrary number of colors
+// Each segment in the ramp is specified as RGBA,width.
+// There is also an overall scaling, which is applied with the first vertex treated as the origin
+
+class ColorVertex {
+  color c;          // RGB and A used
+  float w;          // width until next vertex. 
+}
+
+
+// Does anti-aliasing of non-uniformly spaced color ramps
+// Ramp goes from 0 to rampLength, and is 100% intensity inside that, zero-alpha black outside.
+// rampX contains cumulative X position of each vertex. Last element must = rampLength
+color sampleRamp(ColorVertex[] ramp, float[] rampX, float rampLength, float start, float span) {
+
+  // error checking
+  assert(ramp.length>=2);
+  assert(rampX[ramp.length-1] == rampLength);
+
+  // first dispense with edge cases: not visible, or zero scaling
+  if ((start >= rampLength) || (start + span < 0) || (span==0)) {
+    return color(0,0,0,0);
+  }
+
+  float accum_r = 0, accum_g = 0, accum_b = 0, accum_a = 0;
+  float pos = start;
+  float end = start+span;
+
+  // handle negative spans
+  if (end < pos) {
+    pos = end;
+    end = start;
+    span = abs(span);
+  }   
+  
+  // nothing exists outside left edge
+  if (pos<0)      
+    pos=0;
+
+  // We're going to scan across the ramp, from pos to end, intersecting against one segment at a time, 
+  // with the following invariants:   
+  //   rampX[vtxA] <= pos < rampX[vtxB]; 
+  //   vtxB = vtxA + 1
+  int vtxA = 0;
+  int vtxB = 1;  
+  while (pos >= rampX[vtxB]) {
+    vtxA++;
+    vtxB++;
+  }
+ 
+  assert(vtxB < ramp.length);
+   
+
+  // now add in each ramp segment, or part thereof
+  while ((pos < end) && (vtxB < ramp.length)) {      // we'll break out on second condition if span exceeds right edge of ramp
+
+    assert(rampX[vtxA] <= pos);
+    assert(pos < rampX[vtxB]); 
+
+    // Sample whole range between vertices, or just part?
+    color color1, color2;
+    float x2;
+     
+    // color at pos is a vertex color or somewhere between  
+    if (pos == rampX[vtxA]) {
+      color1 = ramp[vtxA].c;
+    } else {
+      color1 = lerpColor(ramp[vtxA].c, ramp[vtxB].c, (pos - rampX[vtxA]) / ramp[vtxA].w); 
+    }
+     
+    // end is either past vtxB of this segment, or within it
+    if (end >= rampX[vtxB]) {
+      color2 = ramp[vtxB].c;     // end is past vtxB
+      x2 = rampX[vtxB];
+    } else {
+      color2 = lerpColor(ramp[vtxA].c, ramp[vtxB].c, (end - rampX[vtxA]) / ramp[vtxA].w);  // end is before vtxB
+      x2 = end;
+    }
+     
+    // Add in the segment as the integral of the ramp between the two colors. 
+    // Since the ramp is linear, this integral is just the mid point of the two colors times the width
+//    accum += lerpColor(color1, color2, 0.5) * (x2-pos);    // operator +,+= doesn't work on Processing color type !
+    accum_r += (red(color1) +  red(color2)) * (x2-pos)/2;
+    accum_g += (green(color1) +  green(color2)) * (x2-pos)/2;
+    accum_b += (blue(color1) +  blue(color2)) * (x2-pos)/2;
+    accum_a += (alpha(color1) +  alpha(color2)) * (x2-pos)/2;
+         
+    // Advance pos up the point we've accumulated
+    pos = x2; 
+    vtxA++;
+    vtxB++;
+  }
+   
+  color accum = color(accum_r / span, accum_g / span, accum_b / span, accum_a / span);    // normalize, we want the average color over the span
+  return accum;
+}
+
+class ColorRampLayer extends MoveableShapeLayer {
+  
+  ColorVertex[] ramp;
+  float[] rampX;
+  float rampLength;    // sum of vertices.w
+  
+  public float origin;       // this position (within the ramp) is fixed as the scaling increases 
+  
+  ColorRampLayer(int _arm, ColorVertex[] _ramp, float _position) {
+    super(_arm, _position); 
+    ramp = _ramp;
+    scaling=1;
+    origin=0;
+    
+    // Compute vertex positions and total ramp length
+    rampLength=0;
+    rampX = new float[ramp.length];
+    rampX[0] = 0;
+    for (int i=0; i<ramp.length-1; i++)  {    // NB we ignore w (width) of last vertex, because there's nothing after it
+      rampLength += ramp[i].w;
+      rampX[i+1] = rampLength;
+    }
+  }
+
+  // Render steps through the ramp and samples the colors. 
+  void render(color[] armColor, float offset, float scaling) {
+
+    //println("scaling: " + scaling);
+    
+    for (int i=0; i<armColor.length; i++) {
+      if (abs(scaling)>0.0001) {
+        armColor[i] = sampleRamp(ramp, rampX, rampLength, ((i-offset)-origin)/scaling + origin, 1/scaling); 
+      } else {
+        armColor[i] = 0;
+      }
+    }
+  }
+  
+  float shapeWidth() {
+    return rampLength * scaling;
   }
 }
 
