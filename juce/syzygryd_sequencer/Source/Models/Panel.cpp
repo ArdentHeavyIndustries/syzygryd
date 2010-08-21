@@ -71,6 +71,11 @@ void Panel::updateStarField()
 	tabs[tabIndex]->updateStarField();
 }
 
+void Panel::skipIntoStarField()
+{
+	tabs[tabIndex]->skipIntoStarField();
+}
+
 int64 Panel::getLastTouchElapsedMs()
 {
    int64 now = Time::currentTimeMillis();

@@ -28,6 +28,7 @@ public:
 	void clear();
 	
 	void updateStarField();
+	void skipIntoStarField();
 
 private:
 	const int totalRows;

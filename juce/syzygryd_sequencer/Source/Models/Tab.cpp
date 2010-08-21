@@ -74,9 +74,7 @@ void Tab::updateStarField()
 	//DBG("Tab::updateStarField()");
 	if (firstUpdateStarField) {
 		firstUpdateStarField = false;
-		for (int i = 0; i < 20; i++) {
-			starField->update();
-		}
+		skipIntoStarField();
 	}
 	
 	updateStarFieldCount++;
@@ -102,3 +100,12 @@ void Tab::updateStarField()
 		}		
 	}
 }
+
+void Tab::skipIntoStarField()
+{
+	// Skip some frames into the animation (so it doesn't take so long to load)
+	for (int i = 0; i < 20; i++) {
+		starField->update();
+	}	
+}
+

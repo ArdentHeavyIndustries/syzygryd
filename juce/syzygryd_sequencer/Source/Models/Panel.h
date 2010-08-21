@@ -34,6 +34,7 @@ public:
 	void clearTab (int tabIndex_);
 	
 	void updateStarField();
+	void skipIntoStarField();
 
 	int64 getLastTouchElapsedMs();
    void updateLastTouch(bool fromStopAttract_);

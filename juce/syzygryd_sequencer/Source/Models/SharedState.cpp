@@ -490,6 +490,12 @@ bool SharedState::getStarFieldActive()
 void SharedState::setStarFieldActive (bool starFieldActive_)
 {
 	starFieldActive = starFieldActive_;
+	if (starFieldActive) {
+		for (int i = 0; i < kNumPanels; i++) {
+			Panel* panel = panels[i];
+			panel->skipIntoStarField();
+		}		
+	}
 }
 
 void SharedState::enableStarField()
