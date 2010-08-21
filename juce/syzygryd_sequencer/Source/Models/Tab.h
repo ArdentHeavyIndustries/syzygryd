@@ -28,14 +28,13 @@ public:
 	void clear();
 	
 	void updateStarField();
-	
+
 private:
 	const int totalRows;
 	const int totalCols;
 	
 	OwnedArray< OwnedArray<Cell> > rows;	
 	
-   static const int kUpdateStarFieldSkip;
 	StarField* starField;
 	int updateStarFieldCount;
 	bool firstUpdateStarField;

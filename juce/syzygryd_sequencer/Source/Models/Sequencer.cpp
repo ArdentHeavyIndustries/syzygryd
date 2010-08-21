@@ -220,9 +220,7 @@ void Sequencer::processBlock (AudioSampleBuffer& buffer,
          //    SharedState::getInstance()->allAttracting()
          // but that won't work if someone turns on the star field by hand via the sequencer GUI
 			if (pluginAudioProcessor->getPanelIndex() == 0) {
-				if (tickCount % 10 == 0) {			
-					SharedState::getInstance()->updateStarField();
-				}
+				SharedState::getInstance()->updateStarField();
 			}
 		}
 		

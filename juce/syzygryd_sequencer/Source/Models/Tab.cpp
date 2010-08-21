@@ -14,8 +14,6 @@
 
 #include "Tab.h"
 
-const int Tab::kUpdateStarFieldSkip = 150;
-
 Tab::Tab (int totalRows_, int totalCols_) :
 totalRows (totalRows_),
 totalCols (totalCols_),
@@ -71,7 +69,9 @@ void Tab::clear()
 
 void Tab::updateStarField()
 {
-   //DBG("Tab::updateStarField()");
+	int kUpdateStarFieldSkip = SharedState::getInstance()->getUpdateStarFieldSkip();
+	
+	//DBG("Tab::updateStarField()");
 	if (firstUpdateStarField) {
 		firstUpdateStarField = false;
 		for (int i = 0; i < 20; i++) {

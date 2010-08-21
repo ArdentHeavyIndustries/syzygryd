@@ -41,7 +41,8 @@ oscOutput (0),
 ppqPosition (0.0),
 timeInSeconds (0.0),
 bpm (120.0),
-starFieldActive (false)
+starFieldActive (false),
+updateStarFieldSkip (0)
 {
    readConfig();
 
@@ -50,6 +51,8 @@ starFieldActive (false)
    SharedState::kDegradeSlowSecPerDelete = getConfigInt("degradeSlowSecPerDelete", 3);
    SharedState::kDegradeFastSec = getConfigInt("degradeFastSec", 270);
 
+	updateStarFieldSkip = getConfigInt ("updateStarFieldSkip", 150);
+	
 	blobs = new osc::Blob*[kNumPanels];
 	touchOscConnected = new bool[kNumPanels];
 	int numValues = Panel::kNumTabs * totalRows * totalCols;
@@ -584,4 +587,16 @@ void SharedState::stopAttract()
       panel->setState(Panel::ACTIVE);
    }
 }
+
+int SharedState::getUpdateStarFieldSkip()
+{
+	return updateStarFieldSkip;	
+}
+
+void SharedState::setUpdateStarFieldSkip (int updateStarFieldSkip_)
+{
+	updateStarFieldSkip = updateStarFieldSkip_;	
+}
+
+
 

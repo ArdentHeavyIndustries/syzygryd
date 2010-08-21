@@ -122,13 +122,16 @@ public:
    bool allAttracting();
 #endif
    void stopAttract();
+
+	int getUpdateStarFieldSkip();
+	void setUpdateStarFieldSkip (int updateStarFieldSkip_);	
 	
 	juce_DeclareSingleton (SharedState, true)
 	
 private:
 	SharedState();
 	~SharedState();
-	
+
 	CriticalSection primarySequencerCriticalSection;
 	bool primarySet;
 	
@@ -153,6 +156,7 @@ private:
    bool* touchOscConnected;
 	
 	bool starFieldActive; // perform starfield effect	
+	int updateStarFieldSkip; // star field playback rate (higher = slower)
 };
 
 #endif
