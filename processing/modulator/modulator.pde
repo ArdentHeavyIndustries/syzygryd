@@ -374,19 +374,15 @@ void setup() {
 
    // set default midi in/out
    // should be complements of whatever Ableton Live is set to
-   // XXX should probably change these defaults for the mac to be different from each other, but i'm not sure what they should be
-   String s_defaultMacMidiInput1 = "GridSequencer";
-   String s_defaultMacMidiInput2  = "IAC Driver - Bus 1";
-   String s_defaultMacMidiOutput1 = "GridSequencer";
-   String s_defaultMacMidiOutput2 = "IAC Driver - Bus 1";
+   String s_defaultMacMidiInput = "OutputSequencer";
+   String s_defaultMacMidiOutput = "GridSequencer";
    String s_defaultWinMidiInput  = "In From MIDI Yoke:  2";
    String s_defaultWinMidiOutput = "Out To MIDI Yoke:  1";
    // if all else fails, just take the first choices
    int i_defaultMidiInput = 0;
    int i_defaultMidiOutput = 0;
    for (int i = 0; i < availableIns.length; i++) {
-      if (availableIns[i].equals(s_defaultMacMidiInput1) ||
-          availableIns[i].equals(s_defaultMacMidiInput2) ||
+      if (availableIns[i].equals(s_defaultMacMidiInput) ||
           availableIns[i].equals(s_defaultWinMidiInput)) {
          i_defaultMidiInput = i;
          System.out.println("Setting default input for to " + i + ": " + availableIns[i]);
@@ -395,8 +391,7 @@ void setup() {
    }
 
    for (int i = 0; i < availableOuts.length; i++) {
-      if (availableOuts[i].equals(s_defaultMacMidiOutput1) ||
-          availableOuts[i].equals(s_defaultMacMidiOutput2) ||
+      if (availableOuts[i].equals(s_defaultMacMidiOutput) ||
           availableOuts[i].equals(s_defaultWinMidiOutput)) {
          System.out.println("Setting default output to " + i + ": " + availableOuts[i]);
          i_defaultMidiOutput = i;
