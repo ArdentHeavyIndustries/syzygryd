@@ -70,10 +70,9 @@ class LightingState {
     for (int i=0; i<arm.length; i++) {   
       for (int j=0; j<armResolution(i); j++) {        
         Fixture f = arm[i].members.get(j);
-        if (f.traits.containsKey("RGBColorMixing")){
+        if (f.trait("RGBColorMixing") instanceof RGBColorMixingTrait){
           ((RGBColorMixingTrait)f.trait("RGBColorMixing")).setColorRGB(armColor[i][j]);
-        } else
-        if (f.traits.containsKey("Fire")){
+        } else if (f.trait("Fire") instanceof FireTrait){
           ((FireTrait)f.trait("Fire")).color2Fire(armColor[i][j]);
         }
       }
