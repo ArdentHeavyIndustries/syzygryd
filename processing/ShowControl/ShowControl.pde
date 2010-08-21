@@ -15,9 +15,9 @@ int PANELS = 3;
 int PITCHES = 10;
 
 int FRAMERATE = 200;
-boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
+boolean SEND_DMX = true; //IMPORTANT: set to 'true' for production
 
-boolean SYZYVYZ = true;
+boolean SYZYVYZ = false;
 boolean ASCII_SEQUENCER_DISPLAY = false;
 
 // ----------------- Variable Declaration & Initialization -----------------
@@ -80,7 +80,8 @@ void setup() {
   DMXManager = new DMX(this);
 
   //add three controllers to manager
-  DMXManager.addController("COM5");
+  //DMXManager.addController("COM5");
+  DMXManager.addController("/dev/cu.usbserial-EN075577");
   //DMXManager.addController("COM5",108);
   //DMXManager.addController("COM4",108);
   //DMXManager.addController("COM3",108);
@@ -131,6 +132,8 @@ void draw(){
   
   // Set dem lights!
   renderedLightState.output();
+  
+  program.drawFrame();
   
   // render fixture behaviors.  do fixture groups first, then fixtures
   for (FixtureGroup group : fixtureGroups) {
