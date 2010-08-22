@@ -14,7 +14,7 @@ class OSCManager {
   OSCManager(String _remoteHost, int _incomingPort, int _outgoingPort){
     NetAddress myRemoteLocation;
 
-    // start oscP5, listening for incoming messages on port 9000
+    // start oscP5, listening for incoming messages
     oscP5 = new OscP5(this, _incomingPort);
 
     // myRemoteLocation is set to the address and port the sequencer

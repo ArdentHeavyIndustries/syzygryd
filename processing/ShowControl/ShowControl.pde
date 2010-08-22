@@ -66,7 +66,8 @@ void setup() {
   frameRate(FRAMERATE);
 
   //Set up OSC connection
-  OSCConnection = new OSCManager("255.255.255.255",9000,9000);
+  // OSCManager (host, receive, send)
+  OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
 
 
@@ -82,6 +83,8 @@ void setup() {
   //add three controllers to manager
   //DMXManager.addController("COM5");
   DMXManager.addController("/dev/cu.usbserial-EN075577");
+  DMXManager.addController("/dev/cu.usbserial-00003004");
+  DMXManager.addController("/dev/cu.usbserial-FTSK5W77");
   //DMXManager.addController("COM5",108);
   //DMXManager.addController("COM4",108);
   //DMXManager.addController("COM3",108);
