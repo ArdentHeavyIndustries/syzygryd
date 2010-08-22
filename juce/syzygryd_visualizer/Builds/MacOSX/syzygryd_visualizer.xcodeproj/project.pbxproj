@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C91A1303122064BC008D8D39 /* syzygryd_flames.obj in Resources */ = {isa = PBXBuildFile; fileRef = C91A1302122064BC008D8D39 /* syzygryd_flames.obj */; };
+		C91A1304122064C4008D8D39 /* syzygryd_flames.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C91A1302122064BC008D8D39 /* syzygryd_flames.obj */; };
+		C91A14C612208769008D8D39 /* syzygryd_tornado.obj in Resources */ = {isa = PBXBuildFile; fileRef = C91A14C512208769008D8D39 /* syzygryd_tornado.obj */; };
+		C91A14C71220876C008D8D39 /* syzygryd_tornado.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C91A14C512208769008D8D39 /* syzygryd_tornado.obj */; };
 		C92B89A5120C7B6A00B92ED2 /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92B8993120C7B6A00B92ED2 /* color.cpp */; };
 		C92B89A6120C7B6A00B92ED2 /* dmx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92B8995120C7B6A00B92ED2 /* dmx.cpp */; };
 		C92B89A7120C7B6A00B92ED2 /* glm.c in Sources */ = {isa = PBXBuildFile; fileRef = C92B8998120C7B6A00B92ED2 /* glm.c */; };
@@ -44,6 +48,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				C91A14C71220876C008D8D39 /* syzygryd_tornado.obj in CopyFiles */,
+				C91A1304122064C4008D8D39 /* syzygryd_flames.obj in CopyFiles */,
 				C9642FD2121FAD0A005A4BC7 /* syzygryd_lights.obj in CopyFiles */,
 				C9642FD3121FAD0A005A4BC7 /* syzygryd_model.obj in CopyFiles */,
 			);
@@ -52,6 +58,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C91A1302122064BC008D8D39 /* syzygryd_flames.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_flames.obj; path = ../../Objects/syzygryd_flames.obj; sourceTree = SOURCE_ROOT; };
+		C91A14C512208769008D8D39 /* syzygryd_tornado.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_tornado.obj; path = ../../Objects/syzygryd_tornado.obj; sourceTree = SOURCE_ROOT; };
 		C92B8993120C7B6A00B92ED2 /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
 		C92B8994120C7B6A00B92ED2 /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = color.h; sourceTree = "<group>"; };
 		C92B8995120C7B6A00B92ED2 /* dmx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dmx.cpp; sourceTree = "<group>"; };
@@ -197,6 +205,8 @@
 		C95D3DB4115E886500C293DE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				C91A14C512208769008D8D39 /* syzygryd_tornado.obj */,
+				C91A1302122064BC008D8D39 /* syzygryd_flames.obj */,
 				C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */,
 				C9642FCF121FAD07005A4BC7 /* syzygryd_model.obj */,
 				C95D3AF8115E87DA00C293DE /* App-Info.plist */,
@@ -274,6 +284,8 @@
 			files = (
 				C9642FD0121FAD07005A4BC7 /* syzygryd_lights.obj in Resources */,
 				C9642FD1121FAD07005A4BC7 /* syzygryd_model.obj in Resources */,
+				C91A1303122064BC008D8D39 /* syzygryd_flames.obj in Resources */,
+				C91A14C612208769008D8D39 /* syzygryd_tornado.obj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

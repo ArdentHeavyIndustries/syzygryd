@@ -28,8 +28,11 @@ private:
 	
 	OwnedArray<Light> lights;	
 	int motionIndex;
+	int flameIndex;
 	
 	StreamingSocket socket;
+	
+	int armIndex;
 };
 
 #endif

@@ -117,11 +117,6 @@ MyOpenGLComponent::~MyOpenGLComponent()
 	syzygryd->dmx.stopThread (3000);
 }
 
-const String& MyOpenGLComponent::getLastData()
-{
-	return syzygryd->dmx.getLastData();
-}
-
 // OpenGLComponent methods
 void MyOpenGLComponent::renderOpenGL()
 {	
@@ -170,6 +165,7 @@ void MyOpenGLComponent::renderOpenGL()
 		// objects
 		syzygryd->Draw();
 		
+		/*
 		// surface plane
 		if( planeon )
 		{			
@@ -185,6 +181,7 @@ void MyOpenGLComponent::renderOpenGL()
 			
 			glPopAttrib();
 		}
+		 */
 		
 		// some navigation toys
 		if( gridon )
@@ -248,8 +245,14 @@ void MyOpenGLComponent::newOpenGLContextCreated()
 	File workingPath = File::getSpecialLocation(File::currentApplicationFile);
 	File model (workingPath.getSiblingFile ("syzygryd_model.obj"));
 	File lights (workingPath.getSiblingFile ("syzygryd_lights.obj"));
-				
-	syzygryd = new Syzygryd(model.getFullPathName().toUTF8(), lights.getFullPathName().toUTF8(), "");
+	File flames (workingPath.getSiblingFile  ("syzygryd_flames.obj"));
+	File tornado (workingPath.getSiblingFile ("syzygryd_tornado.obj"));
+	
+	syzygryd = new Syzygryd(model.getFullPathName().toUTF8(), 
+							lights.getFullPathName().toUTF8(), 
+							flames.getFullPathName().toUTF8(),
+							tornado.getFullPathName().toUTF8(),
+							"");
 	sky = new Sky(cloud_gray, sky_blue);
 }
 

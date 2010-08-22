@@ -53,7 +53,8 @@ void send_message( int fd, uint8_t command, uint8_t *data, int dataSize )
 }
 
 
-void recv_new_message( StreamingSocket& socket, uint8_t start, uint8_t *command, uint8_t **data, int *dataSize )
+void recv_new_message(StreamingSocket& socket, uint8_t start, uint8_t *command, 
+					  uint8_t **data, int *dataSize, uint8_t *armNum)
 {
 	// param check and init
 	if( command && data && dataSize )
@@ -69,6 +70,11 @@ void recv_new_message( StreamingSocket& socket, uint8_t start, uint8_t *command,
 			break;
 	} while( start!=0x7E );
 	*/
+	
+	*armNum = start;
+	
+	socket.read(&start, 1, false);
+	
 	// got the start byte? read the header
 	if( start == 0x7E )
 	{
@@ -207,8 +213,9 @@ void DMX::run()
 				uint8_t command;
 				uint8_t *data;
 				int dataSize;
+				uint8_t armNum;
 				//f.appendText ("before receive new message\n");
-				recv_new_message(*listenSocket, start, &command, &data, &dataSize);
+				recv_new_message(*listenSocket, start, &command, &data, &dataSize, &armNum);
 				printf ("command: %d dataSize: %d\n", command, dataSize);
 				if( data )
 				{
@@ -221,12 +228,12 @@ void DMX::run()
 					{
 						//String dbg;
 						//dbg << "DATA: ";
-						lastData = String::empty;
+						//lastData = String::empty;
 						for (int i = 0; i < dataSize; i++) {
 							printf ("%02X", data[i]);
-							String newData = String::toHexString (data[i]);
-							newData = newData.paddedLeft ('0', 2).toUpperCase();
-							lastData << newData << " ";
+							//String newData = String::toHexString (data[i]);
+							//newData = newData.paddedLeft ('0', 2).toUpperCase();
+							//lastData << newData << " ";
 						}
 						//dbg << "\n";
 						printf ("\n");
@@ -238,7 +245,24 @@ void DMX::run()
 							//f.appendText (dbg);
 							// copy to output world
 							memcpy(world, data, MIN(DMX_COUNT,dataSize-1));
-							memcpy(world2, data, MIN(DMX_COUNT,dataSize-1));
+							//memcpy(world2, data, MIN(DMX_COUNT,dataSize));
+
+							int numLights = 36;
+							int worldLightOffset = numLights*3*(armNum);
+							// Copy lights
+							for (int i = 0; i <= numLights*3; i++) {
+								world2[i+worldLightOffset] = data[i];
+							}
+							
+							// Copy flames
+							int numFlames = 24;
+							int numControlCubes = 9;
+							int worldFlameOffset = (numLights*3*3)+numControlCubes; // won't change
+							int dataOffset = (numLights*3)+numControlCubes; // won't change
+							for (int i = 0; i < numFlames; i++) {
+								world2[i+worldFlameOffset] = data[i+dataOffset];
+							}
+							
 							frame_count++;
 						}
 					}

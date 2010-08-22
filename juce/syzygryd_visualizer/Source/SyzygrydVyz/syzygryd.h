@@ -13,10 +13,16 @@ struct Syzygryd
 	// map model
 	GLMmodel* model;
 	GLMmodel* lights;
+	GLMmodel* flames;
+	GLMmodel* tornado;
 	float size[3];
 	GLuint list;
 
-	Syzygryd( const char* modelPath, const char* lightsPath, const char *devicePath );
+	Syzygryd(const char* modelPath, 
+			 const char* lightsPath, 
+			 const char* flamesPath,
+			 const char* tornadoPath,
+			 const char *devicePath);
 	~Syzygryd();
 
 	void Draw();

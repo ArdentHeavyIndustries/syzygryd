@@ -13,6 +13,8 @@
 #include "Lighting.h"
 
 const int kNumLights = 36;
+const int kNumControlCubes = 9;
+const int kNumFlames = 24;
 
 const String kRemoteHost = "127.0.0.1";
 const int kRemotePort = 3333;
@@ -21,7 +23,9 @@ const int kTimeoutMs = 20;
 
 Lighting::Lighting() : 
 Thread ("Lighting"),
-motionIndex (0)
+motionIndex (0),
+flameIndex (0),
+armIndex (0)
 {
 	for (int i = 0; i < kNumLights; i++) {
 		Light* light = new Light (Colours::black);
@@ -38,11 +42,14 @@ Lighting::~Lighting()
 
 void Lighting::send()
 {
+	String arm = String::toHexString (armIndex);
+	arm = arm.paddedLeft ('0', 2);
 	
-	String frameStart ("7E05");
+	String frameStart;
+	frameStart << arm << "7E05";
 
 	//String channelSize ("6C00");
-	int channelSize = kNumLights * 3; // 108
+	int channelSize = (kNumLights * 3) + kNumControlCubes + kNumFlames; 
 	String channelSizeHex = String::toHexString (channelSize);
 	String channelSizeString;
 	channelSizeString << channelSizeHex << "00";
@@ -52,6 +59,8 @@ void Lighting::send()
 	
 	String message;
 
+	int byteCount = 0;
+	
 	for (int i = 0; i < kNumLights; i++) {
 		Light* light = lights[i];
 		int r = light->getColor().getRed();
@@ -65,11 +74,30 @@ void Lighting::send()
 		blue = blue.paddedLeft ('0', 2);
 		
 		data << red << green << blue;
+		
+		byteCount += 3;
+	}
+	
+	for (int i = 0; i < kNumControlCubes; i++) {
+		data << "00"; // not implemented
+		
+		byteCount++;
+	}
+	
+	for (int i = 0; i < kNumFlames; i++) {
+		if (flameIndex == i) {
+			data << "FF";
+		} else {
+			data << "00";
+		}
+		
+		byteCount++;
 	}
 
 	message << frameStart << channelSizeString << data << frameEnd;
 	
 	DBG (message)
+	DBG (flameIndex)
 	
 	MemoryBlock memory;
 	memory.loadFromHexString (message);
@@ -116,6 +144,13 @@ void Lighting::run()
 		}
 		
 		motionIndex = (motionIndex + 1) % kNumLights;
+		
+		if (motionIndex == 0) {
+			int numArms = 3;
+			armIndex = (armIndex + 1) % numArms;
+		}
+		
+		flameIndex = (flameIndex + 1) % kNumFlames;
 		
 		if (socket.isConnected()) {
 			send();

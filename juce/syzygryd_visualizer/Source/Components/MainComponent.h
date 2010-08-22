@@ -15,8 +15,7 @@ class MyOpenGLComponent;
 #include "JuceHeader.h"
 
 class MainComponent : 
-public Component,
-public Timer
+public Component
 {
 public:
 	MainComponent();
@@ -26,14 +25,8 @@ public:
 	virtual void paint (Graphics& g);
 	virtual void resized();
 	
-	// Timer methods
-	virtual void timerCallback();
-	
 private:
 	MyOpenGLComponent* myOpenGLComponent;
-	TextEditor* dataText;
-	
-	String lastData;
 };
 
 #endif

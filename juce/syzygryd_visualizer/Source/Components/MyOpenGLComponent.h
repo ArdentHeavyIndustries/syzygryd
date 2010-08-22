@@ -20,8 +20,6 @@ public:
 	MyOpenGLComponent();
 	~MyOpenGLComponent();
 
-	const String& getLastData();
-	
 	// OpenGLComponent methods
 	virtual void renderOpenGL();
 	virtual void newOpenGLContextCreated();
