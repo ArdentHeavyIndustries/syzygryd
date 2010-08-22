@@ -252,6 +252,42 @@
       <channel address="107" name="blue"/>
     </channels>
   </fixture>
+  <fixture dmx_universe="0" profile="cube">
+    <channels>
+      <channel address="108" name="red"/>
+      <channel address="109" name="green"/>
+      <channel address="110" name="blue"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="0" profile="cube">
+    <channels>
+      <channel address="111" name="red"/>
+      <channel address="112" name="green"/>
+      <channel address="113" name="blue"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="0" profile="cube">
+    <channels>
+      <channel address="114" name="red"/>
+      <channel address="115" name="green"/>
+      <channel address="116" name="blue"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="0" profile="fire">
+    <channels>
+      <channel address="117" name="fire"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="0" profile="fire">
+    <channels>
+      <channel address="118" name="fire"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="0" profile="fire">
+    <channels>
+      <channel address="119" name="fire"/>
+    </channels>
+  </fixture>
   <fixture dmx_universe="0" profile="fire">
     <channels>
       <channel address="120" name="fire"/>
@@ -387,823 +423,850 @@
       <channel address="146" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="147" name="fire"/>
+      <channel address="0" name="red"/>
+      <channel address="1" name="green"/>
+      <channel address="2" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="148" name="fire"/>
+      <channel address="3" name="red"/>
+      <channel address="4" name="green"/>
+      <channel address="5" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="149" name="fire"/>
+      <channel address="6" name="red"/>
+      <channel address="7" name="green"/>
+      <channel address="8" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="150" name="red"/>
-      <channel address="151" name="green"/>
-      <channel address="152" name="blue"/>
+      <channel address="9" name="red"/>
+      <channel address="10" name="green"/>
+      <channel address="11" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="153" name="red"/>
-      <channel address="154" name="green"/>
-      <channel address="155" name="blue"/>
+      <channel address="12" name="red"/>
+      <channel address="13" name="green"/>
+      <channel address="14" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="156" name="red"/>
-      <channel address="157" name="green"/>
-      <channel address="158" name="blue"/>
+      <channel address="15" name="red"/>
+      <channel address="16" name="green"/>
+      <channel address="17" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="159" name="red"/>
-      <channel address="160" name="green"/>
-      <channel address="161" name="blue"/>
+      <channel address="18" name="red"/>
+      <channel address="19" name="green"/>
+      <channel address="20" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="162" name="red"/>
-      <channel address="163" name="green"/>
-      <channel address="164" name="blue"/>
+      <channel address="21" name="red"/>
+      <channel address="22" name="green"/>
+      <channel address="23" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="165" name="red"/>
-      <channel address="166" name="green"/>
-      <channel address="167" name="blue"/>
+      <channel address="24" name="red"/>
+      <channel address="25" name="green"/>
+      <channel address="26" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="168" name="red"/>
-      <channel address="169" name="green"/>
-      <channel address="170" name="blue"/>
+      <channel address="27" name="red"/>
+      <channel address="28" name="green"/>
+      <channel address="29" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="171" name="red"/>
-      <channel address="172" name="green"/>
-      <channel address="173" name="blue"/>
+      <channel address="30" name="red"/>
+      <channel address="31" name="green"/>
+      <channel address="32" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="174" name="red"/>
-      <channel address="175" name="green"/>
-      <channel address="176" name="blue"/>
+      <channel address="33" name="red"/>
+      <channel address="34" name="green"/>
+      <channel address="35" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="177" name="red"/>
-      <channel address="178" name="green"/>
-      <channel address="179" name="blue"/>
+      <channel address="36" name="red"/>
+      <channel address="37" name="green"/>
+      <channel address="38" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="180" name="red"/>
-      <channel address="181" name="green"/>
-      <channel address="182" name="blue"/>
+      <channel address="39" name="red"/>
+      <channel address="40" name="green"/>
+      <channel address="41" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="183" name="red"/>
-      <channel address="184" name="green"/>
-      <channel address="185" name="blue"/>
+      <channel address="42" name="red"/>
+      <channel address="43" name="green"/>
+      <channel address="44" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="186" name="red"/>
-      <channel address="187" name="green"/>
-      <channel address="188" name="blue"/>
+      <channel address="45" name="red"/>
+      <channel address="46" name="green"/>
+      <channel address="47" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="189" name="red"/>
-      <channel address="190" name="green"/>
-      <channel address="191" name="blue"/>
+      <channel address="48" name="red"/>
+      <channel address="49" name="green"/>
+      <channel address="50" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="192" name="red"/>
-      <channel address="193" name="green"/>
-      <channel address="194" name="blue"/>
+      <channel address="51" name="red"/>
+      <channel address="52" name="green"/>
+      <channel address="53" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="195" name="red"/>
-      <channel address="196" name="green"/>
-      <channel address="197" name="blue"/>
+      <channel address="54" name="red"/>
+      <channel address="55" name="green"/>
+      <channel address="56" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="198" name="red"/>
-      <channel address="199" name="green"/>
-      <channel address="200" name="blue"/>
+      <channel address="57" name="red"/>
+      <channel address="58" name="green"/>
+      <channel address="59" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="201" name="red"/>
-      <channel address="202" name="green"/>
-      <channel address="203" name="blue"/>
+      <channel address="60" name="red"/>
+      <channel address="61" name="green"/>
+      <channel address="62" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="204" name="red"/>
-      <channel address="205" name="green"/>
-      <channel address="206" name="blue"/>
+      <channel address="63" name="red"/>
+      <channel address="64" name="green"/>
+      <channel address="65" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="207" name="red"/>
-      <channel address="208" name="green"/>
-      <channel address="209" name="blue"/>
+      <channel address="66" name="red"/>
+      <channel address="67" name="green"/>
+      <channel address="68" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="210" name="red"/>
-      <channel address="211" name="green"/>
-      <channel address="212" name="blue"/>
+      <channel address="69" name="red"/>
+      <channel address="70" name="green"/>
+      <channel address="71" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="213" name="red"/>
-      <channel address="214" name="green"/>
-      <channel address="215" name="blue"/>
+      <channel address="72" name="red"/>
+      <channel address="73" name="green"/>
+      <channel address="74" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="216" name="red"/>
-      <channel address="217" name="green"/>
-      <channel address="218" name="blue"/>
+      <channel address="75" name="red"/>
+      <channel address="76" name="green"/>
+      <channel address="77" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="219" name="red"/>
-      <channel address="220" name="green"/>
-      <channel address="221" name="blue"/>
+      <channel address="78" name="red"/>
+      <channel address="79" name="green"/>
+      <channel address="80" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="222" name="red"/>
-      <channel address="223" name="green"/>
-      <channel address="224" name="blue"/>
+      <channel address="81" name="red"/>
+      <channel address="82" name="green"/>
+      <channel address="83" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="225" name="red"/>
-      <channel address="226" name="green"/>
-      <channel address="227" name="blue"/>
+      <channel address="84" name="red"/>
+      <channel address="85" name="green"/>
+      <channel address="86" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="228" name="red"/>
-      <channel address="229" name="green"/>
-      <channel address="230" name="blue"/>
+      <channel address="87" name="red"/>
+      <channel address="88" name="green"/>
+      <channel address="89" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="231" name="red"/>
-      <channel address="232" name="green"/>
-      <channel address="233" name="blue"/>
+      <channel address="90" name="red"/>
+      <channel address="91" name="green"/>
+      <channel address="92" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="234" name="red"/>
-      <channel address="235" name="green"/>
-      <channel address="236" name="blue"/>
+      <channel address="93" name="red"/>
+      <channel address="94" name="green"/>
+      <channel address="95" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="237" name="red"/>
-      <channel address="238" name="green"/>
-      <channel address="239" name="blue"/>
+      <channel address="96" name="red"/>
+      <channel address="97" name="green"/>
+      <channel address="98" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="240" name="red"/>
-      <channel address="241" name="green"/>
-      <channel address="242" name="blue"/>
+      <channel address="99" name="red"/>
+      <channel address="100" name="green"/>
+      <channel address="101" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="243" name="red"/>
-      <channel address="244" name="green"/>
-      <channel address="245" name="blue"/>
+      <channel address="102" name="red"/>
+      <channel address="103" name="green"/>
+      <channel address="104" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="246" name="red"/>
-      <channel address="247" name="green"/>
-      <channel address="248" name="blue"/>
+      <channel address="105" name="red"/>
+      <channel address="106" name="green"/>
+      <channel address="107" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="249" name="red"/>
-      <channel address="250" name="green"/>
-      <channel address="251" name="blue"/>
+      <channel address="108" name="red"/>
+      <channel address="109" name="green"/>
+      <channel address="110" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="252" name="red"/>
-      <channel address="253" name="green"/>
-      <channel address="254" name="blue"/>
+      <channel address="111" name="red"/>
+      <channel address="112" name="green"/>
+      <channel address="113" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="1" profile="cube">
     <channels>
-      <channel address="255" name="red"/>
-      <channel address="256" name="green"/>
-      <channel address="257" name="blue"/>
+      <channel address="114" name="red"/>
+      <channel address="115" name="green"/>
+      <channel address="116" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="270" name="fire"/>
+      <channel address="117" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="271" name="fire"/>
+      <channel address="118" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="272" name="fire"/>
+      <channel address="119" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="273" name="fire"/>
+      <channel address="120" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="274" name="fire"/>
+      <channel address="121" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="275" name="fire"/>
+      <channel address="122" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="276" name="fire"/>
+      <channel address="123" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="277" name="fire"/>
+      <channel address="124" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="278" name="fire"/>
+      <channel address="125" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="279" name="fire"/>
+      <channel address="126" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="280" name="fire"/>
+      <channel address="127" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="281" name="fire"/>
+      <channel address="128" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="282" name="fire"/>
+      <channel address="129" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="283" name="fire"/>
+      <channel address="130" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="284" name="fire"/>
+      <channel address="131" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="285" name="fire"/>
+      <channel address="132" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="286" name="fire"/>
+      <channel address="133" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="287" name="fire"/>
+      <channel address="134" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="288" name="fire"/>
+      <channel address="135" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="289" name="fire"/>
+      <channel address="136" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="290" name="fire"/>
+      <channel address="137" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="291" name="fire"/>
+      <channel address="138" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="292" name="fire"/>
+      <channel address="139" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="293" name="fire"/>
+      <channel address="140" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="294" name="fire"/>
+      <channel address="141" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="295" name="fire"/>
+      <channel address="142" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="296" name="fire"/>
+      <channel address="143" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="297" name="fire"/>
+      <channel address="144" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="298" name="fire"/>
+      <channel address="145" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="1" profile="fire">
     <channels>
-      <channel address="299" name="fire"/>
+      <channel address="146" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="300" name="red"/>
-      <channel address="301" name="green"/>
-      <channel address="302" name="blue"/>
+      <channel address="0" name="red"/>
+      <channel address="1" name="green"/>
+      <channel address="2" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="303" name="red"/>
-      <channel address="304" name="green"/>
-      <channel address="305" name="blue"/>
+      <channel address="3" name="red"/>
+      <channel address="4" name="green"/>
+      <channel address="5" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="306" name="red"/>
-      <channel address="307" name="green"/>
-      <channel address="308" name="blue"/>
+      <channel address="6" name="red"/>
+      <channel address="7" name="green"/>
+      <channel address="8" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="309" name="red"/>
-      <channel address="310" name="green"/>
-      <channel address="311" name="blue"/>
+      <channel address="9" name="red"/>
+      <channel address="10" name="green"/>
+      <channel address="11" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="312" name="red"/>
-      <channel address="313" name="green"/>
-      <channel address="314" name="blue"/>
+      <channel address="12" name="red"/>
+      <channel address="13" name="green"/>
+      <channel address="14" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="315" name="red"/>
-      <channel address="316" name="green"/>
-      <channel address="317" name="blue"/>
+      <channel address="15" name="red"/>
+      <channel address="16" name="green"/>
+      <channel address="17" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="318" name="red"/>
-      <channel address="319" name="green"/>
-      <channel address="320" name="blue"/>
+      <channel address="18" name="red"/>
+      <channel address="19" name="green"/>
+      <channel address="20" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="321" name="red"/>
-      <channel address="322" name="green"/>
-      <channel address="323" name="blue"/>
+      <channel address="21" name="red"/>
+      <channel address="22" name="green"/>
+      <channel address="23" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="324" name="red"/>
-      <channel address="325" name="green"/>
-      <channel address="326" name="blue"/>
+      <channel address="24" name="red"/>
+      <channel address="25" name="green"/>
+      <channel address="26" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="327" name="red"/>
-      <channel address="328" name="green"/>
-      <channel address="329" name="blue"/>
+      <channel address="27" name="red"/>
+      <channel address="28" name="green"/>
+      <channel address="29" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="330" name="red"/>
-      <channel address="331" name="green"/>
-      <channel address="332" name="blue"/>
+      <channel address="30" name="red"/>
+      <channel address="31" name="green"/>
+      <channel address="32" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="333" name="red"/>
-      <channel address="334" name="green"/>
-      <channel address="335" name="blue"/>
+      <channel address="33" name="red"/>
+      <channel address="34" name="green"/>
+      <channel address="35" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="336" name="red"/>
-      <channel address="337" name="green"/>
-      <channel address="338" name="blue"/>
+      <channel address="36" name="red"/>
+      <channel address="37" name="green"/>
+      <channel address="38" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="339" name="red"/>
-      <channel address="340" name="green"/>
-      <channel address="341" name="blue"/>
+      <channel address="39" name="red"/>
+      <channel address="40" name="green"/>
+      <channel address="41" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="342" name="red"/>
-      <channel address="343" name="green"/>
-      <channel address="344" name="blue"/>
+      <channel address="42" name="red"/>
+      <channel address="43" name="green"/>
+      <channel address="44" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="345" name="red"/>
-      <channel address="346" name="green"/>
-      <channel address="347" name="blue"/>
+      <channel address="45" name="red"/>
+      <channel address="46" name="green"/>
+      <channel address="47" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="348" name="red"/>
-      <channel address="349" name="green"/>
-      <channel address="350" name="blue"/>
+      <channel address="48" name="red"/>
+      <channel address="49" name="green"/>
+      <channel address="50" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="351" name="red"/>
-      <channel address="352" name="green"/>
-      <channel address="353" name="blue"/>
+      <channel address="51" name="red"/>
+      <channel address="52" name="green"/>
+      <channel address="53" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="354" name="red"/>
-      <channel address="355" name="green"/>
-      <channel address="356" name="blue"/>
+      <channel address="54" name="red"/>
+      <channel address="55" name="green"/>
+      <channel address="56" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="357" name="red"/>
-      <channel address="358" name="green"/>
-      <channel address="359" name="blue"/>
+      <channel address="57" name="red"/>
+      <channel address="58" name="green"/>
+      <channel address="59" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="360" name="red"/>
-      <channel address="361" name="green"/>
-      <channel address="362" name="blue"/>
+      <channel address="60" name="red"/>
+      <channel address="61" name="green"/>
+      <channel address="62" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="363" name="red"/>
-      <channel address="364" name="green"/>
-      <channel address="365" name="blue"/>
+      <channel address="63" name="red"/>
+      <channel address="64" name="green"/>
+      <channel address="65" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="366" name="red"/>
-      <channel address="367" name="green"/>
-      <channel address="368" name="blue"/>
+      <channel address="66" name="red"/>
+      <channel address="67" name="green"/>
+      <channel address="68" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="369" name="red"/>
-      <channel address="370" name="green"/>
-      <channel address="371" name="blue"/>
+      <channel address="69" name="red"/>
+      <channel address="70" name="green"/>
+      <channel address="71" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="372" name="red"/>
-      <channel address="373" name="green"/>
-      <channel address="374" name="blue"/>
+      <channel address="72" name="red"/>
+      <channel address="73" name="green"/>
+      <channel address="74" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="375" name="red"/>
-      <channel address="376" name="green"/>
-      <channel address="377" name="blue"/>
+      <channel address="75" name="red"/>
+      <channel address="76" name="green"/>
+      <channel address="77" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="378" name="red"/>
-      <channel address="379" name="green"/>
-      <channel address="380" name="blue"/>
+      <channel address="78" name="red"/>
+      <channel address="79" name="green"/>
+      <channel address="80" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="381" name="red"/>
-      <channel address="382" name="green"/>
-      <channel address="383" name="blue"/>
+      <channel address="81" name="red"/>
+      <channel address="82" name="green"/>
+      <channel address="83" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="384" name="red"/>
-      <channel address="385" name="green"/>
-      <channel address="386" name="blue"/>
+      <channel address="84" name="red"/>
+      <channel address="85" name="green"/>
+      <channel address="86" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="387" name="red"/>
-      <channel address="388" name="green"/>
-      <channel address="389" name="blue"/>
+      <channel address="87" name="red"/>
+      <channel address="88" name="green"/>
+      <channel address="89" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="390" name="red"/>
-      <channel address="391" name="green"/>
-      <channel address="392" name="blue"/>
+      <channel address="90" name="red"/>
+      <channel address="91" name="green"/>
+      <channel address="92" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="393" name="red"/>
-      <channel address="394" name="green"/>
-      <channel address="395" name="blue"/>
+      <channel address="93" name="red"/>
+      <channel address="94" name="green"/>
+      <channel address="95" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="396" name="red"/>
-      <channel address="397" name="green"/>
-      <channel address="398" name="blue"/>
+      <channel address="96" name="red"/>
+      <channel address="97" name="green"/>
+      <channel address="98" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="399" name="red"/>
-      <channel address="400" name="green"/>
-      <channel address="401" name="blue"/>
+      <channel address="99" name="red"/>
+      <channel address="100" name="green"/>
+      <channel address="101" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="402" name="red"/>
-      <channel address="403" name="green"/>
-      <channel address="404" name="blue"/>
+      <channel address="102" name="red"/>
+      <channel address="103" name="green"/>
+      <channel address="104" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="cube">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="405" name="red"/>
-      <channel address="406" name="green"/>
-      <channel address="407" name="blue"/>
+      <channel address="105" name="red"/>
+      <channel address="106" name="green"/>
+      <channel address="107" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="420" name="fire"/>
+      <channel address="108" name="red"/>
+      <channel address="109" name="green"/>
+      <channel address="110" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="421" name="fire"/>
+      <channel address="111" name="red"/>
+      <channel address="112" name="green"/>
+      <channel address="113" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="cube">
     <channels>
-      <channel address="422" name="fire"/>
+      <channel address="114" name="red"/>
+      <channel address="115" name="green"/>
+      <channel address="116" name="blue"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="423" name="fire"/>
+      <channel address="117" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="424" name="fire"/>
+      <channel address="118" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="425" name="fire"/>
+      <channel address="119" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="426" name="fire"/>
+      <channel address="120" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="427" name="fire"/>
+      <channel address="121" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="428" name="fire"/>
+      <channel address="122" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="429" name="fire"/>
+      <channel address="123" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="430" name="fire"/>
+      <channel address="124" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="431" name="fire"/>
+      <channel address="125" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="432" name="fire"/>
+      <channel address="126" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="433" name="fire"/>
+      <channel address="127" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="434" name="fire"/>
+      <channel address="128" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="435" name="fire"/>
+      <channel address="129" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="436" name="fire"/>
+      <channel address="130" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="437" name="fire"/>
+      <channel address="131" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="438" name="fire"/>
+      <channel address="132" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="439" name="fire"/>
+      <channel address="133" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="440" name="fire"/>
+      <channel address="134" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="441" name="fire"/>
+      <channel address="135" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="442" name="fire"/>
+      <channel address="136" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="443" name="fire"/>
+      <channel address="137" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="444" name="fire"/>
+      <channel address="138" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="445" name="fire"/>
+      <channel address="139" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="446" name="fire"/>
+      <channel address="140" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="447" name="fire"/>
+      <channel address="141" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="448" name="fire"/>
+      <channel address="142" name="fire"/>
     </channels>
   </fixture>
-  <fixture dmx_universe="0" profile="fire">
+  <fixture dmx_universe="2" profile="fire">
     <channels>
-      <channel address="449" name="fire"/>
+      <channel address="143" name="fire"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="2" profile="fire">
+    <channels>
+      <channel address="144" name="fire"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="2" profile="fire">
+    <channels>
+      <channel address="145" name="fire"/>
+    </channels>
+  </fixture>
+  <fixture dmx_universe="2" profile="fire">
+    <channels>
+      <channel address="146" name="fire"/>
     </channels>
   </fixture>
 </fixture_definitions>
