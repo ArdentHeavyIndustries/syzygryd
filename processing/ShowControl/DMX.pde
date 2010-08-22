@@ -94,6 +94,7 @@ public class DMX {
 
 
   class Controller {
+    int controllerNum = -1;
     private int universeSize = 0;
     private PApplet parent = null;
     private Serial serialInterface = null;
@@ -105,6 +106,8 @@ public class DMX {
 
 
     Controller(String port, int rate, int _universeSize) {
+      controllerNum = numControllers++;
+      println("Added controller number "+controllerNum);
       int dataSize = 0;
       parent = processingObject;
       serialInterface = new Serial(parent, port, rate);
@@ -200,6 +203,7 @@ public class DMX {
       }
       
       if(SYZYVYZ){
+        syzygrydvyz.write((byte)controllerNum);
         syzygrydvyz.write(frame);
       }
       

@@ -15,7 +15,7 @@ int PANELS = 3;
 int PITCHES = 10;
 
 int FRAMERATE = 200;
-boolean SEND_DMX = true; //IMPORTANT: set to 'true' for production
+boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
 
 boolean SYZYVYZ = false;
 boolean ASCII_SEQUENCER_DISPLAY = false;
@@ -24,6 +24,7 @@ boolean ASCII_SEQUENCER_DISPLAY = false;
 
 // DMX Control
 DMX DMXManager;
+int numControllers = 0;
 
 // Sequencer State and Events
 OSCManager OSCConnection;
@@ -66,8 +67,7 @@ void setup() {
   frameRate(FRAMERATE);
 
   //Set up OSC connection
-  // OSCManager (host, receive, send)
-  OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
+  OSCConnection = new OSCManager("255.255.255.255",9000,9000);
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
 
 
@@ -83,8 +83,8 @@ void setup() {
   //add three controllers to manager
   //DMXManager.addController("COM5");
   DMXManager.addController("/dev/cu.usbserial-EN075577");
-  DMXManager.addController("/dev/cu.usbserial-00003004");
-  DMXManager.addController("/dev/cu.usbserial-FTSK5W77");
+  DMXManager.addController("/dev/cu.usbserial-foo");
+  DMXManager.addController("/dev/cu.usbserial-bar");
   //DMXManager.addController("COM5",108);
   //DMXManager.addController("COM4",108);
   //DMXManager.addController("COM3",108);
@@ -102,7 +102,7 @@ void setup() {
   for (int i = 0; i < 3; i++){
     arm[i] = new FixtureGroup("cube");
     arm[i].addTrait("RGBColorMixing", new RGBColorMixingTrait(arm[i]));
-    for (int j = i * 66; j < (i * 66)+36; j++){  // 36 cubes per arm
+    for (int j = i * 69; j < (i * 69)+36; j++){  // 36 cubes per arm
       try{
         arm[i].addFixture(fixtures.get(j));
       } catch (FixtureTypeMismatchException ftme){}
@@ -110,7 +110,7 @@ void setup() {
   }
 
   //create fire arm groups
-  int k = 36;
+  int k = 39;
   for (int i = 3; i < 6; i++){
     arm[i] = new FixtureGroup("fire");
     arm[i].addTrait("Fire", new RGBColorMixingTrait(arm[i]));
