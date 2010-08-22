@@ -66,7 +66,7 @@ int syncCount;
 // set switching.
 boolean setStopped = false;
 
-final int OSC_LISTENING_PORT = 9000;
+final int OSC_LISTENING_PORT = 9002;
 final int OSC_SENDING_PORT = 8000;
 
 void setup() {
