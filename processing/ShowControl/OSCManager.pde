@@ -70,7 +70,7 @@ void oscEvent(OscMessage m) {
     }   
     
   } 
-  else if (m.addrPattern().startsWith("/lightingControls/") || m.addrPattern().startsWith("/lightingColor/") ) {
+  else if (m.addrPattern().startsWith("/lightingControls/") || m.addrPattern().startsWith("/lightingColor/") || m.addrPattern().startsWith("/fireControl/")) {
     processOSCLightEvent(m);
  //     println("zomg");
   }

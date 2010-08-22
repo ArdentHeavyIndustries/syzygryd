@@ -116,23 +116,13 @@ class NoteChaseModule extends TransientLayerModule {
   
   void advance(float elapsed) {
     super.advance(elapsed);
-
-    // Trigger always every 4 bars, then every 2, 1, half, quarter, beat as intensity increases
-    // but jitter the intensity to throw in some randomness. compute outside the arm loop to keep all arms firing together         
-    float trigger = fb.intensity;
-    trigger += fb.jitter*(random(1)-0.5);
     
     for (int i=0; i<3; i++) {   
       if (events.fired("notes" + Integer.toString(i))) {
           
         int pos = floor(sequencerState.stepPosition);
-        boolean canFire = (pos % 64)==0;  // every four bars, always
-        canFire |= (trigger > 0.2) && (pos % 32)==0;
-        canFire |= (trigger > 0.4) && (pos % 16)==0;
-        canFire |= (trigger > 0.6) && (pos % 8)==0;
-        canFire |= (trigger > 0.8) && (pos % 4)==0;
-        canFire |= (trigger > 0.9);
-        
+        boolean canFire = (pos % 16)==0;  // every four bars, always
+
         if (canFire) {
           // $$ use pulseWidth          
           // Create a moving texture that erases itself when it goes completely off the arm
@@ -237,7 +227,7 @@ class NotePermuteModule extends NoteDisplayModule {
     int[] permArray = new int[PITCHES];   
     for (int i=0; i<PITCHES; i++)
       permArray[i] = i;
-    randomPermute(permArray, fb.intensity);
+    randomPermute(permArray, 0.5);
     
     // Start with even, integer spacing, then jitter
     int spacing = 3;  // so, 3 for lighting arms (as opposed to fire arms);
@@ -306,6 +296,7 @@ class NotePermuteModule extends NoteDisplayModule {
     initialized = true;
   }
 
+/*
   // If the change is at least 4 bar, re-seed the permutation 
   void mutate(float howMuch) {
     super.mutate(howMuch);
@@ -326,7 +317,8 @@ class NotePermuteModule extends NoteDisplayModule {
       }
     }
   }
- 
+*/
+
 }
 
 // Knuth's algorithm for random permutation, but we only do a swap with probability p
@@ -409,9 +401,9 @@ class BeatTrainModule extends TransientLayerModule {
   float numNotesGammaCorrect(float num, float maxPerCol) {
     float v = num/maxPerCol;    // call 4 notes at once full brightness
     v = min(1,v);               // clip at 1
-    return v*v*v;                 // fall off rapidly 
+    return v*v*v;               // fall off from peak value very rapidly 
   }
-  
+    
   // Figure out the intensity of the current step for the current panel
   // We count the number of notes in the column, divide by the max number of notes in any column, and gamma correct
   float noteIntensity(int panel, int col) {
@@ -448,7 +440,7 @@ class BeatTrainModule extends TransientLayerModule {
 
 //        if(panel==0) println("BEATTRAIN intensity " + intensity);
         
-        ColorRampLayer cr = new ColorRampLayer(panelToArm(panel, doFire), basicPulse, 0);
+        ColorRampLayer cr = new ColorRampLayer(panelToArm(panel, doFire), basicPulse, -2);  // basicPulse is 3 wide, so -2 starts just onscreen
         
         cr.motionSpeed = fb.animationSpeed * 2;  // by default keep a gap of 1 fixture between pulses
         cr.terminateWithPosition = true;
@@ -520,7 +512,7 @@ class BassPulseModule extends TransientLayerModule {
 }
 
 
-//------------------------------------------------- FireChase -------------------------------------------------
+//------------------------------------------------- FireChaseModule -------------------------------------------------
 // Do a fire chase... at the end of every bar, for the moment, for testing 
 class FireChaseModule extends TransientLayerModule {
   
