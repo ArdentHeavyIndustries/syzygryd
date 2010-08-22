@@ -39,7 +39,7 @@ class ScrollableMessage {
     textAlign(LEFT);
     text(message[msgPtr[messageSelect]], messageXPos, height - 8);
     messageXPos -= 1.8;    
-    if (messageXPos < (0 - messageWidth[messageSelect])) {
+    if (messageXPos < (0 - messageWidth[msgPtr[messageSelect]])) {
       messageSelect++;
       if (messageSelect > message.length -1) { 
         //we've got to the end of the array, re-randomize and start over
@@ -52,9 +52,10 @@ class ScrollableMessage {
   
   void randomizeMessages() {
     // implement the Durstenfeld algorithm to randomize an array
+    int j, tmp;
     for (int i = msgPtr.length; i > 1; i--) {
-      int j = int(random(i)); //for zero-based array
-      int tmp = msgPtr[j];
+      j = int(random(i)); //for zero-based array
+      tmp = msgPtr[j];
       msgPtr[j] = msgPtr[i-1];
       msgPtr[i-1] = tmp;
     } 
