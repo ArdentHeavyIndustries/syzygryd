@@ -15,7 +15,7 @@ int PANELS = 3;
 int PITCHES = 10;
 
 int FRAMERATE = 200;
-boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
+boolean SEND_DMX = true; //IMPORTANT: set to 'true' for production
 
 boolean SYZYVYZ = true;
 boolean ASCII_SEQUENCER_DISPLAY = false;
@@ -70,7 +70,7 @@ void setup() {
   frameRate(FRAMERATE);
 
   //Set up OSC connection
-  OSCConnection = new OSCManager("255.255.255.255",9000,9000);
+  OSCConnection = new OSCManager("255.255.255.255",9002,9002);
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
 
 
