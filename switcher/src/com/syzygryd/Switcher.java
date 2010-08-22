@@ -2,7 +2,6 @@ package com.syzygryd;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -26,7 +25,7 @@ public class Switcher {
 	public static final int OSC_SENDING_PORT_SEQUENCER = 9999;
 	public static final int OSC_SENDING_PORT_LIGHTING = 9002;
 	public static final int OSC_SENDING_PORT_BROADCAST = 9002;
-	public static final int OSC_SENDING_PORT_CONTROLLER = 9000;
+   /*public static final int OSC_SENDING_PORT_CONTROLLER = 9000;*/
 	public static InetAddress OSC_BROADCAST_ADDRESS = null;
 
 	

@@ -18,7 +18,7 @@ public class OSCSender {
 	private InetAddress addr;
 	public static final String MSG_LIVE_PLAY_STOP = "/live/stop";
 	public static final String MSG_LIVE_PLAY_START = "/live/play";
-	public static final String MSG_SET_TIME_REMAINING = "/syzygryd/remaining";
+	public static final String MSG_SET_TIME_REMAINING = "/timeRemaining";
 
 	OSCSender(InetAddress address, int port) {
 		this(port);
@@ -71,7 +71,7 @@ public class OSCSender {
 	 * @param time milliseconds remaining
 	 */
 	public void sendTimeRemaining(int time, int set, String lightingProgram) {
-		System.out.println("OSC: set " + set + " time remaining " + time + " lightingProgram " + lightingProgram);
+       System.out.println("OSC: time remaining " + time + " set " + set + " lightingProgram " + lightingProgram);
 		Object[] args = { (Object)time, (Object)set, (Object)lightingProgram};
 		send(MSG_SET_TIME_REMAINING, args);
 	}
