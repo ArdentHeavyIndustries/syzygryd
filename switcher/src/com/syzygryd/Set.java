@@ -9,6 +9,7 @@ import java.io.IOException;
 public class Set {
 	private static OSCSender sender;
 	private String name = null;
+	private String lightingProgram; 
 	private int length = 0;
 	
 	
@@ -25,9 +26,10 @@ public class Set {
 	 * @param fileName path to live set
 	 * @param duration duration of set in seconds
 	 */
-	public Set(String fileName, int duration) {
+	public Set(String fileName, int duration, String program) {
 		name = fileName;
 		length = duration;
+		lightingProgram = program;
 		
 		//System.out.println(this.toString());
 	}
@@ -38,6 +40,10 @@ public class Set {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	public String getLightingProgram() {
+		return lightingProgram;
 	}
 	
 	/**

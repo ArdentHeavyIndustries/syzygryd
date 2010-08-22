@@ -19,6 +19,8 @@ public class Setlist {
 	private Set currentSet = null;
 	private static final int PARAM_NAME = 0;
 	private static final int PARAM_LEN_IN_SECS = 1;
+	private static final int PARAM_LIGHTING_PROGRAM = 2;
+	private static final int PARAM_COUNT = 3;
 	private String file;
 	
 	/**
@@ -48,13 +50,13 @@ public class Setlist {
 		while ((line = reader.readLine()) != null) {
 			String[] params = line.split(",");
 			
-			if (params.length != 2) {
+			if (params.length != PARAM_COUNT) {
 				reader.close();
-				throw new Exception("Invalid line: \n"+ line + "\nEach line must contain only the file name, a comma, and the length of the set in seconds.");
+				throw new Exception("Invalid line: \n"+ line + "\nEach line must contain only these values, comma-separated: file name, the length of the set in seconds, and the lighting program name.");
 			}
 			
 			try {
-				list.add(new Set(params[PARAM_NAME], Integer.valueOf(params[PARAM_LEN_IN_SECS])));
+				list.add(new Set(params[PARAM_NAME], Integer.valueOf(params[PARAM_LEN_IN_SECS]), params[PARAM_LIGHTING_PROGRAM]));
 			} catch (NumberFormatException e) {
 				reader.close();
 				throw new NumberFormatException("invalid number for length (in whole seconds) " + params[PARAM_LEN_IN_SECS] + " on line\n" + line);

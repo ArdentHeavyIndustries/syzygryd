@@ -79,4 +79,12 @@ public abstract class Action {
 		return -1;
 	}
 	
+	/**
+	 * returns the lighting program associated with this action
+	 * @return name of lighting program
+	 */
+	public String getLightingProgram() {
+		return "";
+	}
+	
 }

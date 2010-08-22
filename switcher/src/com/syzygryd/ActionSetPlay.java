@@ -63,4 +63,8 @@ public class ActionSetPlay extends Action {
 	public int getId() {
 		return list.getCurrentId();
 	}
+	
+	public String getLightingProgram() {
+		return s.getLightingProgram();
+	}
 }

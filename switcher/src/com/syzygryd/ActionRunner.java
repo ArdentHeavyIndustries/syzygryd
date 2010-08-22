@@ -96,7 +96,7 @@ public class ActionRunner extends Thread {
 					boolean interrupted = false;
 					while(remaining > 0 && !interrupted) {
 						int sleepDuration = Math.min(INTERVAL_BETWEEN_DURATION_NOTIFICATIONS, remaining);
-						sendTimeRemainingMessage(currentAction.getId(), remaining );
+						sendTimeRemainingMessage(remaining, currentAction.getId(), currentAction.getLightingProgram() );
 						try {
 							interrupted = actionRunning.await(sleepDuration, TimeUnit.MILLISECONDS);
 						} catch (InterruptedException e) {
@@ -105,7 +105,7 @@ public class ActionRunner extends Thread {
 						remaining -= INTERVAL_BETWEEN_DURATION_NOTIFICATIONS;
 					}
 					
-					sendTimeRemainingMessage(currentAction.getId(), 0);
+					sendTimeRemainingMessage(0, currentAction.getId(), currentAction.getLightingProgram());
 					
 				} 
 				setRunning(false);
@@ -262,9 +262,9 @@ public class ActionRunner extends Thread {
 	 * @param id of set -- line number in setlist.txt
 	 * @param time milliseconds remaining before set ends
 	 */
-	private void sendTimeRemainingMessage(int id, int time) {
+	private void sendTimeRemainingMessage(int id, int time, String lightingProgram) {
 		for (OSCSender s : statusRecipients) {
-			s.sendTimeRemaining(id, time);
+			s.sendTimeRemaining(id, time, lightingProgram);
 		}
 	}
 	
