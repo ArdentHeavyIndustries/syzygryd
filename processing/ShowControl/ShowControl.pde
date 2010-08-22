@@ -17,7 +17,7 @@ int PITCHES = 10;
 int FRAMERATE = 200;
 boolean SEND_DMX = false; //IMPORTANT: set to 'true' for production
 
-boolean SYZYVYZ = false;
+boolean SYZYVYZ = true;
 boolean ASCII_SEQUENCER_DISPLAY = false;
 
 // ----------------- Variable Declaration & Initialization -----------------
@@ -25,6 +25,9 @@ boolean ASCII_SEQUENCER_DISPLAY = false;
 // DMX Control
 DMX DMXManager;
 int numControllers = 0;
+
+// Visualizer Connection
+private Client syzygrydvyz;
 
 // Sequencer State and Events
 OSCManager OSCConnection;
@@ -81,13 +84,17 @@ void setup() {
   DMXManager = new DMX(this);
 
   //add three controllers to manager
-  //DMXManager.addController("COM5");
   DMXManager.addController("/dev/cu.usbserial-EN075577");
   DMXManager.addController("/dev/cu.usbserial-foo");
   DMXManager.addController("/dev/cu.usbserial-bar");
-  //DMXManager.addController("COM5",108);
-  //DMXManager.addController("COM4",108);
-  //DMXManager.addController("COM3",108);
+  
+  //Set up visualizer
+  if (SYZYVYZ) {
+    syzygrydvyz = new Client(this, syzyVyzIP, syzyVyzPort);
+  }
+
+
+
 
   //create fixtures via fixture factory
   try {

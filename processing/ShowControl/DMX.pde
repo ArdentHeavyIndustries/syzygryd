@@ -101,10 +101,6 @@ public class DMX {
     private byte[] frame;
     private Fixture.Channel[] allocMap;
 
-    // Visualizer Connection
-    private Client syzygrydvyz;
-
-
     Controller(String port, int rate, int _universeSize) {
       controllerNum = numControllers++;
       println("Added controller number "+controllerNum);
@@ -133,13 +129,7 @@ public class DMX {
       }
 
       // close frame
-      frame[universeSize + 5] = DMX_FRAME_END;
-      
-      //Set up visualizer
-      if (SYZYVYZ) {
-        syzygrydvyz = new Client(parent, syzyVyzIP, syzyVyzPort++);
-      }
-      
+      frame[universeSize + 5] = DMX_FRAME_END;          
     }
 
     int universeSize() {
