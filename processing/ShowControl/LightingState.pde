@@ -17,6 +17,13 @@ int panelToArmFire(int panel) {
   return panel+3;
 }
 
+int panelToArm(int panel, boolean doFire) {
+  if (doFire)
+    return panelToArmFire(panel);
+  else
+    return panelToArmLights(panel);
+}
+
 class LightingState {
   color[][] armColor;    // 0-2 are lights, 3-5 are flame effects
   

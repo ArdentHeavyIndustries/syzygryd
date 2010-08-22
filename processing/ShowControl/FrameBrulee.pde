@@ -41,7 +41,7 @@ FBParams curFBParams = new FBParams();
 // Also does OSC control ranges
 void processOSCLightEvent(OscMessage m) {
 
- //println(m.addrPattern());
+ println(m.addrPattern());
   
   if (m.addrPattern().startsWith("/lightingColor/baseHueSpeed")) {
   
@@ -81,6 +81,10 @@ void processOSCLightEvent(OscMessage m) {
     curFBParams.ccBrightness = m.get(0).floatValue();  
   } 
   
+  else if (m.addrPattern().startsWith("/lightingControls/animationSpeed")) {
+    curFBParams.animationSpeed = m.get(0).floatValue();  
+  } 
+
   else if (m.addrPattern().startsWith("/lightingControls/pulseWidth")) {
     curFBParams.pulseWidth = m.get(0).floatValue();  
   //println("pulseWidth:" + curFBParams.pulseWidth);
@@ -128,7 +132,8 @@ class FrameBrulee extends LightingProgram {
   NoteChaseModule    noteChase;
   NoteDisplayModule  noteDisplay;
   NotePermuteModule  notePermute;
-  BassPulse          bassPulse;
+  BassPulseModule    bassPulse;
+  BeatTrainModule    beatTrain;
   TintModule         tinty;
   FireChaseModule    fireChase;
   
@@ -145,7 +150,8 @@ class FrameBrulee extends LightingProgram {
     noteChase = new NoteChaseModule(curFBParams);
  //   noteDisplay = new NoteDisplayModule(curFBParams);
     notePermute = new NotePermuteModule(curFBParams);
-    bassPulse = new BassPulse(curFBParams);
+    beatTrain = new BeatTrainModule(curFBParams); 
+    bassPulse = new BassPulseModule(curFBParams);
     tinty = new TintModule(curFBParams);
     fireChase = new FireChaseModule(curFBParams);
   }
@@ -156,7 +162,8 @@ class FrameBrulee extends LightingProgram {
     baseHueRotate.masterAdvance(steps);
     noteChase.masterAdvance(steps);
 //    noteDisplay.masterAdvance(steps);
-    notePermute.masterAdvance(steps);    
+    notePermute.masterAdvance(steps);
+    beatTrain.masterAdvance(steps);    
     bassPulse.masterAdvance(steps);
     fireChase.masterAdvance(steps);
     
@@ -170,10 +177,11 @@ class FrameBrulee extends LightingProgram {
 
     // apply the effects separately so we can color correct before adding to base hue    
     effectsLayers.clear();
-    noteChase.apply(effectsLayers);
-//  noteDisplay.apply(state);
+//    noteChase.apply(effectsLayers);
+//    noteDisplay.apply(state);
     notePermute.apply(effectsLayers);
-    bassPulse.apply(effectsLayers);
+//    beatTrain.apply(effectsLayers);
+//    bassPulse.apply(effectsLayers);
     
     // tint the effects and add to the base hue rotate
     tinty.apply(effectsLayers);

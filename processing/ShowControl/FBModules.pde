@@ -103,7 +103,7 @@ color[] CMYPulseTexture = new color[] {color(150, 150, 00), color(150, 0, 150), 
 color[] whitePulseTexture = new color[] {color(100, 100, 100), color(200, 200, 200), color(100, 100, 100)};  
 
 // Note chase sends a pulse down the arm for each step where a note is on
-// we use 
+// Parameters used: 
 //   - FBParams.intensity controls how often we can fire (every bar --> every note)
 //   - FBParams.jitter controls whether we fire predictably (for current intensity level) or probabilistically 
 //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) chases
@@ -388,7 +388,80 @@ void initializeRamps() {
   rampsInitialized = true;
 }
 
-//------------------------------------------------- BassPulse -------------------------------------------------
+//------------------------------------------------- BeatTrainModule -------------------------------------------------
+// This sends a series of pulses out from the panel, brightness corresponding to the number of notes active on each step
+// the idea is to produce a flowing visual representation of the music
+// Parameters used:
+//   fb.animationSpeed
+//   fb.pulseWidth
+// With defaults, pulses are 1 wide with gaps of 1 between them, so that they are clearly separated
+
+class BeatTrainModule extends TransientLayerModule {
+
+  boolean doFire = false;    // if true, we render to the flame effects
+  
+  BeatTrainModule(FBParams _fb) {
+    super(_fb);
+  }
+
+  // applies a non-linear ramp to the number of notes active, to provide contrast and make the patterns clearer
+  // Scales adaptively to the maximum number of notes in any column
+  float numNotesGammaCorrect(float num, float maxPerCol) {
+    float v = num/maxPerCol;    // call 4 notes at once full brightness
+    v = min(1,v);               // clip at 1
+    return v*v*v;                 // fall off rapidly 
+  }
+  
+  // Figure out the intensity of the current step for the current panel
+  // We count the number of notes in the column, divide by the max number of notes in any column, and gamma correct
+  float noteIntensity(int panel, int col) {
+    int notesInThisCol = 0;
+    int notesInAnyCol = 0;
+    
+    // scan across columns of the sequencer state for this panel
+    for (int step=0; step<sequencerState.STEPS; step++) {
+      
+      // count number in this col
+      int curn=0;
+      for (int pitch=0; pitch<sequencerState.PITCHES; pitch++) {
+        if (sequencerState.notes[panel][sequencerState.curTab[panel]][step][pitch])
+          curn++;
+      }
+      
+      // update max, possibly cur 
+      notesInAnyCol = max(curn, notesInAnyCol);
+      if (step == col)
+        notesInThisCol = curn;
+    }
+    
+    return numNotesGammaCorrect(notesInThisCol, notesInAnyCol);
+  } 
+    
+  void advance(float elapsed) {
+    super.advance(elapsed);
+    
+    for (int panel=0; panel<3; panel++) {   
+      if (events.fired("notes" + Integer.toString(panel))) {
+
+        // Fire off a colorRampLayer for this note
+        float intensity = noteIntensity(panel, floor(sequencerState.stepPosition));
+
+//        if(panel==0) println("BEATTRAIN intensity " + intensity);
+        
+        ColorRampLayer cr = new ColorRampLayer(panelToArm(panel, doFire), basicPulse, 0);
+        
+        cr.motionSpeed = fb.animationSpeed * 2;  // by default keep a gap of 1 fixture between pulses
+        cr.terminateWithPosition = true;
+        
+        myLayers.add(cr);
+      }
+    }
+  }
+  
+}
+
+
+//------------------------------------------------- BassPulseModule -------------------------------------------------
 // This runs a single colored pulse out from the center to the edges, when triggered by notes in the bass lines
 
 //figures out the lowest note set on the given sequencer panel. Lower = lower pitch, actually higher index  
@@ -406,12 +479,12 @@ int findLowestNote(int panel) {
 //  - fb.pulseWith to control overall size
 //  - fb.attack, fb.decay to contol animation
 
-class BassPulse extends TransientLayerModule {
+class BassPulseModule extends TransientLayerModule {
 
   // if true, pulses go from panels in, otherwise center out
   boolean fromOutside;
   
-  BassPulse(FBParams _fb) {
+  BassPulseModule(FBParams _fb) {
     super(_fb);
     initializeRamps();
     fromOutside = false;
