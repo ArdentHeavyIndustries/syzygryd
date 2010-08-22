@@ -71,7 +71,7 @@ public class OSCSender {
 	 * @param time milliseconds remaining
 	 */
 	public void sendTimeRemaining(int time, int set, String lightingProgram) {
-		System.out.println("OSC: set " + set + " time remaining " + time + "lightingProgram " + lightingProgram);
+		System.out.println("OSC: set " + set + " time remaining " + time + " lightingProgram " + lightingProgram);
 		Object[] args = { (Object)time, (Object)set, (Object)lightingProgram};
 		send(MSG_SET_TIME_REMAINING, args);
 	}

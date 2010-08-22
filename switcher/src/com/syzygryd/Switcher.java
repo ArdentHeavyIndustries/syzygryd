@@ -1,7 +1,10 @@
 package com.syzygryd;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import com.illposed.osc.OSCListener;
@@ -21,8 +24,11 @@ public class Switcher {
 	 * ports for the rest of the system
 	 */
 	public static final int OSC_SENDING_PORT_SEQUENCER = 9999;
-	public static final int OSC_SENDING_PORT_LIGHTING = 9000;
+	public static final int OSC_SENDING_PORT_LIGHTING = 9002;
+	public static final int OSC_SENDING_PORT_BROADCAST = 9002;
 	public static final int OSC_SENDING_PORT_CONTROLLER = 9000;
+	public static InetAddress OSC_BROADCAST_ADDRESS = null;
+
 	
 	public static final int WEB_SENDING_PORT = 31337;
 	
@@ -32,6 +38,7 @@ public class Switcher {
 	private static OSCSender senderSequencer = null;
 	private static OSCSender senderLighting = null;
 	private static OSCSender senderController = null;
+	private static OSCSender senderBroadcast = null;
 	
 	private static Setlist list = null;
 	private static OSCPortIn portIn = null;
@@ -39,6 +46,7 @@ public class Switcher {
 	
 	
 	public static void main(String[] args) {
+		
 		if (args.length != 1) {
 			System.err.println("usage: java Switcher <list-filename>.");
 			System.exit(-1);
@@ -69,14 +77,21 @@ public class Switcher {
 		// need to be reset.  or not!
 		Set.setSender(senderLive);
 		
+		try {
+			OSC_BROADCAST_ADDRESS = InetAddress.getByName("255.255.255.255");
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		// create senders for controller, lighting, and sequencer
 		senderSequencer = new OSCSender(OSC_SENDING_PORT_SEQUENCER);
+		senderBroadcast = new OSCSender(OSC_BROADCAST_ADDRESS, OSC_SENDING_PORT_BROADCAST);
 		
-		/*
-		senderLighting = new OSCSender(OSC_SENDING_PORT_LIGHTING);
-		senderController = new OSCSender(OSC_SENDING_PORT_CONTROLLER);
+		//senderLighting = new OSCSender(OSC_SENDING_PORT_LIGHTING);
+		
+		/*senderController = new OSCSender(OSC_SENDING_PORT_CONTROLLER);
 		*/
-		OSCSender[] statusRecipients = { senderSequencer/* , senderLighting, senderController*/ };
+		OSCSender[] statusRecipients = { senderSequencer, senderBroadcast /*, senderLighting, senderController*/ };
 		
 		System.out.println("Setting up OSC listener...");
 		setupOSCListener();
