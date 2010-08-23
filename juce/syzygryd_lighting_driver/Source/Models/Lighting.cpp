@@ -97,7 +97,6 @@ void Lighting::send()
 	message << frameStart << channelSizeString << data << frameEnd;
 	
 	DBG (message)
-	DBG (flameIndex)
 	
 	MemoryBlock memory;
 	memory.loadFromHexString (message);
