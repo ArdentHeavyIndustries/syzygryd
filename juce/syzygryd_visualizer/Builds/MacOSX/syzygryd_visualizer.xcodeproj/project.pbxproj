@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		255E780B1221CBA300D1A878 /* libjuce.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 255E780A1221CBA300D1A878 /* libjuce.a */; };
 		C91A1303122064BC008D8D39 /* syzygryd_flames.obj in Resources */ = {isa = PBXBuildFile; fileRef = C91A1302122064BC008D8D39 /* syzygryd_flames.obj */; };
 		C91A1304122064C4008D8D39 /* syzygryd_flames.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C91A1302122064BC008D8D39 /* syzygryd_flames.obj */; };
 		C91A14C612208769008D8D39 /* syzygryd_tornado.obj in Resources */ = {isa = PBXBuildFile; fileRef = C91A14C512208769008D8D39 /* syzygryd_tornado.obj */; };
@@ -34,7 +35,6 @@
 		C95D3DEA115E8CD700C293DE /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DE6115E8CD700C293DE /* Main.cpp */; };
 		C95D3DEB115E8CD700C293DE /* MainWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DE7115E8CD700C293DE /* MainWindow.cpp */; };
 		C95D3DEE115E8CDF00C293DE /* MainComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95D3DED115E8CDF00C293DE /* MainComponent.cpp */; };
-		C9642F56121FA9C6005A4BC7 /* libjuce.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9642F55121FA9C6005A4BC7 /* libjuce.a */; };
 		C9642FD0121FAD07005A4BC7 /* syzygryd_lights.obj in Resources */ = {isa = PBXBuildFile; fileRef = C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */; };
 		C9642FD1121FAD07005A4BC7 /* syzygryd_model.obj in Resources */ = {isa = PBXBuildFile; fileRef = C9642FCF121FAD07005A4BC7 /* syzygryd_model.obj */; };
 		C9642FD2121FAD0A005A4BC7 /* syzygryd_lights.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */; };
@@ -58,6 +58,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		255E780A1221CBA300D1A878 /* libjuce.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjuce.a; path = ../../../juce/bin/libjuce.a; sourceTree = SOURCE_ROOT; };
 		C91A1302122064BC008D8D39 /* syzygryd_flames.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_flames.obj; path = ../../Objects/syzygryd_flames.obj; sourceTree = SOURCE_ROOT; };
 		C91A14C512208769008D8D39 /* syzygryd_tornado.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_tornado.obj; path = ../../Objects/syzygryd_tornado.obj; sourceTree = SOURCE_ROOT; };
 		C92B8993120C7B6A00B92ED2 /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
@@ -97,7 +98,6 @@
 		C95D3DE8115E8CD700C293DE /* MainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainWindow.h; sourceTree = "<group>"; };
 		C95D3DEC115E8CDF00C293DE /* MainComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainComponent.h; sourceTree = "<group>"; };
 		C95D3DED115E8CDF00C293DE /* MainComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainComponent.cpp; sourceTree = "<group>"; };
-		C9642F55121FA9C6005A4BC7 /* libjuce.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjuce.a; path = ../../../../../../juce/juce/bin/libjuce.a; sourceTree = SOURCE_ROOT; };
 		C9642FCE121FAD07005A4BC7 /* syzygryd_lights.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_lights.obj; path = ../../Objects/syzygryd_lights.obj; sourceTree = SOURCE_ROOT; };
 		C9642FCF121FAD07005A4BC7 /* syzygryd_model.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syzygryd_model.obj; path = ../../Objects/syzygryd_model.obj; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -118,7 +118,7 @@
 				C95D3B0D115E882C00C293DE /* QuickTime.framework in Frameworks */,
 				C95D3B0F115E882C00C293DE /* WebKit.framework in Frameworks */,
 				C95D3B11115E884D00C293DE /* libjucedebug.a in Frameworks */,
-				C9642F56121FA9C6005A4BC7 /* libjuce.a in Frameworks */,
+				255E780B1221CBA300D1A878 /* libjuce.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,7 +157,7 @@
 		C95D3ACA115E83AD00C293DE = {
 			isa = PBXGroup;
 			children = (
-				C9642F55121FA9C6005A4BC7 /* libjuce.a */,
+				255E780A1221CBA300D1A878 /* libjuce.a */,
 				C95D3AED115E870A00C293DE /* Source */,
 				C95D3DB4115E886500C293DE /* Resources */,
 				C95D3B12115E885100C293DE /* Frameworks */,
@@ -355,9 +355,11 @@
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce/bin\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../../../../juce/juce/bin\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../juce/bin\"";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
@@ -391,8 +393,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../../juce/juce/bin\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../juce/bin\"";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
