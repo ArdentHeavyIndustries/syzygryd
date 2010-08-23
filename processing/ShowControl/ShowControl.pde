@@ -70,7 +70,7 @@ void setup() {
   frameRate(FRAMERATE);
 
   //Set up OSC connection
-  OSCConnection = new OSCManager("255.255.255.255",9002,9002);
+  OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
 
 
