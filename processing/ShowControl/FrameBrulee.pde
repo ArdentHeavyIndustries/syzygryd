@@ -1,3 +1,5 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+
 // FrameBrulee
 // A lighting and fire control program for Syzygryd, using the Layer interface
 // Jonathan Stray, August 2010
@@ -128,7 +130,7 @@ void sendTouchOSCMsg(String addr, float value) {
   
   if ( OSCConnection_touchOSC.myRemoteLocation != null) { 
   OSCConnection_touchOSC.oscP5.send(msg, OSCConnection_touchOSC.myRemoteLocation);
-  println("got it");
+  //println("got it");
   }
 }
 

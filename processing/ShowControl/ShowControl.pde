@@ -1,3 +1,5 @@
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+
 import syzygryd.*;
 import processing.serial.*;
 import processing.core.*;
@@ -39,6 +41,7 @@ EventDispatcher events;
 // Time Tracking
 int lastSyncTimeInMs;
 int lastDrawTimeInMs;
+int lastOscUpdateTimeInMs;
 
 // Fixtures and Groups
 ArrayList<Fixture> fixtures = new ArrayList();
@@ -71,7 +74,7 @@ void setup() {
   
   lastSyncTimeInMs = 0;
   lastDrawTimeInMs = millis();
-  
+  lastOscUpdateTimeInMs = 0;
    
   //Set up OSC connection
   OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
@@ -215,7 +218,10 @@ void draw(){
   DMXManager.update();
   
   // update remote panel UI color via OSC
-  if(millis() % OSC_UPDATE_INTERVAL_MS == 0) { // only send if update interval has elapsed
+  int now = millis();
+  if (now - lastOscUpdateTimeInMs >= OSC_UPDATE_INTERVAL_MS) {	// only send if update interval has elapsed
+    //println ("Sending UI color");
+    lastOscUpdateTimeInMs = now;
     OSCConnection.sendUIColor();
   }
   

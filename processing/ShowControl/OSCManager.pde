@@ -12,20 +12,27 @@ class OSCManager {
    * Creates network connection to remote server to send messages; opens local port to listen for messages.
    */
   OSCManager(String _remoteHost, int _incomingPort, int _outgoingPort){
-    NetAddress myRemoteLocation;
+    println("Creating OSCManager, sending to " + _remoteHost + ":" + _outgoingPort + ", listening on " + _incomingPort);
 
     // start oscP5, listening for incoming messages
     oscP5 = new OscP5(this, _incomingPort);
+    if (oscP5 == null) {
+      System.err.println("WARNING: (incoming) OscP5 object is null");
+    }
 
     // myRemoteLocation is set to the address and port the remote host
     // listens on
     myRemoteLocation = new NetAddress(_remoteHost, _outgoingPort);
+    if (myRemoteLocation == null) {
+      System.err.println("WARNING: (outgoing) NetAddress object is null");
+    }
   }
   
   /*
    * Sends OSC /color message to update panel UI color
    */
   void sendUIColor(){
+    //println ("OSCManager.sendUIColor()");
     if (myRemoteLocation != null){
       OscMessage uiColors = new OscMessage("/color");
       for (int i = 0; i < panelColor.length; i++){
@@ -33,6 +40,8 @@ class OSCManager {
         //println("Adding color: " + hex(panelColor[i]));
       }
       oscP5.send(uiColors, myRemoteLocation);
+    } else {
+      System.err.println("WARNING: no remote host to send color to");
     }
   }
 
@@ -87,4 +96,3 @@ void oscEvent(OscMessage m) {
 }
 
 }
-
