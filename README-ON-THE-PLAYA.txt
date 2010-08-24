@@ -24,8 +24,9 @@ check for:
 
 - are all of the ports set properly.  there's:
     http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Software:OSCRouting
-  although the copy of the wiki on the syzyputer may be out of date.  i'll try
-  to put a local copy of this somewhere accessible.
+  although the copy of the wiki on the syzyputer may be out of date.  i put a
+  copy as of 2010-08-24 13:44 in the home dir.  it's not pretty, but it's
+  readable.
 
 - are calls in processing to print() or println() kept to a minimum.
   occasional and error condition use is fine.  within inner loops are not.
@@ -70,3 +71,19 @@ deserved.  I know we didn't get cygwin on them, various networking stuff
 didn't get straightened out (although nicole has said it's easy to deal with
 on the playa).  Did some non-GUI svn get installed?  Someone should at least
 download an installer for this and put it somewhere.
+
+-------------------------------------------------------------------------------
+In general I've been saving bookmarks in firefox, not safari.  There's a lot
+of reference material I downloaded locally.
+
+-------------------------------------------------------------------------------
+There's a local copy of the wiki, that you shouldn't try making edits to (they
+won't ever get propogated back.)  Ed put a file with instructions for enabling
+it (it requires starting apache) on the desktop, and I put a firefox
+bookmark to it.
+
+-------------------------------------------------------------------------------
+We probably want to stop apache for production use.
+
+-------------------------------------------------------------------------------
+We probably want to disable dropbox for production use.
