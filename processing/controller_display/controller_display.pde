@@ -328,7 +328,7 @@ void oscEvent(OscMessage m) {
       for (int i = 0; i < panels.length; i++) {
         color c = m.get(i).intValue();
         masterHues[i] = (int)hue(c);
-        log("Setting panel " + i + " to hue " + masterHues[i] + " based on color " + hex(c));
+        log("Setting panel " + i + " to hue " + masterHues[i] + " based on color 0x" + hex(c));
       }
       return;
     }
