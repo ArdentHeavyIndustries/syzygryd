@@ -52,6 +52,13 @@ if we really can't find this and solve it, we may need a watchdog.  i could
 probably do this fairly easily in linux, but i have no clue how to do it in
 windows.
 
+if processing does hang, because we're running full screen and there is no
+stop button, you can't get out by pressing ESC, b/c processing is hung.  the
+only option is to Ctrl-Alt-Del to bring up the Task Manager, and kill the
+process (I think it's javaw.exe).  Please test *in advance* that we can
+properly send Ctrl-Alt-Del through rdesktop (and that it's not just trapped by
+the host computer).
+
 -------------------------------------------------------------------------------
 We put a reasonable amount of effort into getting the mac set up for the
 playa, but I worry that the windows boxes didn't get the attention they
