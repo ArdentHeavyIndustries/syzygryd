@@ -30,7 +30,7 @@ class OSCManager {
       OscMessage uiColors = new OscMessage("/color");
       for (int i = 0; i < panelColor.length; i++){
         uiColors.add(panelColor[i]);
-        println("Adding color: " + hex(panelColor[i]));
+        //println("Adding color: " + hex(panelColor[i]));
       }
       oscP5.send(uiColors, myRemoteLocation);
     }
@@ -42,7 +42,7 @@ class OSCManager {
 void oscEvent(OscMessage m) {
 
   // Enable the following line for OSC message debugging purposes
-  println("oscEvent: addrPattern(): " + m.addrPattern());
+  //println("oscEvent: addrPattern(): " + m.addrPattern());
 
   if (m.addrPattern().endsWith("/sync")) {
     
