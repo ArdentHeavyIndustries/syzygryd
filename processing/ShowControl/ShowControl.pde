@@ -11,13 +11,14 @@ import netP5.*;
 int CUBES_PER_ARM = 36;
 int EFFECTS_PER_ARM = 8;
 
-int PANELS = 3;
-int PITCHES = 10;
+int PANELS = 3;    // Should probably just use PANELS and PITCHES constants from SequencerState, but we can
+int PITCHES = 10;  // wait until 2.0 to make any changes.
 
 int FRAMERATE = 200;
+int OSC_UPDATE_INTERVAL_MS = 500;
 boolean SEND_DMX = true; //IMPORTANT: set to 'true' for production
 
-boolean SYZYVYZ = true;
+boolean SYZYVYZ = false;
 boolean ASCII_SEQUENCER_DISPLAY = false;
 
 // ----------------- Variable Declaration & Initialization -----------------
@@ -27,7 +28,7 @@ DMX DMXManager;
 int numControllers = 0;
 
 // Visualizer Connection
-private Client syzygrydvyz;
+Client syzygrydvyz;
 
 // Sequencer State and Events
 OSCManager OSCConnection;
@@ -59,23 +60,31 @@ GWindow[] ctrlrWindow;
 String syzyVyzIP = "127.0.0.1";
 int syzyVyzPort = 3333;
 
+// Panel UI colors
+color panelColor[];
+
 void setup() {
+
+  colorMode(HSB, 360.0, 100.0, 100.0);
+  background(0);
+  frameRate(FRAMERATE);
   
   lastSyncTimeInMs = 0;
   lastDrawTimeInMs = millis();
   
-  // example code
-  colorMode(RGB);
-  background(0);
-  frameRate(FRAMERATE);
-
+   
   //Set up OSC connection
-  OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
+  OSCConnection = new OSCManager("192.168.1.100",9002,9002);  // receive from sequencer, send to controller
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
-
 
   //Instantiate sequencer state storage
   sequencerState = new SequencerState();
+
+  // Set initial remote panel colors
+  panelColor = new color[sequencerState.PANELS]; // set color array length to the number of panels
+  for (int i = 0; i < sequencerState.PANELS; i++){
+    panelColor[i] = color((float)((360 * i) / sequencerState.PANELS), 100.0, 100.0); // divide color wheel equally between number of panels
+  }
 
   //set up event queue
   events = new EventDispatcher();
@@ -83,10 +92,16 @@ void setup() {
   //create new DMX manager object
   DMXManager = new DMX(this);
 
+  // Uncomment the following line to enumerate available serial devices on the console: the Enttecs should 
+  // all appear as "cu.usbserial-XXXXXXXX", where XXXXXXXX is some unique identifier. Copy the results into 
+  // the DMXmanager.addController() statements below.
+  
+  //Serial.list();
+
   //add three controllers to manager
-  DMXManager.addController("/dev/cu.usbserial-EN075577");
-  DMXManager.addController("/dev/cu.usbserial-foo");
-  DMXManager.addController("/dev/cu.usbserial-bar");
+  DMXManager.addController("/dev/cu.usbserial-EN075577",147);
+  DMXManager.addController("/dev/cu.usbserial-foo",147);
+  DMXManager.addController("/dev/cu.usbserial-bar",147);
   
   //Set up visualizer
   if (SYZYVYZ) {
@@ -198,6 +213,12 @@ void draw(){
   
   // send final state of lights to DMX controller(s)
   DMXManager.update();
+  
+  // update remote panel UI color via OSC
+  if(millis() % OSC_UPDATE_INTERVAL_MS == 0) { // only send if update interval has elapsed
+    OSCConnection.sendUIColor();
+  }
+  
 }
 
 void keyPressed(){

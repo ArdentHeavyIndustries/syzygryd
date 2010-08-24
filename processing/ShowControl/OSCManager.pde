@@ -9,7 +9,7 @@ class OSCManager {
   NetAddress myRemoteLocation;
 
   /*
-   * Creates network connection to sequencer to listen for OSC messages
+   * Creates network connection to remote server to send messages; opens local port to listen for messages.
    */
   OSCManager(String _remoteHost, int _incomingPort, int _outgoingPort){
     NetAddress myRemoteLocation;
@@ -17,13 +17,23 @@ class OSCManager {
     // start oscP5, listening for incoming messages
     oscP5 = new OscP5(this, _incomingPort);
 
-    // myRemoteLocation is set to the address and port the sequencer
+    // myRemoteLocation is set to the address and port the remote host
     // listens on
     myRemoteLocation = new NetAddress(_remoteHost, _outgoingPort);
-
-    // Connect to the server
-    OscMessage connect = new OscMessage("/server/connect");
-    oscP5.send(connect, myRemoteLocation);
+  }
+  
+  /*
+   * Sends OSC /color message to update panel UI color
+   */
+  void sendUIColor(){
+    if (myRemoteLocation != null){
+      OscMessage uiColors = new OscMessage("/color");
+      for (int i = 0; i < panelColor.length; i++){
+        uiColors.add(panelColor[i]);
+        println("Adding color: " + hex(panelColor[i]));
+      }
+      oscP5.send(uiColors, myRemoteLocation);
+    }
   }
 
 /*
@@ -32,7 +42,7 @@ class OSCManager {
 void oscEvent(OscMessage m) {
 
   // Enable the following line for OSC message debugging purposes
-  //println("oscEvent: addrPattern(): " + m.addrPattern());
+  println("oscEvent: addrPattern(): " + m.addrPattern());
 
   if (m.addrPattern().endsWith("/sync")) {
     
