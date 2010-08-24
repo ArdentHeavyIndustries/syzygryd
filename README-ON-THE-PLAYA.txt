@@ -31,6 +31,10 @@ check for:
   occasional and error condition use is fine.  within inner loops are not.
   please comment out any that you feel are spewing too much.
 
+My understanding is that the final values for the call(s) to
+DMXManager.addController() in ShowControl.setup() will have to wait until the
+playa.  (J ?)  But perhaps the ones to foo and bar should be deleted ?
+
 -------------------------------------------------------------------------------
 updateStarFieldSkip (see /opt/syzygryd/etc/sequencer.properties) defaults to
 150.  during the limited testing over the weekend, twice processing hung on a
