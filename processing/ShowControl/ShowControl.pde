@@ -74,7 +74,7 @@ void setup() {
   
    
   //Set up OSC connection
-  OSCConnection = new OSCManager("192.168.1.100",9002,9002);  // receive from sequencer, send to controller
+  OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
 
   //Instantiate sequencer state storage
