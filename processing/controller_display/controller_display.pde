@@ -326,10 +326,9 @@ void oscEvent(OscMessage m) {
     // colors are in the form ARGB, converted to hue, then scaled
     if (m.addrPattern().equals("/color")) {
       for (int i = 0; i < panels.length; i++) {
-        color c = color(m.get(i).intValue());
-        // need to scale from 0-255 range to 0-100
-        masterHues[i] = (int)((hue(c) * 100.0) / 255.0);
-        log("Setting panel " + i + " to hue " + masterHues[i] + " based on color " + c);
+        color c = m.get(i).intValue();
+        masterHues[i] = (int)hue(c);
+        log("Setting panel " + i + " to hue " + masterHues[i] + " based on color " + hex(c));
       }
       return;
     }
