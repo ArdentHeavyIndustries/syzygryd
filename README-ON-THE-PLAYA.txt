@@ -16,7 +16,7 @@ check for:
   commented out (please don't comment out the entire method itself)
 
 - does ShowControl.pde have the proper config.  i (rich) *think* it ought to
-  be the following, but J should confirm:
+  be the following, but J should confirm: [Jonathan has confirmed]
 
      SEND_DMX = true;
      SYZYVYZ = false;
@@ -69,8 +69,8 @@ We put a reasonable amount of effort into getting the mac set up for the
 playa, but I worry that the windows boxes didn't get the attention they
 deserved.  I know we didn't get cygwin on them, various networking stuff
 didn't get straightened out (although nicole has said it's easy to deal with
-on the playa).  Did some non-GUI svn get installed?  Someone should at least
-download an installer for this and put it somewhere.
+on the playa).  Did some non-GUI svn get installed?  I copied local installers
+for TortoiseSVN (32b and 64b) to ~/windows
 
 -------------------------------------------------------------------------------
 In general I've been saving bookmarks in firefox, not safari.  There's a lot
@@ -87,3 +87,13 @@ We probably want to stop apache for production use.
 
 -------------------------------------------------------------------------------
 We probably want to disable dropbox for production use.
+
+-------------------------------------------------------------------------------
+Following this checkin, I am going to tag the repository at
+tags/BM_2010_PRE_PLAYA
+
+I will then do a quick effort at a local mirror of the svn repo.  Any notes
+regarding this will not be in the repository itself, but in
+~/README-LOCAL-SVN-REPO.txt
+
+See you on the playa!
