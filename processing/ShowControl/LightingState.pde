@@ -17,8 +17,12 @@ int panelToArmFire(int panel) {
   return panel+3;
 }
 
-int panelToArm(int panel, boolean doFire) {
-  if (doFire)
+// LightOrFire? -- the closest thing we have to an enum
+int LIGHT = 1;
+int FIRE = 2;
+
+int panelToArm(int panel, int lightOrFire) {
+  if (lightOrFire == FIRE)
     return panelToArmFire(panel);
   else
     return panelToArmLights(panel);
@@ -26,6 +30,7 @@ int panelToArm(int panel, boolean doFire) {
 
 class LightingState {
   color[][] armColor;    // 0-2 are lights, 3-5 are flame effects
+//  color[3][2] groundColor;  // 2 ground effects per light
   
   boolean[] armHiPressure = new boolean[3];
   boolean poofer;

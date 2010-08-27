@@ -2,7 +2,6 @@
 // An FBModule is a Layer with some parameters, which it can set from an FBParams block.
 // It is sensitive to intensity and change messages, and knows how to fade in and out
 
-
 abstract class FBModule extends Layer {
   
   boolean active;    // fading or running
@@ -138,23 +137,32 @@ class NoteChaseModule extends TransientLayerModule {
   
 }
 
+
 // Note display triggers a fixed set of cubes for each note. 
 // we use 
 //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) fades
 //   - FBParams.pulseWidth to set the width of note display
 //   - FBParams.jitter to mix it up a bit
 class NoteDisplayModule extends TransientLayerModule {
+   
+  int lightOrFire;
   
-  
-  NoteDisplayModule(FBParams _fb) {
+  NoteDisplayModule(FBParams _fb, int _lightOrFire) {
     super(_fb);
+    lightOrFire = _lightOrFire;
   }
   
   // translates grid position (0-9) into a cube location on the sculpute. There is where spacing, permutation, randomization, etc. happen
   // Subclass for funkier permuted displays
   float notePosition(int panel, int pitch) {
     // convert 0-9 into 0-35, somehow
-    return pitch*3;
+    if (lightOrFire == FIRE) {
+      // We have eight flame effects, ten pitches. Map bottom two to first, top two to last. Bass notes on the inside
+      return 7 - clip(pitch-1, 0, 7); 
+    } else {
+      // Bass notes start at the inside for sound too 
+      return 35 - pitch*3;
+    }
   }
   
   int noteArm(int panel, int pitch) {
@@ -165,23 +173,34 @@ class NoteDisplayModule extends TransientLayerModule {
   void advance(float elapsed) {
     super.advance(elapsed);
 
-    for (int arm=0; arm<3; arm++) {   
-      if (events.fired("notes" + Integer.toString(arm))) {
+    for (int panel=0; panel<3; panel++) {   
+      if (events.fired("notes" + Integer.toString(panel))) {
    
         for (int pitch=0; pitch<sequencerState.PITCHES; pitch++) {
-            if (sequencerState.isNoteAtCurTime(arm, pitch)) {
+            if (sequencerState.isNoteAtCurTime(panel, pitch)) {
 
-              // Create a static texture that fades out
-              TextureLayer cl = new TextureLayer(noteArm(arm, pitch), whitePulseTexture, notePosition(arm, pitch) - 1); // -1 cause the texture is 3 wide, so center it
-              cl.opacityEnvelope = new AttackDecayEnvelope(fb.attack, fb.decay, 0, 1);
-              cl.terminateWithOpacity = true;
-        
-              myLayers.add(cl);
+              Envelope env = new AttackDecayEnvelope(fb.attack, fb.decay, 0, 1);
+              
+              if (lightOrFire == LIGHT) {
+                // Create a static texture that fades out
+                TextureLayer cl = new TextureLayer(noteArm(panel, pitch), whitePulseTexture, notePosition(panel, pitch) - 1); // -1 cause the texture is 3 wide, so center it
+                cl.opacityEnvelope = env;
+                cl.terminateWithOpacity = true;
+                myLayers.add(cl);
+              } else {
+                // For fire, activate only a single effect at a time (no "width" response -- is this right?)
+                SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
+                sc. position = notePosition(panel, pitch);
+                sc.opacityEnvelope = env;
+                sc.terminateWithOpacity = true;
+                myLayers.add(sc);
+              }
             }
         }
       }
     }
   }
+  
 }
 
 // Note permute is very similar but scrambles the notes so they're no longer sequential, or necessarily on the same arm 
@@ -194,8 +213,8 @@ class NoteDisplayModule extends TransientLayerModule {
 //   - panelsIdentical
 class NotePermuteModule extends NoteDisplayModule {
 
-  NotePermuteModule(FBParams _fb) {
-    super(_fb);
+  NotePermuteModule(FBParams _fb, int _lightOrFire) {
+    super(_fb, _lightOrFire);
   }
   
   boolean initialized = false;
@@ -296,29 +315,6 @@ class NotePermuteModule extends NoteDisplayModule {
     initialized = true;
   }
 
-/*
-  // If the change is at least 4 bar, re-seed the permutation 
-  void mutate(float howMuch) {
-    super.mutate(howMuch);
-    
-    if (howMuch >= MUTATE_4BAR) {
-      permuteSeed = floor(random(1000));
-      panelsIdentical = (fb.intensity < random(1));  // lower intensity, more likely the panels are identical  
-      initialize();
-    } else {
-      int numToSwap = floor(2 * (howMuch / MUTATE_BAR));  // switch up about 2 per bar  
-      makeSomeSwaps(0, numToSwap);
-      
-      if (panelsIdentical) {
-        rotatePanel0IntoPanel12();
-      } else {
-        makeSomeSwaps(1, numToSwap);
-        makeSomeSwaps(2, numToSwap);
-      }
-    }
-  }
-*/
-
 }
 
 // Knuth's algorithm for random permutation, but we only do a swap with probability p
@@ -390,10 +386,11 @@ void initializeRamps() {
 
 class BeatTrainModule extends TransientLayerModule {
 
-  boolean doFire = false;    // if true, we render to the flame effects
+  int lightOrFire;    // if FIRE, we render to the flame effects
   
-  BeatTrainModule(FBParams _fb) {
+  BeatTrainModule(FBParams _fb, int _lightOrFire) {
     super(_fb);
+    lightOrFire = _lightOrFire;
   }
 
   // applies a non-linear ramp to the number of notes active, to provide contrast and make the patterns clearer
@@ -440,7 +437,7 @@ class BeatTrainModule extends TransientLayerModule {
 
 //        if(panel==0) println("BEATTRAIN intensity " + intensity);
         
-        ColorRampLayer cr = new ColorRampLayer(panelToArm(panel, doFire), basicPulse, -2);  // basicPulse is 3 wide, so -2 starts just onscreen
+        ColorRampLayer cr = new ColorRampLayer(panelToArm(panel, lightOrFire), basicPulse, -2);  // basicPulse is 3 wide, so -2 starts just onscreen
         
         cr.motionSpeed = fb.animationSpeed * 2;  // by default keep a gap of 1 fixture between pulses
         cr.terminateWithPosition = true;
@@ -605,4 +602,5 @@ class TintModule extends FBModule {
       }
   }
 }
+
 

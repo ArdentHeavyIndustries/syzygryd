@@ -4,7 +4,6 @@
 // A lighting and fire control program for Syzygryd, using the Layer interface
 // Jonathan Stray, August 2010
 
-
 // ------------------------------------------------- FrameBrulee parameter block  --------------------------------------
 // These are all the parameters of a FrameBrulee program. 
 // Can be saved/restored. Some are controllable via OSC.
@@ -31,6 +30,17 @@ class FBParams {
   // note display settings
   public float pulseWidth = 1;            // number of cubes that a single pulse lights up
   public float permuteAcrossArms = 0;     // probability that a note display will be jittered across arms
+  
+  // effects on/off. These are switched up during change()
+  public boolean effectNoteChase = false;
+  public boolean effectNoteDisplay = false;
+  public boolean effectNotePermute = true;
+  public boolean effectBeatTrain = false;
+  public boolean effectBassPulse = true;
+  
+  // fire effects
+  public boolean effectFireChase;
+  public boolean effectFireDisplay;
   
   // final color correction params
   public color ccTint = color(255,255,255); // central hue and sat 
@@ -119,8 +129,36 @@ void processOSCLightEvent(OscMessage m) {
     curFBParams.lightIntensity = m.get(0).floatValue();    
   } 
 
+  else if (m.addrPattern().startsWith("/effectControl/display")) {
+    curFBParams.effectNoteDisplay = m.get(0).floatValue() != 0;    
+  } 
 
+  else if (m.addrPattern().startsWith("/effectControl/permute")) {
+    curFBParams.effectNotePermute = m.get(0).floatValue() != 0;    
+  } 
+
+  else if (m.addrPattern().startsWith("/effectControl/chase")) {
+    curFBParams.effectNoteChase = m.get(0).floatValue() != 0;    
+  } 
+
+  else if (m.addrPattern().startsWith("/effectControl/beatTrain")) {
+    curFBParams.effectBeatTrain = m.get(0).floatValue() != 0;    
+  } 
+
+  else if (m.addrPattern().startsWith("/effectControl/bassPulse")) {
+    curFBParams.effectBassPulse = m.get(0).floatValue() != 0;    
+  } 
+
+  else if (m.addrPattern().startsWith("/effectControl/fireChase")) {
+    curFBParams.effectFireChase = m.get(0).floatValue() != 0;    
+  } 
+
+  else if (m.addrPattern().startsWith("/effectControl/fireDisplay")) {
+    curFBParams.effectFireDisplay = m.get(0).floatValue() != 0;    
+  } 
+  
 }
+
 
 void sendTouchOSCMsg(String addr, float value) {
   OscMessage msg = new OscMessage(addr);
@@ -141,25 +179,28 @@ void outputParamsToOSC(FBParams fb) {
 }
 
 
+
 // ------------------------------------------------- FrameBrulee core --------------------------------------
 
 class FrameBrulee extends LightingProgram {
 
-  
+
   // Bottom Permanent layers
   HueRotateModule     baseHueRotate;       // constant hueRotate layer on bottom
-  //RippleLayer        baseRipple;          // ripple the base hue (multiplied)
-    
-  // On top of these we have transient layers for chases
-  ArrayList<FBModule>  lightModules = new ArrayList();
-  ArrayList<FBModule>  fireModules = new ArrayList();
+
+  NoteChaseModule noteChase;
+  NoteDisplayModule noteDisplay;
+  NotePermuteModule notePermute;
+  BeatTrainModule beatTrain;
+  BassPulseModule bassPulse;    
   
   TintModule         tinty;
   
-  // Top permanent layers
-  //TintLayer          tintLayer;
+  // Now the fire...
+  FireChaseModule fireChase;
+  NoteDisplayModule fireDisplay;
   
-  LightingState effectsLayers = new LightingState();   // save a new on every frame
+  LightingState effectsLayers;
   
   void initialize() {
     
@@ -169,36 +210,41 @@ class FrameBrulee extends LightingProgram {
     baseHueRotate = new HueRotateModule(curFBParams);
     tinty = new TintModule(curFBParams);
 
-    // Now create a bunch of visualizer modules. These will get stacked in some order, and enabled depending on curFBParams.intensity()
-    lightModules.add(new NoteChaseModule(curFBParams));
-    lightModules.add(new NoteDisplayModule(curFBParams));
-    lightModules.add(new NotePermuteModule(curFBParams));
-    lightModules.add(new BeatTrainModule(curFBParams)); 
-    lightModules.add(new BassPulseModule(curFBParams));
+    // Visualizer modules, can be turned on and off
+    noteChase = new NoteChaseModule(curFBParams);
+    noteDisplay = new NoteDisplayModule(curFBParams, LIGHT);
+    notePermute = new NotePermuteModule(curFBParams, LIGHT);
+    beatTrain = new BeatTrainModule(curFBParams, LIGHT);
+    bassPulse = new BassPulseModule(curFBParams);
+   
+    fireChase = new FireChaseModule(curFBParams);
+    fireDisplay = new NoteDisplayModule(curFBParams, FIRE);
     
-    fireModules.add(new FireChaseModule(curFBParams));
+    effectsLayers = new LightingState();
   }
 
-  
+
   // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
   void advance(float steps) {
     baseHueRotate.masterAdvance(steps);
     
-    for (FBModule m : lightModules) {
-      m.masterAdvance(steps);
-    }    
-    for (FBModule m : fireModules) {
-      m.masterAdvance(steps);
-    }    
-        
+    noteChase.masterAdvance(steps);
+    noteDisplay.masterAdvance(steps);
+    notePermute.masterAdvance(steps);
+    beatTrain.masterAdvance(steps);
+    bassPulse.masterAdvance(steps);
+
+    fireChase.masterAdvance(steps);
+    fireDisplay.masterAdvance(steps);
+    
     if (events.fired("bar"))
       outputParamsToOSC(curFBParams);
       
-    if (!curFBParams.hold && events.fired("change")) {
+    if ( (events.fired("4bars") && !curFBParams.hold) ||
+         events.fired("change") )
       change();
-    }
   }
-  
+ 
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode
   void render(LightingState state) {
     baseHueRotate.apply(state);
@@ -207,55 +253,44 @@ class FrameBrulee extends LightingProgram {
     effectsLayers.clear();
 
     // Apply modules depending on intensity
-    int numModules = lightModules.size();
-    int modulesToApply = min(floor(curFBParams.lightIntensity * (numModules+1)), numModules-1); // min to handle boundary cdn with intensity=1
-    for (int i=0; i<modulesToApply; i++) {
-      lightModules.get(i).apply(effectsLayers);
-    }
-        
+    if (curFBParams.effectNoteChase)
+      noteChase.apply(effectsLayers);
+    if (curFBParams.effectNoteDisplay)
+      noteDisplay.apply(effectsLayers);
+    if (curFBParams.effectNotePermute)
+      notePermute.apply(effectsLayers);
+    if (curFBParams.effectBeatTrain)
+      beatTrain.apply(effectsLayers);
+    if (curFBParams.effectBassPulse)
+      bassPulse.apply(effectsLayers);
+
     // tint the effects and add to the base hue rotate
     tinty.apply(effectsLayers);
     state.blendOverSelf(effectsLayers, ADD, 1);
     
     // add the fire!
-    numModules = fireModules.size();
-    modulesToApply = min(floor(curFBParams.fireIntensity * (numModules+1)), numModules-1); // min to handle boundary cdn with intensity=1
-    for (int i=0; i<modulesToApply; i++) {
-      fireModules.get(i).apply(state);
-    }
-  }
-  
-  // restack the modules (changing which are active, for a given intensity) and reset their parameters 
-  void change() {
+    if (curFBParams.effectFireChase)
+      fireChase.apply(state);
+    if (curFBParams.effectFireDisplay)
+      fireDisplay.apply(state);
     
-    // size of change measured in probability of a swap at each step
-//    restackModules(lightModules, random(1));
-//    restackModules(fireModules, random(1));    
-
-    int[] permute = new int[lightModules.size()];
-    for (int i=0; i<permute.length; i++)
-      permute[i] = i;
-    randomPermute(permute, random(1));
-    ArrayList<FBModule> newstack = new ArrayList();
-    for (int i=0; i<permute.length; i++)
-       newstack.add(lightModules.get(permute[i]));
-    lightModules = newstack; 
   }
 
-/*
-  // apply some random permutes to restack a module list
-  restackModules(ArrayList<FBModule> a, float p) {    
-    for (int i=0; i<a.size(); i++) {
-      if (p >  random(1)) {
-        int j = floor(random(a.size()));
-        FBModule tmp = a.get(i);
-        a.set(i, a.get(j));
-        a.set(j, tmp);
-      }   
-    }
+  // turn on different modules, switch up parameters
+  void change() {
+    println("Change!");
+    
+    float p = random(0.2);  // probability that each module is on
+    
+    curFBParams.effectNoteDisplay = random(1) < p;
+    curFBParams.effectNotePermute = random(1) < p;
+    curFBParams.effectNoteChase = random(1) < p;
+    curFBParams.effectBeatTrain = random(1) < p;
+    curFBParams.effectBassPulse = random(1) < p;
+    
+    curFBParams.effectFireChase = random(1) < p;
+    curFBParams.effectFireDisplay = random(1) < p;
   }
-*/
-
 }
 
 
@@ -278,5 +313,4 @@ float mutateValue(float v, float mutation, float maxV) {
 float clip (float v, float a, float b) {
   return min(b, max(a, v));
 }
-
 
