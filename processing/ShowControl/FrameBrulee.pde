@@ -51,41 +51,66 @@ class FBParams {
 // Current FB state
 FBParams curFBParams = new FBParams();
 
+// These two functions need to be inverses... or the touchOSC won't work
+float baseHueSpeedOSCToInternal(float oscVal) {
+  return pow(oscVal, 4) * 150;    //OSC control is unscaled 0..1. Add nonlinearity to widen lower end of the scale
+}
+float baseHueSpeedInternalToOSC(float internalVal) {
+  return pow(internalVal/150, 0.25);
+}
+
+// These functions also need to be inverses
+color tintOSCToInternal(float x, float y) {
+    colorMode(HSB, 360, 100, 100);
+    color result = color((degrees(atan2(y,x))+360)%360, min(100, 100*sqrt(x*x + y*y)), 100);   // +360%360 as color ctor does not like negative hues
+    colorMode(RGB, 255);
+    return result;
+}
+
+float tintInternalToOSCx(color c) {
+    colorMode(HSB, 360, 100, 100);
+    float h = hue(c);
+    float s = saturation(c);
+    float x = cos(radians(h)) * s/100;
+    colorMode(RGB, 255);
+    return x;
+}
+float tintInternalToOSCy(color c) {
+    colorMode(HSB, 360, 100, 100);
+    float h = hue(c);
+    float s = saturation(c);
+    float y = sin(radians(h)) * s/100;
+    colorMode(RGB, 255);
+    return y;
+}
+
 
 // OSC receiver function that modifies the global state 
 // Also does OSC control ranges
 void processOSCLightEvent(OscMessage m) {
 
-// println(m.addrPattern());
+ //println(m.addrPattern());
   
   if (m.addrPattern().startsWith("/lightingColor/baseHueSpeed")) {
-  
-    curFBParams. baseHueRotationSpeed = pow(m.get(0).floatValue(), 4) * 150;    //OSC control is unscaled 0..1. Add nonlinearity to widen lower end of the scale
+    curFBParams.baseHueRotationSpeed = baseHueSpeedOSCToInternal(m.get(0).floatValue());
    // println("speed");
   } 
   
   else if (m.addrPattern().startsWith("/lightingColor/baseHueSpread")) {
-    curFBParams.baseHueSpread = m.get(0).floatValue();
- //   println("spread");
+    curFBParams.baseHueSpread = m.get (0).floatValue();
+    println("spread");
   } 
   
   else if (m.addrPattern().startsWith("/lightingColor/baseHueSaturation")) {
     curFBParams.baseHueSat = m.get(0).floatValue() ;  
- //   println("spread");
   } 
   
   else if (m.addrPattern().startsWith("/lightingColor/baseHueBrightness")) {
     curFBParams.baseHueBright = m.get(0).floatValue();  
- //   println("spread");
   } 
 
   else if (m.addrPattern().startsWith("/lightingColor/tint")) {
-    float x = m.get(0).floatValue();  
-    float y = m.get(1).floatValue();
-    
-    colorMode(HSB, 360, 100, 100);
-    curFBParams.ccTint = color((degrees(atan2(y,x))+360)%360, min(100, 100*sqrt(x*x + y*y)), 100);   // +360%360 as color ctor does not like negative hues
-    colorMode(RGB, 255);
+    curFBParams.ccTint = tintOSCToInternal(m.get(0).floatValue(), m.get(1).floatValue());
   } 
   
   else if (m.addrPattern().startsWith("/lightingColor/chroma")) {
@@ -113,10 +138,6 @@ void processOSCLightEvent(OscMessage m) {
     curFBParams.decay = m.get(0).floatValue();  
   } 
 
-  else if (m.addrPattern().startsWith("/lightingControls/decay")) {
-    curFBParams.decay = m.get(0).floatValue();  
-  } 
-  
   else if (m.addrPattern().startsWith("/fireControl/hold")) {
     curFBParams.hold = m.get(0).floatValue() != 0;
   } 
@@ -137,7 +158,7 @@ void processOSCLightEvent(OscMessage m) {
     curFBParams.effectNotePermute = m.get(0).floatValue() != 0;    
   } 
 
-  else if (m.addrPattern().startsWith("/effectControl/chase")) {
+  else if (m.addrPattern().startsWith("/effectControl/noteChase")) {
     curFBParams.effectNoteChase = m.get(0).floatValue() != 0;    
   } 
 
@@ -151,6 +172,7 @@ void processOSCLightEvent(OscMessage m) {
 
   else if (m.addrPattern().startsWith("/effectControl/fireChase")) {
     curFBParams.effectFireChase = m.get(0).floatValue() != 0;    
+    println("curFBParams.effectFireChase: " + curFBParams.effectFireChase);
   } 
 
   else if (m.addrPattern().startsWith("/effectControl/fireDisplay")) {
@@ -163,19 +185,57 @@ void processOSCLightEvent(OscMessage m) {
 void sendTouchOSCMsg(String addr, float value) {
   OscMessage msg = new OscMessage(addr);
   msg.add(value);
-//  if ( OSCConnection_touchOSC == null) println("null 1");
-//  if ( OSCConnection_touchOSC.myRemoteLocation == null) println("null 2");
+  //  if ( OSCConnection_touchOSC == null) println("null 1");
+  //  if ( OSCConnection_touchOSC.myRemoteLocation == null) println("null 2");
   
   if ( OSCConnection_touchOSC.myRemoteLocation != null) { 
-  OSCConnection_touchOSC.oscP5.send(msg, OSCConnection_touchOSC.myRemoteLocation);
-  //println("got it");
+    OSCConnection_touchOSC.oscP5.send(msg, OSCConnection_touchOSC.myRemoteLocation);
+    //println("got it");
   }
 }
 
+void sendTouchOSCMsg2(String addr, float x, float y) {
+  OscMessage msg = new OscMessage(addr);
+  msg.add(x);
+  msg.add(y);
+  
+  if ( OSCConnection_touchOSC.myRemoteLocation != null) { 
+    OSCConnection_touchOSC.oscP5.send(msg, OSCConnection_touchOSC.myRemoteLocation);
+  }
+}
+
+void sendTouchOSCMsg(String addr, boolean b) {
+  if (b)
+    sendTouchOSCMsg(addr, 1.0);
+  else
+    sendTouchOSCMsg(addr, 0.0);  
+}
+
 void outputParamsToOSC(FBParams fb) {
+  sendTouchOSCMsg("/lightingColor/baseHueSpeed", baseHueSpeedInternalToOSC(fb.baseHueRotationSpeed));
   sendTouchOSCMsg("/lightingColor/baseHueSpread", fb.baseHueSpread);
   sendTouchOSCMsg("/lightingColor/baseHueSaturation", fb.baseHueSat);
-  sendTouchOSCMsg("/lightingColor/baseHueBrightness", fb.baseHueBright);  
+  sendTouchOSCMsg("/lightingColor/baseHueBrightness", fb.baseHueBright); 
+
+  sendTouchOSCMsg2("/lightingColor/tint", tintInternalToOSCx(curFBParams.ccTint), tintInternalToOSCy(curFBParams.ccTint));
+  sendTouchOSCMsg("/lightingColor/chroma", curFBParams.ccChroma);
+  sendTouchOSCMsg("/lightingColor/brightness", curFBParams.ccBrightness);
+  
+  sendTouchOSCMsg("/lightingControls/animationSpeed", curFBParams.animationSpeed);
+  sendTouchOSCMsg("/lightingControls/pulseWidth", curFBParams.pulseWidth);
+  sendTouchOSCMsg("/lightingControls/attack", curFBParams.attack);
+  sendTouchOSCMsg("/lightingControls/decay", curFBParams.decay);
+
+  sendTouchOSCMsg("/effectControl/display", curFBParams.effectNoteDisplay);
+  sendTouchOSCMsg("/effectControl/permute", curFBParams.effectNotePermute);
+  sendTouchOSCMsg("/effectControl/noteChase",   curFBParams.effectNoteChase);
+  sendTouchOSCMsg("/effectControl/beatTrain",  curFBParams.effectBeatTrain);
+  sendTouchOSCMsg("/effectControl/bassPulse",  curFBParams.effectBassPulse);
+    
+  sendTouchOSCMsg("/effectControl/fireChase",  curFBParams.effectFireChase);
+  sendTouchOSCMsg("/effectControl/fireDisplay",  curFBParams.effectFireDisplay);
+  
+  sendTouchOSCMsg("/fireControl/hold", curFBParams.hold);
 }
 
 
@@ -221,7 +281,10 @@ class FrameBrulee extends LightingProgram {
     fireDisplay = new NoteDisplayModule(curFBParams, FIRE);
     
     effectsLayers = new LightingState();
-  }
+    
+    change();
+    outputParamsToOSC(curFBParams);
+ }
 
 
   // Advance winds all the modules forward, plus changes modes / parameters at bar boundaries
@@ -280,7 +343,7 @@ class FrameBrulee extends LightingProgram {
   void change() {
     println("Change!");
     
-    float p = random(0.2);  // probability that each module is on
+    float p = 0.4;  // probability that each module is on
     
     curFBParams.effectNoteDisplay = random(1) < p;
     curFBParams.effectNotePermute = random(1) < p;
@@ -290,6 +353,12 @@ class FrameBrulee extends LightingProgram {
     
     curFBParams.effectFireChase = random(1) < p;
     curFBParams.effectFireDisplay = random(1) < p;
+    
+    if (curFBParams.effectNoteDisplay) println("NoteDisplay");
+    if (curFBParams.effectNotePermute) println("NotePermute");
+    if (curFBParams.effectNoteChase) println("NoteChase");
+    if (curFBParams.effectBeatTrain) println("BeatTrain");
+    if (curFBParams.effectBassPulse) println("BassPulse");
   }
 }
 

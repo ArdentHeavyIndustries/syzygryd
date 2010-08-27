@@ -111,8 +111,8 @@ void setup() {
 
   //add three controllers to manager
   DMXManager.addController("/dev/cu.usbserial-EN075577",147);
-//  DMXManager.addController("/dev/cu.usbserial-foo",147);
-//  DMXManager.addController("/dev/cu.usbserial-bar",147);
+  DMXManager.addController("/dev/cu.usbserial-foo",147);
+  DMXManager.addController("/dev/cu.usbserial-bar",147);
   
   //Set up visualizer
   if (SYZYVYZ) {
@@ -252,6 +252,7 @@ void keyPressed(){
   }
 }
 
+int totalBars = 0;
 
 // Returns steps elapsed since last call
 float updateStepPosition(){
@@ -279,9 +280,9 @@ float updateStepPosition(){
       // fire events on the bar and 4 bar marks
       if (sequencerState.curStep == 0) {
         events.fire("bar");
-      }
-      if ((sequencerState.ppqPosition % 16) == 0) {
-        events.fire("4bars");
+        totalBars++;
+        if (totalBars % 4 == 0)
+          events.fire("4bars");
       }
       
       // See if we're playing any notes this step; if so, fire "notes" event.
