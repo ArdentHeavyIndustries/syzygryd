@@ -183,10 +183,12 @@ class NoteDisplayModule extends TransientLayerModule {
               
               if (lightOrFire == LIGHT) {
                 // Create a static texture that fades out
-                TextureLayer cl = new TextureLayer(noteArm(panel, pitch), whitePulseTexture, notePosition(panel, pitch) - 1); // -1 cause the texture is 3 wide, so center it
-                cl.opacityEnvelope = env;
-                cl.terminateWithOpacity = true;
-                myLayers.add(cl);
+                ColorRampLayer cr = new ColorRampLayer(noteArm(panel, pitch), basicPulse, notePosition(panel, pitch) - 1); // -1 cause the texture is 3 wide, so center it
+                cr.origin = 1; // scale from the middle
+                cr.scaling = curFBParams.pulseWidth;
+                cr.opacityEnvelope = env;
+                cr.terminateWithOpacity = true;
+                myLayers.add(cr);
               } else {
                 // For fire, activate only a single effect at a time (no "width" response -- is this right?)
                 SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));

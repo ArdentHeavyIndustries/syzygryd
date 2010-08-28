@@ -70,7 +70,7 @@ float ANIMATION_SPEED_TYPICAL = 1;
 float ANIMATION_SPEED_MAX = 10;
 float PULSE_WIDTH_MIN = 0;
 float PULSE_WIDTH_TYPICAL = 1;
-float PULSE_WIDTH_MAX = 36;
+float PULSE_WIDTH_MAX = 10;
 float FLICKER_MIN = 0;
 float FLICKER_TYPICAL = 0;
 float FLICKER_MAX = 1;
@@ -474,6 +474,8 @@ class FrameBrulee extends LightingProgram {
   // turn on different modules, switch up parameters
   void change() {
 //    println("Change!");
+    
+    println("curFBParams.changeEffectPatterns: " + curFBParams.changeEffectPatterns)
     
     if (curFBParams.changeEffectPatterns)
       changeWhichEffectsAreOn();
