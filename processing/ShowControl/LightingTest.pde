@@ -1,9 +1,11 @@
 // ------------------------------------------------- LightingTest  --------------------------------------
 // Steps through every single DMX channel on the given arm. Does not use sync.
 
-int TEST_STEP_TIME = 1000; // ms
-int FIRST_TEST_CHANNEL=0;
-int LAST_TEST_CHANNEL= 47;
+int TEST_STEP_TIME = 50; // ms
+int FIRST_TEST_CHANNEL=117;
+int LAST_TEST_CHANNEL= 149;
+int TEST_VAL = 85;
+
 class LightingTest extends LightingProgram {
  
   float lastTime;
@@ -12,7 +14,7 @@ class LightingTest extends LightingProgram {
   LightingTest() {
    lastTime = now();
    lastChannel = FIRST_TEST_CHANNEL;
-   sendDMX(FIRST_TEST_CHANNEL,255);
+   sendDMX(FIRST_TEST_CHANNEL,TEST_VAL);
   }
  
  void sendDMX(int channel, int value) {
@@ -29,7 +31,7 @@ class LightingTest extends LightingProgram {
        lastChannel++;
        if (lastChannel > LAST_TEST_CHANNEL)
          lastChannel = FIRST_TEST_CHANNEL;
-       sendDMX(lastChannel, 255);      
+       sendDMX(lastChannel, TEST_VAL);      
        println("channel " + lastChannel + " on.");
        lastTime = curTime;
      }

@@ -19,7 +19,7 @@ int PITCHES = 10;  // wait until 2.0 to make any changes.
 int FRAMERATE = 200;
 int OSC_UPDATE_INTERVAL_MS = 500;
 
-// ------- IMPORTANT! Do no check in without production values ----------------
+// ------- Do no check in without production values ----------------
 // SEND_DMX = true;
 // TEST_MODE = false;
 // SYZYVYZ = false;
@@ -252,7 +252,7 @@ void keyPressed(){
   }
 }
 
-int totalBars = 0;
+int totalSteps = -1;
 
 // Returns steps elapsed since last call
 float updateStepPosition(){
@@ -273,15 +273,23 @@ float updateStepPosition(){
     // See if we've entered a new step; if so, fire the "step" event.
     int oldStep = sequencerState.curStep;
     sequencerState.curStep = (int)floor(sequencerState.stepPosition);
+    
     if (oldStep != sequencerState.curStep) {
       events.fire("step");
       //print("Step!\n");
       
+      if (totalSteps != -1)
+        totalSteps++;
+        
       // fire events on the bar and 4 bar marks
       if (sequencerState.curStep == 0) {
         events.fire("bar");
-        totalBars++;
-        if (totalBars % 4 == 0)
+  
+        // start counting total steps on a bar boundary, so totalSteps % 16 = 0 when we start a new bar
+        if (totalSteps == -1)
+          totalSteps = 0;
+
+        if (totalSteps % 16 == 0)
           events.fire("4bars");
       }
       

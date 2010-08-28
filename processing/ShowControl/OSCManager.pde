@@ -89,10 +89,12 @@ void oscEvent(OscMessage m) {
     }   
     
   } 
-  else if (m.addrPattern().startsWith("/lightingControls/") || m.addrPattern().startsWith("/lightingColor/") || 
-           m.addrPattern().startsWith("/fireControl/") || m.addrPattern().startsWith("/effectControl/")) {
+  else if (m.addrPattern().startsWith("/lightControl/") || m.addrPattern().startsWith("/lightColor/") || 
+           m.addrPattern().startsWith("/fireControl/") || m.addrPattern().startsWith("/lightSettings/")) {
     processOSCLightEvent(m);
 //    println("zomg");
+  } else { 
+//    println("Unrecognized OSC event: " + m.addrPattern());
   }
 }
 

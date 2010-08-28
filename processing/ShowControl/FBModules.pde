@@ -104,7 +104,7 @@ color[] whitePulseTexture = new color[] {color(100, 100, 100), color(200, 200, 2
 // Note chase sends a pulse down the arm for each step where a note is on
 // Parameters used: 
 //   - FBParams.intensity controls how often we can fire (every bar --> every note)
-//   - FBParams.jitter controls whether we fire predictably (for current intensity level) or probabilistically 
+//   - FBParams.flicker controls whether we fire predictably (for current intensity level) or probabilistically 
 //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) chases
 //   - FBParams.width to set the chase width
 class NoteChaseModule extends TransientLayerModule {
@@ -142,7 +142,7 @@ class NoteChaseModule extends TransientLayerModule {
 // we use 
 //   - FBParams.animationSpeed to set the speed of (newly created, not pre-existing) fades
 //   - FBParams.pulseWidth to set the width of note display
-//   - FBParams.jitter to mix it up a bit
+//   - FBParams.flicker to mix it up a bit
 class NoteDisplayModule extends TransientLayerModule {
    
   int lightOrFire;
@@ -206,7 +206,7 @@ class NoteDisplayModule extends TransientLayerModule {
 // Note permute is very similar but scrambles the notes so they're no longer sequential, or necessarily on the same arm 
 // parameters
 // Globals:
-//   - FBParams.jitterAcrossArms
+//   - FBParams.flickerAcrossArms
 //   - FBParams.intensity;
 // Local:
 //   - permuteSeed
@@ -219,8 +219,9 @@ class NotePermuteModule extends NoteDisplayModule {
   
   boolean initialized = false;
   
-  int permuteSeed = 1;         // start here, can change()
-  boolean panelsIdentical;     // same permutation (rotated) for all panels?
+  int permuteSeed = 1;               // start here, can change()
+  boolean panelsIdentical;           // same permutation (rotated) for all panels?
+  float permuteAcrossArms = 0.5;     // distribute notes from one panel to different arms, with different probability
   
   // Store the permuted note positions here
   float[][] permOffsets = new float[PANELS][PITCHES];
@@ -248,13 +249,13 @@ class NotePermuteModule extends NoteDisplayModule {
       permArray[i] = i;
     randomPermute(permArray, 0.5);
     
-    // Start with even, integer spacing, then jitter
+    // Start with even, integer spacing, then flicker
     int spacing = 3;  // so, 3 for lighting arms (as opposed to fire arms);
     int start = 3;
  
-    // Permote pitches, space them out evenly on the arms, then move to some to other arms with probability jitterAcrossArms     
+    // Permote pitches, space them out evenly on the arms, then move to some to other arms with probability flickerAcrossArms     
     for (int i=0; i<PITCHES; i++) {
-      permOffsets[panel][i] = start + spacing*permArray[i] + 10*(random(fb.jitter) - fb.jitter/2);  // move +/-5 cubes when jitter=1
+      permOffsets[panel][i] = start + spacing*permArray[i] + 10*(random(fb.flicker) - fb.flicker/2);  // move +/-5 cubes when flicker=1
    
       permArms[panel][i] = generateArmNumber(panel);
     }
@@ -272,9 +273,9 @@ class NotePermuteModule extends NoteDisplayModule {
   }
   
   // generate an arm number for a note on a specific panel
-  // always = panel # if jitterAcrossArms is 0, otherwise shifted with some probability
+  // always = panel # if flickerAcrossArms is 0, otherwise shifted with some probability
   int generateArmNumber(int panel) {
-      if (fb.permuteAcrossArms > random(1)) {
+      if (permuteAcrossArms > random(1)) {
         return floor(random(PANELS));
       } else {
         return panel;
@@ -298,7 +299,7 @@ class NotePermuteModule extends NoteDisplayModule {
     }
   }
   
-  // Set up a map between notes and positions on the arms, a jittered permutation.
+  // Set up a map between notes and positions on the arms, a flickered permutation.
   void initialize() {      
     randomSeed(permuteSeed);
 
@@ -568,13 +569,13 @@ class TintModule extends FBModule {
     float inx = insat*cos(inhue);
     float iny = insat*sin(inhue);
     
-    float tinthue = radians(hue(fb.ccTint));
-    float tintsat = saturation(fb.ccTint);
+    float tinthue = radians(hue(fb.effectTint));
+    float tintsat = saturation(fb.effectTint);
     float tintx = tintsat*cos(tinthue);
     float tinty = tintsat*sin(tinthue);
 
-    inx *= fb.ccChroma;
-    iny *= fb.ccChroma;
+    inx *= fb.effectChroma/100;
+    iny *= fb.effectChroma/100;
     inx += tintx;
     iny += tinty;
     
@@ -587,7 +588,7 @@ class TintModule extends FBModule {
       outsat = 0;
     }
       
-    color out = color(outhue, outsat, brightness(in)*fb.ccBrightness);
+    color out = color(outhue, outsat, brightness(in)*fb.effectBright/100);
 
     colorMode(RGB, 255);
     
