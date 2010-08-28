@@ -51,7 +51,7 @@ class OSCManager {
 void oscEvent(OscMessage m) {
 
   // Enable the following line for OSC message debugging purposes
-  //println("oscEvent: addrPattern(): " + m.addrPattern());
+//  println("oscEvent: addrPattern(): " + m.addrPattern());
 
   if (m.addrPattern().endsWith("/sync")) {
     
@@ -90,10 +90,12 @@ void oscEvent(OscMessage m) {
     
   } 
   else if (m.addrPattern().startsWith("/lightControl/") || m.addrPattern().startsWith("/lightColor/") || 
-           m.addrPattern().startsWith("/fireControl/") || m.addrPattern().startsWith("/lightSettings/") ||
-           m.addrPattern().startsWith("/lightPatterns/") ) {
+           m.addrPattern().startsWith("/lightSettings/") || m.addrPattern().startsWith("/lightPatterns/") ) {
     processOSCLightEvent(m);
-//    println("zomg");
+
+  } else if (m.addrPattern().startsWith("/fireControl/")) {
+    processOSCFireEvent(m);
+
   } else { 
 //    println("Unrecognized OSC event: " + m.addrPattern());
   }

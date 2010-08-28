@@ -16,11 +16,7 @@ class LightingTest extends LightingProgram {
    lastChannel = FIRST_TEST_CHANNEL;
    sendDMX(FIRST_TEST_CHANNEL,TEST_VAL);
   }
- 
- void sendDMX(int channel, int value) {
-   DMXManager.setChannel(0, channel, (byte)value);    // $$ universe 0, replace for multi-arm tests
- }
-   
+    
   // ignore steps in case we are not getting sync; use internal timer
   void advance(float steps) {
  

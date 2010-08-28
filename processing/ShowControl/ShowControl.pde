@@ -110,9 +110,12 @@ void setup() {
   //Serial.list();
 
   //add three controllers to manager
-  DMXManager.addController("/dev/cu.usbserial-EN075577",147);
-  DMXManager.addController("/dev/cu.usbserial-foo",147);
-  DMXManager.addController("/dev/cu.usbserial-bar",147);
+  DMXManager.addController("/dev/cu.usbserial-EN075577",149);
+  DMXManager.addController("/dev/cu.usbserial-foo",149);
+  DMXManager.addController("/dev/cu.usbserial-bar",149);
+  
+  // start fire control
+  fireControlInitialize();
   
   //Set up visualizer
   if (SYZYVYZ) {
@@ -205,22 +208,24 @@ void draw(){
     }
   }
 
+  // advance fire control timers
+  fireControlAdvance(elapsedSteps);
 
- // textmode sequencer display -- useful for debugging. enable in config variables above.
- if(ASCII_SEQUENCER_DISPLAY){ 
-   if(events.fired("step")){
-      for (int y = 0; y < 10; y++){
-        for (int p = 0; p < 3; p++){
-          for (int x = 0; x < 16; x++){
-            int t = sequencerState.curTab[p];
-            print(sequencerState.notes[p][t][x][y]?"X":(x==sequencerState.curStep?"|":"_"));
-          }
-          print("   ");
-        }
-        print("\n");
-      }
-      print("\n\n\n");
-    }
+  // textmode sequencer display -- useful for debugging. enable in config variables above.
+  if(ASCII_SEQUENCER_DISPLAY){ 
+    if(events.fired("step")){
+       for (int y = 0; y < 10; y++){
+         for (int p = 0; p < 3; p++){
+           for (int x = 0; x < 16; x++){
+             int t = sequencerState.curTab[p];
+             print(sequencerState.notes[p][t][x][y]?"X":(x==sequencerState.curStep?"|":"_"));
+           }
+           print("   ");
+         }
+         print("\n");
+       }
+       print("\n\n\n");
+     }
  }
   
   //remove expired events
@@ -334,4 +339,15 @@ float getTimeInSteps(int time) {
 float curTimeInSteps() {
   return getTimeInSteps(now());
 }
+
+// super-simple DMX interface
+void sendDMX(int universe, int channel, int value) {
+   DMXManager.setChannel(universe, channel, (byte)value); 
+}
+
+// two arg version: send to universe zero. Good for fire control.
+void sendDMX(int channel, int value) {
+   DMXManager.setChannel(0, channel, (byte)value); 
+}
+
 

@@ -337,6 +337,7 @@ void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float ste
   
   curFBParams.changeRate = uiFBParams.changeRate;
   curFBParams.mutationRate = uiFBParams.mutationRate;
+  curFBParams.changeEffectPatterns = uiFBParams.changeEffectPatterns;
   curFBParams.changeEffectSettings = uiFBParams.changeEffectSettings;
   curFBParams.changeEffectColors = uiFBParams.changeEffectColors;
   
@@ -475,7 +476,7 @@ class FrameBrulee extends LightingProgram {
   void change() {
 //    println("Change!");
     
-    println("curFBParams.changeEffectPatterns: " + curFBParams.changeEffectPatterns)
+//    println("curFBParams.changeEffectPatterns: " + curFBParams.changeEffectPatterns);
     
     if (curFBParams.changeEffectPatterns)
       changeWhichEffectsAreOn();
