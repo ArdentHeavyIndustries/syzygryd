@@ -15,6 +15,7 @@ class FBParams implements Cloneable {
   public float mutationRate = 0.2;            // 1 = change everything when mutating, 0 = change nothing
   public boolean changeEffectSettings = true;
   public boolean changeEffectColors = true;
+  public boolean changeEffectPatterns = true;
   
   // effect settings
   public float animationSpeed = 1;      // relative to steps
@@ -157,6 +158,10 @@ void processOSCLightEvent(OscMessage m) {
     uiFBParams.mutationRate = m.get(0).floatValue();    
   } 
  
+  else if (m.addrPattern().startsWith("/lightControl/changePatterns")) {
+    uiFBParams.changeEffectPatterns = m.get(0).floatValue() != 0;    
+  } 
+
   else if (m.addrPattern().startsWith("/lightControl/changeSettings")) {
     uiFBParams.changeEffectSettings = m.get(0).floatValue() != 0;    
   } 
@@ -164,40 +169,34 @@ void processOSCLightEvent(OscMessage m) {
   else if (m.addrPattern().startsWith("/lightControl/changeColors")) {
     uiFBParams.changeEffectColors = m.get(0).floatValue() != 0;    
   } 
-
- else if (m.addrPattern().startsWith("/lightControl/noteDisplay")) {
-    uiFBParams.effectNoteDisplay = m.get(0).floatValue() != 0;    
-  } 
   
-  else if (m.addrPattern().startsWith("/lightControl/noteDisplay")) {
+  else if (m.addrPattern().startsWith("/lightPatterns/noteDisplay")) {
     uiFBParams.effectNoteDisplay = m.get(0).floatValue() != 0;    
   } 
 
-  else if (m.addrPattern().startsWith("/lightControl/notePermute")) {
+  else if (m.addrPattern().startsWith("/lightPatterns/notePermute")) {
     uiFBParams.effectNotePermute = m.get(0).floatValue() != 0;    
   } 
 
-  else if (m.addrPattern().startsWith("/lightControl/noteChase")) {
+  else if (m.addrPattern().startsWith("/lightPatterns/noteChase")) {
     uiFBParams.effectNoteChase = m.get(0).floatValue() != 0;    
   } 
 
-  else if (m.addrPattern().startsWith("/lightControl/beatTrain")) {
+  else if (m.addrPattern().startsWith("/lightPatterns/beatTrain")) {
     uiFBParams.effectBeatTrain = m.get(0).floatValue() != 0;    
   } 
 
-  else if (m.addrPattern().startsWith("/lightControl/bassPulse")) {
+  else if (m.addrPattern().startsWith("/lightPatterns/bassPulse")) {
     uiFBParams.effectBassPulse = m.get(0).floatValue() != 0;    
     println("uiFBParams.effectBassPulse: " + uiFBParams.effectBassPulse);
   } 
  
   else if (m.addrPattern().startsWith("/lightColor/baseHueSpeed")) {
     uiFBParams.baseHueRotationSpeed = baseHueSpeedOSCToInternal(m.get(0).floatValue());
-   // println("speed");
   } 
   
   else if (m.addrPattern().startsWith("/lightColor/baseHueSpread")) {
     uiFBParams.baseHueSpread = m.get (0).floatValue();
-    println("spread");
   } 
   
   else if (m.addrPattern().startsWith("/lightColor/baseHueSaturation")) {
@@ -218,7 +217,7 @@ void processOSCLightEvent(OscMessage m) {
 
   else if (m.addrPattern().startsWith("/lightColor/brightness")) {
     uiFBParams.effectBright = m.get(0).floatValue();  
-//    println("uiFBParams.effectBrightness: " + uiFBParams.effectBrightness);
+    println("uiFBParams.effectBrightness: " + uiFBParams.effectBright);
   } 
   
   else if (m.addrPattern().startsWith("/lightSettings/animationSpeed")) {
@@ -292,14 +291,15 @@ void outputParamsToOSC(FBParams fb) {
   sendTouchOSCMsg("/lightControl/changeRate", uiFBParams.changeRate);
   sendTouchOSCMsg("/lightControl/mutationRate", uiFBParams.mutationRate);
   sendTouchOSCMsg("/lightControl/changeRateLabel", changeRateLabels[uiFBParams.changeRate]);
+  sendTouchOSCMsg("/lightControl/changePatterns", uiFBParams.changeEffectPatterns);
   sendTouchOSCMsg("/lightControl/changeSettings", uiFBParams.changeEffectSettings);
   sendTouchOSCMsg("/lightControl/changeColors", uiFBParams.changeEffectColors);
     
-  sendTouchOSCMsg("/lightControl/noteDisplay", uiFBParams.effectNoteDisplay);
-  sendTouchOSCMsg("/lightControl/notePermute", uiFBParams.effectNotePermute);
-  sendTouchOSCMsg("/lightControl/noteChase",   uiFBParams.effectNoteChase);
-  sendTouchOSCMsg("/lightControl/beatTrain",  uiFBParams.effectBeatTrain);
-  sendTouchOSCMsg("/lightControl/bassPulse",  uiFBParams.effectBassPulse);
+  sendTouchOSCMsg("/lightPatterns/noteDisplay", uiFBParams.effectNoteDisplay);
+  sendTouchOSCMsg("/lightPatterns/notePermute", uiFBParams.effectNotePermute);
+  sendTouchOSCMsg("/lightPatterns/noteChase",   uiFBParams.effectNoteChase);
+  sendTouchOSCMsg("/lightPatterns/beatTrain",  uiFBParams.effectBeatTrain);
+  sendTouchOSCMsg("/lightPatterns/bassPulse",  uiFBParams.effectBassPulse);
 
   sendTouchOSCMsg("/lightColor/baseHueSpeed", baseHueSpeedInternalToOSC(fb.baseHueRotationSpeed));
   sendTouchOSCMsg("/lightColor/baseHueSpread", fb.baseHueSpread);
@@ -475,7 +475,8 @@ class FrameBrulee extends LightingProgram {
   void change() {
 //    println("Change!");
     
-    changeWhichEffectsAreOn();
+    if (curFBParams.changeEffectPatterns)
+      changeWhichEffectsAreOn();
     
     if (curFBParams.changeEffectColors)
       changeEffectColors(uiFBParams);
