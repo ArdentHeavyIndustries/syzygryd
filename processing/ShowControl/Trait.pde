@@ -65,8 +65,10 @@ class FireTrait extends Trait {
     else if (parent instanceof Fixture) {
       if (brightness(clr) > 50){
         parent.setChannel("fire", 55);
+      } else {
+        parent.setChannel("fire", 0);
       }
-    }
+  }
   }
   
   private void color2FireGroup(color clr) {

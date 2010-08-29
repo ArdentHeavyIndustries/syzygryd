@@ -25,6 +25,10 @@ class FBArmParams implements Cloneable {
   public boolean effectNotePermute = true;
   public boolean effectBeatTrain = false;
   public boolean effectBassPulse = true;
+  
+  // fire effects
+  public boolean effectFireChase = false;
+  public boolean effectFireDisplay = false;
 
   // color correction params
   public color effectTint = color(255,255,255); // central hue and sat 
@@ -49,11 +53,7 @@ class FBParams implements Cloneable {
   public float baseHueBright = 60;       // out of 100
   
   public FBArmParams[] arms;
-  
-  // fire effects
-  public boolean effectFireChase = true;
-  public boolean effectFireDisplay = true;
-  
+    
   FBParams() {
     arms = new FBArmParams[3];
     for (int i=0; i<3; i++) { 
@@ -229,6 +229,14 @@ void processOSCLightEvent(OscMessage m) {
       uiFBParams.arms[arm].effectBassPulse = m.get(0).floatValue() != 0;    
     } 
 
+    if (m.addrPattern().startsWith(armStr + "fireDisplay")) {
+      uiFBParams.arms[arm].effectFireDisplay = m.get(0).floatValue() != 0;    
+    } 
+
+    if (m.addrPattern().startsWith(armStr + "fireChase")) {
+      uiFBParams.arms[arm].effectFireChase = m.get(0).floatValue() != 0;    
+    } 
+
     else if (m.addrPattern().startsWith(armStr + "effectTint")) {
       uiFBParams.arms[arm].effectTint = tintOSCToInternal(m.get(0).floatValue(), m.get(1).floatValue());
     } 
@@ -258,16 +266,6 @@ void processOSCLightEvent(OscMessage m) {
     } 
     
   }
-
-  if (m.addrPattern().startsWith("/lightControl/fireChase")) {
-    uiFBParams.effectFireChase = m.get(0).floatValue() != 0;    
-    println("uiFBParams.effectFireChase: " + uiFBParams.effectFireChase);
-  } 
-
-  else if (m.addrPattern().startsWith("/lightControl/fireDisplay")) {
-    uiFBParams.effectFireDisplay = m.get(0).floatValue() != 0;    
-  } 
-  
 }
 
 
@@ -332,6 +330,9 @@ void outputParamsToOSC(FBParams fb) {
     sendTouchOSCMsg(armStr + "beatTrain",  uiFBParams.arms[arm].effectBeatTrain);
     sendTouchOSCMsg(armStr + "bassPulse",  uiFBParams.arms[arm].effectBassPulse);
 
+    sendTouchOSCMsg(armStr + "fireDisplay", uiFBParams.arms[arm].effectFireDisplay);
+    sendTouchOSCMsg(armStr + "fireChase",   uiFBParams.arms[arm].effectFireChase);
+
     sendTouchOSCMsg2(armStr + "effectTint", tintInternalToOSCx(uiFBParams.arms[arm].effectTint), tintInternalToOSCy(uiFBParams.arms[arm].effectTint));
     sendTouchOSCMsg(armStr + "effectChroma", uiFBParams.arms[arm].effectChroma); 
     sendTouchOSCMsg(armStr + "effectBright", uiFBParams.arms[arm].effectBright);
@@ -341,10 +342,6 @@ void outputParamsToOSC(FBParams fb) {
     sendTouchOSCMsg(armStr + "attack", uiFBParams.arms[arm].attack);
     sendTouchOSCMsg(armStr + "decay", uiFBParams.arms[arm].decay);
   }
-  
-      
-  sendTouchOSCMsg("/lightControl/fireChase",  uiFBParams.effectFireChase);
-  sendTouchOSCMsg("/lightControl/fireDisplay",  uiFBParams.effectFireDisplay);
 }
 
 float ANIMATION_TIME = 8;  // time to converge to new parameter value, in steps
@@ -379,11 +376,14 @@ void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float ste
   curFBParams.baseHueBright = animateParameter(uiFBParams.baseHueBright, curFBParams.baseHueBright, steps);
 
   for (int arm=0; arm<3; arm++) {
-    curFBParams.arms[arm].effectNoteChase = uiFBParams.arms[arm].effectNoteChase;
     curFBParams.arms[arm].effectNoteDisplay = uiFBParams.arms[arm].effectNoteDisplay;
     curFBParams.arms[arm].effectNotePermute = uiFBParams.arms[arm].effectNotePermute;
+    curFBParams.arms[arm].effectNoteChase = uiFBParams.arms[arm].effectNoteChase;
     curFBParams.arms[arm].effectBeatTrain = uiFBParams.arms[arm].effectBeatTrain;
     curFBParams.arms[arm].effectBassPulse = uiFBParams.arms[arm].effectBassPulse;
+
+    curFBParams.arms[arm].effectFireDisplay = uiFBParams.arms[arm].effectFireDisplay;
+    curFBParams.arms[arm].effectFireChase = uiFBParams.arms[arm].effectFireChase;
   
     curFBParams.arms[arm].animationSpeed = animateParameter(uiFBParams.arms[arm].animationSpeed, curFBParams.arms[arm].animationSpeed, steps);
     curFBParams.arms[arm].pulseWidth = animateParameter(uiFBParams.arms[arm].pulseWidth, curFBParams.arms[arm].pulseWidth, steps);
@@ -394,9 +394,6 @@ void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float ste
     curFBParams.arms[arm].effectChroma = animateParameter(uiFBParams.arms[arm].effectChroma, curFBParams.arms[arm].effectChroma, steps);
     curFBParams.arms[arm].effectBright =  animateParameter(uiFBParams.arms[arm].effectBright, curFBParams.arms[arm].effectBright, steps);  
   }
-  
-  curFBParams.effectFireChase = uiFBParams.effectFireChase;
-  curFBParams.effectFireDisplay = uiFBParams.effectFireDisplay;
 }
 
 // ------------------------------------------------- FrameBrulee core --------------------------------------
@@ -468,7 +465,7 @@ class FrameBrulee extends LightingProgram {
       outputParamsToOSC(uiFBParams);
       
     // change every N steps, as set by curFBParams.changeRate, or when we get the "change" event
-    if ( (events.fired("step") && (uiFBParams.changeRate != CHANGE_NEVER) && ((totalSteps % changeRatePeriods[curFBParams.changeRate]) == 0)) ||
+    if ( (events.fired("step") && (uiFBParams.changeRate != CHANGE_NEVER) && (!uiFBParams.hold) && ((totalSteps % changeRatePeriods[curFBParams.changeRate]) == 0)) ||
          events.fired("change") )  {
       change();
     }
@@ -500,7 +497,6 @@ class FrameBrulee extends LightingProgram {
   // turn on different modules, switch up parameters
   void change() {
 //    println("Change!");
-    
 //    println("curFBParams.changeEffectPatterns: " + curFBParams.changeEffectPatterns);
     
     if (curFBParams.changeEffectPatterns)
@@ -523,7 +519,7 @@ class FrameBrulee extends LightingProgram {
   void changeWhichEffectsAreOn() {
 
 //    println(curFBParams.changeRate);
-//      println(curFBParams.arms[0].effectNoteDisplay);
+//    println(curFBParams.arms[0].effectNoteDisplay);
     
     for (int panel=0; panel<3; panel++) {    
       if (mutateMe()) uiFBParams.arms[panel].effectNoteDisplay = !curFBParams.arms[panel].effectNoteDisplay;
@@ -531,10 +527,11 @@ class FrameBrulee extends LightingProgram {
       if (mutateMe()) uiFBParams.arms[panel].effectNoteChase = !curFBParams.arms[panel].effectNoteChase;
       if (mutateMe()) uiFBParams.arms[panel].effectBeatTrain = !curFBParams.arms[panel].effectBeatTrain;
       if (mutateMe()) uiFBParams.arms[panel].effectBassPulse = !curFBParams.arms[panel].effectBassPulse;
+
+      if (mutateMe()) uiFBParams.arms[panel].effectFireChase = !curFBParams.arms[panel].effectFireChase;
+      if (mutateMe()) uiFBParams.arms[panel].effectFireDisplay = !curFBParams.arms[panel].effectFireDisplay;    
     }
     
-    if (mutateMe()) uiFBParams.effectFireChase = !curFBParams.effectFireChase;
-    if (mutateMe()) uiFBParams.effectFireDisplay = !curFBParams.effectFireDisplay;    
   }
   
   void changeEffectColors(FBParams fb) {

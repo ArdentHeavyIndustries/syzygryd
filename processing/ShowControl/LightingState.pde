@@ -62,8 +62,8 @@ class LightingState {
 
   // blend self over dest
   void blendOverSelf(LightingState o, int blendMode, float opacity) {
-    for (int a=0; a<3; a++) {   
-      for (int i=0; i<CUBES_PER_ARM; i++) {
+    for (int a=0; a<6; a++) {   
+      for (int i=0; i<armResolution(a); i++) {
         color blendC = blendColor(o.armColor[a][i], armColor[a][i], blendMode);
         armColor[a][i] = lerpColor(armColor[a][i], blendC, opacity);
       }

@@ -160,11 +160,11 @@ class NoteDisplayModule extends TransientLayerModule {
   float notePosition(int panel, int pitch) {
     // convert 0-9 into 0-35, somehow
     if (lightOrFire == FIRE) {
-      // We have eight flame effects, ten pitches. Map bottom two to first, top two to last. Bass notes on the inside
+      // We have eight flame effects, ten pitches. Map bottom two to first, top two to last. Bass notes on the inside for fire (larger effects)
       return 7 - clip(pitch-1, 0, 7); 
     } else {
-      // Bass notes start at the inside for sound too 
-      return 35 - pitch*3;
+      // Bass notes start outside for sound 
+      return pitch*3;
     }
   }
   
@@ -174,7 +174,11 @@ class NoteDisplayModule extends TransientLayerModule {
   
   // redefine for subclasses to control when new layers are generated
   boolean enabled(int panel) {
-    return fb.arms[panel].effectNoteDisplay;
+    if (lightOrFire == LIGHT) {
+      return fb.arms[panel].effectNoteDisplay;
+    } else {
+      return fb.arms[panel].effectFireDisplay;
+    }
   }
   
   // Advance spits out a transient layer for each sequenced note
@@ -204,10 +208,18 @@ class NoteDisplayModule extends TransientLayerModule {
               } else {
                 // For fire, activate only a single effect at a time (no "width" response -- is this right?)
                 SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
-                sc. position = notePosition(panel, pitch);
+                
+                sc.position = notePosition(panel, pitch);
                 sc.opacityEnvelope = env;
                 sc.terminateWithOpacity = true;
+                sc.terminateWithPosition = false;
+                
+//                sc.position = 0;
+//                sc.motionSpeed = fb.arms[panel].animationSpeed;
+
                 myLayers.add(sc);
+  
+//                println("Fire display, arm: " + panel + ", pitch: " + pitch + ", position: " + sc.position);              
               }
             }
         }
@@ -550,16 +562,18 @@ class FireChaseModule extends TransientLayerModule {
     super.advance(elapsed);    
     
     for (int panel=0; panel<3; panel++) {   
-      if (events.fired("bar")) {
+      if (fb.arms[panel].effectFireChase && events.fired("bar")) {
 
+        //println("new simplechase");
+        
         SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
           
         if (fromOutside) {
-          sc.position = 0;
+          sc.position = -1;
           sc.motionSpeed = fb.arms[panel].animationSpeed;
         } else {
-          sc.position = armResolution(sc.arm) - 1;
-          sc.motionSpeed = -1;
+          sc.position = armResolution(sc.arm);
+          sc.motionSpeed = -fb.arms[panel].animationSpeed;
         }
           
         myLayers.add(sc);
