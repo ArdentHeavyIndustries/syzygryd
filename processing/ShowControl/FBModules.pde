@@ -42,7 +42,7 @@ class HueRotateModule extends FBModule {
   }
 
   void advance(float steps) {
-    phase += steps*fb.baseHueRotationSpeed*fb.animationSpeed;
+    phase += steps*fb.baseHueRotationSpeed;
   }
   
   void apply(LightingState dst)
@@ -115,26 +115,25 @@ class NoteChaseModule extends TransientLayerModule {
   
   void advance(float elapsed) {
     super.advance(elapsed);
-    
-    // generate new chases only if we're turned on
-    if (!fb.effectNoteChase)
-      return;
-    
-    for (int panel=0; panel<3; panel++) {   
-      if (events.fired("notes" + Integer.toString(panel))) {
+        
+    for (int panel=0; panel<3; panel++) {
+   
+      // generate new chase if 
+      // - chase is enabled for this arm
+      // - we've hit a step with notes
+      // we're on a bar boundary
+      if ( fb.arms[panel].effectNoteChase && 
+           (events.fired("notes" + Integer.toString(panel)) &&
+           (totalSteps % 16)==0) ) {
           
-        boolean canFire = (totalSteps % 16)==0;  // every four bars, always
+        // Create a moving texture that erases itself when it goes completely off the arm
+        ColorRampLayer cr = new ColorRampLayer(panel, CMYPulse, -3); // start completely off the arm
+        cr.origin = 1; // scale from the middle
+        cr.scaling = curFBParams.arms[panel].pulseWidth;
+        cr.terminateWithPosition = true;
+        cr.motionSpeed = max(fb.arms[panel].animationSpeed, 0.2);  // dont let speed go to zero, or it lasts forever
 
-        if (canFire) {
-          // Create a moving texture that erases itself when it goes completely off the arm
-          ColorRampLayer cr = new ColorRampLayer(panel, CMYPulse, -3); // start completely off the arm
-          cr.origin = 1; // scale from the middle
-          cr.scaling = curFBParams.pulseWidth;
-          cr.terminateWithPosition = true;
-          cr.motionSpeed = max(fb.animationSpeed, 0.2);  // dont let speed go to zero, or it lasts forever
-
-          myLayers.add(cr);
-        }
+        myLayers.add(cr);
       }
     }
   }
@@ -174,31 +173,31 @@ class NoteDisplayModule extends TransientLayerModule {
   }
   
   // redefine for subclasses to control when new layers are generated
-  boolean enabled() {
-    return fb.effectNoteDisplay;
+  boolean enabled(int panel) {
+    return fb.arms[panel].effectNoteDisplay;
   }
   
   // Advance spits out a transient layer for each sequenced note
   void advance(float elapsed) {
     super.advance(elapsed);
 
-    // generate new chases only if we're turned on
-    if (!enabled())
-      return;
-
-    for (int panel=0; panel<3; panel++) {   
-      if (events.fired("notes" + Integer.toString(panel))) {
+    for (int panel=0; panel<3; panel++) {
+   
+      // Generate new note layers if
+      //  - this effect is enabled for this panel
+      //  - there are notes on the current step   
+      if (enabled(panel) && events.fired("notes" + Integer.toString(panel))) {
    
         for (int pitch=0; pitch<sequencerState.PITCHES; pitch++) {
             if (sequencerState.isNoteAtCurTime(panel, pitch)) {
 
-              Envelope env = new AttackDecayEnvelope(fb.attack, fb.decay, 0, 1);
+              Envelope env = new AttackDecayEnvelope(fb.arms[panel].attack, fb.arms[panel].decay, 0, 1);
               
               if (lightOrFire == LIGHT) {
                 // Create a static texture that fades out
                 ColorRampLayer cr = new ColorRampLayer(noteArm(panel, pitch), basicPulse, notePosition(panel, pitch) - 1); // -1 cause the texture is 3 wide, so center it
                 cr.origin = 1; // scale from the middle
-                cr.scaling = curFBParams.pulseWidth;
+                cr.scaling = curFBParams.arms[panel].pulseWidth;
                 cr.opacityEnvelope = env;
                 cr.terminateWithOpacity = true;
                 myLayers.add(cr);
@@ -235,7 +234,7 @@ class NotePermuteModule extends NoteDisplayModule {
   boolean initialized = false;
   
   int permuteSeed = 1;               // start here, can change()
-  boolean panelsIdentical;           // same permutation (rotated) for all panels?
+  boolean panelsIdentical = false;   // same permutation (rotated) for all panels?
   float permuteAcrossArms = 0.5;     // distribute notes from one panel to different arms, with different probability
   
   // Store the permuted note positions here
@@ -255,8 +254,8 @@ class NotePermuteModule extends NoteDisplayModule {
     return permArms[panel][pitch];
   }
 
-  boolean enabled() {
-    return fb.effectNotePermute;
+  boolean enabled(int panel) {
+    return fb.arms[panel].effectNotePermute;
   }
 
   // create a permutation for one arm
@@ -456,22 +455,16 @@ class BeatTrainModule extends TransientLayerModule {
   void advance(float elapsed) {
     super.advance(elapsed);
     
-    // don't generate new notes if we're not enabled
-    if (!fb.effectBeatTrain) {
-      return;
-    }
-    
-    for (int panel=0; panel<3; panel++) {   
-      if (events.fired("notes" + Integer.toString(panel))) {
+     // for each panel: if enabled, fire when there are notes    
+     for (int panel=0; panel<3; panel++) {   
+      if (fb.arms[panel].effectBeatTrain && events.fired("notes" + Integer.toString(panel))) {
 
         // Fire off a colorRampLayer for this note
         float intensity = noteIntensity(panel, floor(sequencerState.stepPosition));
 
-//        if(panel==0) println("BEATTRAIN intensity " + intensity);
-        
         ColorRampLayer cr = new ColorRampLayer(panelToArm(panel, lightOrFire), basicPulse, -2);  // basicPulse is 3 wide, so -2 starts just onscreen
         
-        cr.motionSpeed = fb.animationSpeed * 2;  // by default keep a gap of 1 fixture between pulses
+        cr.motionSpeed = fb.arms[panel].animationSpeed * 2;  // by default keep a gap of 1 fixture between pulses
         cr.terminateWithPosition = true;
         
         myLayers.add(cr);
@@ -514,24 +507,19 @@ class BassPulseModule extends TransientLayerModule {
   void advance(float elapsed) {
     super.advance(elapsed);    
  
-     // don't generate new notes if we're not enabled
-    if (!fb.effectBassPulse) {
-      return;
-    }
-   
-    for (int arm=0; arm<3; arm++) {   
-      if (events.fired("notes" + Integer.toString(arm))) {
+    // for each panel: if enabled, fire when there are notes    
+    for (int panel=0; panel<3; panel++) {   
+      if (fb.arms[panel].effectBassPulse && events.fired("notes" + Integer.toString(panel))) {
 
-        int lowestPitch = findLowestNote(arm);
+        int lowestPitch = findLowestNote(panel);
         
-        if (sequencerState.isNoteAtCurTime(arm, lowestPitch)) {           // bottom row on sequencer triggers
- //         println("bass!");
-          ColorRampLayer cr = new ColorRampLayer(arm, fireRamp, 0);
+        if (sequencerState.isNoteAtCurTime(panel, lowestPitch)) {           // bottom row on sequencer triggers
+          ColorRampLayer cr = new ColorRampLayer(panel, fireRamp, 0);
   
           if (fromOutside) {
-            cr.scaleEnvelope = new AttackDecayEnvelope(fb.attack, fb.decay, 0, fb.pulseWidth*10 / fireRampLength);  // scale up to 10 cubes
+            cr.scaleEnvelope = new AttackDecayEnvelope(fb.arms[panel].attack, fb.arms[panel].decay, 0, fb.arms[panel].pulseWidth*10 / fireRampLength);  // normal size is 10 cubes
           } else {
-            cr.scaleEnvelope = new AttackDecayEnvelope(fb.attack, fb.decay, 0, -fb.pulseWidth*10 / fireRampLength);  // scale is negative because we're going the other way
+            cr.scaleEnvelope = new AttackDecayEnvelope(fb.arms[panel].attack, fb.arms[panel].decay, 0, -fb.arms[panel].pulseWidth*10 / fireRampLength);  // scale is negative because we're going the other way
             cr.position = CUBES_PER_ARM - 1;
           }
           
@@ -568,7 +556,7 @@ class FireChaseModule extends TransientLayerModule {
           
         if (fromOutside) {
           sc.position = 0;
-          sc.motionSpeed = fb.animationSpeed;
+          sc.motionSpeed = fb.arms[panel].animationSpeed;
         } else {
           sc.position = armResolution(sc.arm) - 1;
           sc.motionSpeed = -1;
@@ -597,7 +585,7 @@ class TintModule extends FBModule {
 
   // advance is a NOP, we don't animate (yet?)
   
-  color correct(color in) {
+  color correct(int panel, color in) {
     colorMode(HSB,360,100,100);
 
     float inhue = radians(hue(in));
@@ -605,13 +593,13 @@ class TintModule extends FBModule {
     float inx = insat*cos(inhue);
     float iny = insat*sin(inhue);
     
-    float tinthue = radians(hue(fb.effectTint));
-    float tintsat = saturation(fb.effectTint);
+    float tinthue = radians(hue(fb.arms[panel].effectTint));
+    float tintsat = saturation(fb.arms[panel].effectTint);
     float tintx = tintsat*cos(tinthue);
     float tinty = tintsat*sin(tinthue);
 
-    inx *= fb.effectChroma/100;
-    iny *= fb.effectChroma/100;
+    inx *= fb.arms[panel].effectChroma/100;
+    iny *= fb.arms[panel].effectChroma/100;
     inx += tintx;
     iny += tinty;
     
@@ -624,7 +612,7 @@ class TintModule extends FBModule {
       outsat = 0;
     }
       
-    color out = color(outhue, outsat, brightness(in)*fb.effectBright/100);
+    color out = color(outhue, outsat, brightness(in)*fb.arms[panel].effectBright/100);
 
     colorMode(RGB, 255);
     
@@ -633,9 +621,9 @@ class TintModule extends FBModule {
   }
  
   void apply(LightingState state) {
-    for (int arm=0; arm<3; arm++) // only bother with lighting arms
-      for (int i=0; i<armResolution(arm); i++) {
-        state.armColor[arm][i] = correct(state.armColor[arm][i]);
+    for (int panel=0; panel<3; panel++) // only bother with lighting arms
+      for (int i=0; i<armResolution(panel); i++) {
+        state.armColor[panel][i] = correct(panel, state.armColor[panel][i]);
       }
   }
 }

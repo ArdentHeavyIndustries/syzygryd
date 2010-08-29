@@ -90,7 +90,8 @@ void oscEvent(OscMessage m) {
     
   } 
   else if (m.addrPattern().startsWith("/lightControl/") || m.addrPattern().startsWith("/lightColor/") || 
-           m.addrPattern().startsWith("/lightSettings/") || m.addrPattern().startsWith("/lightPatterns/") ) {
+           m.addrPattern().startsWith("/lightSettings/") || m.addrPattern().startsWith("/lightPatterns/") || 
+           m.addrPattern().startsWith("/arm0/") || m.addrPattern().startsWith("/arm1/") || m.addrPattern().startsWith("/arm2/") ) {
     processOSCLightEvent(m);
 
   } else if (m.addrPattern().startsWith("/fireControl/")) {

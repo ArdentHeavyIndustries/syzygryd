@@ -10,19 +10,37 @@
 // Individual modules know how to configure their own parameters from the global state.
 // The defaults are also here.
 
+
+// Per-arm paramters
+class FBArmParams implements Cloneable {
+  // effect settings
+  public float animationSpeed = 1;      // relative to steps
+  public float pulseWidth = 1;            // number of cubes that a single pulse lights up
+  public float attack = 1;              // how fast does stuff come on? steps
+  public float decay = 5;               // how fast dues stuff go off? steps  
+
+  // effects on/off. These are switched up during change()
+  public boolean effectNoteChase = false;
+  public boolean effectNoteDisplay = false;
+  public boolean effectNotePermute = true;
+  public boolean effectBeatTrain = false;
+  public boolean effectBassPulse = true;
+
+  // color correction params
+  public color effectTint = color(255,255,255); // central hue and sat 
+  public float effectChroma = 100;          // 100 means full range, 0 means monochromatic
+  public float effectBright = 50;          // we add a lot of effects together; tend to clip if we aren't moderate here
+}
+
 class FBParams implements Cloneable {
   public int   changeRate = 4;          // indexes changeRatePeriod array, index 4 = every 64 steps = every 4 bars
+  public boolean hold = false;          // if true, never change
   public float mutationRate = 0.2;            // 1 = change everything when mutating, 0 = change nothing
   public boolean changeEffectSettings = true;
   public boolean changeEffectColors = true;
   public boolean changeEffectPatterns = true;
   
-  // effect settings
-  public float animationSpeed = 1;      // relative to steps
-  public float pulseWidth = 1;            // number of cubes that a single pulse lights up
   public float flicker = 0.1;            // general unpredictability of positions and timing
-  public float attack = 1;              // how fast does stuff come on? steps
-  public float decay = 5;               // how fast dues stuff go off? steps
   
   // hue rotation controls
   public float baseHueRotationSpeed = 1; // degrees/sec
@@ -30,31 +48,29 @@ class FBParams implements Cloneable {
   public float baseHueSat = 80;          // out of 100
   public float baseHueBright = 60;       // out of 100
   
-  // effects on/off. These are switched up during change()
-  public boolean effectNoteChase = false;
-  public boolean effectNoteDisplay = false;
-  public boolean effectNotePermute = true;
-  public boolean effectBeatTrain = false;
-  public boolean effectBassPulse = true;
+  public FBArmParams[] arms;
   
   // fire effects
   public boolean effectFireChase = true;
   public boolean effectFireDisplay = true;
   
-  // final color correction params
-  public color effectTint = color(255,255,255); // central hue and sat 
-  public float effectChroma = 100;          // 100 means full range, 0 means monochromatic
-  public float effectBright = 50;          // we add a lot of effects together; tend to clip if we aren't moderate here
+  FBParams() {
+    arms = new FBArmParams[3];
+    for (int i=0; i<3; i++) { 
+      arms[i] = new FBArmParams();
+    }
+    //println("made new arms!");
+  }
   
-  public Object clone()
-  {
+  public Object clone() {  
     try {  
-      return super.clone();  
+       return super.clone();  
     } catch (CloneNotSupportedException e) { 
       throw new InternalError();  
-    }  
+    }
   }
-};
+  
+}
 
 // The number of steps that pass before we change, for each position of the slider
 int changeRatePeriods[] = {1, 4, 16, 32, 64, 128, 256, -1};
@@ -65,21 +81,6 @@ int CHANGE_NEVER = 7;
 // Effect settings min, max, and typical values. Used for mutating the effects.
 // Min and max need to match touchOSC limits
 // Normally the center ("typical") values for these settings would correspond to the default values
-float ANIMATION_SPEED_MIN = 0;
-float ANIMATION_SPEED_TYPICAL = 1;
-float ANIMATION_SPEED_MAX = 10;
-float PULSE_WIDTH_MIN = 0;
-float PULSE_WIDTH_TYPICAL = 1;
-float PULSE_WIDTH_MAX = 10;
-float FLICKER_MIN = 0;
-float FLICKER_TYPICAL = 0;
-float FLICKER_MAX = 1;
-float ATTACK_MIN = 0;
-float ATTACK_TYPICAL = 1;
-float ATTACK_MAX = 16;
-float DECAY_MIN = 0;
-float DECAY_TYPICAL = 3;
-float DECAY_MAX = 16;
 float HUE_ROTATE_MIN = 0;
 float HUE_ROTATE_TYPICAL = 5;
 float HUE_ROTATE_MAX = 150;
@@ -92,6 +93,21 @@ float HUE_SAT_MAX = 100;
 float HUE_BRIGHT_MIN = 0;
 float HUE_BRIGHT_TYPICAL = 60;
 float HUE_BRIGHT_MAX = 100;
+float ANIMATION_SPEED_MIN = 0.1;
+float ANIMATION_SPEED_TYPICAL = 1;
+float ANIMATION_SPEED_MAX = 10;
+float PULSE_WIDTH_MIN = 1;
+float PULSE_WIDTH_TYPICAL = 1;
+float PULSE_WIDTH_MAX = 10;
+float FLICKER_MIN = 0;
+float FLICKER_TYPICAL = 0;
+float FLICKER_MAX = 1;
+float ATTACK_MIN = 0;
+float ATTACK_TYPICAL = 1;
+float ATTACK_MAX = 16;
+float DECAY_MIN = 0;
+float DECAY_TYPICAL = 3;
+float DECAY_MAX = 16;
 float EFFECT_CHROMA_MIN = 0;
 float EFFECT_CHROMA_TYPICAL = 80;
 float EFFECT_CHROMA_MAX = 100;
@@ -149,6 +165,10 @@ void processOSCLightEvent(OscMessage m) {
     events.fire("change");
   } 
   
+  if (m.addrPattern().startsWith("/lightControl/hold")) {
+    uiFBParams.hold = m.get(0).floatValue() != 0;
+  } 
+
   if (m.addrPattern().startsWith("/lightControl/changeRate")) {
     uiFBParams.changeRate = (int)clip( floor(m.get(0).floatValue()), 0, changeRatePeriods.length-1);
     sendTouchOSCMsg("/lightControl/changeRateLabel", changeRateLabels[uiFBParams.changeRate]);
@@ -169,27 +189,6 @@ void processOSCLightEvent(OscMessage m) {
   else if (m.addrPattern().startsWith("/lightControl/changeColors")) {
     uiFBParams.changeEffectColors = m.get(0).floatValue() != 0;    
   } 
-  
-  else if (m.addrPattern().startsWith("/lightPatterns/noteDisplay")) {
-    uiFBParams.effectNoteDisplay = m.get(0).floatValue() != 0;    
-  } 
-
-  else if (m.addrPattern().startsWith("/lightPatterns/notePermute")) {
-    uiFBParams.effectNotePermute = m.get(0).floatValue() != 0;    
-  } 
-
-  else if (m.addrPattern().startsWith("/lightPatterns/noteChase")) {
-    uiFBParams.effectNoteChase = m.get(0).floatValue() != 0;    
-  } 
-
-  else if (m.addrPattern().startsWith("/lightPatterns/beatTrain")) {
-    uiFBParams.effectBeatTrain = m.get(0).floatValue() != 0;    
-  } 
-
-  else if (m.addrPattern().startsWith("/lightPatterns/bassPulse")) {
-    uiFBParams.effectBassPulse = m.get(0).floatValue() != 0;    
-    println("uiFBParams.effectBassPulse: " + uiFBParams.effectBassPulse);
-  } 
  
   else if (m.addrPattern().startsWith("/lightColor/baseHueSpeed")) {
     uiFBParams.baseHueRotationSpeed = baseHueSpeedOSCToInternal(m.get(0).floatValue());
@@ -206,38 +205,61 @@ void processOSCLightEvent(OscMessage m) {
   else if (m.addrPattern().startsWith("/lightColor/baseHueBrightness")) {
     uiFBParams.baseHueBright = m.get(0).floatValue();  
   } 
-
-  else if (m.addrPattern().startsWith("/lightColor/tint")) {
-    uiFBParams.effectTint = tintOSCToInternal(m.get(0).floatValue(), m.get(1).floatValue());
-  } 
   
-  else if (m.addrPattern().startsWith("/lightColor/chroma")) {
-    uiFBParams.effectChroma = m.get(0).floatValue();  
-  } 
+  for (int arm=0; arm<3; arm++) {
+    String armStr = "/arm" + arm + "/";
+    
+    if (m.addrPattern().startsWith(armStr + "noteDisplay")) {
+      uiFBParams.arms[arm].effectNoteDisplay = m.get(0).floatValue() != 0;    
+    } 
 
-  else if (m.addrPattern().startsWith("/lightColor/brightness")) {
-    uiFBParams.effectBright = m.get(0).floatValue();  
-    println("uiFBParams.effectBrightness: " + uiFBParams.effectBright);
-  } 
+    if (m.addrPattern().startsWith(armStr + "notePermute")) {
+      uiFBParams.arms[arm].effectNotePermute = m.get(0).floatValue() != 0;    
+    } 
+
+    if (m.addrPattern().startsWith(armStr + "noteChase")) {
+      uiFBParams.arms[arm].effectNoteChase = m.get(0).floatValue() != 0;    
+    } 
+
+    if (m.addrPattern().startsWith(armStr + "beatTrain")) {
+      uiFBParams.arms[arm].effectBeatTrain = m.get(0).floatValue() != 0;    
+    } 
+
+    if (m.addrPattern().startsWith(armStr + "bassPulse")) {
+      uiFBParams.arms[arm].effectBassPulse = m.get(0).floatValue() != 0;    
+    } 
+
+    else if (m.addrPattern().startsWith(armStr + "effectTint")) {
+      uiFBParams.arms[arm].effectTint = tintOSCToInternal(m.get(0).floatValue(), m.get(1).floatValue());
+    } 
+    
+    else if (m.addrPattern().startsWith(armStr + "effectChroma")) {
+      uiFBParams.arms[arm].effectChroma = m.get(0).floatValue();  
+    } 
   
-  else if (m.addrPattern().startsWith("/lightSettings/animationSpeed")) {
-    uiFBParams.animationSpeed = m.get(0).floatValue();  
-  } 
+    else if (m.addrPattern().startsWith(armStr + "effectBright")) {
+      uiFBParams.arms[arm].effectBright = m.get(0).floatValue();  
+    } 
 
-  else if (m.addrPattern().startsWith("/lightSettings/pulseWidth")) {
-    uiFBParams.pulseWidth = m.get(0).floatValue();  
-  //println("pulseWidth:" + uiFBParams.pulseWidth);
-  } 
+    if (m.addrPattern().startsWith(armStr + "animationSpeed")) {
+      uiFBParams.arms[arm].animationSpeed = m.get(0).floatValue();    
+    } 
 
-  else if (m.addrPattern().startsWith("/lightSettings/attack")) {
-    uiFBParams.attack = m.get(0).floatValue();  
-  } 
+    if (m.addrPattern().startsWith(armStr + "pulseWidth")) {
+      uiFBParams.arms[arm].pulseWidth = m.get(0).floatValue();    
+    } 
 
-  else if (m.addrPattern().startsWith("/lightSettings/decay")) {
-    uiFBParams.decay = m.get(0).floatValue();  
-  } 
+    if (m.addrPattern().startsWith(armStr + "attack")) {
+      uiFBParams.arms[arm].attack = m.get(0).floatValue();    
+    } 
 
-  else if (m.addrPattern().startsWith("/lightControl/fireChase")) {
+    if (m.addrPattern().startsWith(armStr + "decay")) {
+      uiFBParams.arms[arm].decay = m.get(0).floatValue();    
+    } 
+    
+  }
+
+  if (m.addrPattern().startsWith("/lightControl/fireChase")) {
     uiFBParams.effectFireChase = m.get(0).floatValue() != 0;    
     println("uiFBParams.effectFireChase: " + uiFBParams.effectFireChase);
   } 
@@ -289,32 +311,38 @@ void sendTouchOSCMsg(String addr, boolean b) {
 void outputParamsToOSC(FBParams fb) {
     
   sendTouchOSCMsg("/lightControl/changeRate", uiFBParams.changeRate);
+  sendTouchOSCMsg("/lightControl/hold", uiFBParams.hold);
   sendTouchOSCMsg("/lightControl/mutationRate", uiFBParams.mutationRate);
   sendTouchOSCMsg("/lightControl/changeRateLabel", changeRateLabels[uiFBParams.changeRate]);
   sendTouchOSCMsg("/lightControl/changePatterns", uiFBParams.changeEffectPatterns);
   sendTouchOSCMsg("/lightControl/changeSettings", uiFBParams.changeEffectSettings);
   sendTouchOSCMsg("/lightControl/changeColors", uiFBParams.changeEffectColors);
-    
-  sendTouchOSCMsg("/lightPatterns/noteDisplay", uiFBParams.effectNoteDisplay);
-  sendTouchOSCMsg("/lightPatterns/notePermute", uiFBParams.effectNotePermute);
-  sendTouchOSCMsg("/lightPatterns/noteChase",   uiFBParams.effectNoteChase);
-  sendTouchOSCMsg("/lightPatterns/beatTrain",  uiFBParams.effectBeatTrain);
-  sendTouchOSCMsg("/lightPatterns/bassPulse",  uiFBParams.effectBassPulse);
 
   sendTouchOSCMsg("/lightColor/baseHueSpeed", baseHueSpeedInternalToOSC(fb.baseHueRotationSpeed));
   sendTouchOSCMsg("/lightColor/baseHueSpread", fb.baseHueSpread);
   sendTouchOSCMsg("/lightColor/baseHueSaturation", fb.baseHueSat);
   sendTouchOSCMsg("/lightColor/baseHueBrightness", fb.baseHueBright); 
 
-  sendTouchOSCMsg2("/lightColor/tint", tintInternalToOSCx(uiFBParams.effectTint), tintInternalToOSCy(uiFBParams.effectTint));
-  sendTouchOSCMsg("/lightColor/chroma", uiFBParams.effectChroma);
-  sendTouchOSCMsg("/lightColor/brightness", uiFBParams.effectBright);
-  
-  sendTouchOSCMsg("/lightSettings/animationSpeed", uiFBParams.animationSpeed);
-  sendTouchOSCMsg("/lightSettings/pulseWidth", uiFBParams.pulseWidth);
-  sendTouchOSCMsg("/lightSettings/attack", uiFBParams.attack);
-  sendTouchOSCMsg("/lightSettings/decay", uiFBParams.decay);
+  for (int arm=0; arm<3; arm++) {    
+    String armStr = "/arm" + arm + "/";
     
+    sendTouchOSCMsg(armStr + "noteDisplay", uiFBParams.arms[arm].effectNoteDisplay);
+    sendTouchOSCMsg(armStr + "notePermute", uiFBParams.arms[arm].effectNotePermute);
+    sendTouchOSCMsg(armStr + "noteChase",   uiFBParams.arms[arm].effectNoteChase);
+    sendTouchOSCMsg(armStr + "beatTrain",  uiFBParams.arms[arm].effectBeatTrain);
+    sendTouchOSCMsg(armStr + "bassPulse",  uiFBParams.arms[arm].effectBassPulse);
+
+    sendTouchOSCMsg2(armStr + "effectTint", tintInternalToOSCx(uiFBParams.arms[arm].effectTint), tintInternalToOSCy(uiFBParams.arms[arm].effectTint));
+    sendTouchOSCMsg(armStr + "effectChroma", uiFBParams.arms[arm].effectChroma); 
+    sendTouchOSCMsg(armStr + "effectBright", uiFBParams.arms[arm].effectBright);
+
+    sendTouchOSCMsg(armStr + "animationSpeed", uiFBParams.arms[arm].animationSpeed);
+    sendTouchOSCMsg(armStr + "pulseWidth", uiFBParams.arms[arm].pulseWidth);
+    sendTouchOSCMsg(armStr + "attack", uiFBParams.arms[arm].attack);
+    sendTouchOSCMsg(armStr + "decay", uiFBParams.arms[arm].decay);
+  }
+  
+      
   sendTouchOSCMsg("/lightControl/fireChase",  uiFBParams.effectFireChase);
   sendTouchOSCMsg("/lightControl/fireDisplay",  uiFBParams.effectFireDisplay);
 }
@@ -329,6 +357,7 @@ color animateParameter(color toVal, color fromVal, float steps) {
   return lerpColor(fromVal, toVal, steps/ANIMATION_TIME);
 }
 
+
 // Copy the current parameters from their UI values, animating the continuous parameters toward their UI values
 // ? use "animationSpeed" to control the speed of the shift? 
 void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float steps) {
@@ -336,34 +365,38 @@ void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float ste
   //println("copyAndAnimateUIParams");
   
   curFBParams.changeRate = uiFBParams.changeRate;
+  curFBParams.hold = uiFBParams.hold;
   curFBParams.mutationRate = uiFBParams.mutationRate;
   curFBParams.changeEffectPatterns = uiFBParams.changeEffectPatterns;
   curFBParams.changeEffectSettings = uiFBParams.changeEffectSettings;
   curFBParams.changeEffectColors = uiFBParams.changeEffectColors;
-  
-  curFBParams.animationSpeed = animateParameter(uiFBParams.animationSpeed, curFBParams.animationSpeed, steps);
-  curFBParams.flicker = animateParameter(uiFBParams.flicker, curFBParams.flicker, steps);
-  curFBParams.pulseWidth = animateParameter(uiFBParams.pulseWidth, curFBParams.pulseWidth, steps);
-  curFBParams.attack = animateParameter(uiFBParams.attack, curFBParams.attack, steps);
-  curFBParams.decay = animateParameter(uiFBParams.decay, curFBParams.decay, steps);
 
+  curFBParams.flicker = animateParameter(uiFBParams.flicker, curFBParams.flicker, steps);
+  
   curFBParams.baseHueRotationSpeed = animateParameter(uiFBParams.baseHueRotationSpeed, curFBParams.baseHueRotationSpeed, steps);
   curFBParams.baseHueSpread = animateParameter(uiFBParams.baseHueSpread, curFBParams.baseHueSpread, steps);
   curFBParams.baseHueSat = animateParameter(uiFBParams.baseHueSat, curFBParams.baseHueSat, steps);
   curFBParams.baseHueBright = animateParameter(uiFBParams.baseHueBright, curFBParams.baseHueBright, steps);
 
-  curFBParams.effectNoteChase = uiFBParams.effectNoteChase;
-  curFBParams.effectNoteDisplay = uiFBParams.effectNoteDisplay;
-  curFBParams.effectNotePermute = uiFBParams.effectNotePermute;
-  curFBParams.effectBeatTrain = uiFBParams.effectBeatTrain;
-  curFBParams.effectBassPulse = uiFBParams.effectBassPulse;
-
+  for (int arm=0; arm<3; arm++) {
+    curFBParams.arms[arm].effectNoteChase = uiFBParams.arms[arm].effectNoteChase;
+    curFBParams.arms[arm].effectNoteDisplay = uiFBParams.arms[arm].effectNoteDisplay;
+    curFBParams.arms[arm].effectNotePermute = uiFBParams.arms[arm].effectNotePermute;
+    curFBParams.arms[arm].effectBeatTrain = uiFBParams.arms[arm].effectBeatTrain;
+    curFBParams.arms[arm].effectBassPulse = uiFBParams.arms[arm].effectBassPulse;
+  
+    curFBParams.arms[arm].animationSpeed = animateParameter(uiFBParams.arms[arm].animationSpeed, curFBParams.arms[arm].animationSpeed, steps);
+    curFBParams.arms[arm].pulseWidth = animateParameter(uiFBParams.arms[arm].pulseWidth, curFBParams.arms[arm].pulseWidth, steps);
+    curFBParams.arms[arm].attack = animateParameter(uiFBParams.arms[arm].attack, curFBParams.arms[arm].attack, steps);
+    curFBParams.arms[arm].decay = animateParameter(uiFBParams.arms[arm].decay, curFBParams.arms[arm].decay, steps);
+    
+    curFBParams.arms[arm].effectTint = animateParameter(uiFBParams.arms[arm].effectTint, curFBParams.arms[arm].effectTint, steps);
+    curFBParams.arms[arm].effectChroma = animateParameter(uiFBParams.arms[arm].effectChroma, curFBParams.arms[arm].effectChroma, steps);
+    curFBParams.arms[arm].effectBright =  animateParameter(uiFBParams.arms[arm].effectBright, curFBParams.arms[arm].effectBright, steps);  
+  }
+  
   curFBParams.effectFireChase = uiFBParams.effectFireChase;
   curFBParams.effectFireDisplay = uiFBParams.effectFireDisplay;
-
-  curFBParams.effectTint = animateParameter(uiFBParams.effectTint, curFBParams.effectTint, steps);
-  curFBParams.effectChroma = animateParameter(uiFBParams.effectChroma, curFBParams.effectChroma, steps);
-  curFBParams.effectBright =  animateParameter(uiFBParams.effectBright, curFBParams.effectBright, steps);  
 }
 
 // ------------------------------------------------- FrameBrulee core --------------------------------------
@@ -488,47 +521,58 @@ class FrameBrulee extends LightingProgram {
 
   // Flips the on state of effects with specified mutation rate
   void changeWhichEffectsAreOn() {
-            
-    if (mutateMe()) uiFBParams.effectNoteDisplay = !curFBParams.effectNoteDisplay;
-    if (mutateMe()) uiFBParams.effectNotePermute = !curFBParams.effectNotePermute;
-    if (mutateMe()) uiFBParams.effectNoteChase = !curFBParams.effectNoteChase;
-    if (mutateMe()) uiFBParams.effectBeatTrain = !curFBParams.effectBeatTrain;
-    if (mutateMe()) uiFBParams.effectBassPulse = !curFBParams.effectBassPulse;
+
+//    println(curFBParams.changeRate);
+//      println(curFBParams.arms[0].effectNoteDisplay);
+    
+    for (int panel=0; panel<3; panel++) {    
+      if (mutateMe()) uiFBParams.arms[panel].effectNoteDisplay = !curFBParams.arms[panel].effectNoteDisplay;
+      if (mutateMe()) uiFBParams.arms[panel].effectNotePermute = !curFBParams.arms[panel].effectNotePermute;
+      if (mutateMe()) uiFBParams.arms[panel].effectNoteChase = !curFBParams.arms[panel].effectNoteChase;
+      if (mutateMe()) uiFBParams.arms[panel].effectBeatTrain = !curFBParams.arms[panel].effectBeatTrain;
+      if (mutateMe()) uiFBParams.arms[panel].effectBassPulse = !curFBParams.arms[panel].effectBassPulse;
+    }
     
     if (mutateMe()) uiFBParams.effectFireChase = !curFBParams.effectFireChase;
     if (mutateMe()) uiFBParams.effectFireDisplay = !curFBParams.effectFireDisplay;    
   }
   
   void changeEffectColors(FBParams fb) {
-    // Rotate effect chroma, animate...
+    
     if (mutateMe()) fb.baseHueRotationSpeed = skewedRandom(ANIMATION_SPEED_MIN, ANIMATION_SPEED_TYPICAL, ANIMATION_SPEED_MAX);
     if (mutateMe()) fb.baseHueSpread = skewedRandom(HUE_SPREAD_MIN, HUE_SPREAD_TYPICAL, HUE_SPREAD_MAX);
     if (mutateMe()) fb.baseHueSat = skewedRandom(HUE_SAT_MIN, HUE_SAT_TYPICAL, HUE_SAT_MAX);
     if (mutateMe()) fb.baseHueBright = skewedRandom(HUE_BRIGHT_MIN, HUE_BRIGHT_TYPICAL, HUE_BRIGHT_MAX);
-    if (mutateMe()) fb.effectChroma = skewedRandom(EFFECT_CHROMA_MIN, EFFECT_CHROMA_TYPICAL, EFFECT_CHROMA_MAX);
-    if (mutateMe()) fb.effectBright = skewedRandom(EFFECT_BRIGHT_MIN, EFFECT_BRIGHT_TYPICAL, EFFECT_BRIGHT_MAX);
-   
-    // Now pick a tint color. Choose from a range opposite the current hue, saturation from a skewed distribution
-    if (mutateMe()) {
-       colorMode(HSB,360,100,100);
 
-       float h = baseHueRotate.phase - fb.baseHueSpread + random(2*fb.baseHueSpread);  // choose around color opposing center of base hue spread
-       float sat =  skewedRandom(EFFECT_CHROMA_MIN, EFFECT_CHROMA_TYPICAL, EFFECT_CHROMA_MAX);
-       fb.effectTint = color(h % 360, sat, 100);  // brightness ignored
-
-       colorMode(RGB, 255);
-    } 
+    for (int panel=0; panel<3; panel++) {    
+      // Rotate effect chroma, animate...
+      if (mutateMe()) fb.arms[panel].effectChroma = skewedRandom(EFFECT_CHROMA_MIN, EFFECT_CHROMA_TYPICAL, EFFECT_CHROMA_MAX);
+      if (mutateMe()) fb.arms[panel].effectBright = skewedRandom(EFFECT_BRIGHT_MIN, EFFECT_BRIGHT_TYPICAL, EFFECT_BRIGHT_MAX);
+     
+      // Now pick a tint color. Choose from a range opposite the current hue, saturation from a skewed distribution
+      if (mutateMe()) {
+         colorMode(HSB,360,100,100);
+  
+         float h = baseHueRotate.phase - fb.baseHueSpread + random(2*fb.baseHueSpread);  // choose around color opposing center of base hue spread
+         float sat =  skewedRandom(EFFECT_CHROMA_MIN, EFFECT_CHROMA_TYPICAL, EFFECT_CHROMA_MAX);
+         fb.arms[panel].effectTint = color(h % 360, sat, 100);  // brightness ignored
+  
+         colorMode(RGB, 255);
+      } 
+    }
   }
   
   // Change settings just by picking new random numbers
   void changeEffectSettings(FBParams fb) {
     //println("totally changing those settings...");
-    
-    if (mutateMe()) fb.animationSpeed = skewedRandom(ANIMATION_SPEED_MIN, ANIMATION_SPEED_TYPICAL, ANIMATION_SPEED_MAX);
-    if (mutateMe()) fb.pulseWidth = skewedRandom(PULSE_WIDTH_MIN, PULSE_WIDTH_TYPICAL, PULSE_WIDTH_MAX);
     if (mutateMe()) fb.flicker = skewedRandom(FLICKER_MIN, FLICKER_TYPICAL, FLICKER_MAX);
-    if (mutateMe()) fb.attack = skewedRandom(ATTACK_MIN, ATTACK_TYPICAL, ATTACK_MAX);
-    if (mutateMe()) fb.decay = skewedRandom(DECAY_MIN, DECAY_TYPICAL, DECAY_MAX);
+    
+    for (int panel=0; panel<3; panel++) {    
+      if (mutateMe()) fb.arms[panel].animationSpeed = skewedRandom(ANIMATION_SPEED_MIN, ANIMATION_SPEED_TYPICAL, ANIMATION_SPEED_MAX);
+      if (mutateMe()) fb.arms[panel].pulseWidth = skewedRandom(PULSE_WIDTH_MIN, PULSE_WIDTH_TYPICAL, PULSE_WIDTH_MAX);
+      if (mutateMe()) fb.arms[panel].attack = skewedRandom(ATTACK_MIN, ATTACK_TYPICAL, ATTACK_MAX);
+      if (mutateMe()) fb.arms[panel].decay = skewedRandom(DECAY_MIN, DECAY_TYPICAL, DECAY_MAX);
+    }
   }
     
 } // FrameBrulee
