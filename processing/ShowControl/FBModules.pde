@@ -53,7 +53,7 @@ class HueRotateModule extends FBModule {
     state.fillArm(0, color(phase % 360, fb.baseHueSat, fb.baseHueBright));
     state.fillArm(1, color((phase + fb.baseHueSpread) % 360, fb.baseHueSat, fb.baseHueBright));
     state.fillArm(2, color((phase - fb.baseHueSpread) % 360, fb.baseHueSat, fb.baseHueBright));
-    colorMode(RGB);
+    colorMode(RGB, 255);
     
     dst.blendOverSelf(state, blendMode, opacity);    
   }
@@ -116,20 +116,20 @@ class NoteChaseModule extends TransientLayerModule {
   void advance(float elapsed) {
     super.advance(elapsed);
     
-    for (int i=0; i<3; i++) {   
-      if (events.fired("notes" + Integer.toString(i))) {
+    for (int panel=0; panel<3; panel++) {   
+      if (events.fired("notes" + Integer.toString(panel))) {
           
-        int pos = floor(sequencerState.stepPosition);
-        boolean canFire = (pos % 16)==0;  // every four bars, always
+        boolean canFire = (totalSteps % 16)==0;  // every four bars, always
 
         if (canFire) {
-          // $$ use pulseWidth          
           // Create a moving texture that erases itself when it goes completely off the arm
-          TextureLayer cl = new TextureLayer(i, CMYPulseTexture, -3);
-          cl.terminateWithPosition = true;
-          cl.motionSpeed = 4 * fb.animationSpeed;
-          
-          myLayers.add(cl);
+          ColorRampLayer cr = new ColorRampLayer(panel, CMYPulse, -3); // start completely off the arm
+          cr.origin = 1; // scale from the middle
+          cr.scaling = curFBParams.pulseWidth;
+          cr.terminateWithPosition = true;
+          cr.motionSpeed = max(fb.animationSpeed, 0.2);  // dont let speed go to zero, or it lasts forever
+
+          myLayers.add(cr);
         }
       }
     }
@@ -342,9 +342,11 @@ ColorVertex[] fireRamp;    // black to red, orange, yellow, white
 float fireRampLength;      // so we can set the origin correctly
 ColorVertex[] basicPulse;  // just white, triangular (black-white-black) so only a single fixture lights when integer offset, scale=1
 ColorVertex[] squarePulse; // width=1 full on pulse. To center on a fixture you need a half-pixel offset
+ColorVertex[] CMYPulse;    
 
 color basicPulseColors[] = {color(0,0,0), color(255,255,255), color(0,0,0)};
 color squarePulseColors[] = {color(255,255,255), color(255,255,255)};
+color CMYPulseColors[] = {color(0,255,255), color(255,0,255), color(255,255,0)};
 color fireRampColors[] = {color(50,0,0), color(100, 0, 0), color(255, 255, 0), color(255,255,255)};
 
 // create a ColorVertex ramp from an array of colors, setting the width of each segment to 1
@@ -366,8 +368,13 @@ void initializeRamps() {
   if (rampsInitialized) 
     return;
     
+  colorMode(RGB,255);
+  
   basicPulse = initVertices(basicPulseColors);
   squarePulse = initVertices(squarePulseColors);
+  CMYPulse = initVertices(CMYPulseColors);
+ 
+  //println("CMY INITIAL: " +  colorToString(CMYPulse[0].c) + ", " + colorToString(CMYPulse[1].c) + ", " + colorToString(CMYPulse[2].c));
   
   // fireRamp segments get smaller and smaller, so yellow->white segment is just the tip
   fireRamp = initVertices(fireRampColors);
