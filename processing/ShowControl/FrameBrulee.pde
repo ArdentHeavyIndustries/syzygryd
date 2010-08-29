@@ -449,27 +449,19 @@ class FrameBrulee extends LightingProgram {
     effectsLayers.clear();
 
     // Apply modules depending on intensity
-    if (curFBParams.effectNoteChase)
-      noteChase.apply(effectsLayers);
-    if (curFBParams.effectNoteDisplay)
-      noteDisplay.apply(effectsLayers);
-    if (curFBParams.effectNotePermute)
-      notePermute.apply(effectsLayers);
-    if (curFBParams.effectBeatTrain)
-      beatTrain.apply(effectsLayers);
-    if (curFBParams.effectBassPulse)
-      bassPulse.apply(effectsLayers);
+    noteChase.apply(effectsLayers);
+    noteDisplay.apply(effectsLayers);
+    notePermute.apply(effectsLayers);
+    beatTrain.apply(effectsLayers);
+    bassPulse.apply(effectsLayers);
 
     // tint the effects and add to the base hue rotate
     tinty.apply(effectsLayers);
     state.blendOverSelf(effectsLayers, ADD, 1);
     
     // add the fire!
-    if (curFBParams.effectFireChase)
-      fireChase.apply(state);
-    if (curFBParams.effectFireDisplay)
-      fireDisplay.apply(state);
-    
+    fireChase.apply(state);
+    fireDisplay.apply(state);
   }
 
   // turn on different modules, switch up parameters

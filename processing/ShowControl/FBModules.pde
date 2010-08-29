@@ -116,6 +116,10 @@ class NoteChaseModule extends TransientLayerModule {
   void advance(float elapsed) {
     super.advance(elapsed);
     
+    // generate new chases only if we're turned on
+    if (!fb.effectNoteChase)
+      return;
+    
     for (int panel=0; panel<3; panel++) {   
       if (events.fired("notes" + Integer.toString(panel))) {
           
@@ -169,9 +173,18 @@ class NoteDisplayModule extends TransientLayerModule {
     return panel;
   }
   
+  // redefine for subclasses to control when new layers are generated
+  boolean enabled() {
+    return fb.effectNoteDisplay;
+  }
+  
   // Advance spits out a transient layer for each sequenced note
   void advance(float elapsed) {
     super.advance(elapsed);
+
+    // generate new chases only if we're turned on
+    if (!enabled())
+      return;
 
     for (int panel=0; panel<3; panel++) {   
       if (events.fired("notes" + Integer.toString(panel))) {
@@ -240,6 +253,10 @@ class NotePermuteModule extends NoteDisplayModule {
   // confine to the panel arm
   int noteArm(int panel, int pitch) {
     return permArms[panel][pitch];
+  }
+
+  boolean enabled() {
+    return fb.effectNotePermute;
   }
 
   // create a permutation for one arm
@@ -439,6 +456,11 @@ class BeatTrainModule extends TransientLayerModule {
   void advance(float elapsed) {
     super.advance(elapsed);
     
+    // don't generate new notes if we're not enabled
+    if (!fb.effectBeatTrain) {
+      return;
+    }
+    
     for (int panel=0; panel<3; panel++) {   
       if (events.fired("notes" + Integer.toString(panel))) {
 
@@ -491,7 +513,12 @@ class BassPulseModule extends TransientLayerModule {
   
   void advance(float elapsed) {
     super.advance(elapsed);    
-    
+ 
+     // don't generate new notes if we're not enabled
+    if (!fb.effectBassPulse) {
+      return;
+    }
+   
     for (int arm=0; arm<3; arm++) {   
       if (events.fired("notes" + Integer.toString(arm))) {
 
