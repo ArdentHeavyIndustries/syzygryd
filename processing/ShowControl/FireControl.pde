@@ -11,16 +11,21 @@ float fcUIPooferDuration = 0.5;  // seconds
 boolean fcUITornadoFan = false;
 boolean fcUITornadoReady = false;
 boolean fcUITornadoFuel = false;
+int fcUIArm = 0;
+boolean fcUIEffects[] = {false, false, false, false, false, false, false, false};
 
 // Initialize just puts the touchOSC in a coherent state
 // globals, above, need to start with poofer, ready, fan, tornado all off
 void fireControlInitialize() {
   sendTouchOSCMsg("/fireControl/poofer", false);
   sendTouchOSCMsg("/fireControl/pooferDuration", fcUIPooferDuration);
-  sendTouchOSCMsg("/fireControl/pooferDurationLabel", "poof duration " + roundTo2Places(fcUIPooferDuration) + " seconds");  
+  sendTouchOSCMsg("/fireControl/pooferDurationLabel", "duration " + roundTo2Places(fcUIPooferDuration) + " seconds");  
   sendTouchOSCMsg("/fireControl/tornadoFan", fcUITornadoFan);
   sendTouchOSCMsg("/fireControl/tornadoReady", false);
   sendTouchOSCMsg("/fireControl/tornadoFuel", false);
+  updateArmRadioButtons();    
+  for (int i=0; i<8; i++)
+    sendTouchOSCMsg("/fireControl/effect" + i, false);
 }
 
 // Constants
@@ -32,21 +37,36 @@ int TORNADO_FUEL_DMX_ADDR = 146;
 
 int FIRE_DMX_MAGIC = 85;     // fire control board closes relays only when it sees this DMX value
 
+int flameEffectDMXAddr(int arm, int effect) {
+  return 117 + arm*8 + effect;
+} 
+
 float roundTo2Places(float v) {
   return floor(v*10 + 0.5) / 10.0;
 }
 
 void processOSCFireEvent(OscMessage m) {
 
-//  println("FC OSC: " + m.addrPattern());
+ println("FC OSC: " + m.addrPattern());
   
+  println("ok!");
+  
+  for (int i=0; i<8; i++) {
+    println("testing: " + "/fireControl/effect" + i);
+    if (m.addrPattern().startsWith("/fireControl/effect" + i)) {
+      fcUIEffects[i] = m.get(0).floatValue() != 0;
+      println("fcUIEffects[i]: " + fcUIEffects[i]);
+      fireDMX(flameEffectDMXAddr(fcUIArm, i), fcUIEffects[i]);       
+    }
+  }  
+
   if (m.addrPattern().startsWith("/fireControl/pooferButton")) {
     events.fire("poofer");
   } 
   
   else if (m.addrPattern().startsWith("/fireControl/pooferDuration")) {
     fcUIPooferDuration = m.get(0).floatValue();
-    sendTouchOSCMsg("/fireControl/pooferDurationLabel", "poof duration " + roundTo2Places(fcUIPooferDuration) + " seconds");  
+    sendTouchOSCMsg("/fireControl/pooferDurationLabel", "duration " + roundTo2Places(fcUIPooferDuration) + " seconds");  
   } 
  
   else if (m.addrPattern().startsWith("/fireControl/tornadoFan")) {
@@ -68,17 +88,39 @@ void processOSCFireEvent(OscMessage m) {
 
   else if (m.addrPattern().startsWith("/fireControl/tornadoFuel")) {
    boolean newFuelOn = m.get(0).floatValue() != 0;
+   
    // don't let the fuel come on without the ready light
    if (newFuelOn) {
      if (!fcUITornadoReady) {
        newFuelOn = false;
-       sendTouchOSCMsg("/fireControl/tornadoFuel", fcUITornadoFuel);
+       sendTouchOSCMsg("/fireControl/tornadoFuel", false);
  //      println("fan not ready");
      }
    }
    fcUITornadoFuel = newFuelOn;
   } 
   
+  else if (m.addrPattern().startsWith("/fireControl/armA")) {
+    fcUIArm = 0;
+    updateArmRadioButtons();    
+  }
+  
+  else if (m.addrPattern().startsWith("/fireControl/armB")) {
+    fcUIArm = 1;
+    updateArmRadioButtons();    
+  }
+
+  else if (m.addrPattern().startsWith("/fireControl/armC")) {
+    fcUIArm = 2;
+    updateArmRadioButtons();    
+  }
+
+}
+
+void updateArmRadioButtons() {
+   sendTouchOSCMsg("/fireControl/armA", fcUIArm == 0);
+   sendTouchOSCMsg("/fireControl/armB", fcUIArm == 1);
+   sendTouchOSCMsg("/fireControl/armC", fcUIArm == 2);  
 }
 
 // Sets a fire control relay to specified state
