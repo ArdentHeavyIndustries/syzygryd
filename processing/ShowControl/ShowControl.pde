@@ -171,6 +171,10 @@ void setup() {
   program = programList.get(activeProgram); // Get active program
   program.initialize();  // Initialize active program  
 
+  // Run with the high pressure valves open
+  fireDMX(141, true); 
+  fireDMX(142, true); 
+  fireDMX(143, true); 
 }
 
 
