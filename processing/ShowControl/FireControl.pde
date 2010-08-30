@@ -1,31 +1,32 @@
 // FireControl
-// Processes OSC messsages, runs manual fire control
+// Processes OSC messsages, runs manual fire control of main effect and tornado
+// Patterned fire control is handled within FrameBrulee, because we already have all the framework there,
+// and we need to layer the manually-triggered patterned fire effects with the fire visualizers
 
 // Global state
-int fcPooferOnTime;
-boolean fcPooferOn = false;
+boolean fcUIMasterFireArm = false;    // master fire arm switch. FrameBrulee looks at this too.
+
+int fcMainOnTime;
+boolean fcMainOn = false;
 int fcFanOnTime;
 
 // UI state mirrors
-float fcUIPooferDuration = 0.5;  // seconds
+float fcUIMainDuration = 0.5;  // seconds
 boolean fcUITornadoFan = false;
 boolean fcUITornadoReady = false;
 boolean fcUITornadoFuel = false;
 int fcUIArm = 0;
-boolean fcUIEffects[] = {false, false, false, false, false, false, false, false};
 
 // Initialize just puts the touchOSC in a coherent state
 // globals, above, need to start with poofer, ready, fan, tornado all off
-void fireControlInitialize() {
-  sendTouchOSCMsg("/fireControl/poofer", false);
-  sendTouchOSCMsg("/fireControl/pooferDuration", fcUIPooferDuration);
-  sendTouchOSCMsg("/fireControl/pooferDurationLabel", "duration " + roundTo2Places(fcUIPooferDuration) + " seconds");  
+void fireControlInitialize() { 
+  sendTouchOSCMsg("/fireControl/masterArm", fcUIMasterFireArm);
+  sendTouchOSCMsg("/fireControl/main", false);
+  sendTouchOSCMsg("/fireControl/mainDuration", fcUIMainDuration);
+  sendTouchOSCMsg("/fireControl/mainDurationLabel", "duration " + roundTo2Places(fcUIMainDuration) + " seconds");  
   sendTouchOSCMsg("/fireControl/tornadoFan", fcUITornadoFan);
   sendTouchOSCMsg("/fireControl/tornadoReady", false);
   sendTouchOSCMsg("/fireControl/tornadoFuel", false);
-  updateArmRadioButtons();    
-  for (int i=0; i<8; i++)
-    sendTouchOSCMsg("/fireControl/effect" + i, false);
 }
 
 // Constants
@@ -49,24 +50,17 @@ void processOSCFireEvent(OscMessage m) {
 
  println("FC OSC: " + m.addrPattern());
   
-  println("ok!");
+  if (m.addrPattern().startsWith("/fireControl/masterArm")) {
+    fcUIMasterFireArm = m.get(0).floatValue() != 0;
+  } 
   
-  for (int i=0; i<8; i++) {
-    println("testing: " + "/fireControl/effect" + i);
-    if (m.addrPattern().startsWith("/fireControl/effect" + i)) {
-      fcUIEffects[i] = m.get(0).floatValue() != 0;
-      println("fcUIEffects[i]: " + fcUIEffects[i]);
-      fireDMX(flameEffectDMXAddr(fcUIArm, i), fcUIEffects[i]);       
-    }
-  }  
-
-  if (m.addrPattern().startsWith("/fireControl/pooferButton")) {
-    events.fire("poofer");
+  else if (m.addrPattern().startsWith("/fireControl/mainButton")) {
+    events.fire("mainEffect");
   } 
   
   else if (m.addrPattern().startsWith("/fireControl/pooferDuration")) {
-    fcUIPooferDuration = m.get(0).floatValue();
-    sendTouchOSCMsg("/fireControl/pooferDurationLabel", "duration " + roundTo2Places(fcUIPooferDuration) + " seconds");  
+    fcUIMainDuration = m.get(0).floatValue();
+    sendTouchOSCMsg("/fireControl/pooferDurationLabel", "duration " + roundTo2Places(fcUIMainDuration) + " seconds");  
   } 
  
   else if (m.addrPattern().startsWith("/fireControl/tornadoFan")) {
@@ -99,66 +93,41 @@ void processOSCFireEvent(OscMessage m) {
    }
    fcUITornadoFuel = newFuelOn;
   } 
-  
-  else if (m.addrPattern().startsWith("/fireControl/armA")) {
-    fcUIArm = 0;
-    updateArmRadioButtons();    
-  }
-  
-  else if (m.addrPattern().startsWith("/fireControl/armB")) {
-    fcUIArm = 1;
-    updateArmRadioButtons();    
-  }
-
-  else if (m.addrPattern().startsWith("/fireControl/armC")) {
-    fcUIArm = 2;
-    updateArmRadioButtons();    
-  }
-
 }
 
-void updateArmRadioButtons() {
-   sendTouchOSCMsg("/fireControl/armA", fcUIArm == 0);
-   sendTouchOSCMsg("/fireControl/armB", fcUIArm == 1);
-   sendTouchOSCMsg("/fireControl/armC", fcUIArm == 2);  
-}
-
-// Sets a fire control relay to specified state
+// Sets a fire control relay to specified state. Gated through the master arm toggle
 void fireDMX(int addr, boolean onOff) {
-  if (onOff) {
+  if (fcUIMasterFireArm && onOff) {
    sendDMX(addr, FIRE_DMX_MAGIC);
   } else {
    sendDMX(addr, 0);
   }
 }
 
-// Advance runs the various timers, and sends DMX
+// Advance times the main effect shot and the fan ready light, and sends DMX
 void fireControlAdvance(float steps) {
 
   int curTime = now();
  
-  // fire the poofer if we got an OSC message
-  if (events.fired("poofer")) {
-    fcPooferOnTime = curTime;
-    fcPooferOn = true;
-//    println("firing poofer");
+  // fire the main effect if we got an OSC message
+  if (events.fired("mainEffect")) {
+    fcMainOnTime = curTime;
+    fcMainOn = true;
   }
  
-  // Turn the poofer off if it's been on long enough
-  if (fcPooferOn && ((curTime - fcPooferOnTime) > fcUIPooferDuration*1000)) {
-    fcPooferOn = false;
-//    println("poofer off!");
+  // Turn the main effect off if it's been on long enough
+  if (fcMainOn && ((curTime - fcMainOnTime) > fcUIMainDuration*1000)) {
+    fcMainOn = false;
   }
  
   // Turn on the ready light if the fan's been on for the warmup time
   if (fcUITornadoFan && !fcUITornadoReady && ((curTime - fcFanOnTime) > FAN_WARMUP_TIME)) {
     fcUITornadoReady = true;
     sendTouchOSCMsg("/fireControl/tornadoReady", true);
-//    println("ready!");
   }
  
   // Send DMX to control relays
-  fireDMX(POOFER_DMX_ADDR, fcPooferOn);
+  fireDMX(POOFER_DMX_ADDR, fcMainOn);
   fireDMX(TORNADO_FAN_DMX_ADDR, fcUITornadoFan);
   fireDMX(TORNADO_FUEL_DMX_ADDR, fcUITornadoFuel);
 }

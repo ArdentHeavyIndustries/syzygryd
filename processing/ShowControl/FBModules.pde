@@ -643,3 +643,88 @@ class TintModule extends FBModule {
 }
 
 
+// ---------------------------------------- Fire Modules ----------------------------------------- 
+// This module manages all of the flame effects that go across arms
+// Uses: fb.manualFire*
+
+class ManualFireModule extends TransientLayerModule {
+  
+  ManualFireModule(FBParams _fb) {
+    super(_fb);
+  }
+ 
+  // trigger the specified pattern right now
+  void firePattern(int i) {
+    
+    DecayRaceLayer dr0, dr1, dr2;
+    
+    switch (i) {
+     
+      case 0: // serial
+        dr0 = new DecayRaceLayer(panelToArmFire((totalSteps / sequencerState.STEPS) % 3),       // cycle between three different arms
+                                 manualFireSpeeds[fb.manualFireSpeed],
+                                 fb.manualFireDecay);
+        myLayers.add(dr0);
+        break;
+        
+      case 1:  // parallel
+          dr0 = new DecayRaceLayer(panelToArmFire(0), manualFireSpeeds[fb.manualFireSpeed], fb.manualFireDecay);
+          myLayers.add(dr0);
+          dr1 = new DecayRaceLayer(panelToArmFire(1), manualFireSpeeds[fb.manualFireSpeed], fb.manualFireDecay);
+          myLayers.add(dr1);
+          dr2 = new DecayRaceLayer(panelToArmFire(2), manualFireSpeeds[fb.manualFireSpeed], fb.manualFireDecay);
+          myLayers.add(dr2);
+          break;
+  
+      case 2:  // spiral
+        // Create three different races with different phases
+        float thirdSpeed = manualFireSpeeds[fb.manualFireSpeed]/3.0;
+        
+        dr0 = new DecayRaceLayer(panelToArmFire(0), thirdSpeed, fb.manualFireDecay);
+        dr0.startWait = 0;
+        myLayers.add(dr0);
+        dr1 = new DecayRaceLayer(panelToArmFire(1), thirdSpeed, fb.manualFireDecay);
+        dr1.startWait = thirdSpeed;
+        myLayers.add(dr1);
+        dr2 = new DecayRaceLayer(panelToArmFire(2), thirdSpeed, fb.manualFireDecay);
+        dr2.startWait = 2*thirdSpeed;
+        myLayers.add(dr2);
+        break;
+     
+     case 3:  // all
+        // implemented by starting a parallel run with 0 wait between steps
+        dr0 = new DecayRaceLayer(panelToArmFire(0), 0, fb.manualFireDecay);
+        myLayers.add(dr0);
+        dr1 = new DecayRaceLayer(panelToArmFire(1), 0, fb.manualFireDecay);
+        myLayers.add(dr1);
+        dr2 = new DecayRaceLayer(panelToArmFire(2), 0, fb.manualFireDecay);
+        myLayers.add(dr2);
+        break;       
+    }
+  }
+
+  // Advance triggers new layers in two cases:
+  //  - one-shot OSC messages, if repeat is off
+  //  - step changes, if repeat is on 
+  void advance(float elapsed) {
+  
+    super.advance(elapsed);    
+    
+    // Fire chases right now if we're not in repeat mode and someone hit the pattern button
+    for (int i=0; i<manualFirePatternOSCAddr.length; i++) {
+      if (events.fired("manualFirePattern" + i)) {
+        firePattern(i);
+      }
+    }
+      
+    // otherwise fire on the bar if we're in repeat mode
+    if (fb.manualFireRepeat && events.fired("bar")) {
+      if (fb.manualFirePatternIndex != -1) {
+        firePattern(fb.manualFirePatternIndex);
+      }
+    }
+  }
+
+}
+
+

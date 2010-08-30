@@ -29,7 +29,7 @@ class FBArmParams implements Cloneable {
   // fire effects
   public boolean effectFireChase = false;
   public boolean effectFireDisplay = false;
-
+  
   // color correction params
   public color effectTint = color(255,255,255); // central hue and sat 
   public float effectChroma = 100;          // 100 means full range, 0 means monochromatic
@@ -54,6 +54,12 @@ class FBParams implements Cloneable {
   
   public FBArmParams[] arms;
     
+  // Manually controlled fire effects ("FIRE!" panel)
+  public boolean  manualFireRepeat = false;          // repeat button on 
+  public int manualFirePatternIndex = -1;            // -1 means all off
+  public int manualFireSpeed = FIRE_SPEED_STEP;      //  used as an index ala changeRate
+  public float manualFireDecay = 1;                  // steps
+
   FBParams() {
     arms = new FBArmParams[3];
     for (int i=0; i<3; i++) { 
@@ -77,6 +83,13 @@ int changeRatePeriods[] = {1, 4, 16, 32, 64, 128, 256, -1};
 String changeRateLabels[] ={"change every step", "change every beat", "change every bar", "change every 2 bars", 
                             "change every 4 bars", "change every 8 bars", "change every 16 bars", "change never"};
 int CHANGE_NEVER = 7;
+
+// A similar index into timings for manual fire pattern speed. In effects per step 
+float manualFireSpeeds[] = {1/4.0, 1/2.0, 1, 2, 4, 8, 16};
+int FIRE_SPEED_STEP = 2; // index into the fireSpeeds array for 1.0 steps
+
+// OSC addresses of the different manual fire patterns
+String manualFirePatternOSCAddr[] = {"/manualFire/patternSerial", "/manualFire/patternParallel", "/manualFire/patternSpiral", "/manualFire/patternAll"};
 
 // Effect settings min, max, and typical values. Used for mutating the effects.
 // Min and max need to match touchOSC limits
@@ -205,6 +218,41 @@ void processOSCLightEvent(OscMessage m) {
   else if (m.addrPattern().startsWith("/lightColor/baseHueBrightness")) {
     uiFBParams.baseHueBright = m.get(0).floatValue();  
   } 
+
+  else if (m.addrPattern().startsWith("/manualFire/patternRepeat")) {
+    uiFBParams.manualFireRepeat = m.get(0).floatValue() != 0;  
+  } 
+  
+  else if (m.addrPattern().startsWith("/manualFire/patternSpeed")) {
+    uiFBParams.manualFireSpeed = floor(clip(m.get(0).floatValue(), 0, manualFireSpeeds.length-1));  
+  }
+  
+  else if (m.addrPattern().startsWith("/manualFire/patternDecay")) {
+    uiFBParams.manualFireDecay = m.get(0).floatValue();  
+  } 
+  
+  // Receive manual fire pattern button events
+  // if repeat is off, trigger an event and immediately disable the button
+  // else toggle, and radio-button the rest 
+  for (int i=0; i<manualFirePatternOSCAddr.length; i++) {
+    if (m.addrPattern().startsWith(manualFirePatternOSCAddr[i])) {
+      
+      if (m.get(0).floatValue() != 0) {           // if the button turned on...
+      
+        if (!uiFBParams.manualFireRepeat) {
+          events.fire("manualFirePattern" + i);   // when repeat is off, fire a single pattern and turn off button immediately 
+          sendTouchOSCMsg(manualFirePatternOSCAddr[i], false);
+        } else {
+          uiFBParams.manualFirePatternIndex = i;  // when repeat is on, turn off all other buttons (as only one can be active at once)
+          updateTouchOSCRadioButtons(manualFirePatternOSCAddr, i);
+        }
+        
+      } else {
+        if (i == uiFBParams.manualFirePatternIndex)  // if the button turned off, and it was selected, then we are no longer firing a pattern
+          uiFBParams.manualFirePatternIndex = -1;
+      }  
+    }
+  }
   
   for (int arm=0; arm<3; arm++) {
     String armStr = "/arm" + arm + "/";
@@ -306,6 +354,16 @@ void sendTouchOSCMsg(String addr, boolean b) {
     sendTouchOSCMsg(addr, 0.0);  
 }
 
+void updateTouchOSCRadioButtons(String addrs[], int selected) {
+  for (int i=0; i<addrs.length; i++) {
+    if (i == selected) {
+      sendTouchOSCMsg(addrs[i], true); 
+    } else {
+      sendTouchOSCMsg(addrs[i], false); 
+    }
+  }
+}
+
 void outputParamsToOSC(FBParams fb) {
     
   sendTouchOSCMsg("/lightControl/changeRate", uiFBParams.changeRate);
@@ -320,6 +378,11 @@ void outputParamsToOSC(FBParams fb) {
   sendTouchOSCMsg("/lightColor/baseHueSpread", fb.baseHueSpread);
   sendTouchOSCMsg("/lightColor/baseHueSaturation", fb.baseHueSat);
   sendTouchOSCMsg("/lightColor/baseHueBrightness", fb.baseHueBright); 
+
+  sendTouchOSCMsg("/fireControl/patternRepeat", uiFBParams.manualFireRepeat);
+  sendTouchOSCMsg("/fireControl/patternSpeed", uiFBParams.manualFireSpeed);
+  sendTouchOSCMsg("/fireControl/patternDecay", uiFBParams.manualFireDecay);  
+  updateTouchOSCRadioButtons(manualFirePatternOSCAddr, uiFBParams.manualFirePatternIndex);  // if -1, turns all off
 
   for (int arm=0; arm<3; arm++) {    
     String armStr = "/arm" + arm + "/";
@@ -375,6 +438,11 @@ void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float ste
   curFBParams.baseHueSat = animateParameter(uiFBParams.baseHueSat, curFBParams.baseHueSat, steps);
   curFBParams.baseHueBright = animateParameter(uiFBParams.baseHueBright, curFBParams.baseHueBright, steps);
 
+  curFBParams.manualFireRepeat = uiFBParams.manualFireRepeat;
+  curFBParams.manualFireSpeed = uiFBParams.manualFireSpeed;    // express as float so it animates smoothly?
+  curFBParams.manualFireDecay = animateParameter(uiFBParams.manualFireDecay, curFBParams.manualFireDecay, steps);  
+  curFBParams.manualFirePatternIndex = uiFBParams.manualFirePatternIndex;
+ 
   for (int arm=0; arm<3; arm++) {
     curFBParams.arms[arm].effectNoteDisplay = uiFBParams.arms[arm].effectNoteDisplay;
     curFBParams.arms[arm].effectNotePermute = uiFBParams.arms[arm].effectNotePermute;
@@ -415,6 +483,7 @@ class FrameBrulee extends LightingProgram {
   // Now the fire...
   FireChaseModule fireChase;
   NoteDisplayModule fireDisplay;
+  ManualFireModule manualFire;
   
   LightingState effectsLayers;
   
@@ -436,6 +505,7 @@ class FrameBrulee extends LightingProgram {
    
     fireChase = new FireChaseModule(curFBParams);
     fireDisplay = new NoteDisplayModule(curFBParams, FIRE);
+    manualFire = new ManualFireModule(curFBParams);
     
     effectsLayers = new LightingState();
     
@@ -460,6 +530,7 @@ class FrameBrulee extends LightingProgram {
 
     fireChase.masterAdvance(steps);
     fireDisplay.masterAdvance(steps);
+    manualFire.masterAdvance(steps);
     
     if (events.fired("bar"))
       outputParamsToOSC(uiFBParams);
@@ -492,6 +563,7 @@ class FrameBrulee extends LightingProgram {
     // add the fire!
     fireChase.apply(state);
     fireDisplay.apply(state);
+    manualFire.apply(state);
   }
 
   // turn on different modules, switch up parameters
@@ -528,8 +600,8 @@ class FrameBrulee extends LightingProgram {
       if (mutateMe()) uiFBParams.arms[panel].effectBeatTrain = !curFBParams.arms[panel].effectBeatTrain;
       if (mutateMe()) uiFBParams.arms[panel].effectBassPulse = !curFBParams.arms[panel].effectBassPulse;
 
-      if (mutateMe()) uiFBParams.arms[panel].effectFireChase = !curFBParams.arms[panel].effectFireChase;
-      if (mutateMe()) uiFBParams.arms[panel].effectFireDisplay = !curFBParams.arms[panel].effectFireDisplay;    
+//      if (mutateMe()) uiFBParams.arms[panel].effectFireChase = !curFBParams.arms[panel].effectFireChase;
+//      if (mutateMe()) uiFBParams.arms[panel].effectFireDisplay = !curFBParams.arms[panel].effectFireDisplay;    
     }
     
   }

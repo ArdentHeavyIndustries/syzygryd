@@ -110,9 +110,9 @@ void setup() {
   //Serial.list();
 
   //add three controllers to manager
-  DMXManager.addController("/dev/cu.usbserial-EN075577",149);
-  DMXManager.addController("/dev/cu.usbserial-foo",149);
-  DMXManager.addController("/dev/cu.usbserial-bar",149);
+  DMXManager.addController("/dev/cu.usbserial-EN077331",149);
+  DMXManager.addController("/dev/cu.usbserial-EN077490",149);
+  DMXManager.addController("/dev/cu.usbserial-EN075581",149);
   
   // start fire control
   fireControlInitialize();
