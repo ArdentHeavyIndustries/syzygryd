@@ -104,6 +104,14 @@ void fireDMX(int addr, boolean onOff) {
   }
 }
 
+void fireDMXRaw(int addr, boolean onOff) {
+  if (onOff) {
+   sendDMX(addr, FIRE_DMX_MAGIC);
+  } else {
+   sendDMX(addr, 0);
+  }
+}
+
 // Advance times the main effect shot and the fan ready light, and sends DMX
 void fireControlAdvance(float steps) {
 
