@@ -136,7 +136,11 @@ void setup() {
     masterHues[i] = (i * 100) / panels.length;
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
-  selectPanel(0);
+  // hardcode this differently for the different panels
+  // XXX doing this via a config file so that we don't need three different builds would be nice
+  selectPanel(0);	// A
+  //selectPanel(1);	// B
+  //selectPanel(2);	// C
   temposweep = new Temposweep(buttonSize, buttonSpacing);
   
   scrollablemessage = new ScrollableMessage();
