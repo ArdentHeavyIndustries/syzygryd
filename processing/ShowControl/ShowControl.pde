@@ -16,7 +16,7 @@ int EFFECTS_PER_ARM = 8;
 int PANELS = 3;    // Should probably just use PANELS and PITCHES constants from SequencerState, but we can
 int PITCHES = 10;  // wait until 2.0 to make any changes.
 
-int FRAMERATE = 200;
+int FRAMERATE = 100;
 int OSC_UPDATE_INTERVAL_MS = 500;
 
 // ------- Do no check in without production values ----------------
@@ -172,9 +172,9 @@ void setup() {
   program.initialize();  // Initialize active program  
 
   // Run with the high pressure valves open
-  fireDMX(141, true); 
-  fireDMX(142, true); 
-  fireDMX(143, true); 
+  fireDMXRaw(141, true); 
+  fireDMXRaw(142, true); 
+  fireDMXRaw(143, true); 
 }
 
 
