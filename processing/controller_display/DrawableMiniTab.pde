@@ -85,11 +85,18 @@ class DrawableMiniTab implements Drawable, Pressable {
 
     drawMiniTabFrame();
 
-    for (Iterator i = tab.onButtons.values().iterator(); i.hasNext(); ) {
-      try {
-        ((DrawableButton) i.next()).drawMiniTabButton();
-      } catch (ConcurrentModificationException e) {
-        // Do nothing, we'll redraw on the next cycle
+//     for (Iterator i = tab.onButtons.values().iterator(); i.hasNext(); ) {
+//       try {
+//         ((DrawableButton) i.next()).drawMiniTabButton();
+//       } catch (ConcurrentModificationException e) {
+//         // Do nothing, we'll redraw on the next cycle
+//       }
+//     }
+
+    for (int j = 0; j < 10; j++) {
+      for (int k = 0; k < 16; k++) {
+        DrawableButton myButton = (DrawableButton) tab.buttons[k][j];
+        myButton.drawMiniTabButton();
       }
     }
   }  // end draw()
