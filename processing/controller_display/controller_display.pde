@@ -20,8 +20,8 @@ import java.util.regex.Matcher;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
-int lastEventReceived = millis();
-final int OSC_WATCHDOG_SEC = 10;
+int lastSeqEventReceived = millis();
+final int OSC_WATCHDOG_SEC = 3;
 
 /* Button Array for buttoning also tempo objects maybe more*/
 DrawablePanel[] panels;
@@ -64,7 +64,10 @@ int syncCount;
 // of initializing it to false, and it certainly makes it easier to run small
 // scale tests.  in the worst case, we think we're running during the first
 // set switching.
-boolean setStopped = false;
+// this has now changed that we're using presence or absence of sync as an indicator of this
+boolean setStopped = true;
+
+PImage logo = null;
 
 final int OSC_LISTENING_PORT = 9002;
 final int OSC_SENDING_PORT = 8000;
@@ -87,6 +90,9 @@ void setup() {
   
   // changing color mode to hsb for ease of getting at the color wheel.
   colorMode(HSB, 100); 
+
+  // display this when stopped
+  logo = loadImage("syzybackground.jpg");
   
     //a quicker way to do the above without an if statement
   int buttonSize = ((height)/22) << 1;
@@ -170,24 +176,32 @@ void setup() {
 int curSecond = 0;
 
 void draw() {
+  if (!setStopped && millis() - lastSeqEventReceived > OSC_WATCHDOG_SEC * 1000) {
+    // Looks like someone quit Live.  Reinitialize OscP5
+    //restartOsc();
+    // Actually, that's not good enough, in case we missed the set stopped message.  So let's just instead assume the set has stopped.
+    stopSet();
+  }
+
   background(0);
 
-  for (ListIterator i = animations.listIterator(0); i.hasNext(); ) {
-    Animation a = (Animation) i.next();
-    a.step();
-    if (!a.active) {
-      i.remove();
+  if (setStopped) {
+    image(logo, 0, 0);
+  } else {
+    for (ListIterator i = animations.listIterator(0); i.hasNext(); ) {
+      Animation a = (Animation) i.next();
+      a.step();
+      if (!a.active) {
+        i.remove();
+      }
     }
+    
+    selectedPanel.draw();
+    temposweep.draw();
   }
 
-  selectedPanel.draw();
-  temposweep.draw();
+  // do this regardless, it's a handy way to tell if things aren't crashed
   scrollablemessage.msgDraw();
-
-  if (millis() - lastEventReceived > OSC_WATCHDOG_SEC * 1000) {
-    // Looks like someone quit Live.  Reinitialize OscP5
-    restartOsc();
-  }
 }
 
 void selectPanel(int id) {
@@ -210,8 +224,6 @@ void selectPanel(int id) {
 // }
 
 void oscEvent(OscMessage m) {
-  lastEventReceived = millis();
-
   try {
     // if(!m.addrPattern().endsWith("/sync")) {
     //   log("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
@@ -224,9 +236,13 @@ void oscEvent(OscMessage m) {
     // }
 
     if (m.addrPattern().equals("/sync")) {
+      lastSeqEventReceived = millis();
+
       if (setStopped) {
-        //log("Ignorning sync msg because set is stopped");
-        return;
+        // no, this is no longer true now that we're using sync as an implicit set starting
+        //log("Ignoring sync msg because set is stopped");
+        //return;
+        startSet();
       }
       syncCount++;
       if (syncSkip == 0 || syncCount >= syncSkip) {
@@ -436,7 +452,7 @@ void stopOsc() {
 
 void startOsc() {
   oscP5 = new OscP5(this, OSC_LISTENING_PORT);
-  lastEventReceived = millis();
+  lastSeqEventReceived = millis();
 }
 
 // TOUCHSCREEN!
