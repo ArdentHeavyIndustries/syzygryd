@@ -95,7 +95,10 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     }
 
     // Draw the outlines of the left sibling button
-    DrawableButton leftSibling = (DrawableButton) getLeftSibling();
+    // XXX the CAD got switched, and we didn't switch the software.
+    // this really should be fixed in libraries/syzygryd/src/syzygryd/Panel.java, but I'm not going to fuck with that now
+    //DrawableButton leftSibling = (DrawableButton) getLeftSibling();
+    DrawableButton leftSibling = (DrawableButton) getRightSibling();
     if (leftSibling.isOn) {
       left.disableStyle();
       noStroke();
@@ -104,7 +107,9 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     }
 
     // Draw the outlines of the right sibling button
-    DrawableButton rightSibling = (DrawableButton) getRightSibling();
+    // XXX HACK ALERT!  See above.
+    //DrawableButton rightSibling = (DrawableButton) getRightSibling();
+    DrawableButton rightSibling = (DrawableButton) getLeftSibling();
     if(rightSibling.isOn){
       right.disableStyle();
       noStroke();
