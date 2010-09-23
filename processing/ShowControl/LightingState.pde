@@ -17,12 +17,8 @@ int panelToArmFire(int panel) {
   return panel+3;
 }
 
-// LightOrFire? -- the closest thing we have to an enum
-int LIGHT = 1;
-int FIRE = 2;
-
-int panelToArm(int panel, int lightOrFire) {
-  if (lightOrFire == FIRE)
+int panelToArm(int panel, boolean doFire) {
+  if (doFire)
     return panelToArmFire(panel);
   else
     return panelToArmLights(panel);
@@ -30,7 +26,6 @@ int panelToArm(int panel, int lightOrFire) {
 
 class LightingState {
   color[][] armColor;    // 0-2 are lights, 3-5 are flame effects
-//  color[3][2] groundColor;  // 2 ground effects per light
   
   boolean[] armHiPressure = new boolean[3];
   boolean poofer;
@@ -62,8 +57,8 @@ class LightingState {
 
   // blend self over dest
   void blendOverSelf(LightingState o, int blendMode, float opacity) {
-    for (int a=0; a<6; a++) {   
-      for (int i=0; i<armResolution(a); i++) {
+    for (int a=0; a<3; a++) {   
+      for (int i=0; i<CUBES_PER_ARM; i++) {
         color blendC = blendColor(o.armColor[a][i], armColor[a][i], blendMode);
         armColor[a][i] = lerpColor(armColor[a][i], blendC, opacity);
       }

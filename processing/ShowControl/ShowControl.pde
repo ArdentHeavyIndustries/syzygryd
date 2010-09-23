@@ -16,20 +16,12 @@ int EFFECTS_PER_ARM = 8;
 int PANELS = 3;    // Should probably just use PANELS and PITCHES constants from SequencerState, but we can
 int PITCHES = 10;  // wait until 2.0 to make any changes.
 
-int FRAMERATE = 100;
+int FRAMERATE = 200;
 int OSC_UPDATE_INTERVAL_MS = 500;
+boolean SEND_DMX = true; //IMPORTANT: set to 'true' for production
 
-// ------- Do no check in without production values ----------------
-// SEND_DMX = true;
-// TEST_MODE = false;
-// SYZYVYZ = false;
-// ASCII_SEQUENCER_DISPLAY = false;
-
-boolean SEND_DMX = true; 
-boolean TEST_MODE = false;                // in test mode we output DMX on sequential channels -- see LightingTest
 boolean SYZYVYZ = false;
 boolean ASCII_SEQUENCER_DISPLAY = false;
-
 
 // ----------------- Variable Declaration & Initialization -----------------
 
@@ -110,17 +102,16 @@ void setup() {
   //Serial.list();
 
   //add three controllers to manager
-  DMXManager.addController("/dev/cu.usbserial-EN077331",149);
-  DMXManager.addController("/dev/cu.usbserial-EN077490",149);
-  DMXManager.addController("/dev/cu.usbserial-EN075581",149);
-  
-  // start fire control
-  fireControlInitialize();
+  DMXManager.addController("/dev/cu.usbserial-EN075577",147);
+  DMXManager.addController("/dev/cu.usbserial-foo",147);
+  DMXManager.addController("/dev/cu.usbserial-bar",147);
   
   //Set up visualizer
   if (SYZYVYZ) {
     syzygrydvyz = new Client(this, syzyVyzIP, syzyVyzPort);
   }
+
+
 
 
   //create fixtures via fixture factory
@@ -159,22 +150,13 @@ void setup() {
   btnStart = new GButton(this, "DMX Monitor", 10,35,80,30);
   btnStart.setColorScheme(new GCScheme().GREY_SCHEME);
 
-  // Instantiate programs. They add it automatically to the list of available lighting programs.
-  if (TEST_MODE)
-    new LightingTest();
-  
-  new FrameBrulee(); 
+  new FrameBrulee(); // Instantiate a program. This adds it automatically to the list of available lighting programs.
   new TestProgram();
   new TestProgram2();
 
-  // To start with, first program on the list is active
   program = programList.get(activeProgram); // Get active program
   program.initialize();  // Initialize active program  
 
-  // Run with the high pressure valves open
-  fireDMXRaw(141, true); 
-  fireDMXRaw(142, true); 
-  fireDMXRaw(143, true); 
 }
 
 
@@ -189,8 +171,7 @@ void draw(){
   program.render(renderedLightState);
   
   // Set dem lights!
-  if (!TEST_MODE)
-    renderedLightState.output();
+  renderedLightState.output();
   
   program.drawFrame();
   
@@ -212,24 +193,22 @@ void draw(){
     }
   }
 
-  // advance fire control timers
-  fireControlAdvance(elapsedSteps);
 
-  // textmode sequencer display -- useful for debugging. enable in config variables above.
-  if(ASCII_SEQUENCER_DISPLAY){ 
-    if(events.fired("step")){
-       for (int y = 0; y < 10; y++){
-         for (int p = 0; p < 3; p++){
-           for (int x = 0; x < 16; x++){
-             int t = sequencerState.curTab[p];
-             print(sequencerState.notes[p][t][x][y]?"X":(x==sequencerState.curStep?"|":"_"));
-           }
-           print("   ");
-         }
-         print("\n");
-       }
-       print("\n\n\n");
-     }
+ // textmode sequencer display -- useful for debugging. enable in config variables above.
+ if(ASCII_SEQUENCER_DISPLAY){ 
+   if(events.fired("step")){
+      for (int y = 0; y < 10; y++){
+        for (int p = 0; p < 3; p++){
+          for (int x = 0; x < 16; x++){
+            int t = sequencerState.curTab[p];
+            print(sequencerState.notes[p][t][x][y]?"X":(x==sequencerState.curStep?"|":"_"));
+          }
+          print("   ");
+        }
+        print("\n");
+      }
+      print("\n\n\n");
+    }
  }
   
   //remove expired events
@@ -261,7 +240,6 @@ void keyPressed(){
   }
 }
 
-int totalSteps = -1;
 
 // Returns steps elapsed since last call
 float updateStepPosition(){
@@ -282,24 +260,16 @@ float updateStepPosition(){
     // See if we've entered a new step; if so, fire the "step" event.
     int oldStep = sequencerState.curStep;
     sequencerState.curStep = (int)floor(sequencerState.stepPosition);
-    
     if (oldStep != sequencerState.curStep) {
       events.fire("step");
       //print("Step!\n");
       
-      if (totalSteps != -1)
-        totalSteps++;
-        
       // fire events on the bar and 4 bar marks
       if (sequencerState.curStep == 0) {
         events.fire("bar");
-  
-        // start counting total steps on a bar boundary, so totalSteps % 16 = 0 when we start a new bar
-        if (totalSteps == -1)
-          totalSteps = 0;
-
-        if (totalSteps % 16 == 0)
-          events.fire("4bars");
+      }
+      if ((sequencerState.ppqPosition % 16) == 0) {
+        events.fire("4bars");
       }
       
       // See if we're playing any notes this step; if so, fire "notes" event.
@@ -343,15 +313,4 @@ float getTimeInSteps(int time) {
 float curTimeInSteps() {
   return getTimeInSteps(now());
 }
-
-// super-simple DMX interface
-void sendDMX(int universe, int channel, int value) {
-   DMXManager.setChannel(universe, channel, (byte)value); 
-}
-
-// two arg version: send to universe zero. Good for fire control.
-void sendDMX(int channel, int value) {
-   DMXManager.setChannel(0, channel, (byte)value); 
-}
-
 

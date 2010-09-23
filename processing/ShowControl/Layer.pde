@@ -1,3 +1,4 @@
+
 // A layer is a single animation (across lights and effects.)
 // It runs until it completes or is removed.
 // Layers are rendered sequentially, modifying a lighting state, to produce the final result
@@ -227,12 +228,12 @@ class SimpleChaseLayer extends MoveableShapeLayer {
     return 1;
   }
   
-  // Children need to define render and shapeWidth 
+   // Children need to define render and shapeWidth 
   void render(color[] armColor, float position, float scaling) {
     state.clear();
     int pos = floor(position+0.5);
+//    if (events.fired("step")) println(pos);
     if ((pos >= 0) && (pos < armResolution(arm))) {
-//      println("simplechase render, arm: " +  arm + ", pos: " + pos);
       state.armColor[arm][pos] = color(255,255,255);
     }
   }
@@ -449,89 +450,6 @@ class ColorRampLayer extends MoveableShapeLayer {
   }
 }
 
-// ---------------------------------------- DecayRaceLayer ----------------------------------------- 
-// This is a very simple layer that races through an arm, turning on effects as it goes, then turning them off after a specified time
-// It's the primitive used by manual fire control
-class DecayRaceLayer extends ImageLayer {
 
-  int arm;
-  float raceTime;          // time between turning on the next effect 
-  float decayTime;
-  float startWait;
-  
-  int effectsOn;
-  float nextEffectWait;
-  float[] effectTimeRemaining;
-  
-  DecayRaceLayer(int _arm, float _raceTime, float _decayTime) {
-    arm = _arm;
-    raceTime = _raceTime;
-    decayTime = _decayTime;
-    startWait = 0;
-    effectsOn = 0;
-    nextEffectWait = 0;
-    effectTimeRemaining = new float[armResolution(arm)];   
-    
-//    println("DecayRaceLayer - raceTime: " +  raceTime + ", decayTime: " + decayTime);  
-  }
-  
-  // returns the fixture index of the effect with a given sequence number
-  // currently, we step from inside to out
-  int effectIndex(int seq) {
-    return (armResolution(arm)-1) - seq;
-  }
-  
-  void advance(float time) { 
- 
-    float timeRemaining = time;
-    
-    // first wait until we go
-    if (startWait > 0) {
-      startWait -= time;
-      if (startWait < 0)
-        timeRemaining = -startWait;
-      else
-        timeRemaining = 0;
-    }      
-    
-    // keep firing events until no more are on (or we've hit end)
-    while ((timeRemaining > 0) && (effectsOn < armResolution(arm))) {
-    
-        nextEffectWait -= timeRemaining;
-        
-        if (nextEffectWait <= 0) {
-          // we've hit or passed the trigger time for the next effect
-          state.armColor[arm][effectIndex(effectsOn)] = color(255,255,255);
-          effectTimeRemaining[effectsOn] = decayTime;
-          effectsOn++;
-          
-          timeRemaining = -nextEffectWait;
-          nextEffectWait = raceTime;
 
-        } else {          
-          timeRemaining = 0;
-        }
-    }
-  
-    // Now advance the timing on all the effects, turning off any where the time remaning goes below zero
-    int effectsStillOn = 0;
-    
-    for (int i=0; i<effectTimeRemaining.length; i++) {
-      if (effectTimeRemaining[i] > 0) {
-        effectsStillOn++;
-       
-        // found an effect on, count it down by time
-        effectTimeRemaining[i] -= time;
-        if (effectTimeRemaining[i] < 0) {
-          state.armColor[arm][effectIndex(i)] = color(0,0,0);          
-        }
-      }
-    }
-    
-    // if there are no effects on, yet we've turned them all on once, we're done
-    if ((effectsStillOn == 0) && (effectsOn >= armResolution(arm)))
-      finish();
-  }
-
-}
 
