@@ -97,3 +97,80 @@ regarding this will not be in the repository itself, but in
 ~/README-LOCAL-SVN-REPO.txt
 
 See you on the playa!
+
+-------------------------------------------------------------------------------
+A few post tagging notes...
+
+----------------------------------------
+I'm *really* close to getting the full rw svn repo working.  Hopefully
+someone can finish it.  See the svn notes.  If you can figure out how
+to commit the changes currently at:
+
+  ~/svn-mirror-test2/syzygryd/trunk/tmp
+
+(either as yourself, or the syzygryd svn user), then things are
+probably working.
+
+----------------------------------------
+On Windows, we've never been able to figure out any kind of console,
+or where stdout/stderr goes.  If you need to debug the controller,
+you'll probably have to run as a processing sketch and watch the
+output in processing.  Keep in mind that multiple processing sketches
+running together produce a single mangled output.  Don't forget to
+uncomment the contents of the log() method as described above.  (And
+put comment it out again when done.)
+
+If you need to rebuild the controller, our strategy has been to do
+this on the mac, in processing export a windows app, then copy that
+*.exe to the windows boxes.
+
+----------------------------------------
+The mac build of the sequencer has some issues that affect debugging.
+The windows build makes a single build result (a *.dll file) as part
+of the build, and those are in separate places for Debug and Release.
+Pointing Live at one or the other is as simple as changing the
+preferences for the plugin folder.
+
+The ultimate build result for the mac is a zip file, but that's not
+actually built by the build.  It's always been done by hand for
+dropbox, see the example below:
+
+{{{
+# build Debug|Plugin|i386 with Xcode
+cd ~/Library/Audio/Plug-Ins/VST/MyJucePlugins && zip -r ~/Dropbox/IA\ Media/Syzygryd/software/sequencer/mac/syzygryd_sequencer-r586-Debug.vst.zip syzygryd_sequencer.vst
+# build Release|Plugin|i386 with Xcode
+cd ~/Library/Audio/Plug-Ins/VST/MyJucePlugins && zip -r ~/Dropbox/IA\ Media/Syzygryd/software/sequencer/mac/syzygryd_sequencer-r586-Release.vst.zip syzygryd_sequencer.vst
+}}}
+
+While the precursor to this zip file is actually an expansion in the
+proper location for Live, the problem is that creating this is
+destructive wrt the Debug and Release builds.  Specifically, right now
+(and it should be this way for production), what's in the
+MyJucePlugins dir is the Release build.  If you want to switch back to
+the corresponding Debug build without rebuilding, you can't easily do
+this, b/c the Debug results are lost.  The best you can do is hope
+that the last time someone built, they built both Debug and Release
+versions, and saved the Debug zip file somewhere.  (As of this
+writing, our most recent build, r667, meets these criteria.)
+
+So if you don't have changes and just want to run Debug, you need to
+move the Release .vst dir out of the way and unzip the Debug version.
+While you can do this where it is now, if you end up with two versions
+of the plugin seen by Live, that can be confusing.  Perhaps move it
+totally out of the plug-ins area.
+
+If you do need to make a new build, please first build Debug, then by
+hand zip up the results and put them somewhere, then do the same for
+Release.  Be sure to build Release last, since whatever is built last
+is what production will see.
+
+Yes, I know this sucks.  Sorry, but I didn't discover how the mac
+build worked until the last minute, at which point there was no time
+to change it.
+
+-------------------------------------------------
+Do not try to build the visualizer.  The current checked in version
+will build, but immediately crash upon running.  There has never been
+a version checked into the svn repo that is able to successfully build
+and run.  Somehow we have some working binary that was built at some
+unknown time under some unknown conditions.  Don't lose it.
