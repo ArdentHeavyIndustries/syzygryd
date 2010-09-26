@@ -47,6 +47,7 @@ int lastOscUpdateTimeInMs;
 ArrayList<Fixture> fixtures = new ArrayList();
 ArrayList<FixtureGroup> fixtureGroups = new ArrayList();
 FixtureGroup[] arm = new FixtureGroup[6];
+Fixture[] groundCube = new Fixture[3];
 
 // Lighting Programs
 ArrayList<LightingProgram> programList = new ArrayList();
@@ -127,12 +128,18 @@ void setup() {
   for (int i = 0; i < 3; i++){
     arm[i] = new FixtureGroup("cube");
     arm[i].addTrait("RGBColorMixing", new RGBColorMixingTrait(arm[i]));
-    for (int j = i * 69; j < (i * 69)+36; j++){  // 36 cubes per arm
+    for (int j = (i * 69) + 1; j < (i * 69) + 36 + 1; j++){  // 36 cubes per arm, skip first fixture on each arm (ground cubes)
       try{
         arm[i].addFixture(fixtures.get(j));
       } catch (FixtureTypeMismatchException ftme){}
     }
   }
+
+  //create ground cube fixture array
+  for (int i = 0; i < 3; i++) {
+    groundCube[i] = fixtures.get(i*69);
+  }
+  
 
   //create fire arm groups
   int k = 39;
@@ -222,7 +229,7 @@ void draw(){
   if (now - lastOscUpdateTimeInMs >= OSC_UPDATE_INTERVAL_MS) {	// only send if update interval has elapsed
     //println ("Sending UI color");
     lastOscUpdateTimeInMs = now;
-    OSCConnection.sendUIColor();
+//    OSCConnection.sendUIColor();
   }
   
 }
