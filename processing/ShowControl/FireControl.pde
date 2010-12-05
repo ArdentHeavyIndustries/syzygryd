@@ -20,7 +20,7 @@ int fcUIArm = 0;
 // Initialize just puts the touchOSC in a coherent state
 // globals, above, need to start with poofer, ready, fan, tornado all off
 void fireControlInitialize() { 
-  sendTouchOSCMsg("/fireControl/masterArm", fcUIMasterFireArm);
+  sendTouchOSCMsg("/fireMasterArm/makeFire", fcUIMasterFireArm);
   sendTouchOSCMsg("/fireControl/main", false);
   sendTouchOSCMsg("/fireControl/mainDuration", fcUIMainDuration);
   sendTouchOSCMsg("/fireControl/mainDurationLabel", "duration " + roundTo2Places(fcUIMainDuration) + " seconds");  
@@ -50,12 +50,13 @@ void processOSCFireEvent(OscMessage m) {
 
  println("FC OSC: " + m.addrPattern());
   
-  if (m.addrPattern().startsWith("/fireControl/masterArm")) {
+  if (m.addrPattern().startsWith("/fireMasterArm/makeFire")) {
     fcUIMasterFireArm = m.get(0).floatValue() != 0;
   } 
   
   else if (m.addrPattern().startsWith("/fireControl/mainButton")) {
-    events.fire("mainEffect");
+    if (fcUIMasterFireArm)
+       events.fire("mainEffect");
   } 
   
   else if (m.addrPattern().startsWith("/fireControl/pooferDuration")) {
@@ -85,7 +86,7 @@ void processOSCFireEvent(OscMessage m) {
    
    // don't let the fuel come on without the ready light
    if (newFuelOn) {
-     if (!fcUITornadoReady) {
+     if (!fcUITornadoReady || !fcUIMasterFireArm) {
        newFuelOn = false;
        sendTouchOSCMsg("/fireControl/tornadoFuel", false);
  //      println("fan not ready");
@@ -95,9 +96,9 @@ void processOSCFireEvent(OscMessage m) {
   } 
 }
 
-// Sets a fire control relay to specified state. Gated through the master arm toggle
+// Sets a fire control relay to specified state. 
 void fireDMX(int addr, boolean onOff) {
-  if (fcUIMasterFireArm && onOff) {
+  if (onOff) {
    sendDMX(addr, FIRE_DMX_MAGIC);
   } else {
    sendDMX(addr, 0);

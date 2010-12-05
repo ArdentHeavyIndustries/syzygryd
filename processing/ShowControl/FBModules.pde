@@ -32,6 +32,7 @@ float MUTATE_SET = 1.0;
 //------------------------------------------------- HueRotateModule -----------------------------------------
 // Cycles hues across arms. Always 120 degrees apart, using saturation, brightness, and initial phase of baseColor
 
+
 class HueRotateModule extends FBModule {
 
   float phase;
@@ -43,6 +44,8 @@ class HueRotateModule extends FBModule {
 
   void advance(float steps) {
     phase += steps*fb.baseHueRotationSpeed;
+    if (phase > 360)
+      phase -= 360;
   }
   
   void apply(LightingState dst)
@@ -50,14 +53,32 @@ class HueRotateModule extends FBModule {
     LightingState state = new LightingState();
 
     colorMode(HSB,360,100,100);
-    state.fillArm(0, color(phase % 360, fb.baseHueSat, fb.baseHueBright));
-    state.fillArm(1, color((phase + fb.baseHueSpread) % 360, fb.baseHueSat, fb.baseHueBright));
-    state.fillArm(2, color((phase - fb.baseHueSpread) % 360, fb.baseHueSat, fb.baseHueBright));
+    state.fillArm(0, getArmColor(0));
+    state.fillArm(1, getArmColor(1));
+    state.fillArm(2, getArmColor(2));
     colorMode(RGB, 255);
     
     dst.blendOverSelf(state, blendMode, opacity);    
   }
+
+  float getArmHue(int arm) {
+    switch (arm) {
+      case 0:
+        return phase % 360.0;
+        
+      case 1: 
+        return (phase + fb.baseHueSpread) % 360.0;
+        
+      case 2:
+        return (phase - fb.baseHueSpread) % 360.0;
+    }
+    
+    return 0;
+  }
   
+  color getArmColor(int arm) {
+    return color(getArmHue(arm), fb.baseHueSat, fb.baseHueBright);
+  }
 }
 
 //------------------------------------------------- TransientLayerModule -----------------------------------------
@@ -163,8 +184,8 @@ class NoteDisplayModule extends TransientLayerModule {
       // We have eight flame effects, ten pitches. Map bottom two to first, top two to last. Bass notes on the inside for fire (larger effects)
       return 7 - clip(pitch-1, 0, 7); 
     } else {
-      // Bass notes start outside for sound 
-      return pitch*3;
+      // Bass notes start outside for sound, then step in to cube #14 which is the smallest/highest 
+      return pitch*(14.0/10.0);
     }
   }
   
@@ -207,18 +228,19 @@ class NoteDisplayModule extends TransientLayerModule {
                 myLayers.add(cr);
               } else {
                 // For fire, activate only a single effect at a time (no "width" response -- is this right?)
-                SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
-                
-                sc.position = notePosition(panel, pitch);
-                sc.opacityEnvelope = env;
-                sc.terminateWithOpacity = true;
-                sc.terminateWithPosition = false;
-                
-//                sc.position = 0;
-//                sc.motionSpeed = fb.arms[panel].animationSpeed;
-
-                myLayers.add(sc);
+                if (fcUIMasterFireArm) {
+                  SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
+                  
+                  sc.position = notePosition(panel, pitch);
+                  sc.opacityEnvelope = env;
+                  sc.terminateWithOpacity = true;
+                  sc.terminateWithPosition = false;
+                  
+  //                sc.position = 0;
+  //                sc.motionSpeed = fb.arms[panel].animationSpeed;
   
+                  myLayers.add(sc);
+                }
 //                println("Fire display, arm: " + panel + ", pitch: " + pitch + ", position: " + sc.position);              
               }
             }
@@ -561,26 +583,27 @@ class FireChaseModule extends TransientLayerModule {
   void advance(float elapsed) {
     super.advance(elapsed);    
     
-    for (int panel=0; panel<3; panel++) {   
-      if (fb.arms[panel].effectFireChase && events.fired("bar")) {
-
-        //println("new simplechase");
-        
-        SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
+    if (fcUIMasterFireArm) {
+      for (int panel=0; panel<3; panel++) {   
+        if (fb.arms[panel].effectFireChase && events.fired("bar")) {
+  
+          //println("new simplechase");
           
-        if (fromOutside) {
-          sc.position = -1;
-          sc.motionSpeed = fb.arms[panel].animationSpeed;
-        } else {
-          sc.position = armResolution(sc.arm);
-          sc.motionSpeed = -fb.arms[panel].animationSpeed;
+          SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
+            
+          if (fromOutside) {
+            sc.position = -1;
+            sc.motionSpeed = fb.arms[panel].animationSpeed;
+          } else {
+            sc.position = armResolution(sc.arm);
+            sc.motionSpeed = -fb.arms[panel].animationSpeed;
+          }
+            
+          myLayers.add(sc);
         }
-          
-        myLayers.add(sc);
       }
     }
   }
-
 }
 
 
@@ -710,21 +733,25 @@ class ManualFireModule extends TransientLayerModule {
   
     super.advance(elapsed);    
     
-    // Fire chases right now if we're not in repeat mode and someone hit the pattern button
-    for (int i=0; i<manualFirePatternOSCAddr.length; i++) {
-      if (events.fired("manualFirePattern" + i)) {
-        firePattern(i);
-      }
-    }
+    // create new patterns only if master fire arm is on    
+    if (fcUIMasterFireArm) {
       
-    // otherwise fire on the bar if we're in repeat mode
-    if (fb.manualFireRepeat && events.fired("bar")) {
-      if (fb.manualFirePatternIndex != -1) {
-        firePattern(fb.manualFirePatternIndex);
+      // Fire chases right now if we're not in repeat mode and someone hit the pattern button
+      for (int i=0; i<manualFirePatternOSCAddr.length; i++) {
+        if (events.fired("manualFirePattern" + i)) {
+          firePattern(i);
+        }
+      }
+        
+      // otherwise fire on the bar if we're in repeat mode
+      if (fb.manualFireRepeat && events.fired("bar")) {
+        if (fb.manualFirePatternIndex != -1) {
+          firePattern(fb.manualFirePatternIndex);
+        }
       }
     }
   }
-
+  
 }
 
 

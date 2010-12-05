@@ -21,8 +21,8 @@ class FBArmParams implements Cloneable {
 
   // effects on/off. These are switched up during change()
   public boolean effectNoteChase = false;
-  public boolean effectNoteDisplay = false;
-  public boolean effectNotePermute = true;
+  public boolean effectNoteDisplay = true;
+  public boolean effectNotePermute = false;
   public boolean effectBeatTrain = false;
   public boolean effectBassPulse = true;
   
@@ -33,16 +33,17 @@ class FBArmParams implements Cloneable {
   // color correction params
   public color effectTint = color(255,255,255); // central hue and sat 
   public float effectChroma = 100;          // 100 means full range, 0 means monochromatic
-  public float effectBright = 50;          // we add a lot of effects together; tend to clip if we aren't moderate here
+  public float effectBright = 90;
 }
 
 class FBParams implements Cloneable {
-  public int   changeRate = 4;          // indexes changeRatePeriod array, index 4 = every 64 steps = every 4 bars
-  public boolean hold = false;          // if true, never change
-  public float mutationRate = 0.2;            // 1 = change everything when mutating, 0 = change nothing
+  public int   changeRate = 4;            // indexes changeRatePeriod array, index 4 = every 64 steps = every 4 bars
+  public boolean autoChange = false;      // if true, never change
+  public float mutationRate = 0.2;        // 1 = change everything when mutating, 0 = change nothing
   public boolean changeEffectSettings = true;
   public boolean changeEffectColors = true;
   public boolean changeEffectPatterns = true;
+  public boolean changeFirePatterns = true;
   
   public float flicker = 0.1;            // general unpredictability of positions and timing
   
@@ -50,7 +51,7 @@ class FBParams implements Cloneable {
   public float baseHueRotationSpeed = 1; // degrees/sec
   public float baseHueSpread = 60;       // degrees lead/lag
   public float baseHueSat = 80;          // out of 100
-  public float baseHueBright = 60;       // out of 100
+  public float baseHueBright = 40;       // out of 100
   
   public FBArmParams[] arms;
     
@@ -104,7 +105,7 @@ float HUE_SAT_MIN = 0;
 float HUE_SAT_TYPICAL = 80;
 float HUE_SAT_MAX = 100;
 float HUE_BRIGHT_MIN = 0;
-float HUE_BRIGHT_TYPICAL = 60;
+float HUE_BRIGHT_TYPICAL = 40;
 float HUE_BRIGHT_MAX = 100;
 float ANIMATION_SPEED_MIN = 0.1;
 float ANIMATION_SPEED_TYPICAL = 1;
@@ -125,7 +126,7 @@ float EFFECT_CHROMA_MIN = 0;
 float EFFECT_CHROMA_TYPICAL = 80;
 float EFFECT_CHROMA_MAX = 100;
 float EFFECT_BRIGHT_MIN = 0;
-float EFFECT_BRIGHT_TYPICAL = 50;
+float EFFECT_BRIGHT_TYPICAL = 90;
 float EFFECT_BRIGHT_MAX = 100;
 
 
@@ -178,8 +179,8 @@ void processOSCLightEvent(OscMessage m) {
     events.fire("change");
   } 
   
-  if (m.addrPattern().startsWith("/lightControl/hold")) {
-    uiFBParams.hold = m.get(0).floatValue() != 0;
+  if (m.addrPattern().startsWith("/lightControl/autoChange")) {
+    uiFBParams.autoChange = m.get(0).floatValue() != 0;
   } 
 
   if (m.addrPattern().startsWith("/lightControl/changeRate")) {
@@ -197,6 +198,10 @@ void processOSCLightEvent(OscMessage m) {
 
   else if (m.addrPattern().startsWith("/lightControl/changeSettings")) {
     uiFBParams.changeEffectSettings = m.get(0).floatValue() != 0;    
+  } 
+  
+  else if (m.addrPattern().startsWith("/lightControl/changeFire")) {
+    uiFBParams.changeFirePatterns = m.get(0).floatValue() != 0;    
   } 
 
   else if (m.addrPattern().startsWith("/lightControl/changeColors")) {
@@ -364,15 +369,27 @@ void updateTouchOSCRadioButtons(String addrs[], int selected) {
   }
 }
 
+// Used only for sending arm hue to the controller, hence built for int since we send ARGB colors 
+void sendControllerOSCMsg(String addr, Integer val0, Integer val1, Integer val2) {
+  OscMessage msg = new OscMessage(addr);
+  msg.add(val0);
+  msg.add(val1);
+  msg.add(val2);
+  if ( OSCConnection.myRemoteLocation != null) { 
+    OSCConnection.oscP5.send(msg, OSCConnection.myRemoteLocation);
+  }
+}
+
 void outputParamsToOSC(FBParams fb) {
     
   sendTouchOSCMsg("/lightControl/changeRate", uiFBParams.changeRate);
-  sendTouchOSCMsg("/lightControl/hold", uiFBParams.hold);
+  sendTouchOSCMsg("/lightControl/autoChange", uiFBParams.autoChange);
   sendTouchOSCMsg("/lightControl/mutationRate", uiFBParams.mutationRate);
   sendTouchOSCMsg("/lightControl/changeRateLabel", changeRateLabels[uiFBParams.changeRate]);
   sendTouchOSCMsg("/lightControl/changePatterns", uiFBParams.changeEffectPatterns);
   sendTouchOSCMsg("/lightControl/changeSettings", uiFBParams.changeEffectSettings);
   sendTouchOSCMsg("/lightControl/changeColors", uiFBParams.changeEffectColors);
+  sendTouchOSCMsg("/lightControl/changeFirePatterns", uiFBParams.changeFirePatterns);
 
   sendTouchOSCMsg("/lightColor/baseHueSpeed", baseHueSpeedInternalToOSC(fb.baseHueRotationSpeed));
   sendTouchOSCMsg("/lightColor/baseHueSpread", fb.baseHueSpread);
@@ -425,11 +442,12 @@ void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float ste
   //println("copyAndAnimateUIParams");
   
   curFBParams.changeRate = uiFBParams.changeRate;
-  curFBParams.hold = uiFBParams.hold;
+  curFBParams.autoChange = uiFBParams.autoChange;
   curFBParams.mutationRate = uiFBParams.mutationRate;
   curFBParams.changeEffectPatterns = uiFBParams.changeEffectPatterns;
   curFBParams.changeEffectSettings = uiFBParams.changeEffectSettings;
   curFBParams.changeEffectColors = uiFBParams.changeEffectColors;
+  curFBParams.changeFirePatterns = uiFBParams.changeFirePatterns;
 
   curFBParams.flicker = animateParameter(uiFBParams.flicker, curFBParams.flicker, steps);
   
@@ -509,7 +527,7 @@ class FrameBrulee extends LightingProgram {
     
     effectsLayers = new LightingState();
     
-    change();
+//    change();
     outputParamsToOSC(uiFBParams);
  }
 
@@ -536,10 +554,21 @@ class FrameBrulee extends LightingProgram {
       outputParamsToOSC(uiFBParams);
       
     // change every N steps, as set by curFBParams.changeRate, or when we get the "change" event
-    if ( (events.fired("step") && (uiFBParams.changeRate != CHANGE_NEVER) && (!uiFBParams.hold) && ((totalSteps % changeRatePeriods[curFBParams.changeRate]) == 0)) ||
+    if ( (events.fired("step") && (uiFBParams.changeRate != CHANGE_NEVER) && (uiFBParams.autoChange) && ((totalSteps % changeRatePeriods[curFBParams.changeRate]) == 0)) ||
          events.fired("change") )  {
       change();
     }
+    
+    // Update the panel colors once per step
+    if (events.fired("step")) {
+      colorMode(HSB, 360, 100, 100);
+      color clr0 = color(baseHueRotate.getArmHue(0), 100, 100);
+      color clr1 = color(baseHueRotate.getArmHue(1), 100, 100);
+      color clr2 = color(baseHueRotate.getArmHue(2), 100, 100);      
+      sendControllerOSCMsg("/color", clr0, clr1, clr2);
+      colorMode(RGB, 255);
+    }
+      
   }
  
   // This is the core rendering stack, that applies all the right modules in the right order, according to mode
@@ -579,6 +608,9 @@ class FrameBrulee extends LightingProgram {
       
     if (curFBParams.changeEffectSettings)
       changeEffectSettings(uiFBParams);
+      
+    if (curFBParams.changeFirePatterns)
+      changeFirePatterns(uiFBParams);
     
     outputParamsToOSC(uiFBParams);
   }
@@ -599,11 +631,15 @@ class FrameBrulee extends LightingProgram {
       if (mutateMe()) uiFBParams.arms[panel].effectNoteChase = !curFBParams.arms[panel].effectNoteChase;
       if (mutateMe()) uiFBParams.arms[panel].effectBeatTrain = !curFBParams.arms[panel].effectBeatTrain;
       if (mutateMe()) uiFBParams.arms[panel].effectBassPulse = !curFBParams.arms[panel].effectBassPulse;
-
-//      if (mutateMe()) uiFBParams.arms[panel].effectFireChase = !curFBParams.arms[panel].effectFireChase;
-//      if (mutateMe()) uiFBParams.arms[panel].effectFireDisplay = !curFBParams.arms[panel].effectFireDisplay;    
     }
     
+  }
+  
+  void changeFirePatterns(FBParams fb) {
+    for (int panel=0; panel<3; panel++) {        
+      if (mutateMe()) uiFBParams.arms[panel].effectFireChase = !curFBParams.arms[panel].effectFireChase;
+      if (mutateMe()) uiFBParams.arms[panel].effectFireDisplay = !curFBParams.arms[panel].effectFireDisplay; 
+    }
   }
   
   void changeEffectColors(FBParams fb) {

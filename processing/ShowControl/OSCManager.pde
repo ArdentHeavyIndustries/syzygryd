@@ -94,7 +94,7 @@ void oscEvent(OscMessage m) {
            m.addrPattern().startsWith("/arm0/") || m.addrPattern().startsWith("/arm1/") || m.addrPattern().startsWith("/arm2/") ) {
     processOSCLightEvent(m);
 
-  } else if (m.addrPattern().startsWith("/fireControl/")) {
+  } else if (m.addrPattern().startsWith("/fireControl/")|| m.addrPattern().startsWith("/fireMasterArm/")) { // send lightControlMessage thru because that's where the master arm button is
     processOSCFireEvent(m);
 
   } else { 
