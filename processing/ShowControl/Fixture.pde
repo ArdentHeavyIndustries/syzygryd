@@ -92,14 +92,16 @@ class Fixture {
     Channel(Fixture _parent, int _controller){
       parent = _parent;
       controller = _controller;
-      address = dmx.alloc(this, controller);
+      if (_controller < dmx.controllers.size())
+        address = dmx.alloc(this, controller);
     }
     
     Channel(Fixture _parent, int _controller, int _address){
       parent = _parent;
       controller = _controller;
       try {
-        address = dmx.alloc(this, controller, _address);
+        if (_controller < dmx.controllers.size())
+          address = dmx.alloc(this, controller, _address);
       }
       catch (AddressAllocationException e) {
         System.err.println("Channel allocation on controller " + controller + ", address " + _address + " failed.\n");
@@ -112,7 +114,8 @@ class Fixture {
       controller = _controller;
       latency = _latency;
       try {
-        address = dmx.alloc(this, controller, _address);
+        if (_controller < dmx.controllers.size())
+          address = dmx.alloc(this, controller, _address);
       }
       catch (AddressAllocationException e) {
         System.err.println("Channel allocation on controller " + controller + ", address " + _address + " failed.\n");

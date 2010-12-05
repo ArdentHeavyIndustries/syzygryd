@@ -1,3 +1,5 @@
+int DMX_FIRE_VAL = 85;  // hex 0x55 to open the valves
+
 abstract class Trait {
   Fixture parent;
   Trait(Fixture _parent) {
@@ -55,7 +57,7 @@ class FireTrait extends Trait {
   }
 
   boolean isBurning() {
-    return parent.getChannel("fire") == 55; //TODO: change this to final threshold value
+    return parent.getChannel("fire") == DMX_FIRE_VAL;
   }
 
   public void color2Fire(color clr) {
@@ -64,9 +66,11 @@ class FireTrait extends Trait {
     } 
     else if (parent instanceof Fixture) {
       if (brightness(clr) > 50){
-        parent.setChannel("fire", 55);
+        parent.setChannel("fire", DMX_FIRE_VAL);
+      } else {
+        parent.setChannel("fire", 0);
       }
-    }
+  }
   }
   
   private void color2FireGroup(color clr) {
@@ -81,7 +85,7 @@ class FireTrait extends Trait {
       fireOnGroup();
     } 
     else if (parent instanceof Fixture) {
-      parent.setChannel("fire", 55);
+      parent.setChannel("fire", DMX_FIRE_VAL);
     }
   }
   
