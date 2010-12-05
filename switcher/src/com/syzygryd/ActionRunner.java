@@ -9,7 +9,7 @@ public class ActionRunner extends Thread {
 	
 	private static int SECOND_IN_MILLIS = 1000;
 	private static int LOAD_TIMEOUT = 600 * SECOND_IN_MILLIS;
-	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 2 * SECOND_IN_MILLIS;
+	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 3 * SECOND_IN_MILLIS;
 	private static int QUIT_TIMEOUT = 10 * SECOND_IN_MILLIS;
 	private static int INTERVAL_BETWEEN_DURATION_NOTIFICATIONS = 5 * SECOND_IN_MILLIS;
 	
@@ -23,6 +23,7 @@ public class ActionRunner extends Thread {
 	 * action to be immediately executed; preempts queue
 	 */
 	private AtomicReference<Action> pendingAction = new AtomicReference<Action>();
+	private Action currentAction = null;
 	
 	/**
 	 * blocks until load has finished
@@ -59,7 +60,7 @@ public class ActionRunner extends Thread {
 			// determine next action in this order:
 			
 			// 1. existing pending action (which would have been set via actNow())
-			Action currentAction = popPendingAction();
+			currentAction = popPendingAction();
 			
 			// 2. action at head of queue
 			if (currentAction == null) {
@@ -235,9 +236,13 @@ public class ActionRunner extends Thread {
 	}
 	
 	public String queueToString() {
-		String queueString = "<h3>Queue</h3><br>" + actionQ.toString();
-		String pendingString = "<h3>Pending Action</h3><br>" + pendingAction.toString();
-		return queueString + pendingString;
+		String queueString = "\"queue\":" + actionQ.toString();
+		String pendingString = ",\"pending\":" + pendingAction.toString();
+		String out = queueString + pendingString;
+		if (currentAction != null) {
+			out += ",\"current\":" + currentAction.toString();
+		}
+		return out;
 	}
 
 	/**

@@ -12,6 +12,8 @@ public class AppleScriptRunner {
 	private static final String liveQuit = "tell application \"Live\"\n quit\nend tell";
 	private static final String liveActivate = "tell application \"Live\"\n activate\nend tell";
 	private static final String liveSpace = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkeystroke \" \"\nend tell\nend tell";
+	private static final String liveEnter = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkeystroke return\nend tell\nend tell";
+
 	private static final String liveEsc = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkey code 53\nend tell\nend tell";
 	
 	private static ScriptEngineManager mgr = new ScriptEngineManager();
@@ -43,6 +45,13 @@ public class AppleScriptRunner {
      */
     public static void runLiveSpace() {
     	runScript(liveSpace);
+    }
+    
+    /**
+     * Sends space bar to live
+     */
+    public static void runLiveEnter() {
+    	runScript(liveEnter);
     }
     
     /**

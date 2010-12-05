@@ -55,7 +55,7 @@ public class Set {
 	}
 	
 	public String toString() {
-		return "<b>Set:</b> " + this.name + ", <b>Length:</b> " + this.length; 
+		return "{\"set\":\"" + this.name + "\",\"length\":" + this.length + "}"; 
 	}
 	
 	/**
@@ -70,6 +70,15 @@ public class Set {
 		} catch (IOException e) {
 			// NOP
 		}
+		
+		try {
+			Thread.sleep(2500); 
+		} catch (Exception e) {
+			// NOP
+		}
+		
+		AppleScriptRunner.runLiveEnter();
+		
 	}
 	
 	/**
@@ -77,19 +86,22 @@ public class Set {
 	 */
 	public void stop() {
 		//sender.livePlaybackStop();
-		AppleScriptRunner.runLiveSpace();
 		/*
 		try {
 			Thread.sleep(2000); 
 		} catch (Exception e) {
 			// NOP
 		}
-		AppleScriptRunner.runLiveQuit();
+		*/
+		//AppleScriptRunner.runLiveQuit();
+		AppleScriptRunner.runLiveEnter();
+		AppleScriptRunner.runLiveSpace();
+		
 		try {
 			Thread.sleep(2500); 
 		} catch (Exception e) {
 			// NOP
 		}
-		*/
+		
 	}
 }

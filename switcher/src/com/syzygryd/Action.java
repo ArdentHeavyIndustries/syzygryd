@@ -18,6 +18,8 @@ public abstract class Action {
 	 * livequit: tell live to quit
 	 * livescreenshot: activate live, then grab screenshot
 	 * 
+	 * setlist: get json for setlist & current set
+	 * queue: get json for queue
 	 * screenshot: current state of the screen
 	 * loadtimeout: give up on loading and unblock actionrunner
 	 * quit: quit set switcher
@@ -69,6 +71,10 @@ public abstract class Action {
 	 */
 	public int getDuration() {
 		return duration;
+	}
+	
+	public ActionType getType() {
+		return type;
 	}
 	
 	/**

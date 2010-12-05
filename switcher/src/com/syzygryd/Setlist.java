@@ -22,7 +22,7 @@ public class Setlist {
 	private static final int PARAM_LIGHTING_PROGRAM = 2;
 	private static final int PARAM_COUNT = 3;
 	private String file;
-	
+		
 	/**
 	 * creates a new setlist from a file containing lines with comma-separated set filename & length in seconds
 	 * @param fileName
@@ -48,18 +48,20 @@ public class Setlist {
 		
 		String line = null;
 		while ((line = reader.readLine()) != null) {
-			String[] params = line.split(",");
-			
-			if (params.length != PARAM_COUNT) {
-				reader.close();
-				throw new Exception("Invalid line: \n"+ line + "\nEach line must contain only these values, comma-separated: file name, the length of the set in seconds, and the lighting program name.");
-			}
-			
-			try {
-				list.add(new Set(params[PARAM_NAME], Integer.valueOf(params[PARAM_LEN_IN_SECS]), params[PARAM_LIGHTING_PROGRAM]));
-			} catch (NumberFormatException e) {
-				reader.close();
-				throw new NumberFormatException("invalid number for length (in whole seconds) " + params[PARAM_LEN_IN_SECS] + " on line\n" + line);
+			if (line.matches(".*\\w.*")) {
+				String[] params = line.split(",");
+				
+				if (params.length != PARAM_COUNT) {
+					reader.close();
+					throw new Exception("Invalid line: \n"+ line + "\nEach line must contain only these values, comma-separated: file name, the length of the set in seconds, and the lighting program name.");
+				}
+				
+				try {
+					list.add(new Set(params[PARAM_NAME], Integer.valueOf(params[PARAM_LEN_IN_SECS]), params[PARAM_LIGHTING_PROGRAM]));
+				} catch (NumberFormatException e) {
+					reader.close();
+					throw new NumberFormatException("invalid number for length (in whole seconds) " + params[PARAM_LEN_IN_SECS] + " on line\n" + line);
+				}
 			}
 		}
 		
@@ -94,20 +96,35 @@ public class Setlist {
 		return it.next();
 	}
 	
+	public Set peekSet(int s) {
+		if (s > list.size()) {
+			s = 0;
+		}
+		ListIterator<Set> si = list.listIterator(s);
+		return si.next();
+	}
+	
 	public int getCurrentId() {
 		return it.nextIndex() - 1;
 	}
 	
 	public String toString() {
-		String out = "<h3>Current Set List</h3>";
-		out = out + "<br><b>Filename:</b> " + file + "<br>";
+		String out = "\"filename\":\""+ file + "\",";
+		out += "\"sets\":[";
 		ListIterator<Set> si = list.listIterator();
 		while(si.hasNext()) {
 			Set s = si.next();
-			out = out + "<br>" + s.toString();
+			out = out + s.toString(); 
+			if (si.hasNext()) {
+				out = out + ",";
+			}
 		}
-		out = out + "<br><br><br><h3>Current Set</h3>";
-		out = out + "<br>" + currentSet.toString();
+		out = out + "],\"current\":";
+		out = out + currentSet.toString();
 		return out;
+	}
+	
+	public Set getCurrentSet() {
+		return currentSet;
 	}
 }

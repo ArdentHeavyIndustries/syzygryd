@@ -67,4 +67,21 @@ public class ActionSetPlay extends Action {
 	public String getLightingProgram() {
 		return s.getLightingProgram();
 	}
+	
+	public String toString() {
+		switch (type) {
+		case playnext:
+		case playprev:
+			return list.getCurrentSet().toString();
+		case playthis:
+			int setId;
+			try {
+				setId = Integer.valueOf(params.getProperty("setid"));
+			} catch (Exception e) {
+				return "Play invalid setId";
+			}
+			return list.peekSet(setId).toString();
+		}
+		return s.toString();
+	}
 }
