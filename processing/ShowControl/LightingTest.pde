@@ -2,10 +2,10 @@
 // Steps through every single DMX channel on the given arm. Does not use sync.
   
 int TEST_STEP_TIME = 250; // ms
-int FIRST_TEST_CHANNEL=0;
-int LAST_TEST_CHANNEL= 117;
-int TEST_VAL = 255;
-boolean MULTIPLE_ARMS = false;
+int FIRST_TEST_CHANNEL=117;
+int LAST_TEST_CHANNEL= 124;
+int TEST_VAL = 85;
+boolean MULTIPLE_ARMS = true;
 
 void sendDMX2(int addr, int val)
 {

@@ -91,12 +91,7 @@ void oscEvent(OscMessage m) {
   } 
   else if (m.addrPattern().startsWith("/lightingControls/") || m.addrPattern().startsWith("/lightingColor/") || m.addrPattern().startsWith("/fireControl/")) {
     processOSCLightEvent(m);
-
-  } else if (m.addrPattern().startsWith("/fireControl/")|| m.addrPattern().startsWith("/fireMasterArm/")) { // send lightControlMessage thru because that's where the master arm button is
-    processOSCFireEvent(m);
-
-  } else { 
-//    println("Unrecognized OSC event: " + m.addrPattern());
+ //     println("zomg");
   }
 }
 
