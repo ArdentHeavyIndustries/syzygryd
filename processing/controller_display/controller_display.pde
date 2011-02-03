@@ -144,7 +144,14 @@ void setup() {
   }
   // hardcode this differently for the different panels
   // XXX doing this via a config file so that we don't need three different builds would be nice
-  selectPanel(0);	// A
+
+  // load panel index from file
+  String lines[] = loadStrings("/opt/syzygryd/etc/panel_index.txt");
+  int panelIndex = int(lines[0]);
+  selectPanel(panelIndex);
+  println("Panel Index: " + panelIndex);
+
+  //selectPanel(0);	// A
   //selectPanel(1);	// B
   //selectPanel(2);	// C
   temposweep = new Temposweep(buttonSize, buttonSpacing);
