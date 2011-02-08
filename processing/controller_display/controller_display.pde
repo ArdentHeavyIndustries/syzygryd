@@ -14,7 +14,6 @@ import netP5.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.NumberFormatException;
-import java.lang.RuntimeException;
 import java.util.Calendar;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -28,8 +27,17 @@ import java.util.regex.Matcher;
 final String PROPS_FILE = "/opt/syzygryd/etc/controller.properties";
 // windows
 //final String PROPS_FILE = "C:\syzygryd\etc\controller.properties";
-// The actual setting of Properties is below in setup(), b/c
-// Processing fails to compile if it is located here.
+// The actual setting of Properties is below in setupProps() (called
+// from setup()), b/c Processing fails to compile if it is located
+// here.
+// But the variables are defined here so that we can reference them
+// globally.
+Properties defaultProps;
+Properties props;
+// These are the default values, if not set in the file.
+// Use String's here, regardless of the final type.
+final String DEFAULT_PANEL_INDEX    = "0";
+final String DEFAULT_SEQUENCER_HOST = "10.10.10.10";
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -86,21 +94,7 @@ final int OSC_LISTENING_PORT = 9002;
 final int OSC_SENDING_PORT = 8000;
 
 void setup() {
-  // Processing fails to compile the sketch if this mucking with
-  // Properties is above, so keep it here.
-  
-  // These are the default values, if not set in the file
-  Properties defaultProps = new Properties();
-  defaultProps.setProperty("panelIndex", "0");
-  defaultProps.setProperty("sequencerHost", "10.10.10.10");
-  
-  Properties props = new Properties(defaultProps);
-  log("Loading properties from " + PROPS_FILE);
-  try {
-    props.load(new FileReader(PROPS_FILE));
-  } catch (IOException ioe) {
-    warn ("Can't load properties file, will use all default values: " + PROPS_FILE);
-  }
+  setupProps();
   
   // controller display can be made to grab the screen's current
   // resolution and apply it to the sketch, but for development
@@ -171,7 +165,7 @@ void setup() {
     masterHues[i] = (i * 100) / panels.length;
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
-  int panelIndex = getIntProperty("panelIndex", props, defaultProps);
+  int panelIndex = getIntProperty("panelIndex");
   log("Panel Index: " + panelIndex);
   selectPanel(panelIndex);
 
@@ -187,7 +181,7 @@ void setup() {
   // myRemoteLocation is set to the address and port the sequencer listens on
   // XXX in the long term, why don't we just sensibly choose ports so that there aren't conflicts and send to the broadcast address?
   // XXX also in a config file would be nice
-  String sequencerHost = props.getProperty("sequencerHost");
+  String sequencerHost = getStringProperty("sequencerHost");
   log("Sequencer Host: " + sequencerHost);
   myRemoteLocation = new NetAddress(sequencerHost, OSC_SENDING_PORT);
 
@@ -585,7 +579,32 @@ String getTime() {
   return date.toString();
 }
 
-int getIntProperty(String key, Properties props, Properties defaultProps) {
+void setupProps() {
+  // Processing fails to compile the sketch if this mucking with
+  // Properties is done in the global declarations section above, so
+  // keep it here (invoked from setup()).
+  
+  // Configure default values, if not set in the file
+  defaultProps = new Properties();
+  defaultProps.setProperty("panelIndex", DEFAULT_PANEL_INDEX);
+  defaultProps.setProperty("sequencerHost", DEFAULT_SEQUENCER_HOST);
+  
+  props = new Properties(defaultProps);
+  log("Loading properties from " + PROPS_FILE);
+  try {
+    props.load(new FileReader(PROPS_FILE));
+  } catch (IOException ioe) {
+    warn ("Can't load properties file, will use all default values: " + PROPS_FILE);
+  }
+}
+
+String getStringProperty(String key) {
+  // we don't need to separately account for a default value,
+  // since this was taken care of when setting up defaultProps and props in setup()
+  return props.getProperty(key);
+}
+
+int getIntProperty(String key) {
   int value;
   try {
     value = Integer.parseInt(props.getProperty(key));
@@ -593,9 +612,9 @@ int getIntProperty(String key, Properties props, Properties defaultProps) {
     try {
       value = Integer.parseInt(defaultProps.getProperty(key));
     } catch (NumberFormatException nfe2) {
-      throw new RuntimeException("Value for property " + key +
-                                 " not an int (" + props.getProperty(key) +
-                                 "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+      throw new NumberFormatException("Value for property " + key +
+                                      " not an int (" + props.getProperty(key) +
+                                      "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
     }
     warn ("Value for property " + key +
           " not an int (" + props.getProperty(key) +
