@@ -112,7 +112,7 @@ void setup() {
   size(1366,768);
   smooth();
   //hide the mouse cursor (if not on touchscreen comment out!)
-  //noCursor();
+  noCursor();
 
   // Used for debugging
 //  output = createWriter("debug.txt");
