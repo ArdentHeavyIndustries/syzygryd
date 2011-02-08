@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<project name="switcher" default="jar" basedir=".">
+  <target name="prepare">
+    <mkdir dir="classes" />
+    <mkdir dir="META-INF" />
+  </target>
+
+  <target name="compile" depends="prepare">
+    <javac srcdir="src"
+	   destdir="classes" 
+	   includeantruntime="false">
+      <compilerarg value="-Xlint:unchecked" />
+    </javac>
+  </target>
+
+  <target name="manifest">
+    <manifest file="META-INF/MANIFEST.MF" >
+      <attribute name="Class-Path" value="." />
+      <attribute name="Main-Class" value="com.syzygryd.Switcher" />
+    </manifest>
+  </target>
+
+  <target name="jar" depends="compile, manifest">
+    <jar jarfile="switcher.jar"
+	 basedir="classes"
+	 manifest="META-INF/MANIFEST.MF" />
+  </target>
+
+  <target name="clean">
+    <delete dir="classes" />
+    <delete dir="META-INF" />
+    <delete file="switcher.jar" />
+  </target>
+</project>
+
+<!--
+  Local Variables:
+    mode: nXML
+    sgml-indent-level: 2
+    indent-tabs-mode: nil
+  End:
+
+  vim: softtabstop=2 tabstop=2 expandtab shiftwidth=2
+-->
