@@ -36,6 +36,9 @@ Properties defaultProps;
 Properties props;
 // These are the default values, if not set in the file.
 // Use String's here, regardless of the final type.
+// These should be consistent with the commented out lines in the
+// example etc/controller.properties file.
+final String DEFAULT_TOUCHSCREEN    = "true";
 final String DEFAULT_PANEL_INDEX    = "0";
 final String DEFAULT_SEQUENCER_HOST = "10.10.10.10";
 
@@ -97,16 +100,23 @@ void setup() {
   setupProps();
   
   // controller display can be made to grab the screen's current
-  // resolution and apply it to the sketch, but for development
-  // purposes we just smash to 1280x720
+  // resolution and apply it to the sketch, but we're not currently
+  // doing that.
+  // XXX is there a reason why?
   // size(screen.width,screen.height,OPENGL);
-  // normal computer
-  //size(1280,720);
-  // touchscreen
-  size(1366,768);
-  smooth();
-  //hide the mouse cursor (if not on touchscreen comment out!)
-  noCursor();
+
+  boolean touchscreen = getBooleanProperty("touchscreen");
+  log("Touchscreen: " + touchscreen);
+  if (touchscreen) {
+    size(1366,768);
+    // enable anti-aliasing
+    // XXX i think this may be irrelevant (anti-aliasing always enabled), if we're using OPENGL
+    smooth();
+    // hide the mouse cursor
+    noCursor();
+  } else {
+    size(1280,720);
+  }
 
   // Used for debugging
 //  output = createWriter("debug.txt");
@@ -586,6 +596,7 @@ void setupProps() {
   
   // Configure default values, if not set in the file
   defaultProps = new Properties();
+  defaultProps.setProperty("touchscreen", DEFAULT_TOUCHSCREEN);
   defaultProps.setProperty("panelIndex", DEFAULT_PANEL_INDEX);
   defaultProps.setProperty("sequencerHost", DEFAULT_SEQUENCER_HOST);
   
@@ -618,6 +629,25 @@ int getIntProperty(String key) {
     }
     warn ("Value for property " + key +
           " not an int (" + props.getProperty(key) +
+          "), using default value: " + value);
+  }
+  return value;
+}
+
+boolean getBooleanProperty(String key) {
+  boolean value;
+  try {
+    value = Boolean.parseBoolean(props.getProperty(key));
+  } catch (NumberFormatException nfe) {
+    try {
+      value = Boolean.parseBoolean(defaultProps.getProperty(key));
+    } catch (NumberFormatException nfe2) {
+      throw new NumberFormatException("Value for property " + key +
+                                      " not a boolean (" + props.getProperty(key) +
+                                      "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+    }
+    warn ("Value for property " + key +
+          " not an boolean (" + props.getProperty(key) +
           "), using default value: " + value);
   }
   return value;
