@@ -185,7 +185,7 @@ class NoteDisplayModule extends TransientLayerModule {
       return 7 - clip(pitch-1, 0, 7); 
     } else {
       // Bass notes start outside for sound, then step in to cube #14 which is the smallest/highest 
-      return pitch*(14.0/10.0);
+      return pitch*(18.0/10.0);
     }
   }
   

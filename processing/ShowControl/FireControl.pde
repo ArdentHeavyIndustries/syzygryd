@@ -32,9 +32,9 @@ void fireControlInitialize() {
 // Constants
 float FAN_WARMUP_TIME = 5000;  // ms after fan on before fuel can go on
 
-int POOFER_DMX_ADDR = 144;
-int TORNADO_FAN_DMX_ADDR = 145;
-int TORNADO_FUEL_DMX_ADDR = 146;
+int POOFER_DMX_ADDR = 146;
+int TORNADO_FAN_DMX_ADDR = 144;
+int TORNADO_FUEL_DMX_ADDR = 145;
 
 int FIRE_DMX_MAGIC = 85;     // fire control board closes relays only when it sees this DMX value
 
@@ -59,7 +59,7 @@ void processOSCFireEvent(OscMessage m) {
        events.fire("mainEffect");
   } 
   
-  else if (m.addrPattern().startsWith("/fireControl/pooferDuration")) {
+  else if (m.addrPattern().startsWith("/fireControl/mainDuration")) {
     fcUIMainDuration = m.get(0).floatValue();
     sendTouchOSCMsg("/fireControl/pooferDurationLabel", "duration " + roundTo2Places(fcUIMainDuration) + " seconds");  
   } 
@@ -122,6 +122,7 @@ void fireControlAdvance(float steps) {
   if (events.fired("mainEffect")) {
     fcMainOnTime = curTime;
     fcMainOn = true;
+    println("fired");
   }
  
   // Turn the main effect off if it's been on long enough
