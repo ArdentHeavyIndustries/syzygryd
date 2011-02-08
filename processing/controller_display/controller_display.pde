@@ -11,12 +11,25 @@ import processing.opengl.*;
 import oscP5.*;
 import netP5.*;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.NumberFormatException;
+import java.lang.RuntimeException;
 import java.util.Calendar;
+import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 // Used for debugging
 //PrintWriter output; 
+
+// Read configuration from a properties file
+// linux or mac
+final String PROPS_FILE = "/opt/syzygryd/etc/controller.properties";
+// windows
+//final String PROPS_FILE = "C:\syzygryd\etc\controller.properties";
+// The actual setting of Properties is below in setup(), b/c
+// Processing fails to compile if it is located here.
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -73,6 +86,22 @@ final int OSC_LISTENING_PORT = 9002;
 final int OSC_SENDING_PORT = 8000;
 
 void setup() {
+  // Processing fails to compile the sketch if this mucking with
+  // Properties is above, so keep it here.
+  
+  // These are the default values, if not set in the file
+  Properties defaultProps = new Properties();
+  defaultProps.setProperty("panelIndex", "0");
+  defaultProps.setProperty("sequencerHost", "10.10.10.10");
+  
+  Properties props = new Properties(defaultProps);
+  log("Loading properties from " + PROPS_FILE);
+  try {
+    props.load(new FileReader(PROPS_FILE));
+  } catch (IOException ioe) {
+    warn ("Can't load properties file, will use all default values: " + PROPS_FILE);
+  }
+  
   // controller display can be made to grab the screen's current
   // resolution and apply it to the sketch, but for development
   // purposes we just smash to 1280x720
@@ -142,21 +171,9 @@ void setup() {
     masterHues[i] = (i * 100) / panels.length;
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
-  // hardcode this differently for the different panels
-  // XXX doing this via a config file so that we don't need three different builds would be nice
-
-  // load panel index from file [0=A, 1=B, 2=C]
-  // default value if file not found
-  int panelIndex = 0;
-  String configFile = "/opt/syzygryd/etc/panel_index.txt";	// this will need to be different on windows
-  String lines[] = loadStrings(configFile);
-  if (lines != null) {
-    panelIndex = int(lines[0]);
-  } else {
-    warn ("config file not found, using defaults: " + configFile);
-  }
+  int panelIndex = getIntProperty("panelIndex", props, defaultProps);
+  log("Panel Index: " + panelIndex);
   selectPanel(panelIndex);
-  System.out.println(getTime() + " " + "Panel Index: " + panelIndex);
 
   temposweep = new Temposweep(buttonSize, buttonSpacing);
   
@@ -167,17 +184,12 @@ void setup() {
   // start oscP5, listening for incoming messages
   startOsc();
 
-  // myRemoteLocation is set to the address and port the sequencer
-  // listens on
-  // TOUCHSCREEN!
-  // for the touchscreen, change the localhost to whatever the fuck 
-  // the ip address is for the sequencer machine
+  // myRemoteLocation is set to the address and port the sequencer listens on
   // XXX in the long term, why don't we just sensibly choose ports so that there aren't conflicts and send to the broadcast address?
   // XXX also in a config file would be nice
-  // local testing
-  //myRemoteLocation = new NetAddress("localhost", OSC_SENDING_PORT);
-  // this is the syzyputer.  DON'T FUCK WITH IT NOW.
-  myRemoteLocation = new NetAddress("10.10.10.10", OSC_SENDING_PORT);
+  String sequencerHost = props.getProperty("sequencerHost");
+  log("Sequencer Host: " + sequencerHost);
+  myRemoteLocation = new NetAddress(sequencerHost, OSC_SENDING_PORT);
 
   // Connect to the server
   // OscMessage connect = new OscMessage("/server/connect");
@@ -571,6 +583,25 @@ String getTime() {
   date.append(']');
 
   return date.toString();
+}
+
+int getIntProperty(String key, Properties props, Properties defaultProps) {
+  int value;
+  try {
+    value = Integer.parseInt(props.getProperty(key));
+  } catch (NumberFormatException nfe) {
+    try {
+      value = Integer.parseInt(defaultProps.getProperty(key));
+    } catch (NumberFormatException nfe2) {
+      throw new RuntimeException("Value for property " + key +
+                                 " not an int (" + props.getProperty(key) +
+                                 "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+    }
+    warn ("Value for property " + key +
+          " not an int (" + props.getProperty(key) +
+          "), using default value: " + value);
+  }
+  return value;
 }
 
 // for production use, we should comment out all calls to log
