@@ -1,0 +1,5 @@
+# to use this, append the following line to the almost end of /etc/rc.local (but before the "exit 0") on a (linux) controller
+# you need to make this edit as root (use sudo)
+# you may wish to first make a copy of the original file to /etc/rc.local.orig
+
+~syzygryd/syzygryd/hide-cursor.sh

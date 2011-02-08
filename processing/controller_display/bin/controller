@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# to use this, copy to the following location on the (linux) controller
+#   /home/syzygryd/controller
+# (note this is *not* the same directory as the rest of the scripts)
+
+case "$1" in
+
+  start)
+    if pgrep -f controller_display > /dev/null 2>&1; then
+      echo "Controller is already running"
+    else
+      export DISPLAY=:0
+      cd ~
+      echo "Starting controller"
+      # stdout and stderr go to ~/nohup.out
+      # there should be a symlink to this from ~/controller_display.out
+      # XXX except that doesn't work for the initial startup case.  need to further investigate logging.
+      nohup /home/syzygryd/syzygryd/application.linux/controller_display &
+    fi
+    ;;
+
+  stop)
+    # XXX this could be slightly cleaner by checking the status every 1 second and not sleeping the full 3 seconds if the process has already been killed
+    if pgrep -f controller_display > /dev/null 2>&1; then
+      echo "Cleanly stopping controller"
+      pkill -TERM -f controller_display
+      sleep 3
+      if pgrep -f controller_display > /dev/null 2>&1; then
+        echo "Forcing stop of controller"
+        pkill -KILL -f controller_display
+        sleep 3
+      fi
+    else
+      echo "Controller is not running"
+    fi
+    ;;
+
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+
+esac
+
+exit 0
+
+##
+## Local Variables:
+##   mode: Shell-script
+##   sh-basic-offset: 2
+##   indent-tabs-mode: nil
+## End:
+##
+## ex: set softtabstop=2 tabstop=2 expandtab:
+##

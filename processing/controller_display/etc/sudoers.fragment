@@ -1,0 +1,5 @@
+# to use this, append the following line to the end of /etc/sudoers on a (linux) controller
+# you need to make this edit as root (use sudo)
+# you may wish to first make a copy of the original file to /etc/sudoers.orig
+
+syzygryd ALL=NOPASSWD: /usr/sbin/service
