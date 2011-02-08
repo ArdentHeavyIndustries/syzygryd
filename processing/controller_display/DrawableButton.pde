@@ -129,7 +129,7 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   }
 
   void press() {
-    log("Button pressed with current state " + isOn + " at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
+    //debug("Button pressed with current state " + isOn + " at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
     if (!isOn) {
       new ButtonPressAnimation((DrawableTab) tab, this);
     }
@@ -163,8 +163,8 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
   void setValue(float value, boolean sendMessage) {
     // TODO: remove this debug code
     /*
-    log("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " set to " + value);
-    log("setValue: getOscAddress returns: " + getOscAddress());
+    debug("Panel: " + panel.id + ", Tab: " + tab.id + ", Button: " + col + ", " + row + " set to " + value);
+    debug("setValue: getOscAddress returns: " + getOscAddress());
     */
     sqAlpha = (100 - sqAlphaDefault) * (int) value + sqAlphaDefault;
 
@@ -184,21 +184,21 @@ class DrawableButton extends syzygryd.ToggleButton implements Drawable, Pressabl
     if (sendMessage) {
       OscMessage m = new OscMessage(getOscAddress());
       m.add(value);
-      log("Sending OSC message " + m.addrPattern() + " " + value + " for button currently " + isOn + " to " + myRemoteLocation);
+      //debug("Sending OSC message " + m.addrPattern() + " " + value + " for button currently " + isOn + " to " + myRemoteLocation);
       // // mark as dirty until we get a sync message confirming receipt
       // isDirty = true;
       oscP5.send(m, myRemoteLocation);
     } else {
       if (value != OFF) {
-        //log("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
+        //debug("Turning on button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = true;
         ((DrawableTab) tab).onButtons.put(getOscAddress(), this);
-        // log(getOscAddress() + " on");
+        // debug(getOscAddress() + " on");
       } else {
-        //log("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
+        //debug("Turning off button at position x=" + x + " y=" + y + " tab=" + tab.id + " panel=" + panel.id);
         isOn = false;
         ((DrawableTab) tab).onButtons.remove(getOscAddress());
-        // log(getOscAddress() + " off");
+        // debug(getOscAddress() + " off");
       }
     }
   }

@@ -97,6 +97,10 @@ final int OSC_LISTENING_PORT = 9002;
 final int OSC_SENDING_PORT = 8000;
 
 void setup() {
+  // debug("debug test");
+  // info("info test");
+  // warn("warn test");
+
   setupProps();
   
   // controller display can be made to grab the screen's current
@@ -104,9 +108,8 @@ void setup() {
   // doing that.
   // XXX is there a reason why?
   // size(screen.width,screen.height,OPENGL);
-
   boolean touchscreen = getBooleanProperty("touchscreen");
-  log("Touchscreen: " + touchscreen);
+  info("Touchscreen: " + touchscreen);
   if (touchscreen) {
     size(1366,768);
     // enable anti-aliasing
@@ -176,7 +179,7 @@ void setup() {
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
   int panelIndex = getIntProperty("panelIndex");
-  log("Panel Index: " + panelIndex);
+  info("Panel Index: " + panelIndex);
   selectPanel(panelIndex);
 
   temposweep = new Temposweep(buttonSize, buttonSpacing);
@@ -192,12 +195,12 @@ void setup() {
   // XXX in the long term, why don't we just sensibly choose ports so that there aren't conflicts and send to the broadcast address?
   // XXX also in a config file would be nice
   String sequencerHost = getStringProperty("sequencerHost");
-  log("Sequencer Host: " + sequencerHost);
+  info("Sequencer Host: " + sequencerHost);
   myRemoteLocation = new NetAddress(sequencerHost, OSC_SENDING_PORT);
 
   // Connect to the server
   // OscMessage connect = new OscMessage("/server/connect");
-  // log("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
+  // debug("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
   // oscP5.send(connect, myRemoteLocation);
 }
 
@@ -248,18 +251,18 @@ void selectPanel(int id) {
 //       sb.append("\n");
 //     }
 //   }
-//   log(sb.toString());
+//   debug(sb.toString());
 // }
 
 void oscEvent(OscMessage m) {
   try {
     // if(!m.addrPattern().endsWith("/sync")) {
-    //   log("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
+    //   debug("controller_display.oscEvent: addrPattern(): " + m.addrPattern());
     //   m.print();
     // }
 
     // if (m.isPlugged()) {
-    //   log("Not handling osc msg here b/c it is plugged: " + m.addrPattern());
+    //   debug("Not handling osc msg here b/c it is plugged: " + m.addrPattern());
     //   return;
     // }
 
@@ -268,13 +271,13 @@ void oscEvent(OscMessage m) {
 
       if (setStopped) {
         // no, this is no longer true now that we're using sync as an implicit set starting
-        //log("Ignoring sync msg because set is stopped");
+        //debug("Ignoring sync msg because set is stopped");
         //return;
         startSet();
       }
       syncCount++;
       if (syncSkip == 0 || syncCount >= syncSkip) {
-        //log("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
+        //debug("Processing /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
         syncCount = 0;
 
         float playheadColPrecise = m.get(0).floatValue();
@@ -286,7 +289,7 @@ void oscEvent(OscMessage m) {
         int numTabs = m.get(6).intValue();
         int numRows = m.get(7).intValue();
         int numCols = m.get(8).intValue();
-        //log("sync: playheadColPrecise="+playheadColPrecise+" ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
+        //debug("sync: playheadColPrecise="+playheadColPrecise+" ppqPosition="+ppqPosition+" timeInSeconds="+timeInSeconds+" bpm="+bpm+" panelIndex="+panelIndex+" curTab="+curTab+" numTabs="+numTabs+" numRows="+numRows+" numCols="+numCols);
 
         if (playheadColPrecise >= 0.0f && playheadColPrecise < 16.0f) {
           int playheadCol = int(playheadColPrecise);
@@ -296,7 +299,7 @@ void oscEvent(OscMessage m) {
         }
 
         if (curTab != panels[panelIndex].selectedTab.id) {
-          log("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab.id + " => " + curTab);
+          //debug("Changing tab for panel " + panelIndex + ": " + panels[panelIndex].selectedTab.id + " => " + curTab);
           panels[panelIndex].selectTab(curTab);
         }
 
@@ -344,8 +347,8 @@ void oscEvent(OscMessage m) {
                 // the previous OSC message that was sent was lost.  In that
                 // case, we respond by resending the message.
                 // if (!myButton.isDirty) {
-                  // log("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                  //     + " " + myButton.isOn + "=>" + isOn);
+                //   debug("Changing state of panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                //         + " " + myButton.isOn + "=>" + isOn);
                   float f_isOn =  isOn ? 1.0f : 0.0f;
                   // This actually changes the button's state in the
                   // controller, which was not done earlier when the button
@@ -353,8 +356,8 @@ void oscEvent(OscMessage m) {
                   // DrawableButton.setValue() for more details.
                   myButton.setValue(f_isOn, /* sendMessage */ false);
                 // } else {
-                //   log("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
-                //       + " " + myButton.isOn);
+                //   debug("Assuming lost OSC message, resending for panel:" + panelIndex + " tab:" + i + " row:" + j + " col:" + k
+                //         + " " + myButton.isOn);
                 //   float f_isOn = myButton.isOn ? 1.0f : 0.0f;
                 //   myButton.setValue(f_isOn, true);
                 // }
@@ -366,7 +369,7 @@ void oscEvent(OscMessage m) {
         }
       }
       // else {
-      //   log("Skipping /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
+      //   debug("Skipping /sync: (count=" + syncCount + " skip=" + syncSkip + ")");
       // }
       return;
     } 
@@ -376,14 +379,14 @@ void oscEvent(OscMessage m) {
       for (int i = 0; i < panels.length; i++) {
         color c = m.get(i).intValue();
         masterHues[i] = (int)hue(c);
-        log("Setting panel " + i + " to hue " + masterHues[i] + " based on color 0x" + hex(c));
+        //debug("Setting panel " + i + " to hue " + masterHues[i] + " based on color 0x" + hex(c));
       }
       return;
     }
 
     if (m.addrPattern().equals("/timeRemaining")) {
       int timeRemainingMs = m.get(0).intValue();
-      log("Time remaining in set: " + timeRemainingMs + " ms");
+      info("Time remaining in set: " + timeRemainingMs + " ms");
       if (timeRemainingMs > 0 && setStopped) {
         startSet();
       } else if (timeRemainingMs <= 0 && !setStopped) {
@@ -405,7 +408,7 @@ void oscEvent(OscMessage m) {
       //     int panelIndex = panelOscIndex - 1;
       //     int tabOscIndex = Integer.parseInt(tabSelectMatcher.group(2));
       //     int tabIndex = tabOscIndex - 1;
-      //     log("Selecting tab " + tabIndex + " for panel " + panelIndex + " based on osc message: " + m.addrPattern());
+      //     debug("Selecting tab " + tabIndex + " for panel " + panelIndex + " based on osc message: " + m.addrPattern());
       //     panels[panelIndex].selectTab(tabIndex);
       //   } catch (NumberFormatException nfe) {
       //     warn("Unable to parse tab select OSC message: " + m.addrPattern());
@@ -423,7 +426,7 @@ void oscEvent(OscMessage m) {
       //     int tabOscIndex = Integer.parseInt(tabClearMatcher.group(2));
       //     int tabIndex = tabOscIndex - 1;
       //     // XXX but now what ???
-      //     log("Clear button pressed for tab " + tabIndex + " for panel " + panelIndex + ", but so what???: " + m.addrPattern());
+      //     debug("Clear button pressed for tab " + tabIndex + " for panel " + panelIndex + ", but so what???: " + m.addrPattern());
       //   } catch (NumberFormatException nfe) {
       //     warn("Unable to parse tab clear OSC message: " + m.addrPattern());
       //   }
@@ -439,7 +442,7 @@ void oscEvent(OscMessage m) {
 }
 
 void startSet() {
-  log("Starting set");
+  info("Starting set");
 
   // this deals with the svn r569 (nobug) issue, just in case the timing of the restart on stopSet() is timed wrong wrt the Live restart due to a race condition
   restartOsc();
@@ -448,7 +451,7 @@ void startSet() {
 }
 
 void stopSet() {
-  log("Stopping set");
+  info("Stopping set");
   setStopped = true;
 
   // a smooth transition of buttons going away would be nicer
@@ -469,7 +472,7 @@ void stopSet() {
 }
 
 void restartOsc() {
-  log("Restarting osc");
+  info("Restarting osc");
   stopOsc();
   startOsc();
 }
@@ -487,7 +490,7 @@ void startOsc() {
 // For the touchscreen, change mouseClicked() to mousePressed()
 // bug:63 i'm not sure if i agree with the above statement.  always use mousePressed() for now.
 void mousePressed() {
-  //log("mousePressed()");
+  //debug("mousePressed()");
   if (!setStopped) {
     Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
     if (p != null) {
@@ -497,18 +500,18 @@ void mousePressed() {
 }
 
 // void mouseClicked() {
-//   log("mouseClicked()");
+//   debug("mouseClicked()");
 // }
 
 // Uncomment mouseReleased() to re-implement dragging.
 // void mouseReleased() {
-//   //log("mouseReleased()");
+//   //debug("mouseReleased()");
 //   lastSelectedPressable = null;
 // }
 
 // Uncomment mouseDragged() to re-implement dragging.
 // void mouseDragged() {
-//   log("mouseDragged()");
+//   debug("mouseDragged()");
 //  Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
 //  if ((p != lastSelectedPressable) &&
 //      (p != null)) {
@@ -601,7 +604,7 @@ void setupProps() {
   defaultProps.setProperty("sequencerHost", DEFAULT_SEQUENCER_HOST);
   
   props = new Properties(defaultProps);
-  log("Loading properties from " + PROPS_FILE);
+  info("Loading properties from " + PROPS_FILE);
   try {
     props.load(new FileReader(PROPS_FILE));
   } catch (IOException ioe) {
@@ -653,10 +656,19 @@ boolean getBooleanProperty(String key) {
   return value;
 }
 
-// for production use, we should comment out all calls to log
-// for now, comment out the contents here, unless you want verbose logging
-void log(String msg) {
+// the idea here with this simple logging is that you should feel free to log infrequent but important events with info().  these are always in production.
+// problem cases are logged with warn(), and are also always in production.
+// log more verbose stuff with debug().  normally the contents of this method are commented out.  feel free to uncomment for debugging, but DO NOT CHECK THAT IN !!!
+// but really verbose stuff is probably better to even comment out the call to debug() in the code, so as not to incur the overhead of the method call.
+// (the processing preprocessor does *not* optimize that away)
+
+void debug(String msg) {
+  // feel free to uncomment this for debugging, but DO NOT CHECK IT IN if you do so.
   //System.out.println(getTime() + " " + msg);
+}
+
+void info(String msg) {
+  System.out.println(getTime() + " " + msg);
 }
 
 void warn(String msg) {
