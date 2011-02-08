@@ -145,15 +145,19 @@ void setup() {
   // hardcode this differently for the different panels
   // XXX doing this via a config file so that we don't need three different builds would be nice
 
-  // load panel index from file
-  String lines[] = loadStrings("/opt/syzygryd/etc/panel_index.txt");
-  int panelIndex = int(lines[0]);
+  // load panel index from file [0=A, 1=B, 2=C]
+  // default value if file not found
+  int panelIndex = 0;
+  String configFile = "/opt/syzygryd/etc/panel_index.txt";	// this will need to be different on windows
+  String lines[] = loadStrings(configFile);
+  if (lines != null) {
+    panelIndex = int(lines[0]);
+  } else {
+    warn ("config file not found, using defaults: " + configFile);
+  }
   selectPanel(panelIndex);
-  println("Panel Index: " + panelIndex);
+  System.out.println(getTime() + " " + "Panel Index: " + panelIndex);
 
-  //selectPanel(0);	// A
-  //selectPanel(1);	// B
-  //selectPanel(2);	// C
   temposweep = new Temposweep(buttonSize, buttonSpacing);
   
   scrollablemessage = new ScrollableMessage();
@@ -169,6 +173,7 @@ void setup() {
   // for the touchscreen, change the localhost to whatever the fuck 
   // the ip address is for the sequencer machine
   // XXX in the long term, why don't we just sensibly choose ports so that there aren't conflicts and send to the broadcast address?
+  // XXX also in a config file would be nice
   // local testing
   //myRemoteLocation = new NetAddress("localhost", OSC_SENDING_PORT);
   // this is the syzyputer.  DON'T FUCK WITH IT NOW.
