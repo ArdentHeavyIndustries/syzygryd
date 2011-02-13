@@ -754,4 +754,14 @@ class ManualFireModule extends TransientLayerModule {
   
 }
 
-
+/*
+** Local Variables:
+**   mode: java
+**   c-basic-offset: 3
+**   tab-width: 3
+**   indent-tabs-mode: nil
+** End:
+**
+** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+**
+*/
