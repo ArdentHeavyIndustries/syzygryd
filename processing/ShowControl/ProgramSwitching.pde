@@ -4,7 +4,7 @@ void loadProgram(int programNumber){
     flushBehaviors(); // Clear any uncompleted behaviors
     program.initialize();
     activeProgram = programNumber;
-    print("Loaded program: " + activeProgram + "\n");
+    info("Loaded program: " + activeProgram);
   }
 }
 

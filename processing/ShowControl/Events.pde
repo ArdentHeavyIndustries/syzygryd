@@ -35,11 +35,11 @@ public class EventDispatcher {
    
   void fire(String eventMessage, boolean async){
     if (async){
-      //print ("fired '" + eventMessage + "' (async) @ " + millis() + "\n");
+      //debug ("fired '" + eventMessage + "' (async) @ " + millis());
       eventQueue.addLast(eventMessage);
     } 
     else {
-      //print ("fired '" + eventMessage + "' (sync) @ " + millis() + "\n");
+      //debug ("fired '" + eventMessage + "' (sync) @ " + millis());
       deferredEventQueue.addLast(eventMessage);
     }
   }

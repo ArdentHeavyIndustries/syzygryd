@@ -6,28 +6,48 @@ import guicomponents.*;
 import oscP5.*;
 import netP5.*;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.NumberFormatException;
+import java.util.Properties;
+
 // ------------------------- Program Configuration ------------------------- 
 
-int CUBES_PER_ARM = 36;
-int EFFECTS_PER_ARM = 8;
+// The actual setting of Properties is below in setupProps() (called
+// from setup()), b/c Processing fails to compile if it is located
+// here.
+// But the variables are defined here so that we can reference them
+// globally.
+Properties defaultProps;
+Properties props;
 
-int PANELS = 3;    // Should probably just use PANELS and PITCHES constants from SequencerState, but we can
-int PITCHES = 10;  // wait until 2.0 to make any changes.
+// Not *all* configuration values are exposed to runtime editing.
+// Only those that are likely to change during testing or between test and production.
 
-int FRAMERATE = 100;
-int OSC_UPDATE_INTERVAL_MS = 500;
+final int CUBES_PER_ARM = 36;
+final int EFFECTS_PER_ARM = 8;
 
-// ------- Do no check in without production values ----------------
-// SEND_DMX = true;
-// TEST_MODE = false;
-// SYZYVYZ = false;
-// ASCII_SEQUENCER_DISPLAY = false;
+final int PANELS = 3;    // Should probably just use PANELS and PITCHES constants from SequencerState, but we can
+final int PITCHES = 10;  // wait until 2.0 to make any changes.
 
-boolean SEND_DMX = true; 
-boolean TEST_MODE = false;                // in test mode we output DMX on sequential channels -- see LightingTest
-boolean SYZYVYZ = false;
-boolean ASCII_SEQUENCER_DISPLAY = false;
+final int FRAMERATE = 100;
+final int OSC_UPDATE_INTERVAL_MS = 500;
 
+// These are the default values, if not set in the file.
+// Use String's here, regardless of the final type.
+// These should be consistent with the commented out lines in the
+// example etc/controller.properties file.
+final String DEFAULT_SEND_DMX                = "true";
+final String DEFAULT_TEST_MODE               = "false"; // in test mode we output DMX on sequential channels -- see LightingTest
+final String DEFAULT_SYZYVYZ                 = "false";
+final String DEFAULT_ASCII_SEQUENCER_DISPLAY = "false";
+
+// These will be set in setupProps()
+
+boolean SEND_DMX; 
+boolean TEST_MODE;                
+boolean SYZYVYZ;
+boolean ASCII_SEQUENCER_DISPLAY;
 
 // ----------------- Variable Declaration & Initialization -----------------
 
@@ -74,6 +94,7 @@ int syzyVyzPort = 3333;
 color panelColor[];
 
 void setup() {
+  setupProps();
 
   colorMode(HSB, 360.0, 100.0, 100.0);
   background(0);
@@ -127,7 +148,7 @@ void setup() {
     setupFixtures();
   } 
   catch (DataFormatException e) {
-    print("An error occurred while parsing fixtures: " + e.getMessage() + "\n");
+    warn("An error occurred while parsing fixtures: " + e.getMessage());
     exit();
   }
 
@@ -165,8 +186,9 @@ void setup() {
   btnStart.setColorScheme(new GCScheme().GREY_SCHEME);
 
   // Instantiate programs. They add it automatically to the list of available lighting programs.
-  if (TEST_MODE)
+  if (TEST_MODE) {
     new LightingTest();
+  }
   
   new FrameBrulee(); 
   new TestProgram();
@@ -194,8 +216,9 @@ void draw(){
   program.render(renderedLightState);
   
   // Set dem lights!
-  if (!TEST_MODE)
+  if (!TEST_MODE) {
     renderedLightState.output();
+  }
   
   program.drawFrame();
   
@@ -220,7 +243,7 @@ void draw(){
   // advance fire control timers
   fireControlAdvance(elapsedSteps);
 
-  // textmode sequencer display -- useful for debugging. enable in config variables above.
+  // textmode sequencer display -- useful for debugging. enable in config file.
   if(ASCII_SEQUENCER_DISPLAY){ 
     if(events.fired("step")){
        for (int y = 0; y < 10; y++){
@@ -274,7 +297,7 @@ float updateStepPosition(){
   
   if (lastSyncTimeInMs > 0) {
     int now = millis();
-    //print("Time: " + now + "\n");
+    //debug("Time: " + now);
     int timeSinceLastDrawInMs = now - lastDrawTimeInMs;
     int timeSinceLastSyncInMs = now - lastSyncTimeInMs;
     lastDrawTimeInMs = now;
@@ -282,7 +305,7 @@ float updateStepPosition(){
     elapsed = getTimeInSteps(timeSinceLastDrawInMs);
     
     sequencerState.stepPosition = (sequencerState.stepPosition + getTimeInSteps(timeSinceLastDrawInMs)) % 16;
-    //print("New position: " + sequencerState.stepPosition + "\n");
+    //debug("New position: " + sequencerState.stepPosition);
     
     // See if we've entered a new step; if so, fire the "step" event.
     int oldStep = sequencerState.curStep;
@@ -290,7 +313,7 @@ float updateStepPosition(){
     
     if (oldStep != sequencerState.curStep) {
       events.fire("step");
-      //print("Step!\n");
+      //debug("Step!");
       
       if (totalSteps != -1)
         totalSteps++;
@@ -341,7 +364,7 @@ float getTimeInSteps(int time) {
   float msPerStep = msPerBeat / stepsPerBeat;
 
   float numSteps = time / msPerStep;
-  //print ("Adding  " + numSteps + " steps to position.\n");
+  //debug ("Adding  " + numSteps + " steps to position.");
   return numSteps;
 }
 
@@ -357,6 +380,93 @@ void sendDMX(int universe, int channel, int value) {
 // two arg version: send to universe zero. Good for fire control.
 void sendDMX(int channel, int value) {
    DMXManager.setChannel(0, channel, (byte)value); 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// property related methods
+
+// XXX properties are almost completely copied from controller_display/controller_display.pde
+// in the long term we should share code
+
+void setupProps() {
+  // Processing fails to compile the sketch if this mucking with
+  // Properties is done in the global declarations section above, so
+  // keep it here (invoked from setup()).
+
+  // Read configuration from a properties file
+  // linux or mac
+  final String PROPS_FILE = "/opt/syzygryd/etc/showcontrol.properties";
+  // windows
+  //final String PROPS_FILE = "C:\syzygryd\etc\showcontrol.properties";
+  
+  // Configure default values, if not set in the file
+  defaultProps = new Properties();
+  defaultProps.setProperty("sendDmx", DEFAULT_SEND_DMX);
+  defaultProps.setProperty("testMode", DEFAULT_TEST_MODE);
+  defaultProps.setProperty("syzyvyz", DEFAULT_SYZYVYZ);
+  defaultProps.setProperty("asciiSequencerDisplay", DEFAULT_ASCII_SEQUENCER_DISPLAY);
+  
+  props = new Properties(defaultProps);
+  info("Loading properties from " + PROPS_FILE);
+  try {
+    props.load(new FileReader(PROPS_FILE));
+  } catch (IOException ioe) {
+    warn ("Can't load properties file, will use all default values: " + PROPS_FILE);
+  }
+
+  SEND_DMX = getBooleanProperty("sendDmx");
+  TEST_MODE = getBooleanProperty("testMode");
+  SYZYVYZ = getBooleanProperty("syzyvyz");
+  ASCII_SEQUENCER_DISPLAY = getBooleanProperty("asciiSequencerDisplay");
+
+  info("SEND_DMX = " + SEND_DMX);
+  info("TEST_MODE = " + TEST_MODE);
+  info("SYZYVYZ = " + SYZYVYZ);
+  info("ASCII_SEQUENCER_DISPLAY = " + ASCII_SEQUENCER_DISPLAY);
+}
+
+String getStringProperty(String key) {
+  // we don't need to separately account for a default value,
+  // since this was taken care of when setting up defaultProps and props in setup()
+  return props.getProperty(key);
+}
+
+int getIntProperty(String key) {
+  int value;
+  try {
+    value = Integer.parseInt(props.getProperty(key));
+  } catch (NumberFormatException nfe) {
+    try {
+      value = Integer.parseInt(defaultProps.getProperty(key));
+    } catch (NumberFormatException nfe2) {
+      throw new NumberFormatException("Value for property " + key +
+                                      " not an int (" + props.getProperty(key) +
+                                      "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+    }
+    warn ("Value for property " + key +
+          " not an int (" + props.getProperty(key) +
+          "), using default value: " + value);
+  }
+  return value;
+}
+
+boolean getBooleanProperty(String key) {
+  boolean value;
+  try {
+    value = Boolean.parseBoolean(props.getProperty(key));
+  } catch (NumberFormatException nfe) {
+    try {
+      value = Boolean.parseBoolean(defaultProps.getProperty(key));
+    } catch (NumberFormatException nfe2) {
+      throw new NumberFormatException("Value for property " + key +
+                                      " not a boolean (" + props.getProperty(key) +
+                                      "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+    }
+    warn ("Value for property " + key +
+          " not an boolean (" + props.getProperty(key) +
+          "), using default value: " + value);
+  }
+  return value;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

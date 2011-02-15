@@ -58,7 +58,7 @@ void oscEvent(OscMessage m) {
        
     sequencerState.stepPosition = m.get(0).floatValue();      
     
-    //print("\nTime: " +lastSyncTimeInMs+"\nGot sync @ step position: " + sequencerState.stepPosition + ", BPM = " + sequencerState.bpm + "\n\n");
+    //debug("Time: " +lastSyncTimeInMs+"  Got sync @ step position: " + sequencerState.stepPosition + ", BPM = " + sequencerState.bpm);
 
     sequencerState.ppqPosition = m.get(1).doubleValue();
     // double timeInSeconds = m.get(2).doubleValue(); // unlikely we'll need sequencer-relative time for anything
