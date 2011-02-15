@@ -6,6 +6,8 @@
 public class DMX {
   ArrayList controllers = new ArrayList();
 
+  boolean sendFrameLogSpew = false;	// see sendFrame() for more details
+  
   //Initializes the DMX manager
   DMX(PApplet _processingObject) {
     processingObject = _processingObject;
@@ -184,12 +186,19 @@ public class DMX {
     }
 
     void sendFrame() {
-      /* TODO? Could use some error handling to ensure port is successfully initialized before sending frames -- sadly, processing.serial traps its own exceptions,
-       * preventing any further handling downstream. Possibly someone more familiar with Java than I knows how to circumvent this behavior?
-       */
-      
       if(SEND_DMX){
-        serialInterface.write(frame);
+        // what really happens is that the call to serialInterface.write() causes a NullPointerException to be thrown in processing.serial.Serial.write() at Serial.java:521 throws a NullPointerException
+        // but Processing traps its own exceptions, so we can't just wrap the call below and catch the NullPointerException
+        // instead we anticipate the situation and avoid it
+        if (serialInterface.output == null) {
+          if (!sendFrameLogSpew) {
+            warn("Error writing frame to serial interface.  Not properly initialized?  This message will display only once until the situation is resolved.");
+            sendFrameLogSpew = true;
+          }
+        } else {
+          serialInterface.write(frame);
+          sendFrameLogSpew = false;
+        }
       }
       
       if(SYZYVYZ){
@@ -224,11 +233,11 @@ class AddressAllocationException extends Exception {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */
