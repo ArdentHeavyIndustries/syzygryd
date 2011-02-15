@@ -188,7 +188,7 @@ abstract class MoveableShapeLayer extends ImageLayer {
         if ( ((motionSpeed > 0) && (position >= state.armColor[arm].length)) ||
              ((motionSpeed < 0) && (position <= -shapeWidth())) ) {
           finish();
- //         println("Killed it. position: " + position + ", shapeWidth: " + shapeWidth());
+ //         debug("Killed it. position: " + position + ", shapeWidth: " + shapeWidth());
           return;
         }
       }
@@ -201,7 +201,7 @@ abstract class MoveableShapeLayer extends ImageLayer {
         return;
       }
       scaling = scaleEnvelope.getVal();
- //     println("scaling: " + scaling);
+ //     debug("scaling: " + scaling);
     } 
   }
   
@@ -232,7 +232,7 @@ class SimpleChaseLayer extends MoveableShapeLayer {
     state.clear();
     int pos = floor(position+0.5);
     if ((pos >= 0) && (pos < armResolution(arm))) {
-//      println("simplechase render, arm: " +  arm + ", pos: " + pos);
+//      debug("simplechase render, arm: " +  arm + ", pos: " + pos);
       state.armColor[arm][pos] = color(255,255,255);
     }
   }
@@ -433,7 +433,7 @@ class ColorRampLayer extends MoveableShapeLayer {
   // Render steps through the ramp and samples the colors. 
   void render(color[] armColor, float offset, float scaling) {
 
-    //println("scaling: " + scaling);
+    //debug("scaling: " + scaling);
     
     for (int i=0; i<armColor.length; i++) {
       if (abs(scaling)>0.0001) {
@@ -472,7 +472,7 @@ class DecayRaceLayer extends ImageLayer {
     nextEffectWait = 0;
     effectTimeRemaining = new float[armResolution(arm)];   
     
-//    println("DecayRaceLayer - raceTime: " +  raceTime + ", decayTime: " + decayTime);  
+//    debug("DecayRaceLayer - raceTime: " +  raceTime + ", decayTime: " + decayTime);  
   }
   
   // returns the fixture index of the effect with a given sequence number
@@ -538,11 +538,11 @@ class DecayRaceLayer extends ImageLayer {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

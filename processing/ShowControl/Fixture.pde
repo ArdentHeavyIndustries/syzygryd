@@ -104,7 +104,7 @@ class Fixture {
           address = dmx.alloc(this, controller, _address);
       }
       catch (AddressAllocationException e) {
-        System.err.println("Channel allocation on controller " + controller + ", address " + _address + " failed.\n");
+        warn("Channel allocation on controller " + controller + ", address " + _address + " failed");
         new Channel(parent, controller);
       }
     }
@@ -118,7 +118,7 @@ class Fixture {
           address = dmx.alloc(this, controller, _address);
       }
       catch (AddressAllocationException e) {
-        System.err.println("Channel allocation on controller " + controller + ", address " + _address + " failed.\n");
+        warn("Channel allocation on controller " + controller + ", address " + _address + " failed");
         new Channel(parent, controller);
       }
     }
@@ -169,7 +169,7 @@ class FixtureGroup extends Fixture {
       members.add(_fixture);
     }
     else {
-      System.err.println("Fixture type mismatch while adding Fixture type \"" + _fixture.type + "\" to FixtureGroup type \"" + type + "\"\n\n");
+      warn("Fixture type mismatch while adding Fixture type \"" + _fixture.type + "\" to FixtureGroup type \"" + type + "\"");
       throw new FixtureTypeMismatchException();
     }
   }
@@ -195,11 +195,11 @@ class FixtureTypeMismatchException extends Exception {}
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

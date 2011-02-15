@@ -1,5 +1,3 @@
-/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
-
 // FrameBrulee
 // A lighting and fire control program for Syzygryd, using the Layer interface
 // Jonathan Stray, August 2010
@@ -66,7 +64,7 @@ class FBParams implements Cloneable {
     for (int i=0; i<3; i++) { 
       arms[i] = new FBArmParams();
     }
-    //println("made new arms!");
+    //debug("made new arms!");
   }
   
   public Object clone() {  
@@ -173,7 +171,7 @@ float tintInternalToOSCy(color c) {
 // Also does OSC control ranges
 void processOSCLightEvent(OscMessage m) {
 
- println("FB OSC: " + m.addrPattern());
+ debug("FB OSC: " + m.addrPattern());
   
   if (m.addrPattern().startsWith("/lightControl/changeButton")) {
     events.fire("change");
@@ -325,12 +323,12 @@ void processOSCLightEvent(OscMessage m) {
 void sendTouchOSCMsg(String addr, float value) {
   OscMessage msg = new OscMessage(addr);
   msg.add(value);
-  //  if ( OSCConnection_touchOSC == null) println("null 1");
-  //  if ( OSCConnection_touchOSC.myRemoteLocation == null) println("null 2");
+  //  if ( OSCConnection_touchOSC == null) debug("null 1");
+  //  if ( OSCConnection_touchOSC.myRemoteLocation == null) debug("null 2");
   
   if ( OSCConnection_touchOSC.myRemoteLocation != null) { 
     OSCConnection_touchOSC.oscP5.send(msg, OSCConnection_touchOSC.myRemoteLocation);
-    //println("got it");
+    //debug("got it");
   }
 }
 
@@ -439,7 +437,7 @@ color animateParameter(color toVal, color fromVal, float steps) {
 // ? use "animationSpeed" to control the speed of the shift? 
 void copyAndAnimateUIParams(FBParams uiFBParams, FBParams curFBParams, float steps) {
 
-  //println("copyAndAnimateUIParams");
+  //debug("copyAndAnimateUIParams");
   
   curFBParams.changeRate = uiFBParams.changeRate;
   curFBParams.autoChange = uiFBParams.autoChange;
@@ -597,8 +595,8 @@ class FrameBrulee extends LightingProgram {
 
   // turn on different modules, switch up parameters
   void change() {
-//    println("Change!");
-//    println("curFBParams.changeEffectPatterns: " + curFBParams.changeEffectPatterns);
+//    debug("Change!");
+//    debug("curFBParams.changeEffectPatterns: " + curFBParams.changeEffectPatterns);
     
     if (curFBParams.changeEffectPatterns)
       changeWhichEffectsAreOn();
@@ -622,8 +620,8 @@ class FrameBrulee extends LightingProgram {
   // Flips the on state of effects with specified mutation rate
   void changeWhichEffectsAreOn() {
 
-//    println(curFBParams.changeRate);
-//    println(curFBParams.arms[0].effectNoteDisplay);
+//    debug(curFBParams.changeRate);
+//    debug(curFBParams.arms[0].effectNoteDisplay);
     
     for (int panel=0; panel<3; panel++) {    
       if (mutateMe()) uiFBParams.arms[panel].effectNoteDisplay = !curFBParams.arms[panel].effectNoteDisplay;
@@ -669,7 +667,7 @@ class FrameBrulee extends LightingProgram {
   
   // Change settings just by picking new random numbers
   void changeEffectSettings(FBParams fb) {
-    //println("totally changing those settings...");
+    //debug("totally changing those settings...");
     if (mutateMe()) fb.flicker = skewedRandom(FLICKER_MIN, FLICKER_TYPICAL, FLICKER_MAX);
     
     for (int panel=0; panel<3; panel++) {    
@@ -726,11 +724,11 @@ float clip (float v, float a, float b) {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

@@ -1,5 +1,3 @@
-/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
-
 import syzygryd.*;
 import processing.serial.*;
 import processing.core.*;
@@ -248,7 +246,7 @@ void draw(){
   // update remote panel UI color via OSC
   int now = millis();
   if (now - lastOscUpdateTimeInMs >= OSC_UPDATE_INTERVAL_MS) {	// only send if update interval has elapsed
-    //println ("Sending UI color");
+    //debug ("Sending UI color");
     lastOscUpdateTimeInMs = now;
 //    OSCConnection.sendUIColor();
   }
@@ -451,11 +449,11 @@ void warn(String msg) {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

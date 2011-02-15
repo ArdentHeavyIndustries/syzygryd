@@ -48,7 +48,7 @@ float roundTo2Places(float v) {
 
 void processOSCFireEvent(OscMessage m) {
 
- println("FC OSC: " + m.addrPattern());
+ debug("FC OSC: " + m.addrPattern());
   
   if (m.addrPattern().startsWith("/fireMasterArm/makeFire")) {
     fcUIMasterFireArm = m.get(0).floatValue() != 0;
@@ -70,7 +70,7 @@ void processOSCFireEvent(OscMessage m) {
     
     if (newFanOn && !fcUITornadoFan) {
       fcFanOnTime = now();                                   // fan going on, note time
-//     println("turning on fan");
+//     debug("turning on fan");
     } else if (!newFanOn && fcUITornadoReady) {
       fcUITornadoReady = false;
       fcUITornadoFuel = false;      
@@ -89,7 +89,7 @@ void processOSCFireEvent(OscMessage m) {
      if (!fcUITornadoReady || !fcUIMasterFireArm) {
        newFuelOn = false;
        sendTouchOSCMsg("/fireControl/tornadoFuel", false);
- //      println("fan not ready");
+ //      debug("fan not ready");
      }
    }
    fcUITornadoFuel = newFuelOn;
@@ -122,7 +122,7 @@ void fireControlAdvance(float steps) {
   if (events.fired("mainEffect")) {
     fcMainOnTime = curTime;
     fcMainOn = true;
-    println("fired");
+    debug("fired");
   }
  
   // Turn the main effect off if it's been on long enough
@@ -145,11 +145,11 @@ void fireControlAdvance(float steps) {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

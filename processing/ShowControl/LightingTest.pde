@@ -43,7 +43,7 @@ class LightingTest extends LightingProgram {
        if (lastChannel > LAST_TEST_CHANNEL)
          lastChannel = FIRST_TEST_CHANNEL;
        sendDMX2(lastChannel, TEST_VAL);      
-       println("channel " + lastChannel + " on.");
+       info("channel " + lastChannel + " on.");
        lastTime = curTime;
      }
    }
@@ -53,11 +53,11 @@ class LightingTest extends LightingProgram {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

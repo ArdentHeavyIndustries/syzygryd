@@ -1,7 +1,7 @@
 abstract class LightingProgram {
   
   LightingProgram(){
-    print("Adding program.\n");
+    info("Adding program.");
     programList.add(this);
   }
   
@@ -63,7 +63,7 @@ class TestProgram2 extends LightingProgram{
      new FadeTo(arm[0].members.get(cubeNum), 10, now()+1000, 1000, color(#00ff00));     
      new FadeTo(arm[0].members.get(cubeNum), 10, now()+2000, 1000, color(#0000ff));
      
-     println("called frame");
+     debug("called frame");
      
      // Only go to 10
      cubeNum++;
@@ -89,11 +89,11 @@ class PlayheadChaseProgram extends LightingProgram{
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

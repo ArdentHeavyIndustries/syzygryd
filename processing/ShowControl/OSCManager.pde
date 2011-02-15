@@ -1,4 +1,3 @@
-/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 /*
  * The OSCManager object encapsulates the functions necessary to create an OSC listener object with a network 
  * connection to the sequencer, listen for incoming OSC events, and act upon them.
@@ -12,19 +11,19 @@ class OSCManager {
    * Creates network connection to remote server to send messages; opens local port to listen for messages.
    */
   OSCManager(String _remoteHost, int _incomingPort, int _outgoingPort){
-    println("Creating OSCManager, sending to " + _remoteHost + ":" + _outgoingPort + ", listening on " + _incomingPort);
+    info("Creating OSCManager, sending to " + _remoteHost + ":" + _outgoingPort + ", listening on " + _incomingPort);
 
     // start oscP5, listening for incoming messages
     oscP5 = new OscP5(this, _incomingPort);
     if (oscP5 == null) {
-      System.err.println("WARNING: (incoming) OscP5 object is null");
+      warn("(incoming) OscP5 object is null");
     }
 
     // myRemoteLocation is set to the address and port the remote host
     // listens on
     myRemoteLocation = new NetAddress(_remoteHost, _outgoingPort);
     if (myRemoteLocation == null) {
-      System.err.println("WARNING: (outgoing) NetAddress object is null");
+      warn("(outgoing) NetAddress object is null");
     }
   }
   
@@ -32,16 +31,16 @@ class OSCManager {
    * Sends OSC /color message to update panel UI color
    */
   void sendUIColor(){
-    //println ("OSCManager.sendUIColor()");
+    //debug ("OSCManager.sendUIColor()");
     if (myRemoteLocation != null){
       OscMessage uiColors = new OscMessage("/color");
       for (int i = 0; i < panelColor.length; i++){
         uiColors.add(panelColor[i]);
-        //println("Adding color: " + hex(panelColor[i]));
+        //debug("Adding color: " + hex(panelColor[i]));
       }
       oscP5.send(uiColors, myRemoteLocation);
     } else {
-      System.err.println("WARNING: no remote host to send color to");
+      warn("no remote host to send color to");
     }
   }
 
@@ -51,7 +50,7 @@ class OSCManager {
 void oscEvent(OscMessage m) {
 
   // Enable the following line for OSC message debugging purposes
-//  println("oscEvent: addrPattern(): " + m.addrPattern());
+//  debug("oscEvent: addrPattern(): " + m.addrPattern());
 
   if (m.addrPattern().endsWith("/sync")) {
     
@@ -71,7 +70,7 @@ void oscEvent(OscMessage m) {
     int numCols = m.get(8).intValue();
     byte[] blob = m.get(9).blobValue();
     if (blob == null) {
-      System.err.println("WARNING: null blob");
+      warn("null blob");
       return;
     }
     
@@ -98,7 +97,7 @@ void oscEvent(OscMessage m) {
     processOSCFireEvent(m);
 
   } else { 
-//    println("Unrecognized OSC event: " + m.addrPattern());
+    warn("Unrecognized OSC event: " + m.addrPattern());
   }
 }
 
@@ -107,11 +106,11 @@ void oscEvent(OscMessage m) {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

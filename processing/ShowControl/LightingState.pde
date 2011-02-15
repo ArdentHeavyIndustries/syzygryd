@@ -49,7 +49,7 @@ class LightingState {
   // Turns off all lights, shuts off all fire
   void clear() {
     for (int a=0; a<6; a++) {   
-//      println(a + ", " + armResolution(a) + ", " + armColor[a].length);
+//      debug(a + ", " + armResolution(a) + ", " + armColor[a].length);
       for (int i=0; i<armResolution(a); i++) {
         armColor[a][i] = color(0,0,0);
       }
@@ -97,11 +97,11 @@ class LightingState {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */

@@ -31,7 +31,7 @@ public class DMX {
       return ctrlr.getChannel(address);
     } 
     catch (IndexOutOfBoundsException e) {
-      System.err.println("Failed to get value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+      warn("Failed to get value. Address (" + address + ") out of bounds on controller " + controller);
       return -1;
     }
   }
@@ -42,7 +42,7 @@ public class DMX {
       return ctrlr.getChannelUnsigned(address);
     } 
     catch (IndexOutOfBoundsException e) {
-      System.err.println("Failed to get value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+      warn("Failed to get value. Address (" + address + ") out of bounds on controller " + controller);
       return -1;
     }
   }
@@ -53,7 +53,7 @@ public class DMX {
       ctrlr.setChannel(address, (byte)value);
     } 
     catch (IndexOutOfBoundsException e) {
-      System.err.println("Failed to set value. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+      warn("Failed to set value. Address (" + address + ") out of bounds on controller " + controller);
     }
   }
 
@@ -74,11 +74,11 @@ public class DMX {
       return ctrlr.alloc(channel, address);
     } 
     catch (AddressAllocationException aae) {
-      System.err.println ("Address allocation failed. Address (" + address + ") already allocated on controller " + controller + ".\n");
+      warn ("Address allocation failed. Address (" + address + ") already allocated on controller " + controller + ".\n");
       throw new AddressAllocationException();
     } 
     catch (ArrayIndexOutOfBoundsException aibe) {
-      System.err.println ("Address allocation failed. Address (" + address + ") out of bounds on controller " + controller + ".\n");
+      warn ("Address allocation failed. Address (" + address + ") out of bounds on controller " + controller + ".\n");
       throw new ArrayIndexOutOfBoundsException();
     }
   }
@@ -105,7 +105,7 @@ public class DMX {
 
     Controller(String port, int rate, int _universeSize) {
       controllerNum = numControllers++;
-      println("Added controller number "+controllerNum);
+      info("Added controller number "+controllerNum);
       int dataSize = 0;
       parent = processingObject;
       serialInterface = new Serial(parent, port, rate);

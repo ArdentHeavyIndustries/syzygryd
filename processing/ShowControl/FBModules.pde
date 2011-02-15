@@ -241,7 +241,7 @@ class NoteDisplayModule extends TransientLayerModule {
   
                   myLayers.add(sc);
                 }
-//                println("Fire display, arm: " + panel + ", pitch: " + pitch + ", position: " + sc.position);              
+//                debug("Fire display, arm: " + panel + ", pitch: " + pitch + ", position: " + sc.position);
               }
             }
         }
@@ -424,7 +424,7 @@ void initializeRamps() {
   squarePulse = initVertices(squarePulseColors);
   CMYPulse = initVertices(CMYPulseColors);
  
-  //println("CMY INITIAL: " +  colorToString(CMYPulse[0].c) + ", " + colorToString(CMYPulse[1].c) + ", " + colorToString(CMYPulse[2].c));
+  //debug("CMY INITIAL: " +  colorToString(CMYPulse[0].c) + ", " + colorToString(CMYPulse[1].c) + ", " + colorToString(CMYPulse[2].c));
   
   // fireRamp segments get smaller and smaller, so yellow->white segment is just the tip
   fireRamp = initVertices(fireRampColors);
@@ -587,7 +587,7 @@ class FireChaseModule extends TransientLayerModule {
       for (int panel=0; panel<3; panel++) {   
         if (fb.arms[panel].effectFireChase && events.fired("bar")) {
   
-          //println("new simplechase");
+          //debug("new simplechase");
           
           SimpleChaseLayer sc = new SimpleChaseLayer(panelToArmFire(panel));
             
@@ -757,11 +757,11 @@ class ManualFireModule extends TransientLayerModule {
 /*
 ** Local Variables:
 **   mode: java
-**   c-basic-offset: 3
-**   tab-width: 3
+**   c-basic-offset: 2
+**   tab-width: 2
 **   indent-tabs-mode: nil
 ** End:
 **
-** vim: softtabstop=3 tabstop=3 expandtab cindent shiftwidth=3
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
 **
 */
