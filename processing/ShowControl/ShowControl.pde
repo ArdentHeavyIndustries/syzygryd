@@ -361,6 +361,93 @@ void sendDMX(int channel, int value) {
    DMXManager.setChannel(0, channel, (byte)value); 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// logging helper methods
+
+// XXX logging is completely copied from controller_display/controller_display.pde
+// in the long term we should share code
+
+// pad a string to at least a minimum size by prepending the given char
+// the StringBuffer is modified in place
+void prefixPad(StringBuffer sb, int minsize, char c) {
+  int toAdd = minsize - sb.length();
+  if (toAdd > 0) {
+    for (int i = 0; i < toAdd; i++) {
+      sb.insert(0, c);
+    }
+  }
+}
+
+String getTime() {
+  Calendar cal = Calendar.getInstance();
+
+  StringBuffer year = new StringBuffer();
+  year.append(cal.get(Calendar.YEAR));
+  prefixPad(year, 4, '0');
+  StringBuffer month = new StringBuffer();
+  month.append(cal.get(Calendar.MONTH) + 1);
+  prefixPad(month, 2, '0');
+  StringBuffer day = new StringBuffer();
+  day.append(cal.get(Calendar.DAY_OF_MONTH));
+  prefixPad(day, 2, '0');
+  StringBuffer hour = new StringBuffer();
+  hour.append(cal.get(Calendar.HOUR_OF_DAY));
+  prefixPad(hour, 2, '0');
+  StringBuffer min = new StringBuffer();
+  min.append(cal.get(Calendar.MINUTE));
+  prefixPad(min, 2, '0');
+  StringBuffer sec = new StringBuffer();
+  sec.append(cal.get(Calendar.SECOND));
+  prefixPad(sec, 2, '0');
+  StringBuffer millis = new StringBuffer();
+  millis.append(cal.get(Calendar.MILLISECOND));
+  prefixPad(millis, 3, '0');
+
+  StringBuffer date = new StringBuffer();
+  date.append('[');
+  date.append(year);
+  date.append('/');
+  date.append(month);
+  date.append('/');
+  date.append(day);
+  date.append(' ');
+  date.append(hour);
+  date.append(':');
+  date.append(min);
+  date.append(':');
+  date.append(sec);
+  date.append('.');
+  date.append(millis);
+  date.append(']');
+
+  return date.toString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// simple logging
+
+// the idea here with this simple logging is that you should feel free to log infrequent but important events with info().  these are always in production.
+// problem cases are logged with warn(), and are also always in production.
+// log more verbose stuff with debug().  normally the contents of this method are commented out.  feel free to uncomment for debugging, but DO NOT CHECK THAT IN !!!
+// but really verbose stuff is probably better to even comment out the call to debug() in the code, so as not to incur the overhead of the method call.
+// (the processing preprocessor does *not* optimize that away)
+
+// XXX logging is completely copied from controller_display/controller_display.pde
+// in the long term we should share code
+
+void debug(String msg) {
+  // feel free to uncomment this for debugging, but DO NOT CHECK IT IN if you do so.
+  //System.out.println(getTime() + " " + msg);
+}
+
+void info(String msg) {
+  System.out.println(getTime() + " " + msg);
+}
+
+void warn(String msg) {
+  System.err.println(getTime() + " WARNING: " + msg);
+}
+
 /*
 ** Local Variables:
 **   mode: java
