@@ -12,6 +12,10 @@ case "$1" in
     else
       export DISPLAY=:0
       cd ~
+      if pgrep xfce4-panel > /dev/null 2>&1; then
+        echo "Killing window manager desktop panel"
+        pkill xfce4-panel
+      fi
       echo "Starting controller"
       # stdout and stderr go to ~/nohup.out
       # there should be a symlink to this from ~/controller_display.out
