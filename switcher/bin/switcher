@@ -1,0 +1,20 @@
+#!/bin/bash
+
+pwd=`pwd`
+path_to_script=`dirname $0`
+switcher_home=`readlink -f ${pwd}/${path_to_script}/..`
+echo "Switcher home = $switcher_home"
+
+pushd ${switcher_home}
+java -cp build/switcher.jar com.syzygryd.Switcher /opt/syzygryd/etc/setlist.csv
+popd
+
+##
+## Local Variables:
+##   mode: Shell-script
+##   sh-basic-offset: 2
+##   indent-tabs-mode: nil
+## End:
+##
+## ex: set softtabstop=2 tabstop=2 expandtab:
+##

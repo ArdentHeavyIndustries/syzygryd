@@ -1,2 +1,0 @@
-/Users/mh/Desktop/e.als,10,program
-/Users/mh/Desktop/a/ambiance.als,10,otherprogram

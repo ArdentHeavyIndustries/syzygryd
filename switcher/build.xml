@@ -2,35 +2,33 @@
 
 <project name="switcher" default="jar" basedir=".">
   <target name="prepare">
-    <mkdir dir="classes" />
-    <mkdir dir="META-INF" />
+    <mkdir dir="build/classes" />
+    <mkdir dir="build/META-INF" />
   </target>
 
   <target name="compile" depends="prepare">
     <javac srcdir="src"
-	   destdir="classes" 
+	   destdir="build/classes" 
 	   includeantruntime="false">
       <compilerarg value="-Xlint:unchecked" />
     </javac>
   </target>
 
   <target name="manifest">
-    <manifest file="META-INF/MANIFEST.MF" >
+    <manifest file="build/META-INF/MANIFEST.MF" >
       <attribute name="Class-Path" value="." />
       <attribute name="Main-Class" value="com.syzygryd.Switcher" />
     </manifest>
   </target>
 
   <target name="jar" depends="compile, manifest">
-    <jar jarfile="switcher.jar"
-	 basedir="classes"
-	 manifest="META-INF/MANIFEST.MF" />
+    <jar jarfile="build/switcher.jar"
+	 basedir="build/classes"
+	 manifest="build/META-INF/MANIFEST.MF" />
   </target>
 
   <target name="clean">
-    <delete dir="classes" />
-    <delete dir="META-INF" />
-    <delete file="switcher.jar" />
+    <delete dir="build" />
   </target>
 </project>
 
