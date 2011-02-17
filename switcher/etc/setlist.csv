@@ -1,3 +1,11 @@
+# The setlist file should be copied to:
+#   /opt/syzygryd/etc/setlist.csv
+#
+# The format for each line is:
+#   fileName,lengthOfSetInSeconds,lightingProgramName
+#
+# In practice, the only currently valid lighting program name is "lightingname" (no quotes)
+#
 /Users/syzygryd/Desktop/full sets/Cory Barr/Smells Like Phish/Smells Like Phish-Cory Barr.als,700,lightingname
 /Users/syzygryd/Desktop/full sets/Cory Barr/Credits Roll Project/Credits Roll-Cory Barr.als,700,lightingname
 /Users/syzygryd/Desktop/full sets/Cory Barr/Gypsyzygryd Project/Gypsyzygryd-Cory Barr.als,700,lightingname
