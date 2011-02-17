@@ -216,6 +216,8 @@ void draw() {
 
   background(0);
 
+
+// Check to see if Live has stopped and display the loading new set image.
   if (setStopped) {
     image(logo, 0, 0);
   } else {
