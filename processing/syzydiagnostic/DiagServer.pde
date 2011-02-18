@@ -66,7 +66,7 @@ public class DiagServer extends NanoHTTPD {
          dmxs.sendDMX(0,ch,bv);
      }
      } else if (params.getProperty("arm")==null && params.getProperty("cube")==null) {
-   for (int i = 2; i >=0; i--) {
+   for (int i = dmxs.getSize()-1; i >=0; i--) {
     for (int ch=0; ch < MAX_LIGHTING_CHANNEL; ch++) {
      dmxs.sendDMX(i,ch,rv);
      dmxs.sendDMX(i,ch,gv);

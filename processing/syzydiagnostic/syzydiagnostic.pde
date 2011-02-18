@@ -10,9 +10,15 @@ dmxs = new QuickDMXSystem();
 dmxs.initialize(this);
 println(Serial.list());
 // Uncomment the lines below for entec devices connected to the computer
-dmxs.addentec(this, ""); // Arm A
-dmxs.addentec("/dev/cu.usbserial-EN077490"); // Arm B
-dmxs.addentec(this, ""); // Arm C
+try {
+//  dmxs.addentec("/dev/cu.usbserial-EN077331"); // Arm A
+  dmxs.addentec("/dev/cu.usbserial-EN077490"); // Arm B
+//  dmxs.addentec("/dev/cu.usbserial-EN075581"); // Arm C
+} catch (Exception e) {
+  println("Entecs Missing!");
+  e.printStackTrace();
+  exit();
+}
 
 // Let's turn on the web service
   try {

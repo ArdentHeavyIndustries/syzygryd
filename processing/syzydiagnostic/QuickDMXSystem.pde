@@ -36,6 +36,10 @@ public class QuickDMXSystem {
    }
    
   }
+  
+  public int getSize() {
+    return entecs.size();
+  }
 }
 
 /*
