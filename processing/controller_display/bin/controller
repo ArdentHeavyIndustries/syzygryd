@@ -17,10 +17,9 @@ case "$1" in
         pkill xfce4-panel
       fi
       echo "Starting controller"
-      # stdout and stderr go to ~/nohup.out
-      # there should be a symlink to this from ~/controller_display.out
-      # XXX except that doesn't work for the initial startup case.  need to further investigate logging.
-      nohup /home/syzygryd/syzygryd/application.linux/controller_display &
+      mkdir -p /opt/syzygryd/log
+      # a symlink to the logfile in ~ would be useful
+      nohup /home/syzygryd/syzygryd/application.linux/controller_display >> /opt/syzygryd/log/controller.log 2>&1 &
     fi
     ;;
 

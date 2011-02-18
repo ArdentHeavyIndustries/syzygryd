@@ -101,6 +101,8 @@ void setup() {
   // info("info test");
   // warn("warn test");
 
+  info("controller_display started");
+
   setupProps();
   
   // controller display can be made to grab the screen's current
@@ -202,6 +204,8 @@ void setup() {
   // OscMessage connect = new OscMessage("/server/connect");
   // debug("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
   // oscP5.send(connect, myRemoteLocation);
+
+  info("setup done");
 }
 
 int curSecond = 0;
@@ -217,7 +221,7 @@ void draw() {
   background(0);
 
 
-// Check to see if Live has stopped and display the loading new set image.
+  // Check to see if Live has stopped and display the loading new set image.
   if (setStopped) {
     image(logo, 0, 0);
   } else {
