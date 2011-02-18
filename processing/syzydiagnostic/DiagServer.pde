@@ -29,10 +29,74 @@ public class DiagServer extends NanoHTTPD {
  }
  
  protected Response act(String uri, String method, Properties header, Properties params, Properties files) {
-   println("uri: "+uri);
+//   Capture the action we are doing
+   int rv,gv,bv;
+
+   int endOfAction = uri.indexOf('?');
+   endOfAction = (endOfAction > 0 ? endOfAction : uri.length());
+   String actionStr = uri.substring(ACTION_URI_PREFIX.length(), endOfAction);
    
-   return new Response(NanoHTTPD.HTTP_OK, "text/html", "");
-}
+   println(actionStr);
+   
+        // Now let's map our dmx channel values
+     rv = int(map(int(params.getProperty("r","0")),0,100,0,255));
+     gv = int(map(int(params.getProperty("g","0")),0,100,0,255));
+     bv = int(map(int(params.getProperty("b","0")),0,100,0,255));
+   
+     //Let's grab our params and run!
+     if (params.getProperty("cube")!=null && params.getProperty("arm")!=null) {
+     int cube = int(params.getProperty("cube"));
+     String arm = params.getProperty("arm");
+     // Let's convert the cube number to dmx channels
+     int rc = ((cube+1)*3)-3;
+     int gc = ((cube+1)*3)-2;
+     int bc = ((cube+1)*3)-1;
+     println("Cube "+str(cube)+" DMX Channels (RGB): "+str(rc)+","+str(gc)+","+str(bc));
+     // Now let's map our dmx channel values
+     // Yo dawg, I heard you like DMX
+     dmxs.sendDMX(0,rc,rv);
+     dmxs.sendDMX(0,gc,gv);
+     dmxs.sendDMX(0,bc,bv);
+     } else if (params.getProperty("arm")!=null && params.getProperty("cube")==null) {
+       //Let's grab our params
+      //Let's pass through the rest of the parameters to an entire arm
+     for (int ch=0; ch < MAX_LIGHTING_CHANNEL; ch++) {
+         dmxs.sendDMX(0,ch,rv);
+         dmxs.sendDMX(0,ch,gv);
+         dmxs.sendDMX(0,ch,bv);
+     }
+     } else if (params.getProperty("arm")==null && params.getProperty("cube")==null) {
+   for (int i = 2; i >=0; i--) {
+    for (int ch=0; ch < MAX_LIGHTING_CHANNEL; ch++) {
+     dmxs.sendDMX(i,ch,rv);
+     dmxs.sendDMX(i,ch,gv);
+     dmxs.sendDMX(i,ch,bv);
+    }
+   }
+     }
+
+     
+     
+ return new Response(NanoHTTPD.HTTP_OK, "text/html", "ACK "+actionStr);
+ }
+ 
+ protected int convertArmtoInt(String arm) {
+  int r;
+  r = 0;
+  char c = arm.charAt(0);
+ switch(c) {
+  case 'A':
+  case 'a':
+   r = 0;
+  case 'B':
+  case 'b':
+   r = 1;
+  case 'C':
+  case 'c':
+   r = 2;
+ }
+ return r;
+ }
 
 }
 

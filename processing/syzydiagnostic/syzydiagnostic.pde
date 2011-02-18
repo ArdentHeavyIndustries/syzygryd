@@ -10,9 +10,9 @@ dmxs = new QuickDMXSystem();
 dmxs.initialize(this);
 println(Serial.list());
 // Uncomment the lines below for entec devices connected to the computer
-//dmxs.addentec(this, ""); // Arm A
+dmxs.addentec(this, ""); // Arm A
 dmxs.addentec("/dev/cu.usbserial-EN077490"); // Arm B
-//dmxs.addentec(this, ""); // Arm C
+dmxs.addentec(this, ""); // Arm C
 
 // Let's turn on the web service
   try {
@@ -32,14 +32,6 @@ void draw() {
   
 }
 
-/*
-** Local Variables:
-**   mode: java
-**   c-basic-offset: 2
-**   tab-width: 2
-**   indent-tabs-mode: nil
-** End:
-**
-** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
-**
-*/
+void mouseClicked() {
+ dmxs.strikeAllFixtures(); 
+}
