@@ -31,3 +31,15 @@ dmxs.addentec("/dev/cu.usbserial-EN077490"); // Arm B
 void draw() {
   
 }
+
+/*
+** Local Variables:
+**   mode: java
+**   c-basic-offset: 2
+**   tab-width: 2
+**   indent-tabs-mode: nil
+** End:
+**
+** vim: softtabstop=2 tabstop=2 expandtab cindent shiftwidth=2
+**
+*/
