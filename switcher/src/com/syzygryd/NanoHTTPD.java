@@ -318,7 +318,7 @@ public class NanoHTTPD
 					if (contentLength != null)
 					{
 						try { size = Integer.parseInt(contentLength); }
-						catch (NumberFormatException ex) {}
+						catch (NumberFormatException nfe) {}
 					}
 					String postLine = "";
 					char buf[] = new char[512];

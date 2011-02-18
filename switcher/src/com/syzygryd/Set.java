@@ -7,18 +7,17 @@ import java.io.IOException;
  *
  */
 public class Set {
-	private static OSCSender sender;
+	private static OSCSender sender;	// XXX not currently used ?
 	private String name = null;
 	private String lightingProgram; 
 	private int length = 0;
-	
 	
 	/**
 	 * Installs OSCSender that is common to all members of this class
 	 * @param s
 	 */
 	static void setSender(OSCSender s) {
-		sender = s;
+		sender = s;	// XXX not currently used ?
 	}
 	
 	/**
@@ -29,8 +28,8 @@ public class Set {
 	public Set(String fileName, int duration, String program) {
 		name = fileName;
 		length = duration;
-		lightingProgram = program;
-		
+		lightingProgram = program;		
+
 		//Logger.debug(this.toString());
 	}
 	
@@ -67,13 +66,15 @@ public class Set {
 		try {
 			String[] params = {"open", getName()};
 			Runtime.getRuntime().exec(params);
-		} catch (IOException e) {
+		} catch (IOException ioe) {
 			// NOP
+         // XXX really?  a nop?  don't we want to at least register that we had trouble opening the set?
+         Logger.warn("Unable to open " + getName(), ioe);
 		}
 		
 		try {
 			Thread.sleep(2500); 
-		} catch (Exception e) {
+		} catch (InterruptedException ie) {
 			// NOP
 		}
 		
@@ -89,7 +90,7 @@ public class Set {
 		/*
 		try {
 			Thread.sleep(2000); 
-		} catch (Exception e) {
+		} catch (InterruptedException ie) {
 			// NOP
 		}
 		*/
@@ -99,7 +100,7 @@ public class Set {
 		
 		try {
 			Thread.sleep(2500); 
-		} catch (Exception e) {
+		} catch (InterruptedException ie) {
 			// NOP
 		}
 		

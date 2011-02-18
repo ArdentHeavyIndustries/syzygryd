@@ -25,13 +25,12 @@ public class OSCSender {
 		addr = address;
 	}
 
-	
 	OSCSender(int port) {
 		OSC_SENDING_PORT = port;
 		try {
-			addr =  InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+			addr = InetAddress.getLocalHost();
+		} catch (UnknownHostException uhe) {
+         Logger.warn ("Unable to get local host address, things are probably pretty hosed", uhe);
 		}
 		init();
 	}
@@ -85,6 +84,7 @@ public class OSCSender {
 	}
 	
 	public void send(String msg, Object[] args) {
+      Logger.info("Sending OSC messaage \"" + msg + "\" to " + addr.getHostAddress() + ":" + OSC_SENDING_PORT);
 		OSCMessage oscmsg;
 		if (args != null) {
 			oscmsg = new OSCMessage(msg, args);
@@ -94,7 +94,7 @@ public class OSCSender {
 		
 		try {
 			sender.send(oscmsg);
-		} catch (IOException e) {
+		} catch (IOException ioe) {
 			// TODO: reconnect
 			// init();
 		}

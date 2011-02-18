@@ -17,32 +17,37 @@ import com.illposed.osc.OSCPortIn;
 public class Switcher {
 
 	public static final int OSC_LISTENING_PORT = 9001;
-	public static final int OSC_SENDING_PORT_LIVE = 9000;
-	
+	public static final int OSC_SENDING_PORT_LIVE = 9000;	// XXX not really used?
+
+   // see http://monome.q3f.org/browser/trunk/LiveOSC/OSCAPI.txt
+   private static final String MSG_LIVE_SET_LOADED = "/remix/echo";
+   // which (play or stop) depends on the state
+   private static final String MSG_LIVE_SET_PLAYING_OR_STOPPED = "/live/play";
+   private static final int LIVE_STATE_STOPPED = 1;
+   private static final int LIVE_STATE_PLAYING = 2;
+
 	/**
 	 * ports for the rest of the system
 	 */
-	public static final int OSC_SENDING_PORT_SEQUENCER = 9999;
-	public static final int OSC_SENDING_PORT_LIGHTING = 9002;
+	//public static final int OSC_SENDING_PORT_SEQUENCER = 9999;
+	//public static final int OSC_SENDING_PORT_LIGHTING = 9002;
 	public static final int OSC_SENDING_PORT_BROADCAST = 9002;
    /*public static final int OSC_SENDING_PORT_CONTROLLER = 9000;*/
-	public static InetAddress OSC_BROADCAST_ADDRESS = null;
 
+	public static InetAddress OSC_BROADCAST_ADDRESS = null;
 	
 	public static final int WEB_SENDING_PORT = 31337;
 	
 	public static final int ARG_SETLISTFILENAME = 0;
-	private static OSCSender senderLive = null;
-	
-	private static OSCSender senderSequencer = null;
-	private static OSCSender senderLighting = null;
-	private static OSCSender senderController = null;
+	private static OSCSender senderLive = null;	// XXX not really used
+	//private static OSCSender senderSequencer = null;
+	//private static OSCSender senderLighting = null;
+	//private static OSCSender senderController = null;
 	private static OSCSender senderBroadcast = null;
 	
 	private static Setlist list = null;
 	private static OSCPortIn portIn = null;
 	private static ActionRunner ar = null;
-	
 	
 	public static void main(String[] args) {
 		
@@ -50,11 +55,12 @@ public class Switcher {
 			Logger.warn("usage: java Switcher <list-filename>.");
 			System.exit(-1);
 		}
-		
-		Logger.info("Loading setlist...");
+
+      String setlistFilename = args[ARG_SETLISTFILENAME];
+		Logger.info("Loading setlist from " + setlistFilename);
 		// attempt to load setlist
 		try {
-			list = new Setlist(args[ARG_SETLISTFILENAME]);
+			list = new Setlist(setlistFilename);
 		} catch (Exception e) {
 			Logger.warn("Unable to load setlist.");
 			Logger.warn(e.getMessage());
@@ -63,8 +69,17 @@ public class Switcher {
 		// install setlist
 		ActionSetPlay.setList(list);
 		
-		Logger.info("Setting up OSC sender to live...");
 		// setup sender
+      String localhost;
+      try {
+         localhost = InetAddress.getLocalHost().getHostAddress();
+      } catch (UnknownHostException uhe) {
+         // this really probably is a bad sign, even if it's just for a log msg
+         Logger.warn ("Unable to get local host address, things are probably pretty hosed", uhe);
+         localhost = "localhost";
+      }
+      
+		Logger.info("Setting up (unused?) OSC sender to Live on " + localhost + ":" + OSC_SENDING_PORT_LIVE);
 		try {
 			senderLive = new OSCSender(OSC_SENDING_PORT_LIVE);
 		} catch (Exception e) {
@@ -78,21 +93,24 @@ public class Switcher {
 		
 		try {
 			OSC_BROADCAST_ADDRESS = InetAddress.getByName("255.255.255.255");
-		} catch (UnknownHostException e1) {
+		} catch (UnknownHostException uhe) {
 			// TODO Auto-generated catch block
-			Logger.warn(e1);
+			Logger.warn(uhe);
 		}
 		// create senders for controller, lighting, and sequencer
-		senderSequencer = new OSCSender(OSC_SENDING_PORT_SEQUENCER);
+		//Logger.info("Setting up OSC sender to sequencer to " + InetAddress.getLocalHost().getHostAddress() + ":" + OSC_SENDING_PORT_SEQUENCER);
+		//senderSequencer = new OSCSender(OSC_SENDING_PORT_SEQUENCER);
+		Logger.info("Setting up OSC broadcast sender to " +  OSC_BROADCAST_ADDRESS.getHostAddress() + ":" + OSC_SENDING_PORT_BROADCAST);
 		senderBroadcast = new OSCSender(OSC_BROADCAST_ADDRESS, OSC_SENDING_PORT_BROADCAST);
 		
 		//senderLighting = new OSCSender(OSC_SENDING_PORT_LIGHTING);
 		
 		/*senderController = new OSCSender(OSC_SENDING_PORT_CONTROLLER);
 		*/
-		OSCSender[] statusRecipients = { senderSequencer, senderBroadcast /*, senderLighting, senderController*/ };
+      // XXX this is stupid now that there's just one, we should get rid of the array and just use a single OSCSender
+		OSCSender[] statusRecipients = { /* senderSequencer, */ senderBroadcast /*, senderLighting, senderController*/ };
 		
-		Logger.info("Setting up OSC listener...");
+		Logger.info("Setting up OSC listener on port " + OSC_LISTENING_PORT);
 		setupOSCListener();
 
 		// setup switcher queue thread
@@ -108,18 +126,18 @@ public class Switcher {
 		try {
 			@SuppressWarnings("unused")
 			Syzyweb web = new Syzyweb(WEB_SENDING_PORT, ar, list);
-		} catch (IOException e) {
+		} catch (IOException ioe) {
 			// TODO Auto-generated catch block
-			Logger.warn(e);
+			Logger.warn(ioe);
 		}
 		
 		Logger.info("Running.");
 		// wait forever.
 		try {
 			ar.join();
-		} catch (InterruptedException e) {
+		} catch (InterruptedException ie) {
 			// TODO Auto-generated catch block
-			Logger.warn(e);
+			Logger.warn(ie);
 		}
 		
 	}
@@ -137,14 +155,14 @@ public class Switcher {
 		
 		try {
 			portIn = new OSCPortIn(OSC_LISTENING_PORT);
-		} catch (SocketException e) {
+		} catch (SocketException se) {
 			// TODO Auto-generated catch block
 			Logger.warn("Unable to open port " + OSC_LISTENING_PORT + "for listening.\n"
 					+ "It's possible that there's another copy of this running, or there's another\n"
 					+ "program listening on port " + OSC_LISTENING_PORT + ".  Use netstat to figure out\n"
 					+ "if someone's listening, and use ps or Activity Monitor to see if there's another\n"
 					+ "copy of this running. (hint: the process name will be java).  Thanks for playing!");
-			Logger.warn(e);
+			Logger.warn(se);
 			System.exit(-1);
 		} 
 		
@@ -152,8 +170,7 @@ public class Switcher {
 		portIn.addListener("/live/play", setStoppedListener);
 		portIn.startListening();
 		Logger.info("Now listening on port " + OSC_LISTENING_PORT);
-		
-		
+      Logger.info("Listing for OSC messages: \"/remix/echo\" and \"/live/play\"");
 	}
 
 	/**
@@ -164,7 +181,7 @@ public class Switcher {
 		
 		@Override
 		public void acceptMessage(Date time, OSCMessage message) {
-			Logger.info("Live tells us that the set loaded: " + message.getAddress());
+         Logger.info("Set loaded listener received OSC message from Live: " + message.getAddress());
 			try {
 				//sender.livePlaybackStart();
 				AppleScriptRunner.runLiveEnter();
@@ -182,20 +199,31 @@ public class Switcher {
 	public static OSCListener setStoppedListener = new OSCListener() {
 		@Override
 		public void acceptMessage(Date time, OSCMessage message) {
+         Logger.info("Set stopped listener (somewhat poorly named) received OSC message from Live: " + message.getAddress());
 			Integer state = (Integer)(message.getArguments()[0]);
+         switch (state)
+            {
+            case LIVE_STATE_STOPPED:
+               Logger.info("Live state is STOPPED: " + state);
+               if (!(ar.isPlaying())) {
+                  try {
+                     //AppleScriptRunner.runLiveQuit();
+                     Logger.info("Switcher has finished playing, and Live says we're stopped.  Set ending complete; continuing.");
+                     ar.actionEnded();
+                  } catch (Exception e) {
+                     // XXX is this a bogus warning message since runLiveQuit() is commented out ?
+                     Logger.warn("Couldn't send quit.");
+                     Logger.warn(e);
+                  }
+               }
+               break;
+            case LIVE_STATE_PLAYING:
+               Logger.info("Live state is PLAYING: " + state);
+               break;
+            default:
+               Logger.warn("Unexpected Live state (neither STOPPED nor PLAYING): " + state);
+            }
 			Logger.info("Live tells us that the set play state is: " + state);
-			if (!(ar.isPlaying()) && state == 1) {
-				try {
-					//AppleScriptRunner.runLiveQuit();
-					Logger.info("Switcher has finished playing, and Live says we're stopped.  Set ending complete; continuing.");
-					ar.actionEnded();
-				} catch (Exception e) {
-					Logger.warn("Couldn't send quit.");
-					Logger.warn(e);
-				}
-			} else {
-				Logger.info("State is not playing: " + state);
-			}
 		}
 	};
 }

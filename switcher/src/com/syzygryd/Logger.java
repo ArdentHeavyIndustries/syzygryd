@@ -86,7 +86,12 @@ public class Logger {
    }
 
    public static void warn(Exception e) {
-      System.err.println(getTime() + " Warnings: " + e);
+      System.err.println(getTime() + " WARNING: " + e);
+      e.printStackTrace();
+   }
+
+   public static void warn(String msg, Exception e) {
+      System.err.println(getTime() + " WARNING: " + msg);
       e.printStackTrace();
    }
 

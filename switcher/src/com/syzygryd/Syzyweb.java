@@ -63,7 +63,7 @@ public class Syzyweb extends NanoHTTPD {
 		Action.ActionType a = null;
 		try {
 			a = Action.ActionType.valueOf(actionStr.toLowerCase());
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException iae) {
 			Logger.warn("No such action " + actionStr);
 			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Invalid action: " + actionStr + ". nice try, k1dd135.");
 		}
@@ -172,9 +172,8 @@ public class Syzyweb extends NanoHTTPD {
 			public void run() {
 				try {
 					Thread.sleep(2000);
-				} catch (InterruptedException e) {
+				} catch (InterruptedException ie) {
 					// TODO Auto-generated catch block
-					Logger.warn(e);
 				}
 				System.exit(0);			
 			}

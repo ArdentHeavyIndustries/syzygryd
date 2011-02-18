@@ -60,7 +60,7 @@ public class Setlist {
 				
 				try {
 					list.add(new Set(params[PARAM_NAME], Integer.valueOf(params[PARAM_LEN_IN_SECS]), params[PARAM_LIGHTING_PROGRAM]));
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException nfe) {
 					reader.close();
 					throw new NumberFormatException("invalid number for length (in whole seconds) " + params[PARAM_LEN_IN_SECS] + " on line\n" + line);
 				}
@@ -68,7 +68,7 @@ public class Setlist {
 		}
 		
 		if (list.size() == 0) {
-			throw new Exception("file was empty. try again with a file that has songs listed.");
+			throw new Exception("setlist file was empty. try again with a file that has songs listed.");
 		}
 		
 		it = list.listIterator();

@@ -8,13 +8,14 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ActionRunner extends Thread {
 	
 	private static int SECOND_IN_MILLIS = 1000;
-	private static int LOAD_TIMEOUT = 600 * SECOND_IN_MILLIS;
+	private static int LOAD_TIMEOUT = 600 * SECOND_IN_MILLIS;	// XXX Do we really want to wait 10 minutes for a set to load ???
 	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 3 * SECOND_IN_MILLIS;
 	private static int QUIT_TIMEOUT = 10 * SECOND_IN_MILLIS;
 	private static int INTERVAL_BETWEEN_DURATION_NOTIFICATIONS = 5 * SECOND_IN_MILLIS;
 	
 	private boolean running = false;
 	
+   // XXX this is stupid now that there's just one, we should get rid of the array and just use a single OSCSender
 	private OSCSender[] statusRecipients = null;
 	
 	private ConcurrentLinkedQueue<Action> actionQ = new ConcurrentLinkedQueue<Action>();
@@ -82,13 +83,12 @@ public class ActionRunner extends Thread {
 				// NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
 				if (currentAction.requiresLoad()) {
 					loaded = false;
-					Logger.info("Waiting for load...");
+					Logger.info("Waiting (up to " + LOAD_TIMEOUT + " seconds) for load...");
 					try {
 						loaded = loadPending.await(LOAD_TIMEOUT, TimeUnit.MILLISECONDS);
-					} catch (InterruptedException e) {
+					} catch (InterruptedException ie) {
 						// NIL;
 					}
-
 				}
 				
 				if (loaded) {
@@ -100,7 +100,7 @@ public class ActionRunner extends Thread {
 						sendTimeRemainingMessage(remaining, currentAction.getId(), currentAction.getLightingProgram() );
 						try {
 							interrupted = actionRunning.await(sleepDuration, TimeUnit.MILLISECONDS);
-						} catch (InterruptedException e) {
+						} catch (InterruptedException ie) {
 							// NIL;
 						}
 						remaining -= INTERVAL_BETWEEN_DURATION_NOTIFICATIONS;
@@ -114,13 +114,13 @@ public class ActionRunner extends Thread {
 				currentAction.stop();
 				try {
 					endPending.await(QUIT_TIMEOUT, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException e1) {
+				} catch (InterruptedException ie) {
 					// NOP
 				}
 				Logger.info("Stopped.");
 				try {
 					Thread.sleep(ARBITRARY_SLEEP_BETWEEN_SETS);
-				} catch (InterruptedException e) {
+				} catch (InterruptedException ie) {
 					// 
 					// NOP
 				}
@@ -138,6 +138,7 @@ public class ActionRunner extends Thread {
 	public synchronized void actNow(Action a) {
 		setPendingAction(a);
 		// countdown latch will pass right through, causing it to immediately stop
+      Logger.debug("counting down action running");
 		actionRunning.countDown();
 	}
 	
@@ -146,6 +147,7 @@ public class ActionRunner extends Thread {
 	 * has completed loading 
 	 */
 	public void actionLoaded() {
+      Logger.debug("counting down load pending");
 		loadPending.countDown();
 	}
 	
@@ -154,6 +156,7 @@ public class ActionRunner extends Thread {
 	 * has finished shutting down
 	 */
 	public void actionEnded() {
+      Logger.debug("counting down end pending");
 		endPending.countDown();
 	}
 	
