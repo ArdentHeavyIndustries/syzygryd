@@ -64,7 +64,7 @@ public class Syzyweb extends NanoHTTPD {
 		try {
 			a = Action.ActionType.valueOf(actionStr.toLowerCase());
 		} catch (IllegalArgumentException e) {
-			System.err.println("No such action " + actionStr);
+			Logger.warn("No such action " + actionStr);
 			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Invalid action: " + actionStr + ". nice try, k1dd135.");
 		}
 		
@@ -141,7 +141,7 @@ public class Syzyweb extends NanoHTTPD {
 			Thread.sleep(SCREENSHOT_DELAY);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.warn(e);
 			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "can't generate screenshot");
 		}
 		
@@ -165,7 +165,7 @@ public class Syzyweb extends NanoHTTPD {
 	 * Quit switcher; waits 2 seconds (hack!) to make sure the response is delivered
 	 */
 	void quit() {
-		System.err.println("Quitting.");
+		Logger.warn("Quitting.");
 		new Thread(new Runnable() {
 			
 			@Override
@@ -174,7 +174,7 @@ public class Syzyweb extends NanoHTTPD {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Logger.warn(e);
 				}
 				System.exit(0);			
 			}
@@ -185,7 +185,7 @@ public class Syzyweb extends NanoHTTPD {
 	 * Restarts switcher
 	 */
 	void restart() {
-		System.err.println("Restarting -- not yet implemented");
+		Logger.warn("Restarting -- not yet implemented");
 	}
 
 }

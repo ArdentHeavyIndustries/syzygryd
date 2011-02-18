@@ -61,20 +61,20 @@ public class NanoHTTPD
 	 */
 	public Response serve( String uri, String method, Properties header, Properties parms )
 	{
-		System.out.println( method + " '" + uri + "' " );
+		Logger.debug( method + " '" + uri + "' " );
 
 		Enumeration e = header.propertyNames();
 		while ( e.hasMoreElements())
 		{
 			String value = (String)e.nextElement();
-			System.out.println( "  HDR: '" + value + "' = '" +
+			Logger.debug( "  HDR: '" + value + "' = '" +
 								header.getProperty( value ) + "'" );
 		}
 		e = parms.propertyNames();
 		while ( e.hasMoreElements())
 		{
 			String value = (String)e.nextElement();
-			System.out.println( "  PRM: '" + value + "' = '" +
+			Logger.debug( "  PRM: '" + value + "' = '" +
 								parms.getProperty( value ) + "'" );
 		}
 
@@ -183,7 +183,7 @@ public class NanoHTTPD
 			{
 				public void run()
 				{
-					System.out.println( "Now serving files in port " + myTcpPort + " from \"" +
+					Logger.info( "Now serving files in port " + myTcpPort + " from \"" +
 							new File("").getAbsolutePath() + "\"" );
 					try
 					{
@@ -205,7 +205,7 @@ public class NanoHTTPD
 	/*
 	public static void main( String[] args )
 	{
-		System.out.println( "NanoHTTPD 1.13 (C) 2001,2005-2010 Jarno Elonen\n" +
+		Logger.info( "NanoHTTPD 1.13 (C) 2001,2005-2010 Jarno Elonen\n" +
 							"(Command line options: [port] [--licence])\n" );
 
 		// Show licence if requested
@@ -214,7 +214,7 @@ public class NanoHTTPD
 		if ( args[i].toLowerCase().endsWith( "licence" ))
 		{
 			lopt = i;
-			System.out.println( LICENCE + "\n" );
+			Logger.info( LICENCE + "\n" );
 		}
 
 		// Change port if requested
@@ -224,7 +224,7 @@ public class NanoHTTPD
 
 		if ( args.length > 1 &&
 			 args[1].toLowerCase().endsWith( "licence" ))
-				System.out.println( LICENCE + "\n" );
+				Logger.info( LICENCE + "\n" );
 
 		NanoHTTPD nh = null;
 		try
@@ -233,14 +233,14 @@ public class NanoHTTPD
 		}
 		catch( IOException ioe )
 		{
-			System.err.println( "Couldn't start server:\n" + ioe );
+			Logger.warn( "Couldn't start server:\n" + ioe );
 			System.exit( -1 );
 		}
 		nh.myFileDir = new File("");
 
-		System.out.println( "Now serving files in port " + port + " from \"" +
+		Logger.info( "Now serving files in port " + port + " from \"" +
 							new File("").getAbsolutePath() + "\"" );
-		System.out.println( "Hit Enter to stop.\n" );
+		Logger.info( "Hit Enter to stop.\n" );
 
 		try { System.in.read(); } catch( Throwable t ) {};
 	}

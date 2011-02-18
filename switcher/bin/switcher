@@ -5,9 +5,9 @@ path_to_script=`dirname $0`
 switcher_home=`readlink -f ${pwd}/${path_to_script}/..`
 echo "Switcher home = $switcher_home"
 
-pushd ${switcher_home}
+pushd ${switcher_home} > /dev/null 2>&1
 java -cp build/switcher.jar com.syzygryd.Switcher /opt/syzygryd/etc/setlist.csv
-popd
+popd > /dev/null 2>&1
 
 ##
 ## Local Variables:

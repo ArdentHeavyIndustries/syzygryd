@@ -31,7 +31,7 @@ public class Set {
 		length = duration;
 		lightingProgram = program;
 		
-		//System.out.println(this.toString());
+		//Logger.debug(this.toString());
 	}
 	
 	/**
@@ -62,7 +62,7 @@ public class Set {
 	 * Opens set using Live
 	 */
 	public void play() {
-		System.out.println("Playing " + getName() + " - length:" + getLength() + " sec.");
+		Logger.info("Playing " + getName() + " - length:" + getLength() + " sec.");
 		
 		try {
 			String[] params = {"open", getName()};

@@ -82,7 +82,7 @@ public class ActionRunner extends Thread {
 				// NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
 				if (currentAction.requiresLoad()) {
 					loaded = false;
-					System.out.println("Waiting for load...");
+					Logger.info("Waiting for load...");
 					try {
 						loaded = loadPending.await(LOAD_TIMEOUT, TimeUnit.MILLISECONDS);
 					} catch (InterruptedException e) {
@@ -93,7 +93,7 @@ public class ActionRunner extends Thread {
 				
 				if (loaded) {
 					// action is now running; wait until it's done or someone interrupts us
-					System.out.println("Playing...");
+					Logger.info("Playing...");
 					boolean interrupted = false;
 					while(remaining > 0 && !interrupted) {
 						int sleepDuration = Math.min(INTERVAL_BETWEEN_DURATION_NOTIFICATIONS, remaining);
@@ -110,14 +110,14 @@ public class ActionRunner extends Thread {
 					
 				} 
 				setRunning(false);
-				System.out.println("Stopping...");
+				Logger.info("Stopping...");
 				currentAction.stop();
 				try {
 					endPending.await(QUIT_TIMEOUT, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e1) {
 					// NOP
 				}
-				System.out.println("Stopped.");
+				Logger.info("Stopped.");
 				try {
 					Thread.sleep(ARBITRARY_SLEEP_BETWEEN_SETS);
 				} catch (InterruptedException e) {

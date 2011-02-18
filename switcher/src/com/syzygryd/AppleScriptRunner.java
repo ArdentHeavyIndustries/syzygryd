@@ -28,7 +28,7 @@ public class AppleScriptRunner {
 			engine.eval(script);
 		} catch (ScriptException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.warn(e);
 		}
     }
     
@@ -36,7 +36,7 @@ public class AppleScriptRunner {
      * Quits live
      */
     public static void runLiveQuit() {
-		System.out.println("Running live quit script...");
+		Logger.info("Running live quit script...");
     	runScript(liveQuit);
     }
     

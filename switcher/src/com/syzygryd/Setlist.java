@@ -49,7 +49,7 @@ public class Setlist {
 		String line = null;
 		while ((line = reader.readLine()) != null) {
          if (line.startsWith("#")) {
-            System.out.println("Ignoring comment line");
+            Logger.debug("Ignoring comment line");
          } else if (line.matches(".*\\w.*")) {
 				String[] params = line.split(",");
 				

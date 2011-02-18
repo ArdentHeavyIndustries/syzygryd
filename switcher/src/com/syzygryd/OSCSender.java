@@ -44,7 +44,7 @@ public class OSCSender {
 		try {
 			sender = new OSCPortOut(addr, OSC_SENDING_PORT);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.warn(e);
 		}
 	}
 	
@@ -52,7 +52,7 @@ public class OSCSender {
 	 * tells live to pause output
 	 */
 	public void livePlaybackStop() {
-		System.out.println("Sending OSC message: live stop...");
+		Logger.info("Sending OSC message: live stop...");
 		send(MSG_LIVE_PLAY_STOP);		
 	}
 	
@@ -60,7 +60,7 @@ public class OSCSender {
 	 * tells live to play audio
 	 */
 	public void livePlaybackStart() {
-		System.out.println("Sending OSC message: live play...");
+		Logger.info("Sending OSC message: live play...");
 		send(MSG_LIVE_PLAY_START);		
 	}
 	
@@ -71,7 +71,7 @@ public class OSCSender {
 	 * @param time milliseconds remaining
 	 */
 	public void sendTimeRemaining(int time, int set, String lightingProgram) {
-       System.out.println("OSC: time remaining " + time + " set " + set + " lightingProgram " + lightingProgram);
+       Logger.info("OSC: time remaining " + time + " set " + set + " lightingProgram " + lightingProgram);
 		Object[] args = { (Object)time, (Object)set, (Object)lightingProgram};
 		send(MSG_SET_TIME_REMAINING, args);
 	}
