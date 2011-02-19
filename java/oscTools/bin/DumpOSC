@@ -9,6 +9,8 @@ oscTools_home="${pwd}/${path_to_script}/.."
 
 pushd ${oscTools_home} > /dev/null 2>&1
 java -cp build:../../processing/libraries/oscP5/library/oscP5.jar DumpOSC "$@"
+# XXX for windows it's probably something like the following, but this is untested
+#java -cp `cygpath -wp build:../../processing/libraries/oscP5/library/oscP5.jar` DumpOSC "$@"
 popd > /dev/null 2>&1
 
 ##

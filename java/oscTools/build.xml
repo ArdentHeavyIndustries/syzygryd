@@ -6,6 +6,7 @@
   </target>
 
   <target name="compile" depends="prepare">
+    <!-- processing is needed solely b/c the OscP5 is looking for (parent instanceof PApplet) -->
     <javac srcdir="src"
 	   destdir="build"
            classpath="../../processing/libraries/oscP5/library/oscP5.jar"

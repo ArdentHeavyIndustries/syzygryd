@@ -1,28 +1,4 @@
-// mkdir build
-// /cygdrive/c/Program\ Files/Java/jdk1.6.0_20/bin/javac.exe -cp ../../processing/libraries/oscP5/library/oscP5.jar -d build DumpOSC.java 
-//
-// /cygdrive/c/Program\ Files/Java/jdk1.6.0_20/bin/javac.exe -cp ../../processing/libraries/oscP5/library/oscP5.jar DumpOSC.java 
-// /cygdrive/c/Program\ Files/Java/jdk1.6.0_20/bin/java.exe -cp .:../../processing/libraries/oscP5/library/oscP5.jar syzygyrd.DumpOSC
-// /cygdrive/c/Program\ Files/Java/jdk1.6.0_20/bin/java.exe -cp .:../../processing/libraries/oscP5/library/oscP5.jar DumpOSC
-
-// XXX this is insane:
-// processing is needed solely b/c the OscP5 is looking for (parent instanceof PApplet)
-
-// $ java -cp `cygpath -wp .:../../processing/libraries/oscP5/library/oscP5.jar` DumpOSC 9001
-// http://www.experts-exchange.com/Software/CYGWIN/Q_24100654.html
-// http://www.inonit.com/cygwin/faq/
-// http://www.cygwin.com/ml/cygwin/2001-08/msg01300.html
-// http://narencoolgeek.blogspot.com/2005/07/java-classpaths-on-cygwin.html
-// http://www.experts-exchange.com/Software/CYGWIN/Q_24100654.html
-
-// this ultimately worked
-// /cygdrive/c/Program\ Files/Java/jdk1.6.0_20/bin/javac.exe -cp ../../processing/libraries/oscP5/library/oscP5.jar DumpOSC.java
-// java -cp `cygpath -wp .:processing/core:../../processing/libraries/oscP5/library/oscP5.jar` DumpOSC 9001
-
-//package syzygryd;
-
 import oscP5.*;
-//import processing.core.PApplet;
 
 /* For inspiration (but a complete clone is not necessarily a goal), see:
  *   http://archive.cnmat.berkeley.edu/OpenSoundControl/dumpOSC.html
