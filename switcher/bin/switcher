@@ -2,7 +2,9 @@
 
 pwd=`pwd`
 path_to_script=`dirname $0`
-switcher_home=`readlink -f ${pwd}/${path_to_script}/..`
+# XX osx native readlink doesn't support -f, gnu readlink does, but i don't want to require macports
+#switcher_home=`readlink -f ${pwd}/${path_to_script}/..`
+switcher_home="${pwd}/${path_to_script}/.."
 echo "Switcher home = $switcher_home"
 
 pushd ${switcher_home} > /dev/null 2>&1
