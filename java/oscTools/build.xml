@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<project name="oscTools" default="compile" basedir=".">
+  <target name="prepare">
+    <mkdir dir="build" />
+  </target>
+
+  <target name="compile" depends="prepare">
+    <javac srcdir="src"
+	   destdir="build"
+           classpath="../../processing/libraries/oscP5/library/oscP5.jar"
+	   includeantruntime="false">
+      <compilerarg value="-Xlint:unchecked" />
+    </javac>
+  </target>
+
+  <target name="clean">
+    <delete dir="build" />
+  </target>
+</project>
+
+<!--
+  Local Variables:
+    mode: nXML
+    sgml-indent-level: 2
+    indent-tabs-mode: nil
+  End:
+
+  vim: softtabstop=2 tabstop=2 expandtab shiftwidth=2
+-->
