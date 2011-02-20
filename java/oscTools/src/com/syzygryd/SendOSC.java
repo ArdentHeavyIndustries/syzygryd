@@ -1,3 +1,5 @@
+package com.syzygryd;
+
 import oscP5.*;
 import netP5.*;
 
@@ -74,7 +76,7 @@ public class SendOSC
 
    // XXX not literal, given java classpath crap
    private static void usage() {
-      System.err.println("usage: SendOSC <host> <port> <address> [<value1> [<value2> [<valie3>]]]");
+      System.err.println("usage: SendOSC <host> <port> <address> [<value1> [<value2> [<value3>]]]");
       System.exit(1);
    }
 

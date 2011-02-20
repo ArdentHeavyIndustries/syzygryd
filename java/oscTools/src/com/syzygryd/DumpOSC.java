@@ -1,3 +1,5 @@
+package com.syzygryd;
+
 import oscP5.*;
 
 /* For inspiration (but a complete clone is not necessarily a goal), see:

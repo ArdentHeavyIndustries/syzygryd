@@ -1,18 +1,32 @@
 <?xml version="1.0"?>
 
-<project name="oscTools" default="compile" basedir=".">
+<project name="oscTools" default="jar" basedir=".">
   <target name="prepare">
-    <mkdir dir="build" />
+    <mkdir dir="build/classes" />
+    <mkdir dir="build/lib" />
+    <copy file="../../processing/libraries/oscP5/library/oscP5.jar"
+          todir="build/lib" />
+    <mkdir dir="build/META-INF" />
   </target>
 
   <target name="compile" depends="prepare">
     <!-- processing is needed solely b/c the OscP5 is looking for (parent instanceof PApplet) -->
     <javac srcdir="src"
-	   destdir="build"
-           classpath="../../processing/libraries/oscP5/library/oscP5.jar"
+	   destdir="build/classes"
+           classpath="build/lib/oscP5.jar"
 	   includeantruntime="false">
       <compilerarg value="-Xlint:unchecked" />
     </javac>
+  </target>
+
+  <target name="manifest">
+    <manifest file="build/META-INF/MANIFEST.MF" />
+  </target>
+
+  <target name="jar" depends="compile, manifest">
+    <jar jarfile="build/lib/oscTools.jar"
+         basedir="build/classes"
+	 manifest="build/META-INF/MANIFEST.MF" />
   </target>
 
   <target name="clean">

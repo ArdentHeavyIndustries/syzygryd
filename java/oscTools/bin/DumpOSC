@@ -31,9 +31,9 @@ oscTools_home="${path_to_script}/.."
 #echo "OscTools home = $oscTools_home"
 
 pushd ${oscTools_home} > /dev/null 2>&1
-java -cp build:../../processing/libraries/oscP5/library/oscP5.jar DumpOSC "$@"
+java -cp build/lib/oscTools.jar:build/lib/oscP5.jar com.syzygryd.DumpOSC "$@"
 # XXX for windows it's probably something like the following, but this is untested
-#java -cp `cygpath -wp build:../../processing/libraries/oscP5/library/oscP5.jar` DumpOSC "$@"
+#java -cp `cygpath -wp build/lib/oscTools.jar:build/lib/oscP5.jar` com.syzygryd.DumpOSC "$@"
 popd > /dev/null 2>&1
 
 ##
