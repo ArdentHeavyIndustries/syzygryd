@@ -48,7 +48,7 @@ final String DEFAULT_SEND_DMX                = "true";
 final String DEFAULT_TEST_MODE               = "false"; // in test mode we output DMX on sequential channels -- see LightingTest
 final String DEFAULT_SYZYVYZ                 = "false";
 final String DEFAULT_ASCII_SEQUENCER_DISPLAY = "false";
-final String DEFAULT_ENTTEC                  = "cu.usbserial-XXXXXXXX";	// there is no real meaningful default here
+final String DEFAULT_ENTTEC                  = "/dev/cu.usbserial-XXXXXXXX";	// there is no real meaningful default here
 final String DEFAULT_LIST_ENTTEC_SERIAL_NUMS = "false";
 
 // These will be set in setupProps()
@@ -145,13 +145,16 @@ void setup() {
 
   // Set listEnttecSerialNums in showcontrol.properties to true to
   // enumerate available serial devices on the console: the Enttecs
-  // should all appear as "cu.usbserial-XXXXXXXX", where XXXXXXXX is
-  // some unique identifier. Copy the results into the enttec*
+  // should all appear as "/dev/cu.usbserial-XXXXXXXX", where XXXXXXXX
+  // is some unique identifier. Copy the results into the enttec*
   // properties in showcontrol.properties.
   if (getBooleanProperty("listEnttecSerialNums")) {
     info("All available serial devices follow.");
-    info("Enttecs should appear as \"cu.usbserial-XXXXXXXX\", where XXXXXXXX is some unique identifier.");
-    Serial.list();
+    info("Enttecs should appear as \"/dev/cu.usbserial-XXXXXXXX\", where XXXXXXXX is some unique identifier.");
+    String[] list = Serial.list();
+    for (int i = 0; i < list.length; i++) {
+      info(list[i]);
+    }
   }
 
   // add three controllers to manager, if applicable
