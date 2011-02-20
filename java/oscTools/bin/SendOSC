@@ -1,10 +1,33 @@
 #!/bin/bash
 
-pwd=`pwd`
-path_to_script=`dirname $0`
 # XXX osx native readlink doesn't support -f, gnu readlink does, but i don't want to require macports
-#oscTools_home=`readlink -f ${pwd}/${path_to_script}/..`
-oscTools_home="${pwd}/${path_to_script}/.."
+# stolen from http://bugs.gentoo.org/125466
+# this has the risk of an infinite loop
+my_readlink_f() {
+  currlink=$1
+  currfile=$(readlink "$1")
+  while [[ -n ${currfile} ]]; do
+    currlink=${currfile}
+    currfile=$(readlink "${currlink}")
+  done
+  echo ${currlink}
+}
+
+have_gnu_readlink() {
+  readlink -f `which readlink` > /dev/null 2>&1
+}
+
+do_readlink_f() {
+  if have_gnu_readlink; then
+    readlink -f "$1"
+  else
+    my_readlink_f "$1"
+  fi
+}
+
+script=`do_readlink_f $0`
+path_to_script=`dirname $script`
+oscTools_home="${path_to_script}/.."
 #echo "OscTools home = $oscTools_home"
 
 pushd ${oscTools_home} > /dev/null 2>&1
