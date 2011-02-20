@@ -43,7 +43,7 @@ final int OSC_UPDATE_INTERVAL_MS = 500;
 // These are the default values, if not set in the file.
 // Use String's here, regardless of the final type.
 // These should be consistent with the commented out lines in the
-// example etc/controller.properties file.
+// example etc/showcontrol.properties file.
 final String DEFAULT_SEND_DMX                = "true";
 final String DEFAULT_TEST_MODE               = "false"; // in test mode we output DMX on sequential channels -- see LightingTest
 final String DEFAULT_SYZYVYZ                 = "false";
