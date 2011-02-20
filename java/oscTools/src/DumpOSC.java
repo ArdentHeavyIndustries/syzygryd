@@ -23,9 +23,30 @@ public class DumpOSC
          String address = message.addrPattern();
          float value1 = message.get(0).floatValue();
          float value2 = message.get(1).floatValue();
-         System.out.println("Received OSC: " + address + " " + value1 + " " + value2);;
+         System.out.println("Received OSC: " + address + " " + value1 + " " + value2);
+      } else if ("fff".equals(message.typetag())) {
+         String address = message.addrPattern();
+         float value1 = message.get(0).floatValue();
+         float value2 = message.get(1).floatValue();
+         float value3 = message.get(2).floatValue();
+         System.out.println("Received OSC: " + address + " " + value1 + " " + value2 + " " + value3);
+      } else if ("i".equals(message.typetag())) {
+         String address = message.addrPattern();
+         int value = message.get(0).intValue();
+         System.out.println("Received OSC: " + address + " " + value);
+      } else if ("ii".equals(message.typetag())) {
+         String address = message.addrPattern();
+         int value1 = message.get(0).intValue();
+         int value2 = message.get(1).intValue();
+         System.out.println("Received OSC: " + address + " " + value1 + " " + value2);
+      } else if ("iii".equals(message.typetag())) {
+         String address = message.addrPattern();
+         int value1 = message.get(0).intValue();
+         int value2 = message.get(1).intValue();
+         int value3 = message.get(2).intValue();
+         System.out.println("Received OSC: " + address + " " + value1 + " " + value2 + " " + value3);
       } else {
-         System.err.println("WARNING: for now, only one or two floats supported, not " + message.typetag() + ": " + message.addrPattern());
+         System.err.println("WARNING: for now, only one, two, or three all float(s) or all int(s) supported, not " + message.typetag() + ": " + message.addrPattern());
       }
    }
    
