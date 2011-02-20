@@ -2,9 +2,21 @@
 // Steps through every single DMX channel on the given arm. Does not use sync.
   
 int TEST_STEP_TIME = 250; // ms
-int FIRST_TEST_CHANNEL=117;
-int LAST_TEST_CHANNEL= 124;
-int TEST_VAL = 85;
+
+// http://wiki.interpretivearson.com/index.php?title=Syzygryd:Teams:Lighting_Control#DMX_Addresses
+// Each DMX universe (of which there are three, for three arms) is addressed as follows:
+//     * 1-108 are cubes 1-36 R,G,B interleaved (108)
+//     * 109-117 are control cubes (9)
+//     * 118-141 are flame effects 1-8 on arms A, B, C (24)
+//     * 142-144 are hi-pressure valves on arms A,B,C (3)
+//     * 145 is the central poofer (1)
+//     * 146 is the tornado fan (1)
+//     * 147 is the tornado fuel (wired so that it cannot open the valve if the fan is not running) (1) 
+// XXX i'm assuming that the wiki docs start counting at 1 and the code starts counting at 0, but could someone else confirm that?
+int FIRST_TEST_CHANNEL=0;
+int LAST_TEST_CHANNEL=107;
+
+int TEST_VAL = 255;
 boolean MULTIPLE_ARMS = true;
 
 void sendDMX2(int addr, int val)
