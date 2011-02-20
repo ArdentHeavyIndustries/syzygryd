@@ -1,21 +1,57 @@
 import processing.serial.*;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
+
+Properties props;
+
+// Read configuration from a properties file
+// linux or mac
+final String PROPS_FILE = "/opt/syzygryd/etc/syzydiagnostic.properties";
+// windows
+//final String PROPS_FILE = "C:\syzygryd\etc\syzydiagnostic.properties";
+
 //Quick DMX System
 QuickDMXSystem dmxs;
 int MAX_LIGHTING_CHANNEL = 117;
+
+void addEnttec(String key) {
+  String enttec = props.getProperty(key);
+  if (enttec != null && !("".equals(enttec)) && !("/dev/cu.usbserial-XXXXXXXX".equals(enttec))) {
+    System.out.println("Adding enttec " + enttec);
+    dmxs.addenttec(enttec);
+  } else {
+    System.err.println("Not adding enttec " + key + ".  Edit " + PROPS_FILE + " to set");
+  }
+}
 
 void setup() {
   // Let's create a DMX system
   dmxs = new QuickDMXSystem();
   dmxs.initialize(this);
-  println(Serial.list());
-  // Uncomment the lines below for entec devices connected to the computer
+  System.out.println("All available serial devices follow.");
+  System.out.println("Enttecs should appear as \"/dev/cu.usbserial-XXXXXXXX\", where XXXXXXXX is some unique identifier.");
+  String[] list = Serial.list();
+  for (int i = 0; i < list.length; i++) {
+    System.out.println(list[i]);
+  }
+
+  props = new Properties();
+  System.out.println("Loading properties from " + PROPS_FILE);
   try {
-    //  dmxs.addentec("/dev/cu.usbserial-EN077331"); // Arm A
-    dmxs.addentec("/dev/cu.usbserial-EN077490"); // Arm B
-    //  dmxs.addentec("/dev/cu.usbserial-EN075581"); // Arm C
+    props.load(new FileReader(PROPS_FILE));
+  } catch (IOException ioe) {
+    System.err.println("Can't load properties file, please add Enttec serial numbers: " + PROPS_FILE);
+  }
+
+  try {
+    // Edit the properties file to configure these
+    addEnttec("enttec0");	// Arm A
+    addEnttec("enttec1");	// Arm B
+    addEnttec("enttec2");	// Arm C
   } catch (Exception e) {
-    println("Entecs Missing!");
+    System.err.println("Enttecs Missing!");
     e.printStackTrace();
     exit();
   }
@@ -29,9 +65,9 @@ void setup() {
     new DiagServer();
   }
   catch( IOException ioe) {
-    println("IOException: " + ioe);
+    System.err.println("Exception starting web service: " + ioe);
   }
-  println("Diagnostic server running on port 51230");
+  System.out.println("Diagnostic server running on port 51230");
 }
 
 void draw() {
