@@ -9,6 +9,7 @@ import netP5.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.NumberFormatException;
+import java.util.Calendar;
 import java.util.Properties;
 
 // ------------------------- Program Configuration ------------------------- 
@@ -20,6 +21,12 @@ import java.util.Properties;
 // globally.
 Properties defaultProps;
 Properties props;
+
+// Read configuration from a properties file
+// linux or mac
+final String PROPS_FILE = "/opt/syzygryd/etc/showcontrol.properties";
+// windows
+//final String PROPS_FILE = "C:\syzygryd\etc\showcontrol.properties";  
 
 // Not *all* configuration values are exposed to runtime editing.
 // Only those that are likely to change during testing or between test and production.
@@ -41,6 +48,8 @@ final String DEFAULT_SEND_DMX                = "true";
 final String DEFAULT_TEST_MODE               = "false"; // in test mode we output DMX on sequential channels -- see LightingTest
 final String DEFAULT_SYZYVYZ                 = "false";
 final String DEFAULT_ASCII_SEQUENCER_DISPLAY = "false";
+final String DEFAULT_ENTTEC                  = "cu.usbserial-XXXXXXXX";	// there is no real meaningful default here
+final String DEFAULT_LIST_ENTTEC_SERIAL_NUMS = "false";
 
 // These will be set in setupProps()
 
@@ -93,6 +102,17 @@ int syzyVyzPort = 3333;
 // Panel UI colors
 color panelColor[];
 
+void dmxAddController(String key) {
+  String enttec = getStringProperty(key);
+  if (DEFAULT_ENTTEC.equals(enttec)) {
+    warn("Controller " + key + " not properly configured.  Edit " + PROPS_FILE + " to set");
+  }
+  // we do this even in the case above, because not doing so causes all kinds of badness
+  info("Adding controller " + key + ": " + enttec);
+  DMXManager.addController(enttec, 149);
+}
+
+
 void setup() {
   setupProps();
 
@@ -123,16 +143,21 @@ void setup() {
   //create new DMX manager object
   DMXManager = new DMX(this);
 
-  // Uncomment the following line to enumerate available serial devices on the console: the Enttecs should 
-  // all appear as "cu.usbserial-XXXXXXXX", where XXXXXXXX is some unique identifier. Copy the results into 
-  // the DMXmanager.addController() statements below.
-  
-  //Serial.list();
+  // Set listEnttecSerialNums in showcontrol.properties to true to
+  // enumerate available serial devices on the console: the Enttecs
+  // should all appear as "cu.usbserial-XXXXXXXX", where XXXXXXXX is
+  // some unique identifier. Copy the results into the enttec*
+  // properties in showcontrol.properties.
+  if (getBooleanProperty("listEnttecSerialNums")) {
+    info("All available serial devices follow.");
+    info("Enttecs should appear as \"cu.usbserial-XXXXXXXX\", where XXXXXXXX is some unique identifier.");
+    Serial.list();
+  }
 
-  //add three controllers to manager
-  DMXManager.addController("/dev/cu.usbserial-EN077331",149);
-  DMXManager.addController("/dev/cu.usbserial-EN077490",149);
-  DMXManager.addController("/dev/cu.usbserial-EN075581",149);
+  // add three controllers to manager, if applicable
+  dmxAddController("enttec0");
+  dmxAddController("enttec1");
+  dmxAddController("enttec2");
   
   // start fire control
   fireControlInitialize();
@@ -393,18 +418,16 @@ void setupProps() {
   // Properties is done in the global declarations section above, so
   // keep it here (invoked from setup()).
 
-  // Read configuration from a properties file
-  // linux or mac
-  final String PROPS_FILE = "/opt/syzygryd/etc/showcontrol.properties";
-  // windows
-  //final String PROPS_FILE = "C:\syzygryd\etc\showcontrol.properties";
-  
   // Configure default values, if not set in the file
   defaultProps = new Properties();
   defaultProps.setProperty("sendDmx", DEFAULT_SEND_DMX);
   defaultProps.setProperty("testMode", DEFAULT_TEST_MODE);
   defaultProps.setProperty("syzyvyz", DEFAULT_SYZYVYZ);
   defaultProps.setProperty("asciiSequencerDisplay", DEFAULT_ASCII_SEQUENCER_DISPLAY);
+  defaultProps.setProperty("enttec0", DEFAULT_ENTTEC);
+  defaultProps.setProperty("enttec1", DEFAULT_ENTTEC);
+  defaultProps.setProperty("enttec2", DEFAULT_ENTTEC);
+  defaultProps.setProperty("listEnttecSerialNums", DEFAULT_LIST_ENTTEC_SERIAL_NUMS);
   
   props = new Properties(defaultProps);
   info("Loading properties from " + PROPS_FILE);
