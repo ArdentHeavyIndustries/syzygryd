@@ -14,25 +14,30 @@ import com.illposed.osc.OSCPortOut;
  */
 public class OSCSender {
 	private OSCPortOut sender;
-	public final int OSC_SENDING_PORT;
 	private InetAddress addr;
+   private int port;
 	public static final String MSG_LIVE_PLAY_STOP = "/live/stop";
 	public static final String MSG_LIVE_PLAY_START = "/live/play";
 	public static final String MSG_SET_TIME_REMAINING = "/timeRemaining";
 
-	OSCSender(InetAddress address, int port) {
-		this(port);
-		addr = address;
+	OSCSender(InetAddress addr, int port) {
+      if (addr == null) {
+         try {
+            addr = InetAddress.getLocalHost();
+         } catch (UnknownHostException uhe) {
+            Logger.warn ("Unable to get local host address, things are probably pretty hosed", uhe);
+         }
+      }
+
+      this.addr = addr;
+      this.port = port;
+
+      init();
 	}
 
+   // addr defaults to localhost
 	OSCSender(int port) {
-		OSC_SENDING_PORT = port;
-		try {
-			addr = InetAddress.getLocalHost();
-		} catch (UnknownHostException uhe) {
-         Logger.warn ("Unable to get local host address, things are probably pretty hosed", uhe);
-		}
-		init();
+      this(null, port);
 	}
 	
 	/**
@@ -41,7 +46,8 @@ public class OSCSender {
 	public void init() {
 	
 		try {
-			sender = new OSCPortOut(addr, OSC_SENDING_PORT);
+         Logger.info ("Configuring OSC port out to " + addr + ":" + port);
+			sender = new OSCPortOut(addr, port);
 		} catch (Exception e) {
 			Logger.warn(e);
 		}
@@ -70,21 +76,29 @@ public class OSCSender {
 	 * @param time milliseconds remaining
 	 */
 	public void sendTimeRemaining(int time, int set, String lightingProgram) {
-       Logger.info("OSC: time remaining " + time + " set " + set + " lightingProgram " + lightingProgram);
-		Object[] args = { (Object)time, (Object)set, (Object)lightingProgram};
-		send(MSG_SET_TIME_REMAINING, args);
+      Logger.info("OSC: time remaining " + time + " set " + set + " lightingProgram " + lightingProgram);
+      // XXX NO, the controller is expecting a message with only one arg, the time !!!
+		//Object[] args = { (Object)time, (Object)set, (Object)lightingProgram};
+		//send(MSG_SET_TIME_REMAINING, args);
+		send(MSG_SET_TIME_REMAINING, time);
 	}
 	
 	/**
-	 * actually sends message.  if live went away, reconnects
+	 * actually sends message.
+    * if live went away, reconnects (XXX NO, we're not not currently doing that)
 	 * @param msg
 	 */
 	public void send(String msg) {
 		send(msg, null);
 	}
-	
+
+   public void send(String msg, Object arg) {
+      Object[] args = { arg };
+      send(msg, args);
+   }
+
 	public void send(String msg, Object[] args) {
-      Logger.info("Sending OSC messaage \"" + msg + "\" to " + addr.getHostAddress() + ":" + OSC_SENDING_PORT);
+      Logger.info("Sending OSC messaage \"" + msg + "\" with " + (args == null ? "0" : args.length) + " args to " + addr.getHostAddress() + ":" + port);
 		OSCMessage oscmsg;
 		if (args != null) {
 			oscmsg = new OSCMessage(msg, args);
@@ -95,6 +109,7 @@ public class OSCSender {
 		try {
 			sender.send(oscmsg);
 		} catch (IOException ioe) {
+         Logger.warn("Exception sending OSC message", ioe);
 			// TODO: reconnect
 			// init();
 		}
