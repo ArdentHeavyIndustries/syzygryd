@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ActionRunner extends Thread {
 	
 	private static int SECOND_IN_MILLIS = 1000;
-	private static int LOAD_TIMEOUT = 600 * SECOND_IN_MILLIS;	// XXX Do we really want to wait 10 minutes for a set to load ???
+	private static int LOAD_TIMEOUT = 60 * SECOND_IN_MILLIS;	// XXX REVISIT (was 10 minutes)
 	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 3 * SECOND_IN_MILLIS;
 	private static int QUIT_TIMEOUT = 10 * SECOND_IN_MILLIS;
 	private static int INTERVAL_BETWEEN_DURATION_NOTIFICATIONS = 5 * SECOND_IN_MILLIS;
@@ -83,7 +83,7 @@ public class ActionRunner extends Thread {
 				// NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
 				if (currentAction.requiresLoad()) {
 					loaded = false;
-					Logger.info("Waiting (up to " + LOAD_TIMEOUT + " seconds) for load...");
+					Logger.info("Waiting (up to " + LOAD_TIMEOUT + " ms) for load...");
 					try {
 						loaded = loadPending.await(LOAD_TIMEOUT, TimeUnit.MILLISECONDS);
 					} catch (InterruptedException ie) {
@@ -92,6 +92,7 @@ public class ActionRunner extends Thread {
 				}
 				
 				if (loaded) {
+               Logger.info("Done loading");
 					// action is now running; wait until it's done or someone interrupts us
 					Logger.info("Playing...");
 					boolean interrupted = false;
@@ -105,10 +106,10 @@ public class ActionRunner extends Thread {
 						}
 						remaining -= INTERVAL_BETWEEN_DURATION_NOTIFICATIONS;
 					}
-					
 					sendTimeRemainingMessage(0, currentAction.getId(), currentAction.getLightingProgram());
-					
-				} 
+				} else {
+               Logger.warn("Done waiting " + LOAD_TIMEOUT + " ms, but load did not occur");
+            }
 				setRunning(false);
 				Logger.info("Stopping...");
 				currentAction.stop();
