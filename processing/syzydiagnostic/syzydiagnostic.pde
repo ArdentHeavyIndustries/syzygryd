@@ -14,7 +14,7 @@ final String PROPS_FILE = "/opt/syzygryd/etc/syzydiagnostic.properties";
 
 //Quick DMX System
 QuickDMXSystem dmxs;
-int MAX_LIGHTING_CHANNEL = 117;
+int MAX_LIGHTING_CHANNEL = 149;
 
 void addEnttec(String key) {
   String enttec = props.getProperty(key);
