@@ -563,7 +563,6 @@ class FrameBrulee extends LightingProgram {
       color clr0 = color(baseHueRotate.getArmHue(0), 100, 100);
       color clr1 = color(baseHueRotate.getArmHue(1), 100, 100);
       color clr2 = color(baseHueRotate.getArmHue(2), 100, 100);
-      // XXX why is there an OSC color message in both FrameBrulee.advance() and OSCManager.sendUIColor() ?
       //debug ("FrameBrulee.advance() -> sendControllerOSCMsg(\"/color\") to " + OSCConnection.myRemoteLocation.inetaddress().getHostAddress() + ":" + OSCConnection.myRemoteLocation.port());
       sendControllerOSCMsg("/color", clr0, clr1, clr2);
       colorMode(RGB, 255);

@@ -38,7 +38,6 @@ final int PANELS = 3;    // Should probably just use PANELS and PITCHES constant
 final int PITCHES = 10;  // wait until 2.0 to make any changes.
 
 final int FRAMERATE = 100;
-final int OSC_UPDATE_INTERVAL_MS = 500;
 
 // These are the default values, if not set in the file.
 // Use String's here, regardless of the final type.
@@ -76,7 +75,6 @@ EventDispatcher events;
 // Time Tracking
 int lastSyncTimeInMs;
 int lastDrawTimeInMs;
-int lastOscUpdateTimeInMs;
 
 // Fixtures and Groups
 ArrayList<Fixture> fixtures = new ArrayList();
@@ -122,7 +120,6 @@ void setup() {
   
   lastSyncTimeInMs = 0;
   lastDrawTimeInMs = millis();
-  lastOscUpdateTimeInMs = 0;
    
   //Set up OSC connection
   // XXX by sending and receiving both on port 9002 with the broadcast address, we get feedback and receive all osc messages that we send on this port
@@ -294,14 +291,6 @@ void draw(){
   
   // send final state of lights to DMX controller(s)
   DMXManager.update();
-  
-  // update remote panel UI color via OSC
-  int now = millis();
-  if (now - lastOscUpdateTimeInMs >= OSC_UPDATE_INTERVAL_MS) {	// only send if update interval has elapsed
-    //debug ("Sending UI color");
-    lastOscUpdateTimeInMs = now;
-//    OSCConnection.sendUIColor();
-  }
   
 }
 

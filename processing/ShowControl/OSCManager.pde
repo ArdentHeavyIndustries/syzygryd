@@ -28,24 +28,6 @@ class OSCManager {
   }
   
   /*
-   * Sends OSC /color message to update panel UI color
-   */
-  void sendUIColor(){
-    // XXX why is there an OSC color message in both FrameBrulee.advance() and OSCManager.sendUIColor() ?
-    //debug ("OSCManager.sendUIColor() to " + myRemoteLocation.inetaddress().getHostAddress() + ":" + myRemoteLocation.port());
-    if (myRemoteLocation != null){
-      OscMessage uiColors = new OscMessage("/color");
-      for (int i = 0; i < panelColor.length; i++){
-        uiColors.add(panelColor[i]);
-        //debug("Adding color: " + hex(panelColor[i]));
-      }
-      oscP5.send(uiColors, myRemoteLocation);
-    } else {
-      warn("no remote host to send color to");
-    }
-  }
-
-  /*
    * Listens for incoming OSC messages and acts upon them
    */
   void oscEvent(OscMessage m) {
