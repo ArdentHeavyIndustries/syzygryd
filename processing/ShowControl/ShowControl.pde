@@ -125,6 +125,7 @@ void setup() {
   lastOscUpdateTimeInMs = 0;
    
   //Set up OSC connection
+  // XXX by sending and receiving both on port 9002 with the broadcast address, we get feedback and receive all osc messages that we send on this port
   OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
   OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
 
@@ -571,7 +572,7 @@ String getTime() {
 
 void debug(String msg) {
   // feel free to uncomment this for debugging, but DO NOT CHECK IT IN if you do so.
-  //System.out.println(getTime() + " " + msg);
+  System.out.println(getTime() + " " + msg);
 }
 
 void info(String msg) {
