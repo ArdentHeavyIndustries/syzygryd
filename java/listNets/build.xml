@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<project name="listNets" default="run" basedir=".">
+  <target name="prepare">
+    <mkdir dir="build/classes" />
+  </target>
+
+  <target name="compile" depends="prepare">
+    <javac srcdir="src"
+	   destdir="build"
+	   includeantruntime="false">
+      <compilerarg value="-Xlint:unchecked" />
+    </javac>
+  </target>
+
+  <target name="run" depends="compile">
+    <java classname="ListNets"
+	  classpath="build" />
+  </target>
+
+  <target name="clean">
+    <delete dir="build" />
+  </target>
+</project>
+
+<!--
+  Local Variables:
+    mode: nXML
+    sgml-indent-level: 2
+    indent-tabs-mode: nil
+  End:
+
+  vim: softtabstop=2 tabstop=2 expandtab shiftwidth=2
+-->
