@@ -1,4 +1,4 @@
-loadedInterfaceName = "SyzygrydMaster";
+loadedInterfaceName = "SyzygrydLighting";
 
 interfaceOrientation = "portrait";
 
