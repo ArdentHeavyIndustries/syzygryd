@@ -50,6 +50,15 @@ public class Switcher {
 	private static ActionRunner ar = null;
 	
 	public static void main(String[] args) {
+
+      Logger.info("****************************************");
+      Logger.info("STARTING SWITCHER");
+
+      // System.out.println("test stdout");
+      // System.err.println("test stderr");
+      // Logger.debug("test debug");
+      // Logger.info("test info");
+      // Logger.warn("test warn");
 		
 		if (args.length != 1) {
 			Logger.warn("usage: java Switcher <list-filename>.");

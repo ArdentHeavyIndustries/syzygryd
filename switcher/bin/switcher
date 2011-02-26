@@ -31,7 +31,8 @@ switcher_home="${path_to_script}/.."
 #echo "Switcher home = $switcher_home"
 
 pushd ${switcher_home} > /dev/null 2>&1
-java -cp build/switcher.jar com.syzygryd.Switcher /opt/syzygryd/etc/setlist.csv
+mkdir -p /opt/syzygryd/log
+java -cp build/switcher.jar com.syzygryd.Switcher /opt/syzygryd/etc/setlist.csv 2>&1 | tee -a /opt/syzygryd/log/switcher.log
 popd > /dev/null 2>&1
 
 ##
