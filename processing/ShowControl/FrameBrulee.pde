@@ -304,7 +304,7 @@ void processOSCLightEvent(OscMessage m) {
       uiFBParams.arms[arm].animationSpeed = m.get(0).floatValue();    
     } 
 
-    if (m.addrPattern().startsWith(armStr + "pulseWidth")) {
+    if (m.addrPattern().startsWith(armStr + "animationSize")) {
       uiFBParams.arms[arm].pulseWidth = m.get(0).floatValue();    
     } 
 
@@ -416,7 +416,7 @@ void outputParamsToOSC(FBParams fb) {
     sendTouchOSCMsg(armStr + "effectBright", uiFBParams.arms[arm].effectBright);
 
     sendTouchOSCMsg(armStr + "animationSpeed", uiFBParams.arms[arm].animationSpeed);
-    sendTouchOSCMsg(armStr + "pulseWidth", uiFBParams.arms[arm].pulseWidth);
+    sendTouchOSCMsg(armStr + "animationSize", uiFBParams.arms[arm].pulseWidth);
     sendTouchOSCMsg(armStr + "attack", uiFBParams.arms[arm].attack);
     sendTouchOSCMsg(armStr + "decay", uiFBParams.arms[arm].decay);
   }
