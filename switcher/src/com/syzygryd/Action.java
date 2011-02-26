@@ -27,8 +27,8 @@ public abstract class Action {
 	 * 
 	 */
 	public enum ActionType { playthis, playnext, playprev, 
-							livespace, liveesc, livequit, livescreenshot,
-							screenshot, setlist, loadtimeout, queue, quit, restart }
+         livespace, liveesc, livequit, livescreenshot,
+         screenshot, setlist, loadtimeout, queue, quit, restart }
 	
 	/***
 	 * indicates that this action plays until stopped
@@ -92,6 +92,40 @@ public abstract class Action {
 	public String getLightingProgram() {
 		return "";
 	}
+
+   public String toString() {
+      switch (type)
+         {
+         case playthis:
+            return "playthis";
+         case playnext:
+            return "playnext";
+         case playprev:
+            return "playprev";
+         case livespace:
+            return "livespace";
+         case liveesc:
+            return "liveesc";
+         case livequit:
+            return "livequit";
+         case livescreenshot:
+            return "livescreenshot";
+         case screenshot:
+            return "screenshot";
+         case setlist:
+            return "setlist";
+         case loadtimeout:
+            return "loadtimeout";
+         case queue:
+            return "queue";
+         case quit:
+            return "quit";
+         case restart:
+            return "restart";
+         default:
+            return "unknownActionType";
+         }
+   }
 	
 }
 

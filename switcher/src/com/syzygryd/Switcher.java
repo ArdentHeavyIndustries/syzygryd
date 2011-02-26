@@ -17,7 +17,7 @@ import com.illposed.osc.OSCPortIn;
 public class Switcher {
 
 	public static final int OSC_LISTENING_PORT = 9001;
-	public static final int OSC_SENDING_PORT_LIVE = 9000;	// XXX not really used?
+	//public static final int OSC_SENDING_PORT_LIVE = 9000;	// XXX not really used?
 
    // see http://monome.q3f.org/browser/trunk/LiveOSC/OSCAPI.txt
    private static final String MSG_LIVE_SET_LOADED = "/remix/echo";
@@ -39,7 +39,7 @@ public class Switcher {
 	public static final int WEB_SENDING_PORT = 31337;
 	
 	public static final int ARG_SETLISTFILENAME = 0;
-	private static OSCSender senderLive = null;	// XXX not really used
+	//private static OSCSender senderLive = null;	// XXX not really used
 	//private static OSCSender senderSequencer = null;
 	//private static OSCSender senderLighting = null;
 	//private static OSCSender senderController = null;
@@ -79,17 +79,17 @@ public class Switcher {
          localhost = "localhost";
       }
       
-		Logger.info("Setting up (unused?) OSC sender to Live on " + localhost + ":" + OSC_SENDING_PORT_LIVE);
-		try {
-			senderLive = new OSCSender(OSC_SENDING_PORT_LIVE);
-		} catch (Exception e) {
-			Logger.warn(e);
-		}
+		// Logger.info("Setting up (unused?) OSC sender to Live on " + localhost + ":" + OSC_SENDING_PORT_LIVE);
+		// try {
+		// 	senderLive = new OSCSender(OSC_SENDING_PORT_LIVE);
+		// } catch (Exception e) {
+		// 	Logger.warn(e);
+		// }
 		
-		// install sender for live
-		// TODO: after quitting live is implemented, sender will
-		// need to be reset.  or not!
-		Set.setSender(senderLive);
+		// // install sender for live
+		// // TODO: after quitting live is implemented, sender will
+		// // need to be reset.  or not!
+		// Set.setSender(senderLive);
 		
 		try {
 			OSC_BROADCAST_ADDRESS = InetAddress.getByName("255.255.255.255");
@@ -128,7 +128,8 @@ public class Switcher {
 			Syzyweb web = new Syzyweb(WEB_SENDING_PORT, ar, list);
 		} catch (IOException ioe) {
 			// TODO Auto-generated catch block
-			Logger.warn(ioe);
+         // XXX should we exit if this happens?
+			Logger.warn("Webserver failed to start: " + ioe);
 		}
 		
 		Logger.info("Running.");
@@ -157,7 +158,7 @@ public class Switcher {
 			portIn = new OSCPortIn(OSC_LISTENING_PORT);
 		} catch (SocketException se) {
 			// TODO Auto-generated catch block
-			Logger.warn("Unable to open port " + OSC_LISTENING_PORT + "for listening.\n"
+			Logger.warn("Unable to open port " + OSC_LISTENING_PORT + " for listening.\n"
 					+ "It's possible that there's another copy of this running, or there's another\n"
 					+ "program listening on port " + OSC_LISTENING_PORT + ".  Use netstat to figure out\n"
 					+ "if someone's listening, and use ps or Activity Monitor to see if there's another\n"
@@ -216,9 +217,12 @@ public class Switcher {
                      Logger.warn(e);
                   }
                }
+               // XXX is the else case bad?  if live says it's stopped, but we think it's still playing?
                break;
             case LIVE_STATE_PLAYING:
+               // XXX does ar.isPlaying() matter here?  see above.
                Logger.info("Live state is PLAYING: " + state);
+               // XXX do we not do anything here?
                break;
             default:
                Logger.warn("Unexpected Live state (neither STOPPED nor PLAYING): " + state);

@@ -28,6 +28,7 @@ public class AppleScriptRunner {
 			engine.eval(script);
 		} catch (ScriptException se) {
 			// TODO Auto-generated catch block
+         // XXX swallowing this is probably bad
 			Logger.warn(se);
 		}
     }
@@ -35,8 +36,9 @@ public class AppleScriptRunner {
     /**
      * Quits live
      */
+   // XXX we should have a more failsafe means for this that forces a quit if this fails
     public static void runLiveQuit() {
-		Logger.info("Running live quit script...");
+		Logger.info("Telling live to quit");
     	runScript(liveQuit);
     }
     
@@ -44,28 +46,35 @@ public class AppleScriptRunner {
      * Sends space bar to live
      */
     public static void runLiveSpace() {
-    	runScript(liveSpace);
+       Logger.info("Sending space to live");       
+       runScript(liveSpace);
     }
     
     /**
      * Sends space bar to live
      */
     public static void runLiveEnter() {
-    	runScript(liveEnter);
+       Logger.info("Sending enter to live");
+       runScript(liveEnter);
     }
     
     /**
      * Sends ESC key to live
      */
     public static void runLiveEsc() {
-    	runScript(liveEsc);
+       Logger.info("Sending esc to live");       
+       runScript(liveEsc);
     }
     
     /**
      * Brings Live to front
      */
     public static void runLiveActivate() {
-    	runScript(liveActivate);
+       // XXX what is this ?  perhaps it's to bring to the foreground?
+       // it falls through from the livescreenshot case to the
+       // screenshot case in Syzyweb.act()
+       Logger.info("Telling live to activate");
+       runScript(liveActivate);
     }
 }
 

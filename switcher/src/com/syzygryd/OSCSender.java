@@ -16,8 +16,8 @@ public class OSCSender {
 	private OSCPortOut sender;
 	private InetAddress addr;
    private int port;
-	public static final String MSG_LIVE_PLAY_STOP = "/live/stop";
-	public static final String MSG_LIVE_PLAY_START = "/live/play";
+	// public static final String MSG_LIVE_PLAY_STOP = "/live/stop";
+	// public static final String MSG_LIVE_PLAY_START = "/live/play";
 	public static final String MSG_SET_TIME_REMAINING = "/timeRemaining";
 
 	OSCSender(InetAddress addr, int port) {
@@ -56,18 +56,20 @@ public class OSCSender {
 	/**
 	 * tells live to pause output
 	 */
-	public void livePlaybackStop() {
-		Logger.info("Sending OSC message: live stop...");
-		send(MSG_LIVE_PLAY_STOP);		
-	}
+   // XXX not used
+	// public void livePlaybackStop() {
+	// 	Logger.info("Sending OSC message: live stop...");
+	// 	send(MSG_LIVE_PLAY_STOP);		
+	// }
 	
 	/**
 	 * tells live to play audio
 	 */
-	public void livePlaybackStart() {
-		Logger.info("Sending OSC message: live play...");
-		send(MSG_LIVE_PLAY_START);		
-	}
+   // XXX not used
+	// public void livePlaybackStart() {
+	// 	Logger.info("Sending OSC message: live play...");
+	// 	send(MSG_LIVE_PLAY_START);		
+	// }
 	
 	/**
 	 * tells other system components that a set is playing & that it has

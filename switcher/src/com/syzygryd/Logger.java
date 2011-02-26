@@ -10,7 +10,9 @@ public class Logger {
 
    // XXX for now just hardcode this, and edit locally (but do not check in) to change
    // if this actually gets much use, i should add properties to the switcher as well
-   private static final boolean debug = false;
+   // XXX FOR NOW CHECK THIS IN, BUT I PROBABLY DON'T WANT TO LEAVE IT THIS WAY
+   //private static final boolean debug = false;
+   private static final boolean debug = true;
 
    // XXX logging is almost completely copied from processing/controller_display/controller_display.pde and processing/ShowControl/ShowControl.pde
    // in the long term we should share code

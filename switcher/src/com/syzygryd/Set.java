@@ -61,7 +61,7 @@ public class Set {
 	 * Opens set using Live
 	 */
 	public void play() {
-		Logger.info("Playing " + getName() + " - length:" + getLength() + " sec.");
+		Logger.info("Executing \"open " + getName() + "\" to play set of length:" + getLength() + " sec.");
 		
 		try {
 			String[] params = {"open", getName()};
@@ -69,6 +69,7 @@ public class Set {
 		} catch (IOException ioe) {
 			// NOP
          // XXX really?  a nop?  don't we want to at least register that we had trouble opening the set?
+         // XXX should probably skip to the next set
          Logger.warn("Unable to open " + getName(), ioe);
 		}
 		
@@ -78,12 +79,14 @@ public class Set {
 			// NOP
 		}
 		
+      // XXX exception swallowed here
 		AppleScriptRunner.runLiveEnter();
 		
 	}
 	
 	/**
 	 * Pauses live playback then quits live
+    * XXX no, that's not what it does at all
 	 */
 	public void stop() {
 		//sender.livePlaybackStop();

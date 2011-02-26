@@ -46,12 +46,15 @@ public class ActionSetPlay extends Action {
 		}
 		
 		if (s != null) {
+         Logger.debug("Got set, will play");
 			duration = s.getLength() * SECOND_IN_MILLIS;
 			s.play();
 			return true;
-		}
-		
-		return false;
+		} else {
+         // XXX is this bad ?
+         Logger.warn("Unable to get set");
+         return false;
+      }
 	}
 	
 	public void stop() {
@@ -67,23 +70,24 @@ public class ActionSetPlay extends Action {
 	public String getLightingProgram() {
 		return s.getLightingProgram();
 	}
-	
-	public String toString() {
-		switch (type) {
-		case playnext:
-		case playprev:
-			return list.getCurrentSet().toString();
-		case playthis:
-			int setId;
-			try {
-				setId = Integer.valueOf(params.getProperty("setid"));
-			} catch (Exception e) {
-				return "Play invalid setId";
-			}
-			return list.peekSet(setId).toString();
-		}
-		return s.toString();
-	}
+
+   // XXX this is causing a NPE.  for now just comment out and let super.toString() be used.
+	// public String toString() {
+	// 	switch (type) {
+	// 	case playnext:
+	// 	case playprev:
+	// 		return list.getCurrentSet().toString();
+	// 	case playthis:
+	// 		int setId;
+	// 		try {
+	// 			setId = Integer.valueOf(params.getProperty("setid"));
+	// 		} catch (Exception e) {
+	// 			return "Play invalid setId";
+	// 		}
+	// 		return list.peekSet(setId).toString();
+	// 	}
+	// 	return s.toString();
+	// }
 }
 
 /*

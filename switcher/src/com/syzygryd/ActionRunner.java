@@ -10,7 +10,7 @@ public class ActionRunner extends Thread {
 	private static int SECOND_IN_MILLIS = 1000;
 	private static int LOAD_TIMEOUT = 60 * SECOND_IN_MILLIS;	// XXX REVISIT (was 10 minutes)
 	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 3 * SECOND_IN_MILLIS;
-	private static int QUIT_TIMEOUT = 10 * SECOND_IN_MILLIS;
+	private static int STOP_TIMEOUT = 10 * SECOND_IN_MILLIS;
 	private static int INTERVAL_BETWEEN_DURATION_NOTIFICATIONS = 5 * SECOND_IN_MILLIS;
 	
 	private boolean running = false;
@@ -56,25 +56,37 @@ public class ActionRunner extends Thread {
 	
 	@Override
 	public void run() {
-		
+
+      Logger.info("Before infinite loop in ActionRunner.run()");
 		while (true) {  // don't stop til you get enough
+         Logger.debug("Beginning of loop in ActionRunner.run()");
+         try {
 			// determine next action in this order:
 			
 			// 1. existing pending action (which would have been set via actNow())
 			currentAction = popPendingAction();
+         Logger.debug("Popped pending action, if applicable: " + (currentAction == null ? null : currentAction.toString()));
 			
 			// 2. action at head of queue
 			if (currentAction == null) {
 				currentAction = getHead(); // try the salmon.  tip your waitron.
+            Logger.debug("Getting action at the head of the queue, if applicable: " + (currentAction == null ? null : currentAction.toString()));
 			}
 			
 			// 3. play next track
 			if (currentAction == null) {
 				currentAction = ActionFactory.createAction(Action.ActionType.playnext, null);
+            Logger.debug("Default fallthrough creating new action: " + (currentAction == null ? null : currentAction.toString()));
 			}
 			
 			// attempt to start.  if it succeeds, perform load
-			if(currentAction.start()) {
+         Logger.debug("Starting action: " + (currentAction == null ? null : currentAction.toString()));
+         // for the common case of opening a new set,
+         // currentAction.start() actually executes the open command
+         // on the *.als file, which will start live if needed, and
+         // load the set.
+			if (currentAction.start()) {
+            Logger.debug("Action start returned true: " + (currentAction == null ? null : currentAction.toString()));
 				setRunning(true);
 				boolean loaded = true;
 				int duration = currentAction.getDuration();
@@ -82,6 +94,7 @@ public class ActionRunner extends Thread {
 				// first wait for the action to load if necessary
 				// NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
 				if (currentAction.requiresLoad()) {
+               Logger.debug("Action requires load: " + (currentAction == null ? null : currentAction.toString()));
 					loaded = false;
 					Logger.info("Waiting (up to " + LOAD_TIMEOUT + " ms) for load...");
 					try {
@@ -89,12 +102,15 @@ public class ActionRunner extends Thread {
 					} catch (InterruptedException ie) {
 						// NIL;
 					}
-				}
-				
+				} else {
+               Logger.warn("Action does not require load.  I didn't think that could happen: " + (currentAction == null ? null : currentAction.toString()));
+            }
+
+            // XXX resume here
 				if (loaded) {
                Logger.info("Done loading");
 					// action is now running; wait until it's done or someone interrupts us
-					Logger.info("Playing...");
+					Logger.info("Playing for up to " + remaining + " ms ...");
 					boolean interrupted = false;
 					while(remaining > 0 && !interrupted) {
 						int sleepDuration = Math.min(INTERVAL_BETWEEN_DURATION_NOTIFICATIONS, remaining);
@@ -107,28 +123,54 @@ public class ActionRunner extends Thread {
 						remaining -= INTERVAL_BETWEEN_DURATION_NOTIFICATIONS;
 					}
 					sendTimeRemainingMessage(0, currentAction.getId(), currentAction.getLightingProgram());
+               if (interrupted) {
+                  Logger.info("Set was prematurely interrupted");
+               } else {
+                  Logger.debug("Set played to completion");
+               }
 				} else {
                Logger.warn("Done waiting " + LOAD_TIMEOUT + " ms, but load did not occur");
             }
 				setRunning(false);
 				Logger.info("Stopping...");
+            // this stops playing in live
 				currentAction.stop();
+            // really waiting for live to stop
+            boolean ended = false;
+            // XXX renamed quit to stop, b/c it doesn't quit
+            Logger.debug("Waiting (up to " + STOP_TIMEOUT + " ms) for stop...");
 				try {
-					endPending.await(QUIT_TIMEOUT, TimeUnit.MILLISECONDS);
+					ended = endPending.await(STOP_TIMEOUT, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException ie) {
 					// NOP
 				}
-				Logger.info("Stopped.");
+            if (ended) {
+               Logger.info("Stopped.");
+            } else {
+               Logger.warn("Done waiting " + STOP_TIMEOUT + " ms, but stop did not occur");
+               // XXX should we kill live now?
+            }
+
+            Logger.info("Waiting " + ARBITRARY_SLEEP_BETWEEN_SETS + " ms between sets");
 				try {
 					Thread.sleep(ARBITRARY_SLEEP_BETWEEN_SETS);
 				} catch (InterruptedException ie) {
-					// 
 					// NOP
 				}
-			}
+            Logger.debug("Done waiting");
+
+			} else {
+            Logger.warn("Action start returned false: " + (currentAction == null ? null : currentAction.toString()));
+            // XXX should we kill live if this happens ?
+         }
 			
 			// reset locks
 			initLocks();
+         } catch (Exception e) {
+            Logger.warn("Caught exception in ActionRunner run loop", e);
+            // XXX now what?
+         }
+         Logger.debug("End of loop in ActionRunner.run()");
 		}
 	}
 	

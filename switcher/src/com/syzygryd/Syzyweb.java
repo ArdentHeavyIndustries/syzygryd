@@ -86,6 +86,7 @@ public class Syzyweb extends NanoHTTPD {
 			AppleScriptRunner.runLiveSpace();
 			return successResponse();
 		case livequit:
+         // XXX consider calling a higher level method with a force fallback
 			AppleScriptRunner.runLiveQuit();
 			return successResponse();
 		case loadtimeout:
