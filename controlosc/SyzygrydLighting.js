@@ -1,4 +1,4 @@
-loadedInterfaceName = "SyzygrydLighting";
+loadedInterfaceName = "SyzygrydLightingitun";
 
 interfaceOrientation = "portrait";
 
@@ -135,6 +135,8 @@ pages = [[
     "width":.9,
     "height":.05,
     "color":"#00FFFF",
+    "min":0, "max":1,
+    "address":"/lightIntensity",
 },
 
 // base hue speed
@@ -157,6 +159,8 @@ pages = [[
 	"width":.9,
 	"height":.05,
 	"color":"#00FFFF",
+	"min":0, "max":1,
+	"address":"/lightingColor/baseHueSpeed",
 },
 
 // base hue spread
@@ -179,6 +183,8 @@ pages = [[
 	"width":.9,
 	"height":.05,
 	"color":"#00FFFF",
+	"min":0, "max":1,
+	"address":"/lightingColor/baseHueSpread",
 },
 
 // base hue saturation
@@ -201,6 +207,8 @@ pages = [[
 	"width":.9,
 	"height":.05,
 	"color":"#00FFFF",
+	"min":0, "max":1,
+	"address":"/lightingColor/baseHueSaturation",
 },
 
 //base hue brightness
@@ -223,6 +231,8 @@ pages = [[
 	"width":.9,
 	"height":.05,
 	"color":"#00FFFF",
+	"min":0, "max":1,
+	"address":"/lightingColor/baseHueBrightness",
 },
 
 //effect tint xy
@@ -238,13 +248,14 @@ pages = [[
 	"color":"#00FFFF",
 },
 {
-	"name":"tintXY",
+	"name":"tint",
 	"type":"MultiTouchXY",
 	"bounds":[.05,.65,.35,.25],
 	"maxTouches":1,
 	"isMomentary":false,
 	"color":"#00FFFF",
 	"stroke":"00FFFF",
+	"address":"/lightingColor/tint",
 },
 //tint chroma slider
 {
@@ -266,6 +277,8 @@ pages = [[
 	"height":.04,
 	"color":"#307D7E",
 	"stroke":"#00FFFF",
+	"min":0, "max":1,
+	"address":"/lightingColor/chroma",
 },
 //tint brightness slider
 {
@@ -287,6 +300,8 @@ pages = [[
 	"height":.04,
 	"color":"#307D7E",
 	"stroke":"#00FFFF",
+	"min":0, "max":1,
+	"address":"/lightingColor/brightness",
 },
 
 //Animation Parameters
@@ -310,6 +325,8 @@ pages = [[
 	"width":.5,
 	"height":.04,
 	"color":"#FFFF00",
+	"min":0, "max":1,
+	"address":"/lightingControls/animationSpeed",
 },
 //animation size slider
 {
@@ -331,6 +348,8 @@ pages = [[
 	"width":.5,
 	"height":.04,
 	"color":"#FFFF00",
+	"min":0, "max":1,
+	"address":"/lightingControls/animationSize",
 },
 
 //animation jitter slider
@@ -353,6 +372,8 @@ pages = [[
 	"width":.5,
 	"height":.04,
 	"color":"#FFFF00",
+	"min":0, "max":1,
+	"address":"/lightingControls/animationJitter",
 },
 
 //animation attack slider
@@ -375,6 +396,8 @@ pages = [[
 	"width":.5,
 	"height":.04,
 	"color":"#FFFF00",
+	"min":0, "max":1,
+	"address":"/lightingControls/attack",
 },
 
 //animation decay slider
@@ -397,6 +420,8 @@ pages = [[
 	"width":.5,
 	"height":.04,
 	"color":"#FFFF00",
+	"min":0, "max":1,
+	"address":"/lightingControls/decay",
 },
 ]
 
