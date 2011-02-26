@@ -51,12 +51,12 @@ public class AppleScriptRunner {
     }
     
     /**
-     * Sends space bar to live
+     * Sends enter bar to live
      */
-    public static void runLiveEnter() {
-       Logger.info("Sending enter to live");
-       runScript(liveEnter);
-    }
+    // public static void runLiveEnter() {
+    //    Logger.info("Sending enter to live");
+    //    runScript(liveEnter);
+    // }
     
     /**
      * Sends ESC key to live

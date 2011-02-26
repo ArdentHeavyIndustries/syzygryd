@@ -194,7 +194,7 @@ public class Switcher {
          Logger.info("Set loaded listener received OSC message from Live: " + message.getAddress());
 			try {
 				//sender.livePlaybackStart();
-				AppleScriptRunner.runLiveEnter();
+				//AppleScriptRunner.runLiveEnter();
 				AppleScriptRunner.runLiveSpace();
 				ar.actionLoaded();
 			} catch (Exception e) {

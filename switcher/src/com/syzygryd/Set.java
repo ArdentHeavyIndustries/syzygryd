@@ -79,8 +79,7 @@ public class Set {
 			// NOP
 		}
 		
-      // XXX exception swallowed here
-		AppleScriptRunner.runLiveEnter();
+		//AppleScriptRunner.runLiveEnter();
 		
 	}
 	
@@ -98,7 +97,7 @@ public class Set {
 		}
 		*/
 		//AppleScriptRunner.runLiveQuit();
-		AppleScriptRunner.runLiveEnter();
+		//AppleScriptRunner.runLiveEnter();
 		AppleScriptRunner.runLiveSpace();
 		
 		try {
