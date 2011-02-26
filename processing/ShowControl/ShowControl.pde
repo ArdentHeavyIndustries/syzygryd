@@ -213,7 +213,7 @@ void setup() {
 
   // Instantiate programs. They add it automatically to the list of available lighting programs.
   if (TEST_MODE) {
-    new LightingTest();
+    //new LightingTest();  Looked at LightingTest code, unsafe calls to flame effects, wrong DMX channels utilized.  Disabling feature for safety --mjuarez 2/25/11
   }
   
   new FrameBrulee(); 
