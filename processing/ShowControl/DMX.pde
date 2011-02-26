@@ -202,8 +202,8 @@ public class DMX {
       }
       
       if(SYZYVYZ){
-        syzygrydvyz.write((byte)controllerNum);
-        syzygrydvyz.write(frame);
+        //syzygrydvyz.write((byte)controllerNum);
+        //syzygrydvyz.write(frame);
       }
       
       // debugging output

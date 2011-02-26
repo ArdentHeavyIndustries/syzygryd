@@ -165,7 +165,7 @@ void setup() {
   
   //Set up visualizer
   if (SYZYVYZ) {
-    syzygrydvyz = new Client(this, syzyVyzIP, syzyVyzPort);
+    //syzygrydvyz = new Client(this, syzyVyzIP, syzyVyzPort);
   }
 
 
