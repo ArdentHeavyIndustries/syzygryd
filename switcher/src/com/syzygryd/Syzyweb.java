@@ -72,44 +72,52 @@ public class Syzyweb extends NanoHTTPD {
 		if (params != null) {
 			shouldQueue = params.getProperty("q", "0").equals("1");
 		}
-		
-		switch (a) {
-		case playthis:
-		case playnext:
-		case playprev:
-			runner.injectAction(shouldQueue, ActionFactory.createAction(a, params));
-			return successResponse();
-		case liveesc:
-			AppleScriptRunner.runLiveEsc();
-			return successResponse();
-		case livespace:
-			AppleScriptRunner.runLiveSpace();
-			return successResponse();
-		case livequit:
-         // XXX consider calling a higher level method with a force fallback
-			AppleScriptRunner.runLiveQuit();
-			return successResponse();
-		case loadtimeout:
-			runner.actionLoaded();
-			return successResponse();
-		case quit:
-			quit();
-			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Goodbye.");
-		case restart:
-			restart();
-			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Back soon.");
-		case livescreenshot:
-			AppleScriptRunner.runLiveActivate();
-			// FALLS THROUGH 
-		case screenshot:
-			return screenshotWrapperResponse();
-		case setlist:
-			return setListResponse();
-		case queue:
-			return queueResponse();
-		default:
-			return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Unimplemented action " + actionStr + ".  Move that ass, boy!");
-		}
+
+      try {
+         switch (a)
+            {
+            case playthis:
+            case playnext:
+            case playprev:
+               runner.injectAction(shouldQueue, ActionFactory.createAction(a, params));
+               return successResponse();
+            case liveesc:
+               AppleScriptRunner.runLiveEsc();
+               return successResponse();
+            case livespace:
+               AppleScriptRunner.runLiveSpace();
+               return successResponse();
+            case livequit:
+               // XXX consider calling a higher level method with a force fallback
+               AppleScriptRunner.runLiveQuit();
+               return successResponse();
+            case loadtimeout:
+               runner.actionLoaded();
+               return successResponse();
+            case quit:
+               quit();
+               return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Goodbye.");
+            case restart:
+               restart();
+               return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Back soon.");
+            case livescreenshot:
+               AppleScriptRunner.runLiveActivate();
+               // FALLS THROUGH 
+            case screenshot:
+               return screenshotWrapperResponse();
+            case setlist:
+               return setListResponse();
+            case queue:
+               return queueResponse();
+            default:
+               return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Unimplemented action " + actionStr + ".  Move that ass, boy!");
+            }
+      } catch (SwitcherException se) {
+         // XXX not sure if this is the best way to communicate this to the user or not
+         String msg = "Caught exception acting upon action " + a.toString() + ": " + se.getMessage();
+         Logger.warn(msg);
+         return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, msg);
+      }
 	}
 	
 	/**

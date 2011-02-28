@@ -53,11 +53,11 @@ public abstract class Action {
 
    public abstract void init() throws SwitcherException;
 	
-	public abstract void start();
+	public abstract void start() throws SwitcherException;
 
    public abstract boolean isStarted();
 	
-	public abstract void stop();
+	public abstract void stop() throws SwitcherException;
 
    public abstract boolean isStopped();
 	

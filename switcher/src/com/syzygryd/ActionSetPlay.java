@@ -58,7 +58,9 @@ public class ActionSetPlay extends Action {
       }
 	}
 	
-	public void start() {
+	public void start() 
+      throws SwitcherException
+   {
 		if (this.s != null) {
 			this.s.play();
 		}
@@ -70,7 +72,9 @@ public class ActionSetPlay extends Action {
       return Switcher.isLivePlaying();
    }
 
-	public void stop() {
+	public void stop()
+      throws SwitcherException
+   {
 		if (this.s != null) {
 			this.s.stop();
 		}

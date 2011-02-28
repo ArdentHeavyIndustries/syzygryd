@@ -86,7 +86,9 @@ public class Set {
    /**
     * Starts live playback
     */
-   public static void play() {
+   public static void play()
+      throws SwitcherException
+   {
 		//sender.livePlaybackStart();
 		AppleScriptRunner.runLiveSpace();
    }
@@ -94,7 +96,9 @@ public class Set {
 	/**
 	 * Pauses live playback
 	 */
-	public static void stop() {
+	public static void stop()
+      throws SwitcherException
+   {
 		//sender.livePlaybackStop();
 		AppleScriptRunner.runLiveSpace();
 	}
