@@ -7,7 +7,7 @@ import java.io.IOException;
  *
  */
 public class Set {
-	private static OSCSender sender;	// XXX not currently used ?
+	//private static OSCSender sender;	// XXX not currently used ?
 	private String name = null;
 	private String lightingProgram; 
 	private int length = 0;
@@ -16,9 +16,9 @@ public class Set {
 	 * Installs OSCSender that is common to all members of this class
 	 * @param s
 	 */
-	static void setSender(OSCSender s) {
-		sender = s;	// XXX not currently used ?
-	}
+	// static void setSender(OSCSender s) {
+	// 	sender = s;	// XXX not currently used ?
+	// }
 	
 	/**
 	 * Create a new Live set
@@ -60,7 +60,7 @@ public class Set {
 	/**
 	 * Opens set using Live
 	 */
-	public void play() {
+	public void open() {
 		Logger.info("Executing \"open " + getName() + "\" to play set of length:" + getLength() + " sec.");
 		
 		try {
@@ -73,39 +73,30 @@ public class Set {
          Logger.warn("Unable to open " + getName(), ioe);
 		}
 		
-		try {
-			Thread.sleep(2500); 
-		} catch (InterruptedException ie) {
-			// NOP
-		}
+		// try {
+		// 	Thread.sleep(2500); 
+		// } catch (InterruptedException ie) {
+		// 	// NOP
+		// }
 		
 		//AppleScriptRunner.runLiveEnter();
 		
 	}
 	
-	/**
-	 * Pauses live playback then quits live
-    * XXX no, that's not what it does at all
-	 */
-	public void stop() {
-		//sender.livePlaybackStop();
-		/*
-		try {
-			Thread.sleep(2000); 
-		} catch (InterruptedException ie) {
-			// NOP
-		}
-		*/
-		//AppleScriptRunner.runLiveQuit();
-		//AppleScriptRunner.runLiveEnter();
+   /**
+    * Starts live playback
+    */
+   public static void play() {
+		//sender.livePlaybackStart();
 		AppleScriptRunner.runLiveSpace();
-		
-		try {
-			Thread.sleep(2500); 
-		} catch (InterruptedException ie) {
-			// NOP
-		}
-		
+   }
+
+	/**
+	 * Pauses live playback
+	 */
+	public static void stop() {
+		//sender.livePlaybackStop();
+		AppleScriptRunner.runLiveSpace();
 	}
 }
 

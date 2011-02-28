@@ -25,6 +25,7 @@ public class Switcher {
    private static final String MSG_LIVE_SET_PLAYING_OR_STOPPED = "/live/play";
    private static final int LIVE_STATE_STOPPED = 1;
    private static final int LIVE_STATE_PLAYING = 2;
+   private static int currentLiveState = -1;
 
 	/**
 	 * ports for the rest of the system
@@ -192,17 +193,18 @@ public class Switcher {
 		@Override
 		public void acceptMessage(Date time, OSCMessage message) {
          Logger.info("Set loaded listener received OSC message from Live: " + message.getAddress());
-			try {
+			//try {
 				//sender.livePlaybackStart();
 				//AppleScriptRunner.runLiveEnter();
-				AppleScriptRunner.runLiveSpace();
+            // XXX yes, we should do this, but elsewhere
+				//AppleScriptRunner.runLiveSpace();
 				ar.actionLoaded();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				Logger.warn("Couldn't send play message.");
-				Logger.warn(e);
-				System.exit(-1);
-			}
+			// } catch (Exception e) {
+			// 	// TODO Auto-generated catch block
+			// 	Logger.warn("Couldn't send play message.");
+			// 	Logger.warn(e);
+			// 	System.exit(-1);
+			// }
 		}
 	};
 	
@@ -215,30 +217,28 @@ public class Switcher {
             {
             case LIVE_STATE_STOPPED:
                Logger.info("Live state is STOPPED: " + state);
-               if (!(ar.isPlaying())) {
-                  try {
-                     //AppleScriptRunner.runLiveQuit();
-                     Logger.info("Switcher has finished playing, and Live says we're stopped.  Set ending complete; continuing.");
-                     ar.actionEnded();
-                  } catch (Exception e) {
-                     // XXX is this a bogus warning message since runLiveQuit() is commented out ?
-                     Logger.warn("Couldn't send quit.");
-                     Logger.warn(e);
-                  }
-               }
-               // XXX is the else case bad?  if live says it's stopped, but we think it's still playing?
+               ar.actionStopped();
                break;
             case LIVE_STATE_PLAYING:
-               // XXX does ar.isPlaying() matter here?  see above.
                Logger.info("Live state is PLAYING: " + state);
-               // XXX do we not do anything here?
+               ar.actionStarted();
                break;
             default:
                Logger.warn("Unexpected Live state (neither STOPPED nor PLAYING): " + state);
             }
 			Logger.info("Live tells us that the set play state is: " + state);
+         // save this for use in ActionRunner.doStart();
+         Switcher.currentLiveState = state;
 		}
 	};
+
+   public static boolean isLivePlaying() {
+      return Switcher.currentLiveState == LIVE_STATE_PLAYING;
+   }
+
+   public static boolean isLiveStopped() {
+      return Switcher.currentLiveState == LIVE_STATE_STOPPED;
+   }
 }
 
 /*

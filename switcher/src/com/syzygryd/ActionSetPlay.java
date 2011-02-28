@@ -12,10 +12,10 @@ public class ActionSetPlay extends Action {
 	private Set s = null;
 	private static int SECOND_IN_MILLIS = 1000;
 	
-	static Setlist list;
+	private static Setlist list;
 	
-	static void setList(Setlist s) {
-		list = s;
+	public static void setList(Setlist list) {
+		ActionSetPlay.list = list;
 	}
 	
 	public ActionSetPlay(ActionType t, Properties p) {
@@ -23,46 +23,64 @@ public class ActionSetPlay extends Action {
 		asyncLoading = true;
 	}
 
-	public boolean start() {
+	public void init()
+      throws SwitcherException
+   {
+      this.s = null;
+		switch (type)
+         {
+         case playnext:
+            this.s = ActionSetPlay.list.getNext();
+            break;
+         case playprev:
+            this.s = ActionSetPlay.list.getPrev();
+            break;
+         case playthis:
+            int setId;
+            try {
+               setId = Integer.valueOf(params.getProperty("setid"));
+               this.s = list.getSet(setId);
+            } catch (Exception e) {
+               SwitcherException.doThrow("Can not get set id");
+            }
+            break;
+         default:
+            break;
+         }
 		
-		switch (type) {
-		case playnext:
-			s = list.getNext();
-			break;
-		case playprev:
-			s = list.getPrev();
-			break;
-		case playthis:
-			int setId;
-			try {
-				setId = Integer.valueOf(params.getProperty("setid"));
-			} catch (Exception e) {
-				return false;
-			}
-			s = list.getSet(setId);
-			break;
-		default:
-			break;
-		}
-		
-		if (s != null) {
-         Logger.debug("Got set, will play");
-			duration = s.getLength() * SECOND_IN_MILLIS;
-			s.play();
-			return true;
-		} else {
-         // XXX is this bad ?
-         Logger.warn("Unable to get set");
-         return false;
+		if (this.s != null) {
+         Logger.debug("Got set, will open");
+			this.duration = this.s.getLength() * SECOND_IN_MILLIS;
+         Logger.debug("Set duration to " + this.duration + " ms");
+			this.s.open();
+      } else {
+         SwitcherException.doThrow("Unable to get set");
       }
 	}
 	
-	public void stop() {
-		if (s != null) {
-			s.stop();
+	public void start() {
+		if (this.s != null) {
+			this.s.play();
 		}
 	}
 	
+   public boolean isStarted() {
+      // XXX this is kinda hacky and somewhat breaking good OO abstractions
+      // see notes in ActionRunner.doStart() for more details
+      return Switcher.isLivePlaying();
+   }
+
+	public void stop() {
+		if (this.s != null) {
+			this.s.stop();
+		}
+	}
+	
+   public boolean isStopped() {
+      // XXX similarly hacky like isStarted(), see ActionRunner.doStop()
+      return Switcher.isLiveStopped();
+   }
+
 	public int getId() {
 		return list.getCurrentId();
 	}

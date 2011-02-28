@@ -50,10 +50,16 @@ public abstract class Action {
 		type = t;
 		params = p;
 	}
+
+   public abstract void init() throws SwitcherException;
 	
-	public abstract boolean start();
+	public abstract void start();
+
+   public abstract boolean isStarted();
 	
 	public abstract void stop();
+
+   public abstract boolean isStopped();
 	
 	/**
 	 * indicates that this action loads asynchronously, and that

@@ -7,13 +7,25 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ActionRunner extends Thread {
 	
-	private static int SECOND_IN_MILLIS = 1000;
-	private static int LOAD_TIMEOUT = 60 * SECOND_IN_MILLIS;	// XXX REVISIT (was 10 minutes)
-	private static int ARBITRARY_SLEEP_BETWEEN_SETS = 3 * SECOND_IN_MILLIS;
-	private static int STOP_TIMEOUT = 10 * SECOND_IN_MILLIS;
-	private static int INTERVAL_BETWEEN_DURATION_NOTIFICATIONS = 5 * SECOND_IN_MILLIS;
+	private static final int SECOND_IN_MILLIS = 1000;
+
+   // load
+	private static final int LOAD_TIMEOUT_MS = 60 * SECOND_IN_MILLIS;
+   // start
+   private static final int START_ITERATION_TIMEOUT_MS = 5 * SECOND_IN_MILLIS;
+   private static final int MAX_START_TRIES = 6;
+   // run
+	private static final int TIME_REMAINING_INTERVAL_MS = 5 * SECOND_IN_MILLIS;
+   // stop
+	private static final int STOP_TIMEOUT_MS = 5 * SECOND_IN_MILLIS;
+   // between
+   // XXX is this really needed?
+	private static final int ARBITRARY_SLEEP_BETWEEN_SETS_MS = 3 * SECOND_IN_MILLIS;
+   // used for both start and stop
+   private static final int STATE_UNCHANGED_WAIT_MS = 1 * SECOND_IN_MILLIS;
 	
-	private boolean running = false;
+   // XXX is this still used?
+	//private boolean running = false;
 	
    // XXX this is stupid now that there's just one, we should get rid of the array and just use a single OSCSender
 	private OSCSender[] statusRecipients = null;
@@ -25,154 +37,275 @@ public class ActionRunner extends Thread {
 	 */
 	private AtomicReference<Action> pendingAction = new AtomicReference<Action>();
 	private Action currentAction = null;
-	
+
+   // XXX we no longer have an explicit initLocks() method creating
+   // new CountDownLatch's b/c of the PLAYING-STOPPED-PLAYING
+   // situation, and we don't want to prematurely count down stop for
+   // a fake case.
+   // so we instead set (almost) right before using them.
+   // see doStart() for more details.
 	/**
 	 * blocks until load has finished
 	 */
-	private CountDownLatch loadPending;
+	private CountDownLatch loadPending = null;
+
+   /**
+    * blocks until live has started playing
+    */
+   private CountDownLatch startPending = null;
 	
 	/**
 	 * blocks until action has completed or is interrupted by a new, immediate action
 	 */
-	private CountDownLatch actionRunning;
+	private CountDownLatch actionRunning = null;
 	
 	/**
-	 * blocks until action has ended
+	 * blocks until action has stopped
 	 */
-	private CountDownLatch endPending;
+	private CountDownLatch stopPending = null;
 	
 	public ActionRunner() {
-		initLocks();
-	}
-	
-	/**
-	 * resets locks
-	 */
-	private void initLocks() {
-		loadPending = new CountDownLatch(1);
-		actionRunning = new CountDownLatch(1);
-		endPending = new CountDownLatch(1);
 	}
 	
 	@Override
 	public void run() {
 
       Logger.info("Before infinite loop in ActionRunner.run()");
-		while (true) {  // don't stop til you get enough
+      // XXX would a web ability to exit be a good or bad idea ?
+		while (true) {
          Logger.debug("Beginning of loop in ActionRunner.run()");
          try {
-			// determine next action in this order:
-			
-			// 1. existing pending action (which would have been set via actNow())
-			currentAction = popPendingAction();
-         Logger.debug("Popped pending action, if applicable: " + (currentAction == null ? null : currentAction.toString()));
-			
-			// 2. action at head of queue
-			if (currentAction == null) {
-				currentAction = getHead(); // try the salmon.  tip your waitron.
-            Logger.debug("Getting action at the head of the queue, if applicable: " + (currentAction == null ? null : currentAction.toString()));
-			}
-			
-			// 3. play next track
-			if (currentAction == null) {
-				currentAction = ActionFactory.createAction(Action.ActionType.playnext, null);
-            Logger.debug("Default fallthrough creating new action: " + (currentAction == null ? null : currentAction.toString()));
-			}
-			
-			// attempt to start.  if it succeeds, perform load
-         Logger.debug("Starting action: " + (currentAction == null ? null : currentAction.toString()));
-         // for the common case of opening a new set,
-         // currentAction.start() actually executes the open command
-         // on the *.als file, which will start live if needed, and
-         // load the set.
-			if (currentAction.start()) {
-            Logger.debug("Action start returned true: " + (currentAction == null ? null : currentAction.toString()));
-				setRunning(true);
-				boolean loaded = true;
-				int duration = currentAction.getDuration();
-				int remaining = duration;
-				// first wait for the action to load if necessary
-				// NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
-				if (currentAction.requiresLoad()) {
-               Logger.debug("Action requires load: " + (currentAction == null ? null : currentAction.toString()));
-					loaded = false;
-					Logger.info("Waiting (up to " + LOAD_TIMEOUT + " ms) for load...");
-					try {
-						loaded = loadPending.await(LOAD_TIMEOUT, TimeUnit.MILLISECONDS);
-					} catch (InterruptedException ie) {
-						// NIL;
-					}
-				} else {
-               Logger.warn("Action does not require load.  I didn't think that could happen: " + (currentAction == null ? null : currentAction.toString()));
+            // determine next action in this order:
+            
+            // 1. existing pending action (which would have been set via actNow())
+            this.currentAction = popPendingAction();
+            Logger.debug("Popped pending action, if applicable: " + currentActionToString());
+            
+            // 2. action at head of queue
+            if (this.currentAction == null) {
+               this.currentAction = getHead(); // try the salmon.  tip your waitron.
+               Logger.debug("Getting action at the head of the queue, if applicable: " + currentActionToString());
             }
-
-            // XXX resume here
-				if (loaded) {
-               Logger.info("Done loading");
-					// action is now running; wait until it's done or someone interrupts us
-					Logger.info("Playing for up to " + remaining + " ms ...");
-					boolean interrupted = false;
-					while(remaining > 0 && !interrupted) {
-						int sleepDuration = Math.min(INTERVAL_BETWEEN_DURATION_NOTIFICATIONS, remaining);
-						sendTimeRemainingMessage(remaining, currentAction.getId(), currentAction.getLightingProgram() );
-						try {
-							interrupted = actionRunning.await(sleepDuration, TimeUnit.MILLISECONDS);
-						} catch (InterruptedException ie) {
-							// NIL;
-						}
-						remaining -= INTERVAL_BETWEEN_DURATION_NOTIFICATIONS;
-					}
-					sendTimeRemainingMessage(0, currentAction.getId(), currentAction.getLightingProgram());
-               if (interrupted) {
-                  Logger.info("Set was prematurely interrupted");
-               } else {
-                  Logger.debug("Set played to completion");
-               }
-				} else {
-               Logger.warn("Done waiting " + LOAD_TIMEOUT + " ms, but load did not occur");
+            
+            // 3. play next track
+            if (this.currentAction == null) {
+               this.currentAction = ActionFactory.createAction(Action.ActionType.playnext, null);
+               Logger.debug("Default fallthrough creating new action: " + currentActionToString());
             }
-				setRunning(false);
-				Logger.info("Stopping...");
-            // this stops playing in live
-				currentAction.stop();
-            // really waiting for live to stop
-            boolean ended = false;
-            // XXX renamed quit to stop, b/c it doesn't quit
-            Logger.debug("Waiting (up to " + STOP_TIMEOUT + " ms) for stop...");
-				try {
-					ended = endPending.await(STOP_TIMEOUT, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException ie) {
-					// NOP
-				}
-            if (ended) {
-               Logger.info("Stopped.");
-            } else {
-               Logger.warn("Done waiting " + STOP_TIMEOUT + " ms, but stop did not occur");
-               // XXX should we kill live now?
-            }
-
-            Logger.info("Waiting " + ARBITRARY_SLEEP_BETWEEN_SETS + " ms between sets");
-				try {
-					Thread.sleep(ARBITRARY_SLEEP_BETWEEN_SETS);
-				} catch (InterruptedException ie) {
-					// NOP
-				}
-            Logger.debug("Done waiting");
-
-			} else {
-            Logger.warn("Action start returned false: " + (currentAction == null ? null : currentAction.toString()));
-            // XXX should we kill live if this happens ?
-         }
+            
+            // this operates on this.currentAction
+            doAction();
 			
-			// reset locks
-			initLocks();
-         } catch (Exception e) {
-            Logger.warn("Caught exception in ActionRunner run loop", e);
-            // XXX now what?
+         } catch (SwitcherException se) {
+            Logger.warn("Caught exception in ActionRunner run loop", se);
+            // XXX kill live
+            Logger.warn("XXX WE SHOULD KILL LIVE AND LET IT RESTART NEXT ROUND, BUT THAT IS NOT YET IMPLEMENTED");
          }
          Logger.debug("End of loop in ActionRunner.run()");
 		}
 	}
+
+   // these operate on this.currentAction()
+   private void doAction()
+      throws SwitcherException
+   {
+      doInit();
+      doLoad();
+      doStart();
+      doRun();
+      doStop();
+      doBetween();
+   }
+
+   // this operates on this.currentAction()
+   private void doInit()
+      throws SwitcherException
+   {
+      Logger.debug("Initializing action: " + currentActionToString());      
+      if (this.currentAction.requiresLoad()) {
+         this.loadPending = new CountDownLatch(1);
+      }
+      // for the common case of opening a new set (XXX is this the
+      // only case in practice?), this.currentAction.init() actually
+      // executes the open command on the *.als file, which will start
+      // live if needed, and load the set.
+      this.currentAction.init();
+      Logger.debug("Action has initialized.");
+      //Logger.debug("Action has initialized, set running to true");
+      //setRunning(true);
+   }
+
+   // this operates on this.currentAction()
+   private void doLoad()
+      throws SwitcherException
+   {
+      boolean loaded;
+      // first wait for the action to load if necessary
+      // NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
+      if (this.currentAction.requiresLoad()) {
+         Logger.debug("Action requires load: " + currentActionToString());
+         Logger.info("Waiting (up to " + LOAD_TIMEOUT_MS + " ms) for load...");
+         loaded = doWait(this.loadPending, LOAD_TIMEOUT_MS);
+         this.loadPending = null;
+      } else {
+         Logger.warn("Action does not require load.  I didn't think that could happen in practice: " + currentActionToString());
+         loaded = true;
+      }
+      
+      if (loaded) {
+         Logger.info("Done loading");
+      } else {
+         SwitcherException.doThrow("Done waiting " + LOAD_TIMEOUT_MS + " ms, but load did not occur");
+      }
+   }
+
+   // this operates on this.currentAction()
+   private void doStart()
+      throws SwitcherException
+   {
+      // we start live playing by pressing space
+      boolean started = false;
+      int nStartTries = 0;
+      Logger.info("Waiting (up to " + MAX_START_TRIES + " iterations) for start");
+      while (!started && nStartTries < MAX_START_TRIES) {
+         Logger.info("Starting...");
+         this.startPending = new CountDownLatch(1);
+         this.currentAction.start();
+         Logger.info("Waiting (up to " + START_ITERATION_TIMEOUT_MS + " ms per iteration) for start...");
+         started = doWait(this.startPending, START_ITERATION_TIMEOUT_MS);
+         this.startPending = null;
+         if (!started) {
+            Logger.info("Start not yet detected, will (possibly) retry");
+            nStartTries++;
+         }
+      }
+
+      if (started) {
+         // Sometimes instead of just a PLAYING message from live, we
+         // get PLAYING-STOPPED-PLAYING in rapid succession.  So wait
+         // a little bit and verify that the state is still PLAYING.
+         //
+         // XXX This implementation somewhat breaks clean OO
+         // abstractions here, perhaps we should be reusing
+         // startPending and allow for counting up as well as down
+         // (although then we'd need a different synchronization
+         // construct than CountDownLatch), but I'm being somewhat
+         // lazy for now and doing mostly what's easy.
+         Logger.debug("Likely done starting, waiting " + STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still started");
+         doSleep(STATE_UNCHANGED_WAIT_MS);
+         if (this.currentAction.isStarted()) {
+            Logger.info("Done starting");
+         } else {
+            SwitcherException.doThrow("Initially started, but after a wait of " + STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still started");
+         }
+      } else {
+         SwitcherException.doThrow("Done waiting " + MAX_START_TRIES + " iterations of " + START_ITERATION_TIMEOUT_MS + " ms, but start did not occur");
+      }
+   }
+
+   // this operates on this.currentAction()
+   private void doRun()
+      throws SwitcherException
+   {
+      // XXX additionally we could be listening for /sync, and on
+      // every iteration here, if we haven't received sync in some
+      // amount of time (or since the previous iteration), conclude
+      // there's a problem and give up
+      // XXX the problem with this is that ShowControl runs on the
+      // same host as the switcher, and it is already listening on
+      // port 9002, which live uses to broadcast sync.  so in practice
+      // live would need to send additionally to a new port and we
+      // would have to listen on that.
+
+      // action is now running (live is playing)
+      // wait until it's done or someone interrupts us
+      int remainingMs = this.currentAction.getDuration();
+      Logger.info("Playing for up to " + remainingMs + " ms ...");
+      boolean interrupted = false;
+      this.actionRunning = new CountDownLatch(1);
+      while (remainingMs > 0 && !interrupted) {
+         int sleepDurationMs = Math.min(TIME_REMAINING_INTERVAL_MS, remainingMs);
+         sendTimeRemainingMessage(remainingMs, this.currentAction.getId(), this.currentAction.getLightingProgram() );
+         interrupted = doWait(this.actionRunning, sleepDurationMs);
+         remainingMs -= TIME_REMAINING_INTERVAL_MS;
+      }
+      this.actionRunning = null;
+      sendTimeRemainingMessage(0, this.currentAction.getId(), this.currentAction.getLightingProgram());
+
+      if (interrupted) {
+         Logger.info("Set was prematurely interrupted");
+      } else {
+         Logger.debug("Set played to completion");
+      }
+   }
+
+   // this operates on this.currentAction()
+   private void doStop()
+      throws SwitcherException
+   {
+      //Logger.debug("Done running, set running to false");
+      //setRunning(false);
+
+      // we stop live playing by pressing space
+      Logger.info("Stopping...");
+		this.stopPending = new CountDownLatch(1);
+      this.currentAction.stop();
+      Logger.debug("Waiting (up to " + STOP_TIMEOUT_MS + " ms) for stop...");
+      boolean stopped = doWait(this.stopPending, STOP_TIMEOUT_MS);
+      this.stopPending = null;
+
+      if (stopped) {
+         // Similar to the case in doStop(), I think instead of just a
+         // STOPPED message from live, we can sometimes get
+         // STOPPED-PLAYING-STOPPED in rapid succession.
+         Logger.debug("Likely done stopping, waiting " + STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still stopped");
+         doSleep(STATE_UNCHANGED_WAIT_MS);
+         if (this.currentAction.isStopped()) {
+            Logger.info("Done stopping");
+         } else {
+            SwitcherException.doThrow("Initially stopped, but after a wait of " + STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still stopped");
+         }
+      } else {
+         SwitcherException.doThrow("Done waiting " + STOP_TIMEOUT_MS + " ms, but stop did not occur");
+      }
+   }
+
+   // this operates on this.currentAction()
+   private void doBetween()
+      throws SwitcherException
+   {
+      // XXX this bothers me
+      if (ARBITRARY_SLEEP_BETWEEN_SETS_MS > 0) {
+         Logger.info("Waiting " + ARBITRARY_SLEEP_BETWEEN_SETS_MS + " ms between sets");
+         doSleep(ARBITRARY_SLEEP_BETWEEN_SETS_MS);
+         Logger.debug("Done waiting");
+      } else {
+         Logger.debug("No arbitrary wait between sets");
+      }
+   }
+
+   // XXX this probably belongs in some utils class
+   /* package */ static boolean doWait(CountDownLatch pending, long timeMs) {
+      boolean countedDown = false;
+      try {
+         countedDown = pending.await(timeMs, TimeUnit.MILLISECONDS);
+      } catch (InterruptedException ie) {
+         // NIL;
+      }
+      return countedDown;
+   }
+
+   private void doSleep(long timeMs) {
+      try {
+         Thread.sleep(timeMs);
+      } catch (InterruptedException ie) {
+         // NOP
+      }
+   }
+
+   private String currentActionToString() {
+      return this.currentAction == null ? null : this.currentAction.toString();
+   }
 	
 	/**
 	 * make action happen right now
@@ -180,9 +313,14 @@ public class ActionRunner extends Thread {
 	 */
 	public synchronized void actNow(Action a) {
 		setPendingAction(a);
-		// countdown latch will pass right through, causing it to immediately stop
-      Logger.debug("counting down action running");
-		actionRunning.countDown();
+      if (this.actionRunning != null) {
+         // countdown latch will pass right through, causing it to immediately stop
+         Logger.debug("counting down action running");
+         this.actionRunning.countDown();
+      } else {
+         // this is unexpected, so warn
+         Logger.warn("ignoring count down for action running");
+      }
 	}
 	
 	/**
@@ -190,17 +328,41 @@ public class ActionRunner extends Thread {
 	 * has completed loading 
 	 */
 	public void actionLoaded() {
-      Logger.debug("counting down load pending");
-		loadPending.countDown();
+      if (this.loadPending != null) {
+         Logger.debug("counting down load pending");
+         this.loadPending.countDown();
+      } else {
+         // this is unexpected, so warn
+         Logger.warn("ignoring count down for load pending");
+      }
+	}
+
+   /**
+    * called after an action that requires starting
+    * has completed starting
+    */
+	public void actionStarted() {
+      if (this.startPending != null) {
+         Logger.debug("counting down start pending");
+         this.startPending.countDown();
+      } else {
+         // while annoying, this is expected to be possible, so don't warn
+         Logger.debug("ignoring count down for start pending (likely due to PLAYING-STOPPED-PLAYING or STOPPED-PLAYING-STOPPED case)");
+      }
 	}
 	
 	/**
-	 * called after an action that requires shutdown 
-	 * has finished shutting down
+	 * called after an action that requires stopping
+	 * has completed stopping
 	 */
-	public void actionEnded() {
-      Logger.debug("counting down end pending");
-		endPending.countDown();
+	public void actionStopped() {
+      if (this.stopPending != null) {
+         Logger.debug("counting down stop pending");
+         this.stopPending.countDown();
+      } else {
+         // while annoying, this is expected to be possible, so don't warn
+         Logger.debug("ignoring count down for stop pending (likely due to PLAYING-STOPPED-PLAYING or STOPPED-PLAYING-STOPPED case)");
+      }
 	}
 	
 	/**
@@ -277,16 +439,16 @@ public class ActionRunner extends Thread {
 		return pendingAction.getAndSet(null);
 	}
 	
-	public boolean isPlaying() {
-		return running;
-	}
+ 	// public boolean isPlaying() {
+	// 	return this.running;
+	// }
 	
 	public String queueToString() {
 		String queueString = "\"queue\":" + actionQ.toString();
 		String pendingString = ",\"pending\":" + pendingAction.toString();
 		String out = queueString + pendingString;
-		if (currentAction != null) {
-			out += ",\"current\":" + currentAction.toString();
+		if (this.currentAction != null) {
+			out += ",\"current\":" + this.currentAction.toString();
 		}
 		return out;
 	}
@@ -295,9 +457,9 @@ public class ActionRunner extends Thread {
 	 * indicates that an action is actually in progress
 	 * @param state
 	 */
-	private void setRunning(boolean state) {
-		running = state;
-	}
+	// private void setRunning(boolean running) {
+	// 	this.running = running;
+	// }
 	
 	/**
 	 * provide a list of OSC senders through which time status messages will be sent

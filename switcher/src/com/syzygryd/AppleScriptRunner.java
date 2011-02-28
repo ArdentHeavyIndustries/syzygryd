@@ -29,12 +29,16 @@ public class AppleScriptRunner {
    // XXX for testing only
    // private static boolean debugOutput = false;
    // private static Object debugObject = new Object();
+
+   private static ScriptException scriptException;
     
 	/**
 	 * Runs a passed in script against stashed engine
 	 * @param script
 	 */
-   private static void runScript(final String script) {
+   private static void runScript(final String script)
+      throws SwitcherException
+   {
       // synchronized (debugObject) {
       //    if (!debugOutput) {
       //       Logger.debug("GLOBAL_SCOPE = " + javax.script.ScriptContext.GLOBAL_SCOPE);
@@ -51,6 +55,7 @@ public class AppleScriptRunner {
       // }
 
       final CountDownLatch scriptPending = new CountDownLatch(1);
+
       // these are relatively infrequent enough that I won't worry about a thread pool
       Thread t = new Thread(new Runnable() {
             public void run() {
@@ -63,76 +68,87 @@ public class AppleScriptRunner {
                   Logger.debug("Evaluating AppleScript: \"" + script + "\"");
                   engine.eval(script);
                   Logger.debug("Done evaluating AppleScript");
-                  scriptPending.countDown();
                } catch (ScriptException se) {
-                  // TODO Auto-generated catch block
-                  // XXX swallowing this is probably bad
-                  Logger.warn(se);
+                  String msg = "Caught exception (" + se.getMessage() + ") executing AppleScript: \"" + script + "\"";
+                  Logger.warn(msg);
+                  scriptException = se;
+               } finally {
+                  scriptPending.countDown();
                }
             }
          });
-      Logger.debug("Starting background thread to execute script");
-      t.start();
 
-      Logger.debug("Will wait up to " + APPLESCRIPT_TIMEOUT_MS + " ms to execute script");
-      boolean scriptSuccessfullyExecuted = false;
-      try {
-         scriptSuccessfullyExecuted = scriptPending.await(APPLESCRIPT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      } catch (InterruptedException ie) {
-      }
+      // XXX for now only allow one script at a time, at least while we're waiting, due to the primitive exception reporting mechanism used here
+      synchronized (mgr) {
+         scriptException = null;
+         Logger.debug("Starting background thread to execute script");
+         t.start();
 
-      if (scriptSuccessfullyExecuted) {
-         Logger.debug("Script successfully executed");
-      } else {
-         Logger.warn("Script did not successfully execute in time");
-         // XXX we should probably throw an Exception here.  coming soon...
-         // Afaik, there's no way to cancel the script, but it's okay, b/c we'll probably be killing Live as a result of it
+         Logger.debug("Will wait up to " + APPLESCRIPT_TIMEOUT_MS + " ms to execute script");
+         boolean scriptCompleted = ActionRunner.doWait(scriptPending, APPLESCRIPT_TIMEOUT_MS);
+         if (scriptException != null) {
+            SwitcherException.doThrow("Script threw exception", scriptException);
+         } else if (scriptCompleted) {
+            Logger.debug("Script successfully executed");
+         } else {
+            SwitcherException.doThrow("Script did not successfully execute in time");
+         }
       }
    }
     
-    /**
-     * Quits live
-     */
+   /**
+    * Quits live
+    */
    // XXX we should have a more failsafe means for this that forces a quit if this fails
-    public static void runLiveQuit() {
+   public static void runLiveQuit()
+      throws SwitcherException
+   {
 		Logger.info("Telling live to quit");
     	runScript(liveQuit);
-    }
+   }
+    
+   /**
+    * Sends space bar to live
+    */
+   public static void runLiveSpace()
+      throws SwitcherException
+   {
+      Logger.info("Sending space to live");       
+      runScript(liveSpace);
+   }
     
     /**
-     * Sends space bar to live
+     * Sends enter to live
      */
-    public static void runLiveSpace() {
-       Logger.info("Sending space to live");       
-       runScript(liveSpace);
-    }
+   public static void runLiveEnter()
+      throws SwitcherException             
+   {
+      Logger.info("Sending enter to live");
+      runScript(liveEnter);
+   }
+   
+   /**
+    * Sends ESC key to live
+    */
+   public static void runLiveEsc()
+      throws SwitcherException
+   {
+      Logger.info("Sending esc to live");       
+      runScript(liveEsc);
+   }
     
-    /**
-     * Sends enter bar to live
-     */
-    // public static void runLiveEnter() {
-    //    Logger.info("Sending enter to live");
-    //    runScript(liveEnter);
-    // }
-    
-    /**
-     * Sends ESC key to live
-     */
-    public static void runLiveEsc() {
-       Logger.info("Sending esc to live");       
-       runScript(liveEsc);
-    }
-    
-    /**
-     * Brings Live to front
-     */
-    public static void runLiveActivate() {
-       // XXX what is this ?  perhaps it's to bring to the foreground?
-       // it falls through from the livescreenshot case to the
-       // screenshot case in Syzyweb.act()
-       Logger.info("Telling live to activate");
-       runScript(liveActivate);
-    }
+   /**
+    * Brings Live to front
+    */
+   public static void runLiveActivate()
+      throws SwitcherException
+   {
+      // XXX what is this ?  perhaps it's to bring to the foreground?
+      // it falls through from the livescreenshot case to the
+      // screenshot case in Syzyweb.act()
+      Logger.info("Telling live to activate");
+      runScript(liveActivate);
+   }
 }
 
 /*
