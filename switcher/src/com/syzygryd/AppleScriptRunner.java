@@ -22,7 +22,7 @@ public class AppleScriptRunner {
 	private static ScriptEngineManager mgr = new ScriptEngineManager();
 	private static ScriptEngine engine = mgr.getEngineByName("AppleScript");
 
-   private static final long APPLESCRIPT_TIMEOUT_MS = 5000;
+   private static final long APPLESCRIPT_TIMEOUT_MS = 10000;
    // XXX for testing badness
    //private static final long APPLESCRIPT_TIMEOUT_MS = 10;
    
