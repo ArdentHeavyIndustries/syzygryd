@@ -35,6 +35,7 @@ public class Switcher {
 	public static final int OSC_SENDING_PORT_BROADCAST = 9002;
    /*public static final int OSC_SENDING_PORT_CONTROLLER = 9000;*/
 
+   private static final String BROADCAST_IP_ADDR = "255.255.255.255";	// XXX this should be a property
 	public static InetAddress OSC_BROADCAST_ADDRESS = null;
 	
 	public static final int WEB_SENDING_PORT = 31337;
@@ -102,7 +103,7 @@ public class Switcher {
 		// Set.setSender(senderLive);
 		
 		try {
-			OSC_BROADCAST_ADDRESS = InetAddress.getByName("255.255.255.255");
+			OSC_BROADCAST_ADDRESS = InetAddress.getByName(BROADCAST_IP_ADDR);
 		} catch (UnknownHostException uhe) {
 			// TODO Auto-generated catch block
 			Logger.warn(uhe);
