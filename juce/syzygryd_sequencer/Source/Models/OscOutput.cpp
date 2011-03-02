@@ -16,7 +16,7 @@
 
 #include "OscOutput.h"
 
-const String kRemoteHost = "255.255.255.255";	// XXX bug:79 - more flexibility is desired
+// remoteHost is no longer a constant, see below
 const int kRemotePort = 9002;
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;
@@ -33,9 +33,10 @@ Thread ("OscOutput"),
 outSocket (0, true),
 lastPlayheadCol (-1),
 sleepIntervalMs (125),	// initialize based on 120 bpm
-syncCount(0)
+syncCount(0),
+remoteHost(SharedState::kBroadcastIpAddr)	// XXX bug:79 - more flexibility is desired
 {
-	outSocket.connect (kRemoteHost, kRemotePort, kTimeoutMs);
+	outSocket.connect (remoteHost, kRemotePort, kTimeoutMs);
 	startThread (10);
 }
 

@@ -37,7 +37,8 @@ private:
 	
 	unsigned int sleepIntervalMs;
 	unsigned int syncCount;
-	
+
+   String remoteHost;
 };
 
 #endif

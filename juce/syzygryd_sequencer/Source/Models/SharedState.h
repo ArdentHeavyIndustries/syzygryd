@@ -50,7 +50,6 @@ public:
    static hash_map<int32, String> config;
 
 	static const int kNumPanels;
-
    // bug:67
    static int kDegradeAfterInactiveSec;	// set to a negative value to disable
    static int kDegradeSlowSec;
@@ -58,6 +57,8 @@ public:
    static int kDegradeFastSec;
    // in fast mode, the slowest rate (so max secPerDelete) is the same as the slow rate
    // the fastest rate (so min secPerDelete) is whatever is needed to delete all cells in the allotted time
+
+   static String kBroadcastIpAddr;
 
    // bug:86
    void readConfig();

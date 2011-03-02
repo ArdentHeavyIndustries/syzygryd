@@ -30,6 +30,8 @@ int SharedState::kDegradeFastSec;
 
 const int SharedState::kNumPanels = 3;
 
+String SharedState::kBroadcastIpAddr;
+
 juce_ImplementSingleton (SharedState)
 
 SharedState::SharedState() :
@@ -44,6 +46,10 @@ bpm (120.0),
 starFieldActive (false),
 updateStarFieldSkip (0)
 {
+  fprintf(stdout, "sequencer VST stdout: in SharedState::SharedState()\n");
+  fprintf(stderr, "sequencer VST stderr: in SharedState::SharedState()\n");
+  fflush(stdout);	// stderr appears to flush right away, stdout seems to be buffered
+
    readConfig();
 
    SharedState::kDegradeAfterInactiveSec = getConfigInt("degradeAfterInactiveSec", 120);
@@ -74,6 +80,8 @@ updateStarFieldSkip (0)
 		
 		touchOscConnected[i] = false;
 	}
+
+        SharedState::kBroadcastIpAddr = getConfigString("broadcastIpAddr", "255.255.255.255");
 	
 	oscInput = new OscInput();
 	oscOutput = new OscOutput();
@@ -81,6 +89,10 @@ updateStarFieldSkip (0)
 
 SharedState::~SharedState()
 {
+  fprintf(stdout, "sequencer VST stdout: in SharedState::~SharedState()\n");
+  fprintf(stderr, "sequencer VST stderr: in SharedState::~SharedState()\n");
+  fflush(stdout);	// stderr appears to flush right away, stdout seems to be buffered
+
 	deleteAndZero (oscInput);
 	deleteAndZero (oscOutput);
 	
