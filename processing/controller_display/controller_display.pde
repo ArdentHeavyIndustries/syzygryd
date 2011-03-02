@@ -212,6 +212,7 @@ int curSecond = 0;
 
 void draw() {
   if (!setStopped && millis() - lastSeqEventReceived > OSC_WATCHDOG_SEC * 1000) {
+    warn("We thought live was running, but it has been more than " + OSC_WATCHDOG_SEC + " seconds since we received a sync msg, assume that live has stopped");
     // Looks like someone quit Live.  Reinitialize OscP5
     //restartOsc();
     // Actually, that's not good enough, in case we missed the set stopped message.  So let's just instead assume the set has stopped.
