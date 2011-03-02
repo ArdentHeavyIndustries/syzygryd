@@ -8,10 +8,8 @@ import java.util.Calendar;
  */
 public class Logger {
 
-   // XXX for now just hardcode this, and edit locally (but do not check in) to change
-   // if this actually gets much use, i should add properties to the switcher as well
-   // XXX FOR NOW CHECK THIS IN, BUT I PROBABLY DON'T WANT TO LEAVE IT THIS WAY
-   //private static final boolean debug = false;
+   // XXX for now hardcode these, should probably be properties
+   private static final boolean verbose = false;
    private static final boolean debug = true;
 
    // XXX logging is almost completely copied from processing/controller_display/controller_display.pde and processing/ShowControl/ShowControl.pde
@@ -73,27 +71,40 @@ public class Logger {
       return date.toString();
    }
 
+   private static String getHeader() {
+      //return getTime() + " (" + Thread.currentThread().getName() + ") ";
+      return getTime() + " (Thr" + Thread.currentThread().getId() + ") ";
+   }
+
+   // XXX could be using StringBuffer better instead of String
+
+   public static void verbose(String msg) {
+      if (verbose) {
+         System.out.println(getHeader() + msg);
+      }
+   }
+   
    public static void debug(String msg) {
       if (debug) {
-         System.out.println(getTime() + " " + msg);
+         System.out.println(getHeader() + msg);
       }
    }
    
    public static void info(String msg) {
-      System.out.println(getTime() + " " + msg);
+      System.out.println(getHeader() + msg);
    }
    
    public static void warn(String msg) {
-      System.err.println(getTime() + " WARNING: " + msg);
+      System.err.println(getHeader() + "WARNING: " + msg);
    }
 
    public static void warn(Exception e) {
-      System.err.println(getTime() + " WARNING: " + e);
+      System.err.println(getHeader() + "WARNING: " + e);
       e.printStackTrace();
    }
 
    public static void warn(String msg, Exception e) {
-      System.err.println(getTime() + " WARNING: " + msg);
+      System.err.println(getHeader() + "WARNING: " + msg);
       e.printStackTrace();
    }
 

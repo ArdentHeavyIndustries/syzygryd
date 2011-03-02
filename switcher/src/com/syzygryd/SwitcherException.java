@@ -2,31 +2,31 @@ package com.syzygryd;
 
 public class SwitcherException extends Exception {
 
-    public SwitcherException(String msg) {
-	super(msg);
-    }
-
-    public SwitcherException(String msg, Throwable cause) {
+   public SwitcherException(String msg) {
+      super(msg);
+   }
+   
+   public SwitcherException(String msg, Throwable cause) {
     	super(msg, cause);
-    }
+   }
+   
+   // convenience methods for throwing an exception and logging it
 
-    // convenience methods for throwing an exception and logging it
-
-    public static void doThrow(String msg)
+   public static void doThrow(String msg)
     	throws SwitcherException
-    {
-	Logger.warn(msg);
-	SwitcherException se = new SwitcherException(msg);
-	throw (se);
-    }
-    
-    public static void doThrow(String msg, Throwable cause)
+   {
+      Logger.warn(msg);
+      SwitcherException se = new SwitcherException(msg);
+      throw (se);
+   }
+   
+   public static void doThrow(String msg, Throwable cause)
     	throws SwitcherException
-    {
-	Logger.warn(msg + ": " + cause.getMessage());
-	SwitcherException se = new SwitcherException(msg, cause);
-	throw (se);
-    }
+   {
+      Logger.warn(msg + ": " + cause.getMessage());
+      SwitcherException se = new SwitcherException(msg, cause);
+      throw (se);
+   }
     
 }
 

@@ -16,7 +16,13 @@ public class AppleScriptRunner {
 	private static final String liveActivate = "tell application \"Live\"\n activate\nend tell";
 
 	private static final String liveSpace = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkeystroke \" \"\nend tell\nend tell";
+
 	private static final String liveEnter = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkeystroke return\nend tell\nend tell";
+   // code is from http://www.devdaily.com/blog/post/mac-os-x/applescript-simulating-enter-key
+   // doesn't work any better for my issues quitting
+   // is this shit documented anywhere for real?
+	//private static final String liveEnter = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkey code 36\nend tell\nend tell";
+
 	private static final String liveEsc = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkey code 53\nend tell\nend tell";
 	
 	private static ScriptEngineManager mgr = new ScriptEngineManager();
@@ -85,6 +91,7 @@ public class AppleScriptRunner {
          t.start();
 
          Logger.debug("Will wait up to " + APPLESCRIPT_TIMEOUT_MS + " ms to execute script");
+         // XXX could we just use t.join(long millis) for this ?
          boolean scriptCompleted = ActionRunner.doWait(scriptPending, APPLESCRIPT_TIMEOUT_MS);
          if (scriptException != null) {
             SwitcherException.doThrow("Script threw exception", scriptException);

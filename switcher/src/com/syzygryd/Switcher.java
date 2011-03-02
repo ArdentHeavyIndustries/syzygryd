@@ -239,6 +239,7 @@ public class Switcher {
    public static boolean isLiveStopped() {
       return Switcher.currentLiveState == LIVE_STATE_STOPPED;
    }
+
 }
 
 /*

@@ -55,6 +55,7 @@ public class Syzyweb extends NanoHTTPD {
 	 * @return Response to send to web client
 	 */
 	protected Response act( String uri, String method, Properties header, Properties params ) {
+      Logger.verbose("uri = " + uri);
 		int endOfAction = uri.indexOf('?');
 		
 		endOfAction = (endOfAction > 0 ? endOfAction : uri.length());
@@ -88,13 +89,14 @@ public class Syzyweb extends NanoHTTPD {
                AppleScriptRunner.runLiveSpace();
                return successResponse();
             case livequit:
-               // XXX consider calling a higher level method with a force fallback
-               AppleScriptRunner.runLiveQuit();
+               // XXX there should be a confirmation popup on the client for this
+               ProcessUtils.doLiveQuit();
                return successResponse();
             case loadtimeout:
                runner.actionLoaded();
                return successResponse();
             case quit:
+               // XXX there should be a confirmation popup on the client for this
                quit();
                return errorResponse(NanoHTTPD.HTTP_INTERNALERROR, "Goodbye.");
             case restart:
@@ -169,10 +171,11 @@ public class Syzyweb extends NanoHTTPD {
 		String out = "{" + queueString + "}";
 		return new Response(NanoHTTPD.HTTP_OK, "application/json", out);
 	}
-	
+
 	/**
 	 * Quit switcher; waits 2 seconds (hack!) to make sure the response is delivered
 	 */
+   // XXX do we really want to expose this to the web UI ?
 	void quit() {
 		Logger.warn("Quitting.");
 		new Thread(new Runnable() {

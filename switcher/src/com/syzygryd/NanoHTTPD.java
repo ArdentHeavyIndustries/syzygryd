@@ -61,21 +61,21 @@ public class NanoHTTPD
 	 */
 	public Response serve( String uri, String method, Properties header, Properties parms )
 	{
-		Logger.debug( method + " '" + uri + "' " );
+		Logger.verbose( method + " '" + uri + "' " );
 
 		Enumeration e = header.propertyNames();
 		while ( e.hasMoreElements())
 		{
 			String value = (String)e.nextElement();
-			Logger.debug( "  HDR: '" + value + "' = '" +
-								header.getProperty( value ) + "'" );
+			Logger.verbose( "  HDR: '" + value + "' = '" +
+                         header.getProperty( value ) + "'" );
 		}
 		e = parms.propertyNames();
 		while ( e.hasMoreElements())
 		{
 			String value = (String)e.nextElement();
-			Logger.debug( "  PRM: '" + value + "' = '" +
-								parms.getProperty( value ) + "'" );
+			Logger.verbose( "  PRM: '" + value + "' = '" +
+                         parms.getProperty( value ) + "'" );
 		}
 
 		return serveFile( uri, header, new File("."), true );

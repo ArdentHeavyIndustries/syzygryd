@@ -21,7 +21,7 @@ var dashcodePartSpecs = {
     "label1": { "propertyValues": { "textBinding": { "keypath": "*.set" } }, "text": "Item", "view": "DC.Text" },
     "label2": { "text": "Item", "view": "DC.Text" },
     "maintactivity": { "view": "DC.ActivityIndicator" },
-    "maintlist": { "allowsEmptySelection": true, "dataArray": [["Screenshot of Live", "livescreenshot"], ["Send space to Live", "livespace"], ["Send ESC to Live", "liveesc"], ["Skip load timeout", "loadtimeout"], ["Screenshot of desktop", "screenshot"]], "labelElementId": "label2", "listStyle": "List.ROUNDED_RECTANGLE", "sampleRows": 3, "selectionEnabled": true, "view": "DC.List" },
+    "maintlist": { "allowsEmptySelection": true, "dataArray": [["Screenshot of Live", "livescreenshot"], ["Send space to Live", "livespace"], ["Send ESC to Live", "liveesc"], ["Skip load timeout", "loadtimeout"], ["Screenshot of desktop", "screenshot"], ["Quit Live", "livequit"]], "labelElementId": "label2", "listStyle": "List.ROUNDED_RECTANGLE", "sampleRows": 3, "selectionEnabled": true, "view": "DC.List" },
     "playnext": { "initialHeight": 30, "initialWidth": 303, "leftImageWidth": 5, "onclick": "doSwitcherAction", "rightImageWidth": 5, "text": "Play next set", "view": "DC.PushButton" },
     "playprev": { "initialHeight": 30, "initialWidth": 302, "leftImageWidth": 5, "onclick": "doSwitcherAction", "rightImageWidth": 5, "text": "Play previous set", "view": "DC.PushButton" },
     "playsetnow": { "initialHeight": 30, "initialWidth": 463, "leftImageWidth": 5, "onclick": "playOrQueueSet", "rightImageWidth": 5, "text": "Play set now", "view": "DC.PushButton" },

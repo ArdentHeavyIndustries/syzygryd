@@ -94,12 +94,17 @@ public class ActionRunner extends Thread {
             }
             
             // this operates on this.currentAction
+            // XXX FOR TESTING ONLY, DO NOT CHECK THIS IN !!!
             doAction();
-			
+            // try {
+            //    Thread.sleep(60 * 60 * 1000);
+            // } catch (InterruptedException ie) {
+            //    // XXX just so the catch below doesn't bitch
+            //    throw new SwitcherException("foo");
+            // }
          } catch (SwitcherException se) {
             Logger.warn("Caught exception in ActionRunner run loop", se);
-            // XXX kill live
-            Logger.warn("XXX WE SHOULD KILL LIVE AND LET IT RESTART NEXT ROUND, BUT THAT IS NOT YET IMPLEMENTED");
+            ProcessUtils.doLiveQuit();
          }
          Logger.debug("End of loop in ActionRunner.run()");
 		}
