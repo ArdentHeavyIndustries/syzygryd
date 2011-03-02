@@ -125,7 +125,7 @@ public class Switcher {
 
 		// setup switcher queue thread
 		Logger.info("Starting ActionRunner...");
-		ar = new ActionRunner();
+		ar = ActionRunner.getInstance();
 		ar.setStatusRecipients(statusRecipients);
 		
 		// start it

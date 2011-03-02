@@ -61,9 +61,10 @@ public class ActionSetPlay extends Action {
 	public void start() 
       throws SwitcherException
    {
-		if (this.s != null) {
-			this.s.play();
-		}
+      // this is a static method, remove the (this.s != null) qualifier
+		//if (this.s != null) {
+			Set.play();
+      //}
 	}
 	
    public boolean isStarted() {
@@ -75,9 +76,10 @@ public class ActionSetPlay extends Action {
 	public void stop()
       throws SwitcherException
    {
-		if (this.s != null) {
-			this.s.stop();
-		}
+      // this is a static method, remove the (this.s != null) qualifier
+		//if (this.s != null) {
+         Set.stop();
+      //}
 	}
 	
    public boolean isStopped() {

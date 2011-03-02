@@ -63,9 +63,19 @@ public class ActionRunner extends Thread {
 	 * blocks until action has stopped
 	 */
 	private CountDownLatch stopPending = null;
+
+   // this is a singleton
+   private static ActionRunner instance = null;
 	
-	public ActionRunner() {
+	private ActionRunner() {
 	}
+
+   public static ActionRunner getInstance() {
+      if (ActionRunner.instance == null) {
+         ActionRunner.instance = new ActionRunner();
+      }
+      return ActionRunner.instance;
+   }
 	
 	@Override
 	public void run() {
@@ -79,29 +89,21 @@ public class ActionRunner extends Thread {
             
             // 1. existing pending action (which would have been set via actNow())
             this.currentAction = popPendingAction();
-            Logger.debug("Popped pending action, if applicable: " + currentActionToString());
+            Logger.debug("Popped pending action, if applicable: " + actionToString(this.currentAction));
             
             // 2. action at head of queue
             if (this.currentAction == null) {
                this.currentAction = getHead(); // try the salmon.  tip your waitron.
-               Logger.debug("Getting action at the head of the queue, if applicable: " + currentActionToString());
+               Logger.debug("Getting action at the head of the queue, if applicable: " + actionToString(this.currentAction));
             }
             
             // 3. play next track
             if (this.currentAction == null) {
                this.currentAction = ActionFactory.createAction(Action.ActionType.playnext, null);
-               Logger.debug("Default fallthrough creating new action: " + currentActionToString());
+               Logger.debug("Default fallthrough creating new action: " + actionToString(this.currentAction));
             }
             
-            // this operates on this.currentAction
-            // XXX FOR TESTING ONLY, DO NOT CHECK THIS IN !!!
-            doAction();
-            // try {
-            //    Thread.sleep(60 * 60 * 1000);
-            // } catch (InterruptedException ie) {
-            //    // XXX just so the catch below doesn't bitch
-            //    throw new SwitcherException("foo");
-            // }
+            doAction(this.currentAction);
          } catch (SwitcherException se) {
             Logger.warn("Caught exception in ActionRunner run loop", se);
             ProcessUtils.doLiveQuit();
@@ -110,50 +112,47 @@ public class ActionRunner extends Thread {
 		}
 	}
 
-   // these operate on this.currentAction()
-   private void doAction()
+   private void doAction(Action action)
       throws SwitcherException
    {
-      doInit();
-      doLoad();
-      doStart();
-      doRun();
-      doStop();
+      doInit(action);
+      doLoad(action);
+      doStart(action);
+      doRun(action);
+      doStop(action);
       doBetween();
    }
 
-   // this operates on this.currentAction()
-   private void doInit()
+   private void doInit(Action action)
       throws SwitcherException
    {
-      Logger.debug("Initializing action: " + currentActionToString());      
-      if (this.currentAction.requiresLoad()) {
+      Logger.debug("Initializing action: " + actionToString(action));      
+      if (action.requiresLoad()) {
          this.loadPending = new CountDownLatch(1);
       }
       // for the common case of opening a new set (XXX is this the
-      // only case in practice?), this.currentAction.init() actually
+      // only case in practice?), action.init() actually
       // executes the open command on the *.als file, which will start
       // live if needed, and load the set.
-      this.currentAction.init();
+      action.init();
       Logger.debug("Action has initialized.");
       //Logger.debug("Action has initialized, set running to true");
       //setRunning(true);
    }
 
-   // this operates on this.currentAction()
-   private void doLoad()
+   private void doLoad(Action action)
       throws SwitcherException
    {
       boolean loaded;
       // first wait for the action to load if necessary
       // NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
-      if (this.currentAction.requiresLoad()) {
-         Logger.debug("Action requires load: " + currentActionToString());
+      if (action.requiresLoad()) {
+         Logger.debug("Action requires load: " + actionToString(action));
          Logger.info("Waiting (up to " + LOAD_TIMEOUT_MS + " ms) for load...");
          loaded = doWait(this.loadPending, LOAD_TIMEOUT_MS);
          this.loadPending = null;
       } else {
-         Logger.warn("Action does not require load.  I didn't think that could happen in practice: " + currentActionToString());
+         Logger.warn("Action does not require load.  I didn't think that could happen in practice: " + actionToString(action));
          loaded = true;
       }
       
@@ -164,8 +163,7 @@ public class ActionRunner extends Thread {
       }
    }
 
-   // this operates on this.currentAction()
-   private void doStart()
+   private void doStart(Action action)
       throws SwitcherException
    {
       // we start live playing by pressing space
@@ -175,7 +173,7 @@ public class ActionRunner extends Thread {
       while (!started && nStartTries < MAX_START_TRIES) {
          Logger.info("Starting...");
          this.startPending = new CountDownLatch(1);
-         this.currentAction.start();
+         action.start();
          Logger.info("Waiting (up to " + START_ITERATION_TIMEOUT_MS + " ms per iteration) for start...");
          started = doWait(this.startPending, START_ITERATION_TIMEOUT_MS);
          this.startPending = null;
@@ -198,7 +196,7 @@ public class ActionRunner extends Thread {
          // lazy for now and doing mostly what's easy.
          Logger.debug("Likely done starting, waiting " + STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still started");
          doSleep(STATE_UNCHANGED_WAIT_MS);
-         if (this.currentAction.isStarted()) {
+         if (action.isStarted()) {
             Logger.info("Done starting");
          } else {
             SwitcherException.doThrow("Initially started, but after a wait of " + STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still started");
@@ -208,8 +206,7 @@ public class ActionRunner extends Thread {
       }
    }
 
-   // this operates on this.currentAction()
-   private void doRun()
+   private void doRun(Action action)
       throws SwitcherException
    {
       // XXX additionally we could be listening for /sync, and on
@@ -224,18 +221,18 @@ public class ActionRunner extends Thread {
 
       // action is now running (live is playing)
       // wait until it's done or someone interrupts us
-      int remainingMs = this.currentAction.getDuration();
+      int remainingMs = action.getDuration();
       Logger.info("Playing for up to " + remainingMs + " ms ...");
       boolean interrupted = false;
       this.actionRunning = new CountDownLatch(1);
       while (remainingMs > 0 && !interrupted) {
          int sleepDurationMs = Math.min(TIME_REMAINING_INTERVAL_MS, remainingMs);
-         sendTimeRemainingMessage(remainingMs, this.currentAction.getId(), this.currentAction.getLightingProgram() );
+         sendTimeRemainingMessage(remainingMs, action.getId(), action.getLightingProgram() );
          interrupted = doWait(this.actionRunning, sleepDurationMs);
          remainingMs -= TIME_REMAINING_INTERVAL_MS;
       }
       this.actionRunning = null;
-      sendTimeRemainingMessage(0, this.currentAction.getId(), this.currentAction.getLightingProgram());
+      sendTimeRemainingMessage(0, action.getId(), action.getLightingProgram());
 
       if (interrupted) {
          Logger.info("Set was prematurely interrupted");
@@ -244,8 +241,8 @@ public class ActionRunner extends Thread {
       }
    }
 
-   // this operates on this.currentAction()
-   private void doStop()
+   // also called by ProcessUtils.doLiveQuit()
+   protected void doStop(Action action)
       throws SwitcherException
    {
       //Logger.debug("Done running, set running to false");
@@ -254,7 +251,7 @@ public class ActionRunner extends Thread {
       // we stop live playing by pressing space
       Logger.info("Stopping...");
 		this.stopPending = new CountDownLatch(1);
-      this.currentAction.stop();
+      action.stop();
       Logger.debug("Waiting (up to " + STOP_TIMEOUT_MS + " ms) for stop...");
       boolean stopped = doWait(this.stopPending, STOP_TIMEOUT_MS);
       this.stopPending = null;
@@ -265,7 +262,7 @@ public class ActionRunner extends Thread {
          // STOPPED-PLAYING-STOPPED in rapid succession.
          Logger.debug("Likely done stopping, waiting " + STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still stopped");
          doSleep(STATE_UNCHANGED_WAIT_MS);
-         if (this.currentAction.isStopped()) {
+         if (action.isStopped()) {
             Logger.info("Done stopping");
          } else {
             SwitcherException.doThrow("Initially stopped, but after a wait of " + STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still stopped");
@@ -275,7 +272,6 @@ public class ActionRunner extends Thread {
       }
    }
 
-   // this operates on this.currentAction()
    private void doBetween()
       throws SwitcherException
    {
@@ -308,8 +304,8 @@ public class ActionRunner extends Thread {
       }
    }
 
-   private String currentActionToString() {
-      return this.currentAction == null ? null : this.currentAction.toString();
+   protected String actionToString(Action action) {
+      return action == null ? null : action.toString();
    }
 	
 	/**
@@ -453,7 +449,7 @@ public class ActionRunner extends Thread {
 		String pendingString = ",\"pending\":" + pendingAction.toString();
 		String out = queueString + pendingString;
 		if (this.currentAction != null) {
-			out += ",\"current\":" + this.currentAction.toString();
+			out += ",\"current\":" + actionToString(this.currentAction);
 		}
 		return out;
 	}

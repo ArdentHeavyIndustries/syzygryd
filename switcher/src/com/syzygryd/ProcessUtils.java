@@ -21,16 +21,17 @@ public class ProcessUtils {
 
       if (Switcher.isLivePlaying()) {
          Logger.info("Before quitting live, stop playing");
+         // Do to the overly OO nature of some of this, we need to create a bogus action.
+         Action action = ActionFactory.createAction(Action.ActionType.playnext, null);
+         ActionRunner ar = ActionRunner.getInstance();
+         Logger.debug("Created bogus action for stopping: " + ar.actionToString(action));
+         // And then we're somewhat violating the OO structure by calling this here,
+         // but this is the simplest way to share code.
          try {
-            Set.stop();
+            // This includes waiting for the stop to have completed.
+            ar.doStop(action);
          } catch (SwitcherException se) {
             Logger.warn("Error stopping live before quitting, will proceed anyway: " + se.getMessage());
-         }
-         // XXX dammit, in this instance we need to wait for the stop, like in ActionRunner.doStop()
-         try {
-            Logger.debug("XXX arbitrary wait (for now) for stop to take effect");
-            Thread.sleep(10000);
-         } catch (InterruptedException ie) {
          }
       }
 
