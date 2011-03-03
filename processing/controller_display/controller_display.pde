@@ -96,6 +96,9 @@ PImage logo = null;
 final int OSC_LISTENING_PORT = 9002;
 final int OSC_SENDING_PORT = 8000;
 
+//Declaring the color for controller display text
+color controllerColor;
+
 void setup() {
   // debug("debug test");
   // info("info test");
@@ -183,6 +186,23 @@ void setup() {
   int panelIndex = getIntProperty("panelIndex");
   info("Panel Index: " + panelIndex);
   selectPanel(panelIndex);
+
+  //Let's figure out what color the controller is
+  colorMode(HSB,360,100,100);
+   switch(panelIndex) {
+    	case 0:
+    	controllerColor = color(322,67,84);
+    	break;
+    	case 1:
+    	controllerColor = color(55,57,92);
+    	break;
+    	case 2:
+    	controllerColor = color(190,88,88);
+    	break;
+    }
+    
+    //Revert back to standard HSB color mode
+    colorMode(HSB);
 
   temposweep = new Temposweep(buttonSize, buttonSpacing);
   

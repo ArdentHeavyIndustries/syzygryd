@@ -35,7 +35,7 @@ class ScrollableMessage {
 //     DrawableTab t = (DrawableTab) panels[0].tabs[0];
 //     DrawableButton b = t.getButtonFromTabCoords(0, 0);
 //     fill(b.getHue(), 50, 40, 40);  //draw message same color as current buttons on tab, constant brightness and alpha
-    fill(0,0,99);  // white 
+    fill(controllerColor);  // change fill color based on controller to help determine.
     textAlign(LEFT);
     text(message[msgPtr[messageSelect]], messageXPos, height - 8);
     messageXPos -= 1.8;    
