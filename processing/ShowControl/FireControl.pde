@@ -46,6 +46,10 @@ float roundTo2Places(float v) {
   return floor(v*10 + 0.5) / 10.0;
 }
 
+//Flame effect address for 7/8 effects (for use with blacklisting)
+int[] fireBlacklist = {123, 124, 131, 132, 139, 140};
+
+
 void processOSCFireEvent(OscMessage m) {
 
  debug("FC OSC: " + m.addrPattern());
@@ -98,8 +102,23 @@ void processOSCFireEvent(OscMessage m) {
 
 // Sets a fire control relay to specified state. 
 void fireDMX(int addr, boolean onOff) {
+	
   if (onOff) {
+  	boolean denyFire = false;
+  		//Only check the blacklist when igniting and in 7/8 disable, not when turning off.
+	if(FLAME_EFFECTS_78_DISABLE) {
+		for (int i=0; i<fireBlacklist.length; i++) {
+			if (addr==fireBlacklist[i]) {
+				denyFire=true;
+				break;
+			}
+		}
+	}
+	
+	//Check for ignition denial
+	if (denyFire==false) {
    sendDMX(addr, FIRE_DMX_MAGIC);
+	}
   } else {
    sendDMX(addr, 0);
   }
@@ -107,7 +126,21 @@ void fireDMX(int addr, boolean onOff) {
 
 void fireDMXRaw(int addr, boolean onOff) {
   if (onOff) {
+  	boolean denyFire = false;
+  
+    		//Only check the blacklist when igniting and in 7/8 disable, not when turning off.
+	if(FLAME_EFFECTS_78_DISABLE) {
+		for (int i=0; i<fireBlacklist.length; i++) {
+			if (addr==fireBlacklist[i]) {
+				denyFire=true;
+				break;
+			}
+		}	
+	}
+	//Check for ignition denial
+	if (denyFire==false) {
    sendDMX(addr, FIRE_DMX_MAGIC);
+	}
   } else {
    sendDMX(addr, 0);
   }

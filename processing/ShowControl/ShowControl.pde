@@ -57,6 +57,7 @@ boolean SEND_DMX;
 boolean TEST_MODE;                
 boolean SYZYVYZ;
 boolean ASCII_SEQUENCER_DISPLAY;
+boolean FLAME_EFFECTS_78_DISABLE = false;
 
 // ----------------- Variable Declaration & Initialization -----------------
 
@@ -225,7 +226,7 @@ void setup() {
     //new LightingTest();  Looked at LightingTest code, unsafe calls to flame effects, wrong DMX channels utilized.  Disabling feature for safety --mjuarez 2/25/11
   }
   
-  new FrameBrulee(); 
+  new FrameBrulee();
   new TestProgram();
   new TestProgram2();
 
@@ -401,11 +402,13 @@ float curTimeInSteps() {
 
 // super-simple DMX interface
 void sendDMX(int universe, int channel, int value) {
+	
    DMXManager.setChannel(universe, channel, (byte)value); 
 }
 
 // two arg version: send to universe zero. Good for fire control.
 void sendDMX(int channel, int value) {
+	
    DMXManager.setChannel(0, channel, (byte)value); 
 }
 
