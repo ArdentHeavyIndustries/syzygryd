@@ -47,6 +47,9 @@ NetAddress myRemoteLocation;
 int lastSeqEventReceived = millis();
 final int OSC_WATCHDOG_SEC = 3;
 
+//Panel index
+int panelIndex;
+
 /* Button Array for buttoning also tempo objects maybe more*/
 DrawablePanel[] panels;
 DrawablePanel selectedPanel;
@@ -183,8 +186,14 @@ void setup() {
     masterHues[i] = (i * 100) / panels.length;
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
-  int panelIndex = getIntProperty("panelIndex");
-  info("Panel Index: " + panelIndex);
+  
+  if (getPanelIndex()!=-1) {
+  	panelIndex = getPanelIndex();
+  	info("Panel Index (Determined from host): " + panelIndex);
+  } else {
+    panelIndex = getIntProperty("panelIndex");
+    info("Panel Index (Determined from disk): " + panelIndex);
+  }
   selectPanel(panelIndex);
 
   //Let's figure out what color the controller is
@@ -685,6 +694,28 @@ String getTime() {
   date.append(']');
 
   return date.toString();
+}
+
+// Determine controller panelIndex by hostname or IP Address
+int getPanelIndex() {
+	int r = -1;
+	String hn, cn;
+	String subname = "controller";
+	
+	try
+	{
+		InetAddress localMachine = InetAddress.getLocalHost();	
+		hn = localMachine.getHostName();
+		if (hn.substring(0,10).equals(subname)==true) {
+			r = int(hn.substring(11));	
+		}
+	}
+	catch(java.net.UnknownHostException uhe)
+	{
+		//handle exception
+	}		
+	
+	return r;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
