@@ -49,6 +49,7 @@ final String DEFAULT_SYZYVYZ                 = "false";
 final String DEFAULT_ASCII_SEQUENCER_DISPLAY = "false";
 final String DEFAULT_ENTTEC                  = "/dev/cu.usbserial-XXXXXXXX";	// there is no real meaningful default here
 final String DEFAULT_LIST_ENTTEC_SERIAL_NUMS = "false";
+final String DEFAULT_ETHERNET_INTERFACE		 = "en0";
 
 // These will be set in setupProps()
 
@@ -110,6 +111,9 @@ void dmxAddController(String key) {
   DMXManager.addController(enttec, 149);
 }
 
+// OSC Manager Broadcast Address
+String ETHERNET_INTERFACE;
+
 
 void setup() {
   setupProps();
@@ -123,9 +127,14 @@ void setup() {
    
   //Set up OSC connection
   // XXX by sending and receiving both on port 9002 with the broadcast address, we get feedback and receive all osc messages that we send on this port
-  OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
-  OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
-
+  if (getBroadcastAddress()!=null) {
+  OSCConnection = new OSCManager(getBroadcastAddress(),9002,9002);  // receive from sequencer, send to controller
+  OSCConnection_touchOSC = new OSCManager(getBroadcastAddress(),8005,9005);
+  } else {
+  	warn("Broadcast address for default interface couldn't be found.  Defaulting to 255.255.255.255.  This could affect network performance.");
+  	OSCConnection = new OSCManager("255.255.255.255",9002,9002);  // receive from sequencer, send to controller
+    OSCConnection_touchOSC = new OSCManager("255.255.255.255",8005,9005);
+  }
   //Instantiate sequencer state storage
   sequencerState = new SequencerState();
 
@@ -421,6 +430,7 @@ void setupProps() {
   defaultProps.setProperty("enttec1", DEFAULT_ENTTEC);
   defaultProps.setProperty("enttec2", DEFAULT_ENTTEC);
   defaultProps.setProperty("listEnttecSerialNums", DEFAULT_LIST_ENTTEC_SERIAL_NUMS);
+  defaultProps.setProperty("EthernetInterface", DEFAULT_ETHERNET_INTERFACE);
   
   props = new Properties(defaultProps);
   info("Loading properties from " + PROPS_FILE);
@@ -434,6 +444,8 @@ void setupProps() {
   TEST_MODE = getBooleanProperty("testMode");
   SYZYVYZ = getBooleanProperty("syzyvyz");
   ASCII_SEQUENCER_DISPLAY = getBooleanProperty("asciiSequencerDisplay");
+  
+  ETHERNET_INTERFACE = getStringProperty("EthernetInterface");
 
   info("SEND_DMX = " + SEND_DMX);
   info("TEST_MODE = " + TEST_MODE);
@@ -545,6 +557,33 @@ String getTime() {
   date.append(']');
 
   return date.toString();
+}
+
+// Broadcast Address Grabber
+// Grabs the current broadcast address of the "default" ethernet interface as defined by properties file.
+String getBroadcastAddress() {
+	InetAddress resultAddress;
+	resultAddress = null;
+	
+	try {
+	NetworkInterface nI = NetworkInterface.getByName(ETHERNET_INTERFACE);
+	if (nI!=null) {
+		List<InterfaceAddress> address = nI.getInterfaceAddresses();
+		
+		for (InterfaceAddress interfaceAddress : address) {
+			if (interfaceAddress!=null) {
+				resultAddress = interfaceAddress.getBroadcast();
+				return resultAddress.toString().substring(1);	
+			}	
+		}
+	}
+	
+	} catch (SocketException e) {
+		e.printStackTrace();
+	}
+	
+	return null;
+		
 }
 
 ///////////////////////////////////////////////////////////////////////////////
