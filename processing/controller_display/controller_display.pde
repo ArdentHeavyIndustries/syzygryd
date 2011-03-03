@@ -60,6 +60,9 @@ LinkedList animations = new LinkedList();
 /* Hues are in the range [0-100] (see colorMode() below) */
 int[] masterHues;
 
+// Fade value
+int fadeVal;
+
 // Uncomment re-implement dragging.
 /* Last Pressable object selected by the user. */
 // Pressable lastSelectedPressable;
@@ -253,8 +256,15 @@ void draw() {
 
   // Check to see if Live has stopped and display the loading new set image.
   if (setStopped) {
+  	
+  	if(fadeVal<255) {
+	  	tint(fadeVal,255);
+	  	fadeVal=fadeVal+1;
+  	}
     image(logo, 0, 0);
+    
   } else {
+  	fadeVal=0;
     for (ListIterator i = animations.listIterator(0); i.hasNext(); ) {
       Animation a = (Animation) i.next();
       a.step();
