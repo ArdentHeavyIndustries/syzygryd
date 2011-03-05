@@ -38,9 +38,10 @@ Properties props;
 // Use String's here, regardless of the final type.
 // These should be consistent with the commented out lines in the
 // example etc/controller.properties file.
-final String DEFAULT_TOUCHSCREEN    = "true";
-final String DEFAULT_PANEL_INDEX    = "0";
-final String DEFAULT_SEQUENCER_HOST = "10.10.10.10";
+final String DEFAULT_TOUCHSCREEN      = "true";
+final String DEFAULT_PANEL_INDEX      = "0";
+final String DEFAULT_SEQUENCER_HOST   = "10.10.10.10";
+final String DEFAULT_REQUIRE_SWITCHER = "true";
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -97,6 +98,9 @@ int syncCount;
 // this has now changed that we're using presence or absence of sync as an indicator of this
 boolean setStopped = true;
 
+// do we require the switcher to start, or is the sequencer by itself
+boolean requireSwitcher;
+
 PImage logo = null;
 
 final int OSC_LISTENING_PORT = 9002;
@@ -131,6 +135,9 @@ void setup() {
   } else {
     size(1280,720);
   }
+
+  requireSwitcher = getBooleanProperty("requireSwitcher");
+  info("Require switcher: " + requireSwitcher);
 
   // Used for debugging
 //  output = createWriter("debug.txt");
@@ -316,10 +323,15 @@ void oscEvent(OscMessage m) {
       lastSeqEventReceived = millis();
 
       if (setStopped) {
-        // no, this is no longer true now that we're using sync as an implicit set starting
-        //debug("Ignoring sync msg because set is stopped");
-        //return;
-        startSet();
+        // if we are depending on the switcher running, we only start a set when we get a non-zero time remaining
+        // otherwise, we use sync as an implicit set starting
+        if (requireSwitcher) {
+          debug("Ignoring sync msg because set is stopped");
+          return;
+        } else {
+          debug("Sync msg causing implicit set starting");
+          startSet();
+        }
       }
       syncCount++;
       if (syncSkip == 0 || syncCount >= syncSkip) {
@@ -521,6 +533,7 @@ void restartOsc() {
   info("Restarting osc");
   stopOsc();
   startOsc();
+  info("Osc restarted");
 }
 
 void stopOsc() {
@@ -593,7 +606,8 @@ void setupProps() {
   defaultProps.setProperty("touchscreen", DEFAULT_TOUCHSCREEN);
   defaultProps.setProperty("panelIndex", DEFAULT_PANEL_INDEX);
   defaultProps.setProperty("sequencerHost", DEFAULT_SEQUENCER_HOST);
-  
+  defaultProps.setProperty("requireSwitcher", DEFAULT_REQUIRE_SWITCHER);
+
   props = new Properties(defaultProps);
   info("Loading properties from " + PROPS_FILE);
   try {
