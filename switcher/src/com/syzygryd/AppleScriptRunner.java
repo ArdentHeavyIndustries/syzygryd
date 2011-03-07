@@ -50,7 +50,8 @@ public class AppleScriptRunner {
                //   javax.script.ScriptException: Live got an error: AppleEvent timed out.
                // That's why we're running this in a separate thread
                try {
-                  Logger.debug("Evaluating AppleScript: \"" + script + "\"");
+                  Logger.debug("Evaluating AppleScript");
+                  Logger.verbose(script);
                   engine.eval(script);
                   Logger.debug("Done evaluating AppleScript");
                } catch (ScriptException se) {
