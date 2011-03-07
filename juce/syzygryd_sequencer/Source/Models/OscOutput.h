@@ -30,8 +30,11 @@ public:
 private:
 	void sendTempo();
 	void sendSync();
-	
-	DatagramSocket outSocket;
+
+   // the main broadcast osc output
+   DatagramSocket outSocket;
+   // a duplicate output to localhost, just for /sync, for the switcher
+   DatagramSocket outSocket2;
 	
 	int lastPlayheadCol;
 	

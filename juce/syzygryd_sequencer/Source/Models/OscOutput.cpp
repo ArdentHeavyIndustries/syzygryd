@@ -16,8 +16,13 @@
 
 #include "OscOutput.h"
 
+// remote host and port are associated with the broadcast outSocket
 // remoteHost is no longer a constant, see below
 const int kRemotePort = 9002;
+// local host and port are associated with the non-broadcast outSocket2
+const String kLocalHost = "127.0.0.1";
+const int kLocalPort = 9003;
+
 const int kOutputBufferSize = 1024;
 const int kTimeoutMs = 20;
 
@@ -30,13 +35,15 @@ const int kSyncSkip = 0;
 
 OscOutput::OscOutput () :
 Thread ("OscOutput"),
-outSocket (0, true),
+outSocket (/* allow OS to assign localPortNumber */ 0, /* enableBroadcasting */ true),
+outSocket2 (/* allow OS to assign localPortNumber */ 0, /* enableBroadcasting */ false),
 lastPlayheadCol (-1),
 sleepIntervalMs (125),	// initialize based on 120 bpm
 syncCount(0),
 remoteHost(SharedState::kBroadcastIpAddr)	// XXX bug:79 - more flexibility is desired
 {
 	outSocket.connect (remoteHost, kRemotePort, kTimeoutMs);
+        outSocket2.connect (kLocalHost, kLocalPort, kTimeoutMs);
 	startThread (10);
 }
 
@@ -44,6 +51,7 @@ OscOutput::~OscOutput()
 {
 	stopThread (4000);
 	outSocket.close();
+	outSocket2.close();
 }
 
 void OscOutput::broadcast (const void* sourceBuffer, int numBytesToWrite)
@@ -147,6 +155,8 @@ void OscOutput::sendSync()
 			<< *blob
 			<< osc::EndMessage;
 			outSocket.write (p.Data(), p.Size());
+                        // sync only gets duplciated on outSocket2
+			outSocket2.write (p.Data(), p.Size());
 		}
 	}	
 	// else {
