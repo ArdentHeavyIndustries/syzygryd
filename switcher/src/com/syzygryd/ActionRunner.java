@@ -236,7 +236,6 @@ public class ActionRunner extends Thread {
       boolean interrupted = false;
       this.actionRunning = new CountDownLatch(1);
       Logger.debug("NOT resetting last sync time, since we already did that during start");
-      Switcher.lastSyncMs = 0;
       boolean firstIteration = true;
       while (remainingMs > 0 && !interrupted) {
          int sleepDurationMs = Math.min(TIME_REMAINING_INTERVAL_MS, remainingMs);
