@@ -198,30 +198,31 @@ void setup() {
   }
   
   if (getPanelIndex()!=-1) {
-  	panelIndex = getPanelIndex();
-  	info("Panel Index (Determined from host): " + panelIndex);
+    panelIndex = getPanelIndex();
+    info("Panel Index (Determined from host): " + panelIndex);
   } else {
     panelIndex = getIntProperty("panelIndex");
     info("Panel Index (Determined from disk): " + panelIndex);
   }
   selectPanel(panelIndex);
-
+  
   //Let's figure out what color the controller is
   colorMode(HSB,360,100,100);
-   switch(panelIndex) {
-    	case 0:
-    	controllerColor = color(322,67,84);
-    	break;
-    	case 1:
-    	controllerColor = color(55,57,92);
-    	break;
-    	case 2:
-    	controllerColor = color(190,88,88);
-    	break;
+  switch(panelIndex)
+    {
+    case 0:
+      controllerColor = color(322,67,84);
+      break;
+    case 1:
+      controllerColor = color(55,57,92);
+      break;
+    case 2:
+      controllerColor = color(190,88,88);
+      break;
     }
-    
-    //Revert back to standard HSB color mode
-    colorMode(HSB);
+  
+  //Revert back to standard HSB color mode
+  colorMode(HSB);
 
   temposweep = new Temposweep(buttonSize, buttonSpacing);
   
@@ -722,24 +723,22 @@ String getTime() {
 
 // Determine controller panelIndex by hostname or IP Address
 int getPanelIndex() {
-	int r = -1;
-	String hn, cn;
-	String subname = "controller";
-	
-	try
-	{
-		InetAddress localMachine = InetAddress.getLocalHost();	
-		hn = localMachine.getHostName();
-		if (hn.substring(0,10).equals(subname)==true) {
-			r = int(hn.substring(11));	
-		}
-	}
-	catch(java.net.UnknownHostException uhe)
-	{
-		//handle exception
-	}		
-	
-	return r;
+  int r = -1;
+  String hn, cn;
+  String subname = "controller";
+  
+  try {
+    InetAddress localMachine = InetAddress.getLocalHost();	
+    // XXX doesn't this potentially cause a long running reverse DNS lookup ?
+    hn = localMachine.getHostName();
+    if (hn.substring(0,10).equals(subname)==true) {
+      r = int(hn.substring(11));	
+    }
+  } catch(java.net.UnknownHostException uhe) {
+    //handle exception
+  }		
+  
+  return r;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
