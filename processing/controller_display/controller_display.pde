@@ -64,7 +64,7 @@ LinkedList animations = new LinkedList();
 int[] masterHues;
 
 // Fade value
-int fadeVal;
+int fadeVal = 0;
 
 // Uncomment re-implement dragging.
 /* Last Pressable object selected by the user. */
@@ -248,16 +248,16 @@ void draw() {
 
 
   // Check to see if Live has stopped and display the loading new set image.
-  if (setStopped) {
-  	
-  	if(fadeVal<255) {
-	  	tint(fadeVal,255);
-	  	fadeVal=fadeVal+1;
-  	}
-    image(logo, 0, 0);
-    
+  if (setStopped) {  	
+    if (fadeVal<255) {
+      tint(fadeVal,255);
+      fadeVal=fadeVal+1;
+    }
+
+    image(logo, 0, 0);    
   } else {
-  	fadeVal=0;
+    fadeVal=0;
+
     for (ListIterator i = animations.listIterator(0); i.hasNext(); ) {
       Animation a = (Animation) i.next();
       a.step();
