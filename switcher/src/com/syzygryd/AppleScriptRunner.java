@@ -17,7 +17,7 @@ public class AppleScriptRunner {
 
 	private static final String liveSpace = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkeystroke \" \"\nend tell\nend tell";
 
-	private static final String liveEnter = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkeystroke return\nend tell\nend tell";
+	//private static final String liveEnter = "tell application \"Live\"\nactivate\ntell application \"System Events\"\nkeystroke return\nend tell\nend tell";
    // code is from http://www.devdaily.com/blog/post/mac-os-x/applescript-simulating-enter-key
    // doesn't work any better for my issues quitting
    // is this shit documented anywhere for real?
@@ -29,13 +29,7 @@ public class AppleScriptRunner {
 	private static ScriptEngine engine = mgr.getEngineByName("AppleScript");
 
    private static final long APPLESCRIPT_TIMEOUT_MS = 10000;
-   // XXX for testing badness
-   //private static final long APPLESCRIPT_TIMEOUT_MS = 10;
    
-   // XXX for testing only
-   // private static boolean debugOutput = false;
-   // private static Object debugObject = new Object();
-
    private static ScriptException scriptException;
     
 	/**
@@ -45,21 +39,6 @@ public class AppleScriptRunner {
    private static void runScript(final String script)
       throws SwitcherException
    {
-      // synchronized (debugObject) {
-      //    if (!debugOutput) {
-      //       Logger.debug("GLOBAL_SCOPE = " + javax.script.ScriptContext.GLOBAL_SCOPE);
-      //       Logger.debug("ENGINE_SCOPE = " + javax.script.ScriptContext.ENGINE_SCOPE);
-      //       for (Integer scope: engine.getContext().getScopes()) {
-      //          Logger.debug("scope " + scope);
-      //          javax.script.Bindings bindings = engine.getContext().getBindings(scope.intValue());
-      //          for (String key: bindings.keySet()) {
-      //             Logger.debug("key: " + key);
-      //          }
-      //       }
-      //       debugOutput = true;
-      //    }
-      // }
-
       final CountDownLatch scriptPending = new CountDownLatch(1);
 
       // these are relatively infrequent enough that I won't worry about a thread pool
@@ -127,13 +106,15 @@ public class AppleScriptRunner {
     /**
      * Sends enter to live
      */
-   public static void runLiveEnter()
-      throws SwitcherException             
-   {
-      Logger.info("Sending enter to live");
-      runScript(liveEnter);
-   }
+   // XXX this doesn't work when we maybe need it, and likely causes problems in other situations.  get rid of it.
+   // public static void runLiveEnter()
+   //    throws SwitcherException             
+   // {
+   //    Logger.info("Sending enter to live");
+   //    runScript(liveEnter);
+   // }
    
+   // XXX this is only called from the web ui.  why?  do we want it?
    /**
     * Sends ESC key to live
     */

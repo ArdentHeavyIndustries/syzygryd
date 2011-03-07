@@ -10,6 +10,9 @@ public class ProcessUtils {
    public static void doLiveQuit() {
       Logger.debug("doLiveQuit()");
 
+      Logger.debug("Clearing live running");
+      ActionRunner.getInstance().liveRunning = false;
+
       try {
          if (!isLiveProcessRunning()) {
             Logger.info("Request to quit live, but live is not running");
@@ -169,7 +172,7 @@ public class ProcessUtils {
       }
    }
 
-   private static boolean isLiveProcessRunning()
+   protected static boolean isLiveProcessRunning()
       throws SwitcherException
    {
       Process process = doShellExec("ps auxww | grep /Applications/Live | grep -v grep");

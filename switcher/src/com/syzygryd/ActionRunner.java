@@ -10,7 +10,9 @@ public class ActionRunner extends Thread {
 	private static final int SECOND_IN_MILLIS = 1000;
 
    // load
-	private static final int LOAD_TIMEOUT_MS = 60 * SECOND_IN_MILLIS;
+   // we want the timeout to load a set to be longer if we might need to first start live
+	private static final int LOAD_FIRST_TIMEOUT_MS = 90 * SECOND_IN_MILLIS;
+	private static final int LOAD_OTHER_TIMEOUT_MS = 30 * SECOND_IN_MILLIS;
    // start
    private static final int START_ITERATION_TIMEOUT_MS = 5 * SECOND_IN_MILLIS;
    private static final int MAX_START_TRIES = 6;
@@ -20,13 +22,16 @@ public class ActionRunner extends Thread {
    // stop
 	private static final int STOP_TIMEOUT_MS = 5 * SECOND_IN_MILLIS;
    // between
-   // XXX is this really needed?
-	private static final int ARBITRARY_SLEEP_BETWEEN_SETS_MS = 3 * SECOND_IN_MILLIS;
+   // XXX is this really needed?  it seems incredibly hacky, and likely no longer required.  nevertheless, keep for now, but make minimal.
+	private static final int ARBITRARY_SLEEP_BETWEEN_SETS_MS = 1 * SECOND_IN_MILLIS;
    // used for both start and stop
    private static final int STATE_UNCHANGED_WAIT_MS = 1 * SECOND_IN_MILLIS;
 	
    // XXX is this still used?
 	//private boolean running = false;
+
+   // for variable load timeout
+   public boolean liveRunning;
 	
    // XXX this is stupid now that there's just one, we should get rid of the array and just use a single OSCSender
 	private OSCSender[] statusRecipients = null;
@@ -80,11 +85,20 @@ public class ActionRunner extends Thread {
 	
 	@Override
 	public void run() {
+      Logger.info("Begin ActionRunner.run()");
 
       if (SYNC_WATCHDOG_MS > TIME_REMAINING_INTERVAL_MS) {
          Logger.warn("Sync watchdog (" + SYNC_WATCHDOG_MS
                      + " ms) > time remaining interval (" + TIME_REMAINING_INTERVAL_MS
                      + " ms), this could cause bad behavior for the first of each iteration");
+      }
+
+      try {
+         this.liveRunning = ProcessUtils.isLiveProcessRunning();
+         Logger.info("Live is already running: " + this.liveRunning);
+      } catch (SwitcherException se) {
+         Logger.warn("Caught exception just trying to tell if live is running, this may be a very bad sign: " + se.getMessage());
+         this.liveRunning = false;
       }
 
       Logger.info("Before infinite loop in ActionRunner.run()");
@@ -153,10 +167,18 @@ public class ActionRunner extends Thread {
       boolean loaded;
       // first wait for the action to load if necessary
       // NB, dude: loading must finish (or be cleanly canceled) before you try to load another action
+
+      int loadTimeoutMs;
+      if (this.liveRunning) {
+         loadTimeoutMs = LOAD_OTHER_TIMEOUT_MS;
+      } else {
+         loadTimeoutMs = LOAD_FIRST_TIMEOUT_MS;
+      }
+
       if (action.requiresLoad()) {
          Logger.debug("Action requires load: " + actionToString(action));
-         Logger.info("Waiting (up to " + LOAD_TIMEOUT_MS + " ms) for load...");
-         loaded = doWait(this.loadPending, LOAD_TIMEOUT_MS);
+         Logger.info("Waiting (up to " + loadTimeoutMs + " ms) for load...");
+         loaded = doWait(this.loadPending, loadTimeoutMs);
          this.loadPending = null;
       } else {
          Logger.warn("Action does not require load.  I didn't think that could happen in practice: " + actionToString(action));
@@ -165,8 +187,10 @@ public class ActionRunner extends Thread {
       
       if (loaded) {
          Logger.info("Done loading");
+         Logger.debug("Setting live running");
+         this.liveRunning = true;
       } else {
-         SwitcherException.doThrow("Done waiting " + LOAD_TIMEOUT_MS + " ms, but load did not occur");
+         SwitcherException.doThrow("Done waiting " + loadTimeoutMs + " ms, but load did not occur");
       }
    }
 
