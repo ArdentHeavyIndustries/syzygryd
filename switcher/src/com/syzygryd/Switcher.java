@@ -216,7 +216,7 @@ public class Switcher {
 		} 
 
       for (int i = 0; i < length; i++) {
-         Logger.info("Listening for OSC message: \"" + oscMessages[i]);
+         Logger.info("Listening for OSC message: \"" + oscMessages[i] + "\"");
          portIn.addListener(oscMessages[i], listeners[i]);
       }
 		portIn.startListening();
