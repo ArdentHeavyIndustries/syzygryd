@@ -95,6 +95,7 @@ public class ActionRunner extends Thread {
 
       try {
          this.liveRunning = ProcessUtils.isLiveProcessRunning();
+         // XXX if live is running, should we try to detect if it is playing, and if so, stop first?
          Logger.info("Live is already running: " + this.liveRunning);
       } catch (SwitcherException se) {
          Logger.warn("Caught exception just trying to tell if live is running, this may be a very bad sign: " + se.getMessage());
