@@ -105,6 +105,8 @@ int syzyVyzPort = 3333;
 // Panel UI colors
 color panelColor[];
 
+boolean setupDone = false;
+
 void dmxAddController(String key) {
   String enttec = getStringProperty(key);
   if (DEFAULT_ENTTEC.equals(enttec)) {
@@ -237,6 +239,8 @@ void setup() {
   fireDMXRaw(141, true); 
   fireDMXRaw(142, true); 
   fireDMXRaw(143, true); 
+
+  setupDone = true;
 }
 
 
@@ -603,7 +607,7 @@ String getBroadcastAddress() {
 
 void debug(String msg) {
   // feel free to uncomment this for debugging, but DO NOT CHECK IT IN if you do so.
-  System.out.println(getTime() + " " + msg);
+  //System.out.println(getTime() + " " + msg);
 }
 
 void info(String msg) {

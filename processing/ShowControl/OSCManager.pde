@@ -36,6 +36,11 @@ class OSCManager {
       // Enable the following line for OSC message debugging purposes
       //debug("oscEvent: addrPattern(): " + m.addrPattern());
 
+      if (!setupDone) {
+        info("Ignoring osc message b/c setup is not yet done: " + m.addrPattern());
+        return;
+      }
+
       if (m.addrPattern().endsWith("/sync")) {
     
         lastSyncTimeInMs = millis();
