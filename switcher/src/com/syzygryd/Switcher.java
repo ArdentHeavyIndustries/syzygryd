@@ -19,10 +19,12 @@ public class Switcher {
 	private static final int OSC_LISTENING_PORT_LIVE = 9001;
 	//private static final int OSC_SENDING_PORT_LIVE = 9000;	// XXX not really used?
 
-   // XXX REALLY THIS NEEDS TO CHANGE TO 9003, B/C SHOWCONTROL IS LISTENING ON 9002
-   //     BUT THIS REQUIRES CHANGES TO THE SEQUENCER, SO THIS IS A TEMP SOLUTION.
-   //     BE SURE TO FIX THIS BEFORE BEYOND WONDERLAND.
-   private static final int OSC_LISTENING_PORT_SEQUENCER = 9002;	// XXX CHANGE TO 9003
+   // the sequencer normally broadcasts on 9002.  but we can't listen
+   // on 9002 for /sync, b/c ShowControl is running on this same host
+   // and already listening on that port.  so now the sequencer also
+   // sends /sync msgs (and nothing else) on port 9003, just for the
+   // switcher.
+   private static final int OSC_LISTENING_PORT_SEQUENCER = 9003;
 
    // see http://monome.q3f.org/browser/trunk/LiveOSC/OSCAPI.txt
    private static final String MSG_LIVE_SET_LOADED = "/remix/echo";
