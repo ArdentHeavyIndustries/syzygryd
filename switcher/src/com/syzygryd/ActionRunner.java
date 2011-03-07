@@ -32,6 +32,9 @@ public class ActionRunner extends Thread {
 
    // for variable load timeout
    public boolean liveRunning;
+
+   // for measuring load time
+   private long beginLoadTimeMs;
 	
    // XXX this is stupid now that there's just one, we should get rid of the array and just use a single OSCSender
 	private OSCSender[] statusRecipients = null;
@@ -156,6 +159,7 @@ public class ActionRunner extends Thread {
       // only case in practice?), action.init() actually
       // executes the open command on the *.als file, which will start
       // live if needed, and load the set.
+      this.beginLoadTimeMs = System.currentTimeMillis();
       action.init();
       Logger.debug("Action has initialized.");
       //Logger.debug("Action has initialized, set running to true");
@@ -187,7 +191,8 @@ public class ActionRunner extends Thread {
       }
       
       if (loaded) {
-         Logger.info("Done loading");
+         long loadTimeMs = System.currentTimeMillis() - this.beginLoadTimeMs;
+         Logger.info("Done loading, this took " + loadTimeMs + " ms, giving us " + (loadTimeoutMs - loadTimeMs) + " ms to spare.");
          Logger.debug("Setting live running");
          this.liveRunning = true;
       } else {
