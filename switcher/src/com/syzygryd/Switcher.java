@@ -16,8 +16,13 @@ import com.illposed.osc.OSCPortIn;
  */
 public class Switcher {
 
-	public static final int OSC_LISTENING_PORT = 9001;
-	//public static final int OSC_SENDING_PORT_LIVE = 9000;	// XXX not really used?
+	private static final int OSC_LISTENING_PORT_LIVE = 9001;
+	//private static final int OSC_SENDING_PORT_LIVE = 9000;	// XXX not really used?
+
+   // XXX REALLY THIS NEEDS TO CHANGE TO 9003, B/C SHOWCONTROL IS LISTENING ON 9002
+   //     BUT THIS REQUIRES CHANGES TO THE SEQUENCER, SO THIS IS A TEMP SOLUTION.
+   //     BE SURE TO FIX THIS BEFORE BEYOND WONDERLAND.
+   private static final int OSC_LISTENING_PORT_SEQUENCER = 9002;	// XXX CHANGE TO 9003
 
    // see http://monome.q3f.org/browser/trunk/LiveOSC/OSCAPI.txt
    private static final String MSG_LIVE_SET_LOADED = "/remix/echo";
@@ -30,17 +35,17 @@ public class Switcher {
 	/**
 	 * ports for the rest of the system
 	 */
-	//public static final int OSC_SENDING_PORT_SEQUENCER = 9999;
-	//public static final int OSC_SENDING_PORT_LIGHTING = 9002;
-	public static final int OSC_SENDING_PORT_BROADCAST = 9002;
-   /*public static final int OSC_SENDING_PORT_CONTROLLER = 9000;*/
+	//private static final int OSC_SENDING_PORT_SEQUENCER = 9999;
+	//private static final int OSC_SENDING_PORT_LIGHTING = 9002;
+	private static final int OSC_SENDING_PORT_BROADCAST = 9002;
+   /*private static final int OSC_SENDING_PORT_CONTROLLER = 9000;*/
 
    private static final String BROADCAST_IP_ADDR = "255.255.255.255";	// XXX this should be a property
-	public static InetAddress OSC_BROADCAST_ADDRESS = null;
+	private static InetAddress OSC_BROADCAST_ADDRESS = null;
 	
-	public static final int WEB_SENDING_PORT = 31337;
+	private static final int WEB_PORT = 31337;
 	
-	public static final int ARG_SETLISTFILENAME = 0;
+	private static final int ARG_SETLISTFILENAME = 0;
 	//private static OSCSender senderLive = null;	// XXX not really used
 	//private static OSCSender senderSequencer = null;
 	//private static OSCSender senderLighting = null;
@@ -48,8 +53,15 @@ public class Switcher {
 	private static OSCSender senderBroadcast = null;
 	
 	private static Setlist list = null;
-	private static OSCPortIn portIn = null;
+	private static OSCPortIn portInLive = null;
+	private static OSCPortIn portInSequencer = null;
 	private static ActionRunner ar = null;
+
+   // -1 means we're not listening for sync,
+   // 0 means we're reset and listening for our first sync,
+   // otherwise, this is the actual time of the last sync
+   // XXX both the way this is defined, and the way it is used in ActionRunner, is not very OO
+   protected static long lastSyncMs = -1;
 	
 	public static void main(String[] args) {
 
@@ -121,8 +133,8 @@ public class Switcher {
       // XXX this is stupid now that there's just one, we should get rid of the array and just use a single OSCSender
 		OSCSender[] statusRecipients = { /* senderSequencer, */ senderBroadcast /*, senderLighting, senderController*/ };
 		
-		Logger.info("Setting up OSC listener on port " + OSC_LISTENING_PORT);
-		setupOSCListener();
+		Logger.info("Setting up OSC listeners");
+		setupOSCListeners();
 
 		// setup switcher queue thread
 		Logger.info("Starting ActionRunner...");
@@ -136,7 +148,7 @@ public class Switcher {
 		// setup webserver
 		try {
 			@SuppressWarnings("unused")
-			Syzyweb web = new Syzyweb(WEB_SENDING_PORT, ar, list);
+			Syzyweb web = new Syzyweb(WEB_PORT, ar, list);
 		} catch (IOException ioe) {
 			// TODO Auto-generated catch block
          // XXX should we exit if this happens?
@@ -155,9 +167,35 @@ public class Switcher {
 	}
 	
 	/**
-	 * Opens socket to listen for Live OSC events
+	 * Set up the various OSC listeners
 	 */
-	public static void setupOSCListener() {
+	private static void setupOSCListeners() {
+      Logger.info("Setting up OSC listener for Live");
+      setupOSCListener(Switcher.portInLive,
+                       OSC_LISTENING_PORT_LIVE,
+                       new OSCListener[] { Switcher.setLoadedListener, Switcher.setStoppedListener },
+                       new String[]      { "/remix/echo",              "/live/play" });
+
+      Logger.info("Setting up OSC listener for the sequencer");
+      setupOSCListener(Switcher.portInSequencer,
+                       OSC_LISTENING_PORT_SEQUENCER,
+                       Switcher.syncListener,
+                       "/sync");
+	}
+
+	/**
+	 * Opens socket to listen for OSC events
+    * The listeners[] and oscMessages[] arrays are paired;
+    * for each listener[i], the corresponding OSC message is oscMessages[i]
+	 */
+	private static void setupOSCListener(OSCPortIn portIn, int port, OSCListener[] listeners, String[] oscMessages) {
+
+      if (listeners.length != oscMessages.length) {
+         Logger.warn("Setting up OSC listeners on port " + port + ", but you have specified " + listeners.length
+                     + " OSCListener's and " + oscMessages.length + " messages.  These must be the same!!!");
+         System.exit(-1);
+      }
+      int length = listeners.length;
 		
 		// if we're already connected, then stop listening & close socket
 		if (portIn != null) {
@@ -166,50 +204,52 @@ public class Switcher {
 		}
 		
 		try {
-			portIn = new OSCPortIn(OSC_LISTENING_PORT);
+			portIn = new OSCPortIn(port);
 		} catch (SocketException se) {
-			// TODO Auto-generated catch block
-			Logger.warn("Unable to open port " + OSC_LISTENING_PORT + " for listening.\n"
-					+ "It's possible that there's another copy of this running, or there's another\n"
-					+ "program listening on port " + OSC_LISTENING_PORT + ".  Use netstat to figure out\n"
-					+ "if someone's listening, and use ps or Activity Monitor to see if there's another\n"
-					+ "copy of this running. (hint: the process name will be java).  Thanks for playing!");
+			Logger.warn("Unable to open port " + port + " for listening.\n"
+                     + "It's possible that there's another copy of this running, or there's another\n"
+                     + "program listening on port " + port + ".  Use netstat to figure out\n"
+                     + "if someone's listening, and use ps or Activity Monitor to see if there's another\n"
+                     + "copy of this running. (hint: the process name will be java).  Thanks for playing!");
 			Logger.warn(se);
 			System.exit(-1);
 		} 
-		
-		portIn.addListener("/remix/echo", setLoadedListener);
-		portIn.addListener("/live/play", setStoppedListener);
+
+      for (int i = 0; i < length; i++) {
+         Logger.info("Listening for OSC message: \"" + oscMessages[i]);
+         portIn.addListener(oscMessages[i], listeners[i]);
+      }
 		portIn.startListening();
-		Logger.info("Now listening on port " + OSC_LISTENING_PORT);
-      Logger.info("Listing for OSC messages: \"/remix/echo\" and \"/live/play\"");
+		Logger.info("Now listening on port " + port);
 	}
 
+   /**
+    * Convenience method when there is only one listener
+    */
+   private static void setupOSCListener(OSCPortIn portIn, int port, OSCListener listener, String oscMessage) {
+      setupOSCListener(portIn,
+                       port,
+                       new OSCListener[] { listener },
+                       new String[] { oscMessage });
+   }
+
 	/**
-	 * Listens for set loaded event from Live; when it is loaded, sends
-	 * play event to live & tells ActionRunner that loading has finished
+	 * Listens for set loaded event from Live; when it is loaded,
+	 * tells ActionRunner that loading has finished.
 	 */
-	public static OSCListener setLoadedListener = new OSCListener() {
-		
+	private static OSCListener setLoadedListener = new OSCListener() {
 		@Override
 		public void acceptMessage(Date time, OSCMessage message) {
          Logger.info("Set loaded listener received OSC message from Live: " + message.getAddress());
-			//try {
-				//sender.livePlaybackStart();
-				//AppleScriptRunner.runLiveEnter();
-            // XXX yes, we should do this, but elsewhere
-				//AppleScriptRunner.runLiveSpace();
-				ar.actionLoaded();
-			// } catch (Exception e) {
-			// 	// TODO Auto-generated catch block
-			// 	Logger.warn("Couldn't send play message.");
-			// 	Logger.warn(e);
-			// 	System.exit(-1);
-			// }
+         ar.actionLoaded();
 		}
 	};
 	
-	public static OSCListener setStoppedListener = new OSCListener() {
+	/**
+	 * Listens for playing/stopped events from Live; when received,
+	 * tells ActionRunner that playing has started/stopped, and records current state.
+	 */
+	private static OSCListener setStoppedListener = new OSCListener() {
 		@Override
 		public void acceptMessage(Date time, OSCMessage message) {
          Logger.info("Set stopped listener (somewhat poorly named) received OSC message from Live: " + message.getAddress());
@@ -240,6 +280,26 @@ public class Switcher {
    public static boolean isLiveStopped() {
       return Switcher.currentLiveState == LIVE_STATE_STOPPED;
    }
+
+   /**
+    * Record when we get a /sync message from the sequencer.
+    */
+   private static OSCListener syncListener = new OSCListener() {
+      @Override
+      public void acceptMessage(Date time, OSCMessage message) {
+         if (Switcher.lastSyncMs > 0) {
+            // when we're waiting for this and expecting it, we don't want to log every msg, that would be WAY too much
+            Switcher.lastSyncMs = System.currentTimeMillis();
+         } else if (Switcher.lastSyncMs == 0) {
+            // first msg when we're waiting
+            Logger.info("Received first sync msg from sequencer when we're waiting for it");
+            Switcher.lastSyncMs = System.currentTimeMillis();
+         } else {
+            // -1.  unexpected, so don't update lastSyncMs
+            Logger.debug("Received sync msg from sequencer when we're not waiting for it.  While not ideal, this is okay.");
+         }
+      }
+   };
 
 }
 

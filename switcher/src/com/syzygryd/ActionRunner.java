@@ -16,6 +16,7 @@ public class ActionRunner extends Thread {
    private static final int MAX_START_TRIES = 6;
    // run
 	private static final int TIME_REMAINING_INTERVAL_MS = 5 * SECOND_IN_MILLIS;
+   private static final int SYNC_WATCHDOG_MS = 3 * SECOND_IN_MILLIS;
    // stop
 	private static final int STOP_TIMEOUT_MS = 5 * SECOND_IN_MILLIS;
    // between
@@ -79,6 +80,12 @@ public class ActionRunner extends Thread {
 	
 	@Override
 	public void run() {
+
+      if (SYNC_WATCHDOG_MS > TIME_REMAINING_INTERVAL_MS) {
+         Logger.warn("Sync watchdog (" + SYNC_WATCHDOG_MS
+                     + " ms) > time remaining interval (" + TIME_REMAINING_INTERVAL_MS
+                     + " ms), this could cause bad behavior for the first of each iteration");
+      }
 
       Logger.info("Before infinite loop in ActionRunner.run()");
       // XXX would a web ability to exit be a good or bad idea ?
@@ -184,6 +191,9 @@ public class ActionRunner extends Thread {
       }
 
       if (started) {
+         // Do this here, now, so that we don't get spew from the /sync msgs received in the interim
+         Logger.debug("Resetting last sync time");
+         Switcher.lastSyncMs = 0;
          // Sometimes instead of just a PLAYING message from live, we
          // get PLAYING-STOPPED-PLAYING in rapid succession.  So wait
          // a little bit and verify that the state is still PLAYING.
@@ -225,13 +235,29 @@ public class ActionRunner extends Thread {
       Logger.info("Playing for up to " + remainingMs + " ms ...");
       boolean interrupted = false;
       this.actionRunning = new CountDownLatch(1);
+      Logger.debug("NOT resetting last sync time, since we already did that during start");
+      Switcher.lastSyncMs = 0;
+      boolean firstIteration = true;
       while (remainingMs > 0 && !interrupted) {
          int sleepDurationMs = Math.min(TIME_REMAINING_INTERVAL_MS, remainingMs);
          sendTimeRemainingMessage(remainingMs, action.getId(), action.getLightingProgram() );
          interrupted = doWait(this.actionRunning, sleepDurationMs);
+         if (!interrupted && !firstIteration) {
+            if (Switcher.lastSyncMs <= 0) {
+               SwitcherException.doThrow("More than one full iteration of time remaining has completed, and we still have not received a /sync msg, giving up on Live");
+            }
+            long now = System.currentTimeMillis();
+            long diff = now - Switcher.lastSyncMs;
+            if (diff > SYNC_WATCHDOG_MS) {
+               SwitcherException.doThrow("It has been " + diff + " ms since a /sync msg, which is longer than the " + SYNC_WATCHDOG_MS + " threshold, giving up on Live");
+            }
+         }
+         firstIteration = false;
          remainingMs -= TIME_REMAINING_INTERVAL_MS;
       }
       this.actionRunning = null;
+      Switcher.lastSyncMs = -1;
+      Logger.debug("No longer waiting for sync messages");
       sendTimeRemainingMessage(0, action.getId(), action.getLightingProgram());
 
       if (interrupted) {
