@@ -14,6 +14,8 @@ import netP5.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.NumberFormatException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -106,8 +108,8 @@ PImage logo = null;
 final int OSC_LISTENING_PORT = 9002;
 final int OSC_SENDING_PORT = 8000;
 
-//Declaring the color for controller display text
-color controllerColor;
+// this is set based on which controller
+color textColor;
 
 void setup() {
   // debug("debug test");
@@ -197,33 +199,16 @@ void setup() {
     panels[i] = new DrawablePanel(i, panels, numTabs, gridWidth, gridHeight, buttonSize, buttonSpacing);
   }
   
-  if (getPanelIndex()!=-1) {
-    panelIndex = getPanelIndex();
-    info("Panel Index (Determined from host): " + panelIndex);
+  int indexByHostname = getPanelIndexByHostname();
+  if (indexByHostname != -1) {
+    panelIndex = indexByHostname;
+    info("Panel index (from hostname): " + panelIndex);
   } else {
     panelIndex = getIntProperty("panelIndex");
-    info("Panel Index (Determined from disk): " + panelIndex);
+    info("Panel index (from config): " + panelIndex);
   }
   selectPanel(panelIndex);
   
-  //Let's figure out what color the controller is
-  colorMode(HSB,360,100,100);
-  switch(panelIndex)
-    {
-    case 0:
-      controllerColor = color(322,67,84);
-      break;
-    case 1:
-      controllerColor = color(55,57,92);
-      break;
-    case 2:
-      controllerColor = color(190,88,88);
-      break;
-    }
-  
-  //Revert back to standard HSB color mode
-  colorMode(HSB);
-
   temposweep = new Temposweep(buttonSize, buttonSpacing);
   
   scrollablemessage = new ScrollableMessage();
@@ -290,7 +275,28 @@ void draw() {
 }
 
 void selectPanel(int id) {
+  info("Selecting panel: " + id);
   selectedPanel = panels[id];
+
+  // the text color varies based on which controller this is
+  colorMode(HSB,360,100,100);
+  switch(panelIndex)
+    {
+    case 0:
+      textColor = color(322,67,84);	// magenta
+      break;
+    case 1:
+      textColor = color(55,57,92);	// yellow
+      break;
+    case 2:
+      textColor = color(190,88,88);	// cyan
+      break;
+    default:
+      warn("Unexpected panel index: " + id);
+    }
+  
+  // revert back to standard HSB color mode
+  colorMode(HSB);
 }
 
 // useful for debugging sync msgs
@@ -721,24 +727,41 @@ String getTime() {
   return date.toString();
 }
 
-// Determine controller panelIndex by hostname or IP Address
-int getPanelIndex() {
-  int r = -1;
-  String hn, cn;
+// Determine controller panelIndex by hostname, if this is controller1, controller2, or controller3
+// Return -1 otherwise
+int getPanelIndexByHostname() {
+  int panelIndex = -1;
+  String hostname;
   String subname = "controller";
   
   try {
     InetAddress localMachine = InetAddress.getLocalHost();	
     // XXX doesn't this potentially cause a long running reverse DNS lookup ?
-    hn = localMachine.getHostName();
-    if (hn.substring(0,10).equals(subname)==true) {
-      r = int(hn.substring(11));	
+    hostname = localMachine.getHostName();
+    info("Hostname: " + hostname);
+    if (hostname.length() == subname.length() + 1 &&
+        hostname.substring(0, subname.length()).equals(subname)) {
+      String nController = hostname.substring(subname.length());
+      try {
+        panelIndex = Integer.parseInt(nController);
+      } catch (NumberFormatException nfe) {
+        warn("Hostname not compatable with expected, will not set panel index based on hostname: " + hostname);
+      }
+      if (panelIndex >= 1 && panelIndex <= 3) {
+        // hostname counts 1 to 3, but index counts 0 to 2
+        panelIndex--;
+      } else {
+        warn("Hostname not compatable with expected, will not set panel index based on hostname: " + hostname);
+        panelIndex = -1;
+      }
+    } else {
+      info("Hostname does not appear to be a production controller, will not set panel index based on hostname");
     }
-  } catch(java.net.UnknownHostException uhe) {
-    //handle exception
+  } catch (UnknownHostException uhe) {
+    warn("Unable to get hostname, will not set panel index based on hostname: " + uhe.getMessage());
   }		
   
-  return r;
+  return panelIndex;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
