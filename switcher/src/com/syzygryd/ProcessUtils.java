@@ -7,124 +7,142 @@ public class ProcessUtils {
    private static final int LIVE_QUIT_ITERATION_MS = 1000;
    private static final int LIVE_QUIT_MAX_ITER = 5;
 
+   private static boolean quittingLive = false;
+
    public static void doLiveQuit() {
       Logger.debug("doLiveQuit()");
 
-      Logger.debug("Clearing live running");
-      ActionRunner.getInstance().liveRunning = false;
+      synchronized(ActionRunner.getInstance()) {
+         if (ProcessUtils.quittingLive) {
+            Logger.info("We are already quitting live, ignoring this call to doLiveQuit()");
+            return;
+         } else {
+            Logger.info("We are now quitting live");
+            ProcessUtils.quittingLive = true;
+         }
+      }
 
       try {
-         if (!isLiveProcessRunning()) {
-            Logger.info("Request to quit live, but live is not running");
+         Logger.debug("Clearing live running");
+         ActionRunner.getInstance().liveRunning = false;
+
+         try {
+            if (!isLiveProcessRunning()) {
+               Logger.info("Request to quit live, but live is not running");
+               cleanupLive();	// see comments below
+               return;
+            }
+         } catch (SwitcherException se) {
+            Logger.warn("Can't tell if live is still running.  This is a bad sign, but will proceed anyway: " + se.getMessage());
+         }
+
+         if (Switcher.isLivePlaying()) {
+            Logger.info("Before quitting live, stop playing");
+            // Do to the overly OO nature of some of this, we need to create a bogus action.
+            Action action = ActionFactory.createAction(Action.ActionType.playnext, null);
+            ActionRunner ar = ActionRunner.getInstance();
+            Logger.debug("Created bogus action for stopping: " + ar.actionToString(action));
+            // And then we're somewhat violating the OO structure by calling this here,
+            // but this is the simplest way to share code.
+            try {
+               // This includes waiting for the stop to have completed.
+               ar.doStop(action);
+            } catch (SwitcherException se) {
+               Logger.warn("Error stopping live before quitting, will proceed anyway: " + se.getMessage());
+            }
+         }
+
+         boolean liveQuit = false;
+
+         Logger.info("Quitting live via AppleScript");
+         try {
+            AppleScriptRunner.runLiveQuit();
+         } catch (SwitcherException se) {
+            Logger.warn("Error quitting live via AppleScript, will proceed anyway: " + se.getMessage());
+         }
+
+         liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         if (liveQuit) {
+            Logger.info("Live has quit");
             cleanupLive();	// see comments below
             return;
          }
-      } catch (SwitcherException se) {
-         Logger.warn("Can't tell if live is still running.  This is a bad sign, but will proceed anyway: " + se.getMessage());
-      }
 
-      if (Switcher.isLivePlaying()) {
-         Logger.info("Before quitting live, stop playing");
-         // Do to the overly OO nature of some of this, we need to create a bogus action.
-         Action action = ActionFactory.createAction(Action.ActionType.playnext, null);
-         ActionRunner ar = ActionRunner.getInstance();
-         Logger.debug("Created bogus action for stopping: " + ar.actionToString(action));
-         // And then we're somewhat violating the OO structure by calling this here,
-         // but this is the simplest way to share code.
+         // this may be a sign that we did not successfully stop live
+         // XXX sadly, this doesn't seem to work, so comment it all out for now
+         // Logger.info("Accounting for possible \"This action will stop audio. Proceed?\" popup");
+         // try {
+         //    AppleScriptRunner.runLiveEnter();
+         // } catch (SwitcherException se) {
+         //    Logger.warn("Error sending enter to live, will proceed anyway: " + se.getMessage());
+         // }
+         //
+         // liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         // if (liveQuit) {
+         //    Logger.info("Live has quit");
+         //    cleanupLive();	// see comments below
+         //    return;
+         // }
+
+         Integer pid = null;
          try {
-            // This includes waiting for the stop to have completed.
-            ar.doStop(action);
+            pid = getLivePid();
          } catch (SwitcherException se) {
-            Logger.warn("Error stopping live before quitting, will proceed anyway: " + se.getMessage());
+            Logger.warn("Unable to get live pid, so we can not try killing the process");
+            Logger.warn("Will proceed anyway, but THIS COULD BE VERY SERIOUS AND DESERVES IMMEDIATE INVESTIGATION BY HAND");
+            cleanupLive();	// see comments below
+            return;
          }
-      }
+         if (pid == null) {
+            Logger.info("There is no live pid, perhaps it really has quit by now");
+            cleanupLive();	// see comments below
+            return;
+         }
 
-      boolean liveQuit = false;
-
-      Logger.info("Quitting live via AppleScript");
-      try {
-         AppleScriptRunner.runLiveQuit();
-      } catch (SwitcherException se) {
-         Logger.warn("Error quitting live via AppleScript, will proceed anyway: " + se.getMessage());
-      }
-
-      liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
-      if (liveQuit) {
-         Logger.info("Live has quit");
-         cleanupLive();	// see comments below
-         return;
-      }
-
-      // this may be a sign that we did not successfully stop live
-      // XXX sadly, this doesn't seem to work, so comment it all out for now
-      // Logger.info("Accounting for possible \"This action will stop audio. Proceed?\" popup");
-      // try {
-      //    AppleScriptRunner.runLiveEnter();
-      // } catch (SwitcherException se) {
-      //    Logger.warn("Error sending enter to live, will proceed anyway: " + se.getMessage());
-      // }
-      //
-      // liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
-      // if (liveQuit) {
-      //    Logger.info("Live has quit");
-      //    cleanupLive();	// see comments below
-      //    return;
-      // }
-
-      Integer pid = null;
-      try {
-         pid = getLivePid();
-      } catch (SwitcherException se) {
-         Logger.warn("Unable to get live pid, so we can not try killing the process");
-         Logger.warn("Will proceed anyway, but THIS COULD BE VERY SERIOUS AND DESERVES IMMEDIATE INVESTIGATION BY HAND");
-         cleanupLive();	// see comments below
-         return;
-      }
-      if (pid == null) {
-         Logger.info("There is no live pid, perhaps it really has quit by now");
-         cleanupLive();	// see comments below
-         return;
-      }
-
-      // It seems marginally cleaner to do this *after* sending the
-      // kill, but live seems to restart automatically sometimes
-      // (I'm not sure why), and we don't want to have the race
-      // condition that it does so before the files are removed.
-      //
-      // With just this call to cleanup, we're seeing cases where an
-      // even allegedly clean shutdown following a crash causes an
-      // unclean situation on the next start, requiring two killings
-      // following a crash (and one full loading wait leading to a
-      // skipped set), so we are now calling this unconditionally
-      // before *all* return paths above.
-      cleanupLive();
+         // It seems marginally cleaner to do this *after* sending the
+         // kill, but live seems to restart automatically sometimes
+         // (I'm not sure why), and we don't want to have the race
+         // condition that it does so before the files are removed.
+         //
+         // With just this call to cleanup, we're seeing cases where an
+         // even allegedly clean shutdown following a crash causes an
+         // unclean situation on the next start, requiring two killings
+         // following a crash (and one full loading wait leading to a
+         // skipped set), so we are now calling this unconditionally
+         // before *all* return paths above.
+         cleanupLive();
       
-      Logger.info("Killing live process " + pid);
-      try {
-         doExec("kill " + pid);
-      } catch (SwitcherException se) {
-         Logger.warn("Error killing live process, will proceed anyway: " + se.getMessage());
-      }
+         Logger.info("Killing live process " + pid);
+         try {
+            doExec("kill " + pid);
+         } catch (SwitcherException se) {
+            Logger.warn("Error killing live process, will proceed anyway: " + se.getMessage());
+         }
          
-      liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
-      if (liveQuit) {
-         Logger.info("Live has quit");
-         return;
-      }
+         liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         if (liveQuit) {
+            Logger.info("Live has quit");
+            return;
+         }
 
-      Logger.info("Very uncleanly killing live process " + pid);
-      try {
-         doExec("kill -9 " + pid);
-      } catch (SwitcherException se) {
-         Logger.warn("Error very uncleanly killing live process, will proceed anyway: " + se.getMessage());
-      }
+         Logger.info("Very uncleanly killing live process " + pid);
+         try {
+            doExec("kill -9 " + pid);
+         } catch (SwitcherException se) {
+            Logger.warn("Error very uncleanly killing live process, will proceed anyway: " + se.getMessage());
+         }
       
-      liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
-      if (liveQuit) {
-         Logger.info("Live has quit");
-      } else {
-         Logger.warn("We have tried everything possible to quit, but live is still running.");
-         Logger.warn("Will proceed anyway, but THIS COULD BE VERY SERIOUS AND DESERVES IMMEDIATE INVESTIGATION BY HAND");
+         liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         if (liveQuit) {
+            Logger.info("Live has quit");
+         } else {
+            Logger.warn("We have tried everything possible to quit, but live is still running.");
+            Logger.warn("Will proceed anyway, but THIS COULD BE VERY SERIOUS AND DESERVES IMMEDIATE INVESTIGATION BY HAND");
+         }
+
+      } finally {
+         ProcessUtils.quittingLive = false;
+         Logger.info("We are done quitting live");
       }
    }
 

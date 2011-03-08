@@ -278,7 +278,7 @@ public class ActionRunner extends Thread {
             long now = System.currentTimeMillis();
             long diff = now - Switcher.lastSyncMs;
             if (diff > SYNC_WATCHDOG_MS) {
-               SwitcherException.doThrow("It has been " + diff + " ms since a /sync msg, which is longer than the " + SYNC_WATCHDOG_MS + " threshold, giving up on Live");
+               SwitcherException.doThrow("It has been " + diff + " ms since a /sync msg, which is longer than the " + SYNC_WATCHDOG_MS + " ms threshold, giving up on Live");
             }
          }
          firstIteration = false;
