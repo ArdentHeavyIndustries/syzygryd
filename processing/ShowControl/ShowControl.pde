@@ -41,6 +41,10 @@ final int PITCHES = 10;  // wait until 2.0 to make any changes.
 
 final int FRAMERATE = 100;
 
+// This is the initial value.  It can be changed via the touchOSC (or replacement) controllers.
+// XXX changing this is not yet implemented
+boolean FLAME_EFFECTS_78_DISABLE = false;
+
 // These are the default values, if not set in the file.
 // Use String's here, regardless of the final type.
 // These should be consistent with the commented out lines in the
@@ -59,7 +63,6 @@ boolean SEND_DMX;
 boolean TEST_MODE;                
 boolean SYZYVYZ;
 boolean ASCII_SEQUENCER_DISPLAY;
-boolean FLAME_EFFECTS_78_DISABLE = false;
 String ETHERNET_INTERFACE;
 
 // ----------------- Variable Declaration & Initialization -----------------
@@ -405,13 +408,11 @@ float curTimeInSteps() {
 
 // super-simple DMX interface
 void sendDMX(int universe, int channel, int value) {
-	
    DMXManager.setChannel(universe, channel, (byte)value); 
 }
 
 // two arg version: send to universe zero. Good for fire control.
 void sendDMX(int channel, int value) {
-	
    DMXManager.setChannel(0, channel, (byte)value); 
 }
 

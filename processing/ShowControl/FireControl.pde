@@ -102,47 +102,48 @@ void processOSCFireEvent(OscMessage m) {
 
 // Sets a fire control relay to specified state. 
 void fireDMX(int addr, boolean onOff) {
-	
   if (onOff) {
   	boolean denyFire = false;
-  		//Only check the blacklist when igniting and in 7/8 disable, not when turning off.
-	if(FLAME_EFFECTS_78_DISABLE) {
-		for (int i=0; i<fireBlacklist.length; i++) {
-			if (addr==fireBlacklist[i]) {
-				denyFire=true;
-				break;
-			}
-		}
-	}
+ 
+    // Only check the blacklist when igniting and in 7/8 disable, not when turning off.
+    if (FLAME_EFFECTS_78_DISABLE) {
+      for (int i=0; i<fireBlacklist.length; i++) {
+        if (addr==fireBlacklist[i]) {
+          denyFire=true;
+          break;
+        }
+      }
+    }
 	
-	//Check for ignition denial
-	if (denyFire==false) {
-   sendDMX(addr, FIRE_DMX_MAGIC);
-	}
+    // Check for ignition denial
+    if (denyFire==false) {
+      sendDMX(addr, FIRE_DMX_MAGIC);
+    }
   } else {
-   sendDMX(addr, 0);
+    sendDMX(addr, 0);
   }
 }
 
 void fireDMXRaw(int addr, boolean onOff) {
   if (onOff) {
   	boolean denyFire = false;
-  
-    		//Only check the blacklist when igniting and in 7/8 disable, not when turning off.
-	if(FLAME_EFFECTS_78_DISABLE) {
-		for (int i=0; i<fireBlacklist.length; i++) {
-			if (addr==fireBlacklist[i]) {
-				denyFire=true;
-				break;
-			}
-		}	
-	}
-	//Check for ignition denial
-	if (denyFire==false) {
-   sendDMX(addr, FIRE_DMX_MAGIC);
-	}
+    
+    // Only check the blacklist when igniting and in 7/8 disable, not when turning off.
+    if(FLAME_EFFECTS_78_DISABLE) {
+      for (int i=0; i<fireBlacklist.length; i++) {
+        if (addr==fireBlacklist[i]) {
+          denyFire=true;
+          break;
+        }
+      }	
+    }
+
+    // Check for ignition denial
+    if (denyFire==false) {
+      sendDMX(addr, FIRE_DMX_MAGIC);
+    }
   } else {
-   sendDMX(addr, 0);
+    sendDMX(addr, 0);
   }
 }
 
