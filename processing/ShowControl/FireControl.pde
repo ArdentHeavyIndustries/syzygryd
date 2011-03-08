@@ -1,3 +1,6 @@
+import java.util.HashSet;
+import java.util.Set;
+
 // FireControl
 // Processes OSC messsages, runs manual fire control of main effect and tornado
 // Patterned fire control is handled within FrameBrulee, because we already have all the framework there,
@@ -17,9 +20,17 @@ boolean fcUITornadoReady = false;
 boolean fcUITornadoFuel = false;
 int fcUIArm = 0;
 
-// Initialize just puts the touchOSC in a coherent state
+// this is consulted if FLAME_EFFECTS_78_DISABLE is set.  initialized below in fireControlInitialize()
+Set fireBlacklist = new HashSet();
+// use a single persistent Integer so that we don't need to create a new Object for every check
+Integer fireBlacklistInteger = new Integer(-1);
+
+// Initialize mostly puts the touchOSC in a coherent state
 // globals, above, need to start with poofer, ready, fan, tornado all off
+//
+// It also sets the fireBlacklist
 void fireControlInitialize() { 
+  info("Initializing fire control");
   sendTouchOSCMsg("/fireMasterArm/makeFire", fcUIMasterFireArm);
   sendTouchOSCMsg("/fireControl/main", false);
   sendTouchOSCMsg("/fireControl/mainDuration", fcUIMainDuration);
@@ -27,6 +38,16 @@ void fireControlInitialize() {
   sendTouchOSCMsg("/fireControl/tornadoFan", fcUITornadoFan);
   sendTouchOSCMsg("/fireControl/tornadoReady", false);
   sendTouchOSCMsg("/fireControl/tornadoFuel", false);
+
+  // These are the flame effect addresses for 7/8 effects
+  // We disable all of these if FLAME_EFFECTS_78_DISABLE is set
+  fireBlacklist.add(new Integer(123));
+  fireBlacklist.add(new Integer(124));
+  fireBlacklist.add(new Integer(131));
+  fireBlacklist.add(new Integer(132));
+  fireBlacklist.add(new Integer(139));
+  fireBlacklist.add(new Integer(140));
+  info("Fire blacklist contains: " + fireBlacklist);
 }
 
 // Constants
@@ -45,10 +66,6 @@ int flameEffectDMXAddr(int arm, int effect) {
 float roundTo2Places(float v) {
   return floor(v*10 + 0.5) / 10.0;
 }
-
-//Flame effect address for 7/8 effects (for use with blacklisting)
-int[] fireBlacklist = {123, 124, 131, 132, 139, 140};
-
 
 void processOSCFireEvent(OscMessage m) {
 
@@ -104,19 +121,15 @@ void processOSCFireEvent(OscMessage m) {
 void fireDMX(int addr, boolean onOff) {
   if (onOff) {
   	boolean denyFire = false;
- 
+    
     // Only check the blacklist when igniting and in 7/8 disable, not when turning off.
     if (FLAME_EFFECTS_78_DISABLE) {
-      for (int i=0; i<fireBlacklist.length; i++) {
-        if (addr==fireBlacklist[i]) {
-          denyFire=true;
-          break;
-        }
-      }
+      fireBlacklistInteger = addr;
+      denyFire = fireBlacklist.contains(fireBlacklistInteger);
     }
-	
+    
     // Check for ignition denial
-    if (denyFire==false) {
+    if (!denyFire) {
       sendDMX(addr, FIRE_DMX_MAGIC);
     }
   } else {
@@ -129,17 +142,13 @@ void fireDMXRaw(int addr, boolean onOff) {
   	boolean denyFire = false;
     
     // Only check the blacklist when igniting and in 7/8 disable, not when turning off.
-    if(FLAME_EFFECTS_78_DISABLE) {
-      for (int i=0; i<fireBlacklist.length; i++) {
-        if (addr==fireBlacklist[i]) {
-          denyFire=true;
-          break;
-        }
-      }	
+    if (FLAME_EFFECTS_78_DISABLE) {
+      fireBlacklistInteger = addr;
+      denyFire = fireBlacklist.contains(fireBlacklistInteger);
     }
-
+    
     // Check for ignition denial
-    if (denyFire==false) {
+    if (!denyFire) {
       sendDMX(addr, FIRE_DMX_MAGIC);
     }
   } else {
