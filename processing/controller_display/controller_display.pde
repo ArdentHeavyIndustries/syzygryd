@@ -279,6 +279,7 @@ void selectPanel(int id) {
   selectedPanel = panels[id];
 
   // the text color varies based on which controller this is
+  // XXX by including this here, i think we ought to be controlling the text color (see ScrollableMessage.msgDraw()) even when we switch panels (with the 1, 2, and 3 keys), but that isn't working.  we end up with whatever text color is selected during setup().
   colorMode(HSB,360,100,100);
   switch(panelIndex)
     {
