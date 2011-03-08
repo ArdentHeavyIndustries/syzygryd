@@ -1,8 +1,9 @@
-loadedInterfaceName = "SyzygrydLightingitun";
+loadedInterfaceName = "Syzygryd Lighting";
 
 interfaceOrientation = "portrait";
 
 pages = [[
+// Syzygryd Main Interface Titlebar
 {
 	"name":"interfaceTitle",
 	"type":"Label",
@@ -64,7 +65,7 @@ pages = [[
 	"color":"#FF00FF",
 	
 },
-
+//Lighting Actions
 {
 	"name":"lightingChangeButtonLabel",
 	"type":"Label",
