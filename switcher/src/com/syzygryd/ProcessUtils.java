@@ -16,6 +16,7 @@ public class ProcessUtils {
       try {
          if (!isLiveProcessRunning()) {
             Logger.info("Request to quit live, but live is not running");
+            cleanupLive();	// see comments below
             return;
          }
       } catch (SwitcherException se) {
@@ -50,6 +51,7 @@ public class ProcessUtils {
       liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
       if (liveQuit) {
          Logger.info("Live has quit");
+         cleanupLive();	// see comments below
          return;
       }
 
@@ -65,6 +67,7 @@ public class ProcessUtils {
       // liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
       // if (liveQuit) {
       //    Logger.info("Live has quit");
+      //    cleanupLive();	// see comments below
       //    return;
       // }
 
@@ -74,10 +77,12 @@ public class ProcessUtils {
       } catch (SwitcherException se) {
          Logger.warn("Unable to get live pid, so we can not try killing the process");
          Logger.warn("Will proceed anyway, but THIS COULD BE VERY SERIOUS AND DESERVES IMMEDIATE INVESTIGATION BY HAND");
+         cleanupLive();	// see comments below
          return;
       }
       if (pid == null) {
          Logger.info("There is no live pid, perhaps it really has quit by now");
+         cleanupLive();	// see comments below
          return;
       }
 
@@ -85,6 +90,13 @@ public class ProcessUtils {
       // kill, but live seems to restart automatically sometimes
       // (I'm not sure why), and we don't want to have the race
       // condition that it does so before the files are removed.
+      //
+      // With just this call to cleanup, we're seeing cases where an
+      // even allegedly clean shutdown following a crash causes an
+      // unclean situation on the next start, requiring two killings
+      // following a crash (and one full loading wait leading to a
+      // skipped set), so we are now calling this unconditionally
+      // before *all* return paths above.
       cleanupLive();
       
       Logger.info("Killing live process " + pid);

@@ -192,7 +192,7 @@ public class ActionRunner extends Thread {
       
       if (loaded) {
          long loadTimeMs = System.currentTimeMillis() - this.beginLoadTimeMs;
-         Logger.info("Done loading, this took " + loadTimeMs + " ms, giving us " + (loadTimeoutMs - loadTimeMs) + " ms to spare.");
+         Logger.info("Done loading, this took " + loadTimeMs + " ms, out of " + loadTimeoutMs + " ms, giving us " + (loadTimeoutMs - loadTimeMs) + " ms to spare.");
          Logger.debug("Setting live running");
          this.liveRunning = true;
       } else {
