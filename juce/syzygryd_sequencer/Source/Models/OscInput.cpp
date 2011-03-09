@@ -70,6 +70,15 @@ void OscInput::run()
          changeTab (m);
       } else if (addressPattern.contains("_control/syncRequest")) {
          inefficientSync (m);
+#ifdef JUCE_DEBUG
+      } else if (addressPattern == "/crash") {
+         // for testing set switching when live crashes
+         // this should NOT be included in a release build
+         fprintf(stderr, "/crash OSC message received, we are about to intentionally crash live");
+         fflush(stderr);	// probably not necessary for stderr (only stdout), but it doesn't hurt
+         // dereference NULL pointer
+         int i = *((int*)NULL);
+#endif
       } else {
          DBG ("Unrecognized address pattern.")
       }

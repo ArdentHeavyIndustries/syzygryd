@@ -55,7 +55,7 @@ void MainComponent::paint (Graphics& g)
 	
 	g.setFont (18.0, Font::bold);
         // svnversion may help you figure out the next likely version number
-	g.drawText ("Syzygryd Sequencer r819", 10, 10, getWidth() - 20, 20, 
+	g.drawText ("Syzygryd Sequencer r840", 10, 10, getWidth() - 20, 20, 
                Justification::centredTop, false);
 }
 
