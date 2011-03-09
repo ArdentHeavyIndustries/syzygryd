@@ -11,11 +11,11 @@ import java.util.Properties;
  */
 public class Syzyweb extends NanoHTTPD {
 
-	public static final String ACTION_URI_PREFIX = "/sz/";
-	public static final int SECOND_IN_MILLIS = 1000;
-	public static final int SCREENSHOT_DELAY = 1 * SECOND_IN_MILLIS;
+	private static final String ACTION_URI_PREFIX = "/sz/";
+
 	private ActionRunner runner = null;
 	private Setlist list = null;
+
 	public Syzyweb(int port, ActionRunner ar, Setlist sl) throws IOException {
 		super(port);
 		runner = ar;
@@ -149,7 +149,7 @@ public class Syzyweb extends NanoHTTPD {
 	protected Response screenshotWrapperResponse() {
 		try {
 			Runtime.getRuntime().exec("/usr/sbin/screencapture -x " + new File("").getAbsolutePath() + "/screenshot.png");
-			Thread.sleep(SCREENSHOT_DELAY);
+			Thread.sleep(Config.SCREENSHOT_DELAY_MS);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			Logger.warn(e);

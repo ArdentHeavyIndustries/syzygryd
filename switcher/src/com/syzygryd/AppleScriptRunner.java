@@ -28,8 +28,6 @@ public class AppleScriptRunner {
 	private static ScriptEngineManager mgr = new ScriptEngineManager();
 	private static ScriptEngine engine = mgr.getEngineByName("AppleScript");
 
-   private static final long APPLESCRIPT_TIMEOUT_MS = 10000;
-   
    private static ScriptException scriptException;
     
 	/**
@@ -70,9 +68,9 @@ public class AppleScriptRunner {
          Logger.debug("Starting background thread to execute script");
          t.start();
 
-         Logger.debug("Will wait up to " + APPLESCRIPT_TIMEOUT_MS + " ms to execute script");
+         Logger.debug("Will wait up to " + Config.APPLESCRIPT_TIMEOUT_MS + " ms to execute script");
          // XXX could we just use t.join(long millis) for this ?
-         boolean scriptCompleted = ActionRunner.doWait(scriptPending, APPLESCRIPT_TIMEOUT_MS);
+         boolean scriptCompleted = ActionRunner.doWait(scriptPending, Config.APPLESCRIPT_TIMEOUT_MS);
          if (scriptException != null) {
             SwitcherException.doThrow("Script threw exception", scriptException);
          } else if (scriptCompleted) {

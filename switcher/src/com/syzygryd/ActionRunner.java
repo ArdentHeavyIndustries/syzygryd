@@ -7,26 +7,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ActionRunner extends Thread {
 	
-	private static final int SECOND_IN_MILLIS = 1000;
-
-   // load
-   // we want the timeout to load a set to be longer if we might need to first start live
-	private static final int LOAD_FIRST_TIMEOUT_MS = 90 * SECOND_IN_MILLIS;
-	private static final int LOAD_OTHER_TIMEOUT_MS = 30 * SECOND_IN_MILLIS;
-   // start
-   private static final int START_ITERATION_TIMEOUT_MS = 5 * SECOND_IN_MILLIS;
-   private static final int MAX_START_TRIES = 6;
-   // run
-	private static final int TIME_REMAINING_INTERVAL_MS = 5 * SECOND_IN_MILLIS;
-   private static final int SYNC_WATCHDOG_MS = 3 * SECOND_IN_MILLIS;
-   // stop
-	private static final int STOP_TIMEOUT_MS = 5 * SECOND_IN_MILLIS;
-   // between
-   // XXX is this really needed?  it seems incredibly hacky, and likely no longer required.  nevertheless, keep for now, but make minimal.
-	private static final int ARBITRARY_SLEEP_BETWEEN_SETS_MS = 1 * SECOND_IN_MILLIS;
-   // used for both start and stop
-   private static final int STATE_UNCHANGED_WAIT_MS = 1 * SECOND_IN_MILLIS;
-	
    // XXX is this still used?
 	//private boolean running = false;
 
@@ -90,9 +70,9 @@ public class ActionRunner extends Thread {
 	public void run() {
       Logger.info("Begin ActionRunner.run()");
 
-      if (SYNC_WATCHDOG_MS > TIME_REMAINING_INTERVAL_MS) {
-         Logger.warn("Sync watchdog (" + SYNC_WATCHDOG_MS
-                     + " ms) > time remaining interval (" + TIME_REMAINING_INTERVAL_MS
+      if (Config.SYNC_WATCHDOG_MS > Config.TIME_REMAINING_INTERVAL_MS) {
+         Logger.warn("Sync watchdog (" + Config.SYNC_WATCHDOG_MS
+                     + " ms) > time remaining interval (" + Config.TIME_REMAINING_INTERVAL_MS
                      + " ms), this could cause bad behavior for the first of each iteration");
       }
 
@@ -175,9 +155,9 @@ public class ActionRunner extends Thread {
 
       int loadTimeoutMs;
       if (this.liveRunning) {
-         loadTimeoutMs = LOAD_OTHER_TIMEOUT_MS;
+         loadTimeoutMs = Config.LOAD_OTHER_TIMEOUT_MS;
       } else {
-         loadTimeoutMs = LOAD_FIRST_TIMEOUT_MS;
+         loadTimeoutMs = Config.LOAD_FIRST_TIMEOUT_MS;
       }
 
       if (action.requiresLoad()) {
@@ -206,13 +186,13 @@ public class ActionRunner extends Thread {
       // we start live playing by pressing space
       boolean started = false;
       int nStartTries = 0;
-      Logger.info("Waiting (up to " + MAX_START_TRIES + " iterations) for start");
-      while (!started && nStartTries < MAX_START_TRIES) {
+      Logger.info("Waiting (up to " + Config.MAX_START_TRIES + " iterations) for start");
+      while (!started && nStartTries < Config.MAX_START_TRIES) {
          Logger.info("Starting...");
          this.startPending = new CountDownLatch(1);
          action.start();
-         Logger.info("Waiting (up to " + START_ITERATION_TIMEOUT_MS + " ms per iteration) for start...");
-         started = doWait(this.startPending, START_ITERATION_TIMEOUT_MS);
+         Logger.info("Waiting (up to " + Config.START_ITERATION_TIMEOUT_MS + " ms per iteration) for start...");
+         started = doWait(this.startPending, Config.START_ITERATION_TIMEOUT_MS);
          this.startPending = null;
          if (!started) {
             Logger.info("Start not yet detected, will (possibly) retry");
@@ -234,15 +214,15 @@ public class ActionRunner extends Thread {
          // (although then we'd need a different synchronization
          // construct than CountDownLatch), but I'm being somewhat
          // lazy for now and doing mostly what's easy.
-         Logger.debug("Likely done starting, waiting " + STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still started");
-         doSleep(STATE_UNCHANGED_WAIT_MS);
+         Logger.debug("Likely done starting, waiting " + Config.STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still started");
+         doSleep(Config.STATE_UNCHANGED_WAIT_MS);
          if (action.isStarted()) {
             Logger.info("Done starting");
          } else {
-            SwitcherException.doThrow("Initially started, but after a wait of " + STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still started");
+            SwitcherException.doThrow("Initially started, but after a wait of " + Config.STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still started");
          }
       } else {
-         SwitcherException.doThrow("Done waiting " + MAX_START_TRIES + " iterations of " + START_ITERATION_TIMEOUT_MS + " ms, but start did not occur");
+         SwitcherException.doThrow("Done waiting " + Config.MAX_START_TRIES + " iterations of " + Config.START_ITERATION_TIMEOUT_MS + " ms, but start did not occur");
       }
    }
 
@@ -268,7 +248,7 @@ public class ActionRunner extends Thread {
       Logger.debug("NOT resetting last sync time, since we already did that during start");
       boolean firstIteration = true;
       while (remainingMs > 0 && !interrupted) {
-         int sleepDurationMs = Math.min(TIME_REMAINING_INTERVAL_MS, remainingMs);
+         int sleepDurationMs = Math.min(Config.TIME_REMAINING_INTERVAL_MS, remainingMs);
          sendTimeRemainingMessage(remainingMs, action.getId(), action.getLightingProgram() );
          interrupted = doWait(this.actionRunning, sleepDurationMs);
          if (!interrupted && !firstIteration) {
@@ -277,12 +257,12 @@ public class ActionRunner extends Thread {
             }
             long now = System.currentTimeMillis();
             long diff = now - Switcher.lastSyncMs;
-            if (diff > SYNC_WATCHDOG_MS) {
-               SwitcherException.doThrow("It has been " + diff + " ms since a /sync msg, which is longer than the " + SYNC_WATCHDOG_MS + " ms threshold, giving up on Live");
+            if (diff > Config.SYNC_WATCHDOG_MS) {
+               SwitcherException.doThrow("It has been " + diff + " ms since a /sync msg, which is longer than the " + Config.SYNC_WATCHDOG_MS + " ms threshold, giving up on Live");
             }
          }
          firstIteration = false;
-         remainingMs -= TIME_REMAINING_INTERVAL_MS;
+         remainingMs -= Config.TIME_REMAINING_INTERVAL_MS;
       }
       this.actionRunning = null;
       Switcher.lastSyncMs = -1;
@@ -307,23 +287,23 @@ public class ActionRunner extends Thread {
       Logger.info("Stopping...");
 		this.stopPending = new CountDownLatch(1);
       action.stop();
-      Logger.debug("Waiting (up to " + STOP_TIMEOUT_MS + " ms) for stop...");
-      boolean stopped = doWait(this.stopPending, STOP_TIMEOUT_MS);
+      Logger.debug("Waiting (up to " + Config.STOP_TIMEOUT_MS + " ms) for stop...");
+      boolean stopped = doWait(this.stopPending, Config.STOP_TIMEOUT_MS);
       this.stopPending = null;
 
       if (stopped) {
          // Similar to the case in doStop(), I think instead of just a
          // STOPPED message from live, we can sometimes get
          // STOPPED-PLAYING-STOPPED in rapid succession.
-         Logger.debug("Likely done stopping, waiting " + STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still stopped");
-         doSleep(STATE_UNCHANGED_WAIT_MS);
+         Logger.debug("Likely done stopping, waiting " + Config.STATE_UNCHANGED_WAIT_MS + " ms to make sure we are still stopped");
+         doSleep(Config.STATE_UNCHANGED_WAIT_MS);
          if (action.isStopped()) {
             Logger.info("Done stopping");
          } else {
-            SwitcherException.doThrow("Initially stopped, but after a wait of " + STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still stopped");
+            SwitcherException.doThrow("Initially stopped, but after a wait of " + Config.STATE_UNCHANGED_WAIT_MS + " ms, we are no longer still stopped");
          }
       } else {
-         SwitcherException.doThrow("Done waiting " + STOP_TIMEOUT_MS + " ms, but stop did not occur");
+         SwitcherException.doThrow("Done waiting " + Config.STOP_TIMEOUT_MS + " ms, but stop did not occur");
       }
    }
 
@@ -331,9 +311,9 @@ public class ActionRunner extends Thread {
       throws SwitcherException
    {
       // XXX this bothers me
-      if (ARBITRARY_SLEEP_BETWEEN_SETS_MS > 0) {
-         Logger.info("Waiting " + ARBITRARY_SLEEP_BETWEEN_SETS_MS + " ms between sets");
-         doSleep(ARBITRARY_SLEEP_BETWEEN_SETS_MS);
+      if (Config.ARBITRARY_SLEEP_BETWEEN_SETS_MS > 0) {
+         Logger.info("Waiting " + Config.ARBITRARY_SLEEP_BETWEEN_SETS_MS + " ms between sets");
+         doSleep(Config.ARBITRARY_SLEEP_BETWEEN_SETS_MS);
          Logger.debug("Done waiting");
       } else {
          Logger.debug("No arbitrary wait between sets");

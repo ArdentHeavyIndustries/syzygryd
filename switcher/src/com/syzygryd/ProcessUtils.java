@@ -4,12 +4,7 @@ import java.io.InputStream;
 import java.io.IOException;
 
 public class ProcessUtils {
-   private static final int LIVE_QUIT_ITERATION_MS = 1000;
-   private static final int LIVE_QUIT_MAX_ITER = 5;
    private static boolean quittingLive = false;
-
-   private static final int KILL_OPEN_SET_PROCESSES_ITERATION_MS = 1000;
-   private static final int KILL_OPEN_SET_PROCESSES_MAX_ITER = 5;
    private static boolean killingOpenSetProcesses = false;
 
    public static void doLiveQuit() {
@@ -67,7 +62,7 @@ public class ProcessUtils {
             Logger.warn("Error quitting live via AppleScript, will proceed anyway: " + se.getMessage());
          }
 
-         liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         liveQuit = waitLiveQuit(Config.LIVE_QUIT_ITERATION_MS, Config.LIVE_QUIT_MAX_ITER);
          if (liveQuit) {
             Logger.info("Live has quit");
             cleanupLive();	// see comments below
@@ -83,7 +78,7 @@ public class ProcessUtils {
          //    Logger.warn("Error sending enter to live, will proceed anyway: " + se.getMessage());
          // }
          //
-         // liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         // liveQuit = waitLiveQuit(Config.LIVE_QUIT_ITERATION_MS, Config.LIVE_QUIT_MAX_ITER);
          // if (liveQuit) {
          //    Logger.info("Live has quit");
          //    cleanupLive();	// see comments below
@@ -125,7 +120,7 @@ public class ProcessUtils {
             Logger.warn("Error killing live process, will proceed anyway: " + se.getMessage());
          }
          
-         liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         liveQuit = waitLiveQuit(Config.LIVE_QUIT_ITERATION_MS, Config.LIVE_QUIT_MAX_ITER);
          if (liveQuit) {
             Logger.info("Live has quit");
             return;
@@ -138,7 +133,7 @@ public class ProcessUtils {
             Logger.warn("Error very uncleanly killing live process, will proceed anyway: " + se.getMessage());
          }
       
-         liveQuit = waitLiveQuit(LIVE_QUIT_ITERATION_MS, LIVE_QUIT_MAX_ITER);
+         liveQuit = waitLiveQuit(Config.LIVE_QUIT_ITERATION_MS, Config.LIVE_QUIT_MAX_ITER);
          if (liveQuit) {
             Logger.info("Live has quit");
          } else {
@@ -283,7 +278,7 @@ public class ProcessUtils {
             Logger.warn("Error killing open set processes, will proceed anyway: " + se.getMessage());
          }
          
-         noOpenSetProcesses = waitNoOpenSetProcesses(KILL_OPEN_SET_PROCESSES_ITERATION_MS, KILL_OPEN_SET_PROCESSES_MAX_ITER);
+         noOpenSetProcesses = waitNoOpenSetProcesses(Config.KILL_OPEN_SET_PROCESSES_ITERATION_MS, Config.KILL_OPEN_SET_PROCESSES_MAX_ITER);
          if (noOpenSetProcesses) {
             Logger.info("There are no more open set processes");
             return;
@@ -296,7 +291,7 @@ public class ProcessUtils {
             Logger.warn("Error very uncleanly killing open set processes, will proceed anyway: " + se.getMessage());
          }
       
-         noOpenSetProcesses = waitNoOpenSetProcesses(KILL_OPEN_SET_PROCESSES_ITERATION_MS, KILL_OPEN_SET_PROCESSES_MAX_ITER);
+         noOpenSetProcesses = waitNoOpenSetProcesses(Config.KILL_OPEN_SET_PROCESSES_ITERATION_MS, Config.KILL_OPEN_SET_PROCESSES_MAX_ITER);
          if (noOpenSetProcesses) {
             Logger.info("There are no more open set processes");
          } else {

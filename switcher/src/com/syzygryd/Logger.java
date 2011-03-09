@@ -8,10 +8,6 @@ import java.util.Calendar;
  */
 public class Logger {
 
-   // XXX for now hardcode these, should probably be properties
-   private static final boolean verbose = false;
-   private static final boolean debug = true;
-
    // XXX logging is almost completely copied from processing/controller_display/controller_display.pde and processing/ShowControl/ShowControl.pde
    // in the long term we should share code
 
@@ -79,13 +75,13 @@ public class Logger {
    // XXX could be using StringBuffer better instead of String
 
    public static void verbose(String msg) {
-      if (verbose) {
+      if (Config.VERBOSE) {
          System.out.println(getHeader() + msg);
       }
    }
    
    public static void debug(String msg) {
-      if (debug) {
+      if (Config.DEBUG) {
          System.out.println(getHeader() + msg);
       }
    }

@@ -42,7 +42,6 @@ public class Switcher {
 	private static final int OSC_SENDING_PORT_BROADCAST = 9002;
    /*private static final int OSC_SENDING_PORT_CONTROLLER = 9000;*/
 
-   private static final String BROADCAST_IP_ADDR = "255.255.255.255";	// XXX this should be a property
 	private static InetAddress OSC_BROADCAST_ADDRESS = null;
 	
 	private static final int WEB_PORT = 31337;
@@ -81,6 +80,10 @@ public class Switcher {
 			System.exit(-1);
 		}
 
+      Logger.info("Setting up properties");
+      Config config = new Config();
+      config.setupProps();
+
       String setlistFilename = args[ARG_SETLISTFILENAME];
 		Logger.info("Loading setlist from " + setlistFilename);
 		// attempt to load setlist
@@ -117,7 +120,7 @@ public class Switcher {
 		// Set.setSender(senderLive);
 		
 		try {
-			OSC_BROADCAST_ADDRESS = InetAddress.getByName(BROADCAST_IP_ADDR);
+			OSC_BROADCAST_ADDRESS = InetAddress.getByName(Config.BROADCAST_IP_ADDR);
 		} catch (UnknownHostException uhe) {
 			// TODO Auto-generated catch block
 			Logger.warn(uhe);
