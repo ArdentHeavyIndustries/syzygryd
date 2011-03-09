@@ -36,44 +36,44 @@ OscInput::~OscInput()
 // Thread methods
 void OscInput::run()
 {
-	while (! threadShouldExit()) {
-		Thread::sleep (kSleepInterval);
+   while (! threadShouldExit()) {
+      Thread::sleep (kSleepInterval);
 
-		if (!inSocket.waitUntilReady (true, kTimeoutMs)) {
-			continue;
-		}
+      if (!inSocket.waitUntilReady (true, kTimeoutMs)) {
+         continue;
+      }
 		
-		char buffer[kInputBufferSize];
-		int bytesRead = 0;
-		if (!(bytesRead = inSocket.read (buffer, kInputBufferSize, false))) {
-			continue;
-		}
+      char buffer[kInputBufferSize];
+      int bytesRead = 0;
+      if (!(bytesRead = inSocket.read (buffer, kInputBufferSize, false))) {
+         continue;
+      }
 		
-		osc::ReceivedPacket p(buffer, bytesRead);
-		if (!p.IsMessage()) {
-			continue;
-		}
-		std::cout << p;
-		SharedState::getInstance()->broadcast (buffer, bytesRead);
+      osc::ReceivedPacket p(buffer, bytesRead);
+      if (!p.IsMessage()) {
+         continue;
+      }
+      std::cout << p;
+      SharedState::getInstance()->broadcast (buffer, bytesRead);
 		
-		osc::ReceivedMessage m(p);
-		String addressPattern (m.AddressPattern());
-		if (addressPattern == "/server/connect") {
-			clientConnect (m);
-		} else if (addressPattern.contains("tab") &&
+      osc::ReceivedMessage m(p);
+      String addressPattern (m.AddressPattern());
+      if (addressPattern == "/server/connect") {
+         clientConnect (m);
+      } else if (addressPattern.contains("tab") &&
                  addressPattern.contains("panel")) {
-			noteToggle (m);
-		} else if (addressPattern.contains("control") &&
+         noteToggle (m);
+      } else if (addressPattern.contains("control") &&
                  addressPattern.contains("clear")) { 
-			clearTab (m);
-		} else if (addressPattern.contains("tab")) {
-			changeTab (m);
+         clearTab (m);
+      } else if (addressPattern.contains("tab")) {
+         changeTab (m);
       } else if (addressPattern.contains("_control/syncRequest")) {
          inefficientSync (m);
-		} else {
-			DBG ("Unrecognized address pattern.")
-		}
-	}
+      } else {
+         DBG ("Unrecognized address pattern.")
+      }
+   }
 }
 
 void OscInput::clientConnect (osc::ReceivedMessage m)
