@@ -23,7 +23,7 @@ public class Config {
    // example etc/switcher.properties file.
 
    // from Switcher
-   private static final String DEFAULT_BROADCAST_IP_ADDR = "255.255.255.255";
+   private static final String DEFAULT_ETHERNET_INTERFACE = "en0";
 
    // from ActionRunning
    // load
@@ -68,7 +68,7 @@ public class Config {
    // just be calling methods here to get the props, but this is the
    // quickest way with the least changes for now.
 
-   public static String BROADCAST_IP_ADDR;
+   public static String ETHERNET_INTERFACE;
 	public static int LOAD_FIRST_TIMEOUT_MS;
 	public static int LOAD_OTHER_TIMEOUT_MS;
    public static int START_ITERATION_TIMEOUT_MS;
@@ -95,7 +95,7 @@ public class Config {
    public void setupProps() {
       // Configure default values, if not set in the file
       defaultProps = new Properties();
-      defaultProps.setProperty("broadcastIpAddr", DEFAULT_BROADCAST_IP_ADDR);
+      defaultProps.setProperty("ethernetInterface", DEFAULT_ETHERNET_INTERFACE);
       defaultProps.setProperty("loadFirstTimeoutSec", DEFAULT_LOAD_FIRST_TIMEOUT_SEC);
       defaultProps.setProperty("loadOtherTimeoutSec", DEFAULT_LOAD_OTHER_TIMEOUT_SEC);
       defaultProps.setProperty("startIterationTimeoutSec", DEFAULT_START_ITERATION_TIMEOUT_SEC);
@@ -129,7 +129,7 @@ public class Config {
       }
 
       // Now set the public values that existing classes can use to access these, for convenience
-      BROADCAST_IP_ADDR                    = getStringProperty("broadcastIpAddr");
+      ETHERNET_INTERFACE                   = getStringProperty("ethernetInterface");
       LOAD_FIRST_TIMEOUT_MS                = getIntProperty("loadFirstTimeoutSec") * SECOND_IN_MILLIS;
       LOAD_OTHER_TIMEOUT_MS                = getIntProperty("loadOtherTimeoutSec") * SECOND_IN_MILLIS;
       START_ITERATION_TIMEOUT_MS           = getIntProperty("startIterationTimeoutSec") * SECOND_IN_MILLIS;

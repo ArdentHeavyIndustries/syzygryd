@@ -2,9 +2,12 @@ package com.syzygryd;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.List;
 
 import com.illposed.osc.OSCListener;
 import com.illposed.osc.OSCMessage;
@@ -114,16 +117,26 @@ public class Switcher {
 		// 	Logger.warn(e);
 		// }
 		
+      // XXX ugh, i hate this message.  we are quitting now, but not
+      // doing any resetting.  but maybe it's okay b/c we're only
+      // receiving, and not sending.  keep this around for now in case
+      // that changes.
 		// // install sender for live
 		// // TODO: after quitting live is implemented, sender will
 		// // need to be reset.  or not!
 		// Set.setSender(senderLive);
-		
+
+      // get broadcast address.  copied from ShowControl.pde in processing
+      String broadcastAddress = getBroadcastAddress();
+      if (broadcastAddress == null) {
+         broadcastAddress = "255.255.255.255";
+         Logger.warn("Broadcast address for interface " + Config.ETHERNET_INTERFACE + " couldn't be found.  Defaulting to " + broadcastAddress + ".  This could affect network performance.");
+      }
 		try {
-			OSC_BROADCAST_ADDRESS = InetAddress.getByName(Config.BROADCAST_IP_ADDR);
+			OSC_BROADCAST_ADDRESS = InetAddress.getByName(broadcastAddress);
 		} catch (UnknownHostException uhe) {
-			// TODO Auto-generated catch block
-			Logger.warn(uhe);
+         // XXX should we be complaining more seriously here ?  like exitting ?
+			Logger.warn("Unable to create InetAddress for broadcast address " + broadcastAddress + ": " + uhe.getMessage());
 		}
 		// create senders for controller, lighting, and sequencer
 		//Logger.info("Setting up OSC sender to sequencer to " + InetAddress.getLocalHost().getHostAddress() + ":" + OSC_SENDING_PORT_SEQUENCER);
@@ -170,6 +183,36 @@ public class Switcher {
 		}
 		
 	}
+
+   /**
+    * Calculate the broadcast address based on the ethernet interface
+    * Copied from ShowControl.pde in processing.
+    */
+   private static String getBroadcastAddress() {
+      InetAddress resultAddress = null;
+      String returnAddress = null;
+      
+      try {
+         NetworkInterface nI = NetworkInterface.getByName(Config.ETHERNET_INTERFACE);
+         if (nI != null) {
+            List<InterfaceAddress> address = nI.getInterfaceAddresses();
+            
+            for (InterfaceAddress interfaceAddress : address) {
+               if (interfaceAddress != null) {
+                  resultAddress = interfaceAddress.getBroadcast();
+                  Logger.info("Broadcast address for interface " + Config.ETHERNET_INTERFACE + " is " + resultAddress);
+                  // get rid of leading slash
+                  returnAddress = resultAddress.toString().substring(1);
+                  break;
+               }	
+            }
+         }    
+      } catch (SocketException se) {
+         Logger.warn("Unable to get broadcast address: " + se.getMessage());
+      }
+      
+      return returnAddress;	
+   }
 	
 	/**
 	 * Set up the various OSC listeners
