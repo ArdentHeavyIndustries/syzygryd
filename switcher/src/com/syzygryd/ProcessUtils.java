@@ -6,8 +6,11 @@ import java.io.IOException;
 public class ProcessUtils {
    private static final int LIVE_QUIT_ITERATION_MS = 1000;
    private static final int LIVE_QUIT_MAX_ITER = 5;
-
    private static boolean quittingLive = false;
+
+   private static final int KILL_OPEN_SET_PROCESSES_ITERATION_MS = 1000;
+   private static final int KILL_OPEN_SET_PROCESSES_MAX_ITER = 5;
+   private static boolean killingOpenSetProcesses = false;
 
    public static void doLiveQuit() {
       Logger.debug("doLiveQuit()");
@@ -25,6 +28,9 @@ public class ProcessUtils {
       try {
          Logger.debug("Clearing live running");
          ActionRunner.getInstance().liveRunning = false;
+
+         // just in case we're in the process of opening live, but it hasn't yet opened
+         killOpenSetProcesses();
 
          try {
             if (!isLiveProcessRunning()) {
@@ -241,6 +247,112 @@ public class ProcessUtils {
       return i_pid;
    }
 
+   // kill any processes that are opening up sets
+   // this code borrows from doLiveQuit()
+   public static void killOpenSetProcesses() {
+      Logger.debug("killOpenSetProcesses()");
+
+      // at first i was thinking it was lame to share the same sync var as doLiveQuit(),
+      // but maybe it's actually desirable
+      synchronized(ActionRunner.getInstance()) {
+         if (ProcessUtils.killingOpenSetProcesses) {
+            Logger.info("We are already killing open set processes, ignoring this call to killOpenSetProcesses()");
+            return;
+         } else {
+            Logger.info("We are now killing open set proceses");
+            ProcessUtils.killingOpenSetProcesses = true;
+         }
+      }
+
+      try {
+         try {
+            if (!isOpenSetProcessRunning()) {
+               Logger.info("Request to kill open set processes, but there are none");
+               return;
+            }
+         } catch (SwitcherException se) {
+            Logger.warn("Can't tell if there are open set processes.  This is a bad sign, but will proceed anyway: " + se.getMessage());
+         }
+
+         boolean noOpenSetProcesses = false;
+
+         Logger.info("Killing open set processes");
+         try {
+            doShellExec("ps auxww | grep \"open.*\\.als\" | grep -v grep | awk '{print $2}' | xargs kill");
+         } catch (SwitcherException se) {
+            Logger.warn("Error killing open set processes, will proceed anyway: " + se.getMessage());
+         }
+         
+         noOpenSetProcesses = waitNoOpenSetProcesses(KILL_OPEN_SET_PROCESSES_ITERATION_MS, KILL_OPEN_SET_PROCESSES_MAX_ITER);
+         if (noOpenSetProcesses) {
+            Logger.info("There are no more open set processes");
+            return;
+         }
+
+         Logger.info("Very uncleanly killing open set processes");
+         try {
+            doShellExec("ps auxww | grep \"open.*\\.als\" | grep -v grep | awk '{print $2}' | xargs kill -9");
+         } catch (SwitcherException se) {
+            Logger.warn("Error very uncleanly killing open set processes, will proceed anyway: " + se.getMessage());
+         }
+      
+         noOpenSetProcesses = waitNoOpenSetProcesses(KILL_OPEN_SET_PROCESSES_ITERATION_MS, KILL_OPEN_SET_PROCESSES_MAX_ITER);
+         if (noOpenSetProcesses) {
+            Logger.info("There are no more open set processes");
+         } else {
+            Logger.warn("We have tried everything possible to kill open set processes, but there is still at least one");
+            Logger.warn("Will proceed anyway, but THIS COULD BE VERY SERIOUS AND DESERVES IMMEDIATE INVESTIGATION BY HAND");
+         }
+
+      } finally {
+         ProcessUtils.killingOpenSetProcesses = false;
+         Logger.info("We are done killing open set processes");
+      }
+      
+   }
+
+
+   // there could be multiple such processes, we just care if there is at least one
+   protected static boolean isOpenSetProcessRunning()
+      throws SwitcherException
+   {
+      Process process = doShellExec("ps auxww | grep \"open.*\\.als\" | grep -v grep");
+      return (process.exitValue() == 0);
+   }
+
+   /**
+    * Wait up to maxIter iterations of iterationMs each for there to be no open set processes running.
+    * Return true (as soon as we detect this) if there are no open set processes running.
+    * Return false if at the end of waiting, there are still open set processes running.
+    * 
+    * XXX Copied from waitLiveQuit().  Sharing code would be better.  No function pointers, but I suppose I could define an interface.
+    */
+   private static boolean waitNoOpenSetProcesses(int iterationMs, int maxIter) {
+      Logger.info("Waiting (up to " + maxIter + " iterations) of " + iterationMs + " ms each for there to be no open set processes");
+      try {
+         int iter = 0;
+         boolean running = isOpenSetProcessRunning();
+         while (running && iter < maxIter) {
+            Logger.debug("Waiting...");
+            try {
+               Thread.sleep(iterationMs);
+            } catch (InterruptedException ie) {
+            }
+            running = isOpenSetProcessRunning();
+            if (running) {
+               iter++;
+            }
+         }
+         if (running) {
+            Logger.debug("There are still open set processes");
+         }
+         return !running;
+      } catch (SwitcherException se) {
+         Logger.warn("Error waiting for there to be no open set processes, we will assume that it there are still open set processes: " + se.getMessage());
+         return false;
+      }
+   }
+
    private static Process doShellExec(String cmd)
       throws SwitcherException
    {
@@ -263,10 +375,28 @@ public class ProcessUtils {
       return process;
    }
 
-   private static Process doExec(String cmd)
+   protected static Process doExec(String cmd)
       throws SwitcherException
    {
       Logger.debug("Executing: " + cmd);
+      Process process = null;
+      try {
+         process = Runtime.getRuntime().exec(cmd);
+      } catch (IOException ioe) {
+         SwitcherException.doThrow("Exception executing command \"" + cmd, ioe);
+      }
+      try {
+         // XXX i suppose in theory this is dangerous if the process were to somehow hang, this would block indefinitely
+         process.waitFor();
+      } catch (InterruptedException ie) {
+      }
+      return process;
+   }
+
+   protected static Process doExec(String[] cmd)
+      throws SwitcherException
+   {
+      Logger.debug("Executing: " + StringUtils.stringArrayToString(cmd));
       Process process = null;
       try {
          process = Runtime.getRuntime().exec(cmd);

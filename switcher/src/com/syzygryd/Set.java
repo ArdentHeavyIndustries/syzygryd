@@ -60,27 +60,19 @@ public class Set {
 	/**
 	 * Opens set using Live
 	 */
-	public void open() {
-		Logger.info("Executing \"open " + getName() + "\" to play set of length:" + getLength() + " sec.");
-		
-		try {
-			String[] params = {"open", getName()};
-			Runtime.getRuntime().exec(params);
-		} catch (IOException ioe) {
-			// NOP
-         // XXX really?  a nop?  don't we want to at least register that we had trouble opening the set?
-         // XXX should probably skip to the next set
-         Logger.warn("Unable to open " + getName(), ioe);
-		}
-		
-		// try {
-		// 	Thread.sleep(2500); 
-		// } catch (InterruptedException ie) {
-		// 	// NOP
-		// }
-		
-		//AppleScriptRunner.runLiveEnter();
-		
+	public void open()
+      throws SwitcherException
+   {
+      if (ProcessUtils.isOpenSetProcessRunning()) {
+         Logger.warn("There is at least one open set process already running.  Will kill before opening a new set.");
+         ProcessUtils.killOpenSetProcesses();
+      } else {
+         Logger.debug("There are no open set processes already running, will proceed with opening a new set.");
+      }
+
+      String[] cmd = {"open", getName()};
+		Logger.info("Executing \"" + StringUtils.stringArrayToString(cmd) + "\" to play set of length:" + getLength() + " sec.");
+      ProcessUtils.doExec(cmd);
 	}
 	
    /**
