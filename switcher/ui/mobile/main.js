@@ -113,6 +113,8 @@ function playOrQueueSet(event)
         && event.toElement.parentNode.id
         && event.toElement.parentNode.id.indexOf("queue") > -1) {
         queue = true;
+    } else {
+	queue = !confirm("End current set now?");
     }
     
     actionURL += id + "&q=" + (queue ? "1" : "0");

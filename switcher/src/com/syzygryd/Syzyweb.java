@@ -167,7 +167,9 @@ public class Syzyweb extends NanoHTTPD {
 	}
 	
 	protected Response queueResponse() {
-		String queueString = runner.queueToString();
+      // XXX this is a hack to unfuck the interface
+		//String queueString = runner.queueToString();
+		String queueString = "This does not work";
 		String out = "{" + queueString + "}";
 		return new Response(NanoHTTPD.HTTP_OK, "application/json", out);
 	}
