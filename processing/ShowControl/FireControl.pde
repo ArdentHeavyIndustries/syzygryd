@@ -137,6 +137,8 @@ void fireDMX(int addr, boolean onOff) {
   }
 }
 
+// XXX this is EXACTLY identical to fireDMX(), and we should probably get rid of it
+// for more details, see http://lists.syzygryd.com/private.cgi/code-syzygryd.com/2011-March/001563.html
 void fireDMXRaw(int addr, boolean onOff) {
   if (onOff) {
   	boolean denyFire = false;
