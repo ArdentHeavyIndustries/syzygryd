@@ -94,18 +94,18 @@ public class ActionRunner extends Thread {
             
             // 1. existing pending action (which would have been set via actNow())
             this.currentAction = popPendingAction();
-            Logger.debug("Popped pending action, if applicable: " + actionToString(this.currentAction));
+            Logger.debug("Popped pending action, if applicable: " + actionToShortString(this.currentAction));
             
             // 2. action at head of queue
             if (this.currentAction == null) {
                this.currentAction = getHead(); // try the salmon.  tip your waitron.
-               Logger.debug("Getting action at the head of the queue, if applicable: " + actionToString(this.currentAction));
+               Logger.debug("Getting action at the head of the queue, if applicable: " + actionToShortString(this.currentAction));
             }
             
             // 3. play next track
             if (this.currentAction == null) {
                this.currentAction = ActionFactory.createAction(Action.ActionType.playnext, null);
-               Logger.debug("Default fallthrough creating new action: " + actionToString(this.currentAction));
+               Logger.debug("Default fallthrough creating new action: " + actionToShortString(this.currentAction));
             }
             
             doAction(this.currentAction);
@@ -131,7 +131,7 @@ public class ActionRunner extends Thread {
    private void doInit(Action action)
       throws SwitcherException
    {
-      Logger.debug("Initializing action: " + actionToString(action));      
+      Logger.debug("Initializing action: " + actionToShortString(action));      
       if (action.requiresLoad()) {
          this.loadPending = new CountDownLatch(1);
       }
@@ -161,12 +161,12 @@ public class ActionRunner extends Thread {
       }
 
       if (action.requiresLoad()) {
-         Logger.debug("Action requires load: " + actionToString(action));
+         Logger.debug("Action requires load: " + actionToShortString(action));
          Logger.info("Waiting (up to " + loadTimeoutMs + " ms) for load...");
          loaded = doWait(this.loadPending, loadTimeoutMs);
          this.loadPending = null;
       } else {
-         Logger.warn("Action does not require load.  I didn't think that could happen in practice: " + actionToString(action));
+         Logger.warn("Action does not require load.  I didn't think that could happen in practice: " + actionToShortString(action));
          loaded = true;
       }
       
@@ -339,8 +339,12 @@ public class ActionRunner extends Thread {
       }
    }
 
-   protected String actionToString(Action action) {
+   // to prevent NPE's
+   private String actionToString(Action action) {
       return action == null ? null : action.toString();
+   }
+   protected String actionToShortString(Action action) {
+      return action == null ? null : action.toShortString();
    }
 	
 	/**
@@ -479,7 +483,6 @@ public class ActionRunner extends Thread {
 	// 	return this.running;
 	// }
 	
-   // XXX this doesn't work
 	public String queueToString() {
 		String queueString = "\"queue\":" + actionQ.toString();
 		String pendingString = ",\"pending\":" + pendingAction.toString();

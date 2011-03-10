@@ -95,23 +95,29 @@ public class ActionSetPlay extends Action {
 		return s.getLightingProgram();
 	}
 
-   // XXX this is causing a NPE.  for now just comment out and let super.toString() be used.
-	// public String toString() {
-	// 	switch (type) {
-	// 	case playnext:
-	// 	case playprev:
-	// 		return list.getCurrentSet().toString();
-	// 	case playthis:
-	// 		int setId;
-	// 		try {
-	// 			setId = Integer.valueOf(params.getProperty("setid"));
-	// 		} catch (Exception e) {
-	// 			return "Play invalid setId";
-	// 		}
-	// 		return list.peekSet(setId).toString();
-	// 	}
-	// 	return s.toString();
-	// }
+	public String toString() {
+      // this was previously throwing a NullPointerException.
+      // i can't currently replicate that, but catch it just in case.
+      try {
+         switch (type)
+            {
+            case playnext:
+            case playprev:
+               return list.getCurrentSet().toString();
+            case playthis:
+               int setId;
+               try {
+                  setId = Integer.valueOf(params.getProperty("setid"));
+               } catch (Exception e) {
+                  return "Play invalid setId";
+               }
+               return list.peekSet(setId).toString();
+            }
+         return s.toString();
+      } catch (NullPointerException npe) {
+         return "(null)";
+      }
+	}
 }
 
 /*

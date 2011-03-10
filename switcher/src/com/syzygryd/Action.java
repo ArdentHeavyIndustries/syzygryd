@@ -99,7 +99,7 @@ public abstract class Action {
 		return "";
 	}
 
-   public String toString() {
+   public String toShortString() {
       switch (type)
          {
          case playthis:
