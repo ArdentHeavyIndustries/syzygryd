@@ -76,7 +76,9 @@ function doSwitcherAction(event)
         && event.toElement 
         && event.toElement.parentNode 
         && event.toElement.parentNode.id) {
-        action = event.toElement.parentNode.id;
+        if (confirm("End current set now?")) {
+            action = event.toElement.parentNode.id;
+        }
     }
     
     var actionURL = SwitcherSvc.actionBase + action;
