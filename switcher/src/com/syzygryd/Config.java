@@ -25,6 +25,10 @@ public class Config {
    // from Switcher
    private static final String DEFAULT_ETHERNET_INTERFACE = "en0";
 
+   // from Setlist
+   private static final String DEFAULT_RANDOM_SETLIST = "true";
+   private static final String DEFAULT_RANDOM_SEED = "0";
+
    // from ActionRunning
    // load
    // we want the timeout to load a set to be longer if we might need to first start live
@@ -69,6 +73,8 @@ public class Config {
    // quickest way with the least changes for now.
 
    public static String ETHERNET_INTERFACE;
+   public static boolean RANDOM_SETLIST;
+   public static long RANDOM_SEED;
 	public static int LOAD_FIRST_TIMEOUT_MS;
 	public static int LOAD_OTHER_TIMEOUT_MS;
    public static int START_ITERATION_TIMEOUT_MS;
@@ -96,6 +102,8 @@ public class Config {
       // Configure default values, if not set in the file
       defaultProps = new Properties();
       defaultProps.setProperty("ethernetInterface", DEFAULT_ETHERNET_INTERFACE);
+      defaultProps.setProperty("randomSetlist", DEFAULT_RANDOM_SETLIST);
+      defaultProps.setProperty("randomSeed", DEFAULT_RANDOM_SEED);
       defaultProps.setProperty("loadFirstTimeoutSec", DEFAULT_LOAD_FIRST_TIMEOUT_SEC);
       defaultProps.setProperty("loadOtherTimeoutSec", DEFAULT_LOAD_OTHER_TIMEOUT_SEC);
       defaultProps.setProperty("startIterationTimeoutSec", DEFAULT_START_ITERATION_TIMEOUT_SEC);
@@ -130,6 +138,8 @@ public class Config {
 
       // Now set the public values that existing classes can use to access these, for convenience
       ETHERNET_INTERFACE                   = getStringProperty("ethernetInterface");
+      RANDOM_SETLIST                       = getBooleanProperty("randomSetlist");
+      RANDOM_SEED                          = getLongProperty("randomSeed");
       LOAD_FIRST_TIMEOUT_MS                = getIntProperty("loadFirstTimeoutSec") * SECOND_IN_MILLIS;
       LOAD_OTHER_TIMEOUT_MS                = getIntProperty("loadOtherTimeoutSec") * SECOND_IN_MILLIS;
       START_ITERATION_TIMEOUT_MS           = getIntProperty("startIterationTimeoutSec") * SECOND_IN_MILLIS;
@@ -169,6 +179,25 @@ public class Config {
          }
          Logger.warn ("Value for property " + key +
                       " not an int (" + props.getProperty(key) +
+                      "), using default value: " + value);
+      }
+      return value;
+   }
+
+   private long getLongProperty(String key) {
+      long value;
+      try {
+         value = Long.parseLong(props.getProperty(key));
+      } catch (NumberFormatException nfe) {
+         try {
+            value = Long.parseLong(defaultProps.getProperty(key));
+         } catch (NumberFormatException nfe2) {
+            throw new NumberFormatException("Value for property " + key +
+                                            " not an long (" + props.getProperty(key) +
+                                            "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+         }
+         Logger.warn ("Value for property " + key +
+                      " not an long (" + props.getProperty(key) +
                       "), using default value: " + value);
       }
       return value;

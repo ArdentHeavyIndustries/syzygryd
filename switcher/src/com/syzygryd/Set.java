@@ -6,6 +6,7 @@ import java.io.IOException;
  * Describes and manages a live set
  *
  */
+// XXX using the name "Set" is kind of confusing, given java.util.Set
 public class Set {
 	//private static OSCSender sender;	// XXX not currently used ?
 	private String name = null;

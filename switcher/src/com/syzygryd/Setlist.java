@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Collections;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.Vector;
 
 /**
@@ -68,8 +70,21 @@ public class Setlist {
 		}
 		
 		if (list.size() == 0) {
-			throw new Exception("setlist file was empty. try again with a file that has songs listed.");
+			throw new SwitcherException("setlist file was empty. try again with a file that has songs listed.");
 		}
+
+      if (Config.RANDOM_SETLIST) {
+         long seed;
+         if (Config.RANDOM_SEED == 0) {
+            seed = System.currentTimeMillis();
+         } else {
+            seed = Config.RANDOM_SEED;
+         }
+         Logger.info("Randomizing setlist with seed: " + seed);
+         Collections.shuffle(list, new Random(seed));
+      } else {
+         Logger.info("Not randomizing setlist");
+      }
 		
 		it = list.listIterator();
 	}
