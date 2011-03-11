@@ -78,7 +78,9 @@ function doSwitcherAction(event)
         && event.toElement.parentNode.id) {
         if (confirm("End current set now?")) {
             action = event.toElement.parentNode.id;
-        }
+        } else {
+	    return;
+	}
     }
     
     var actionURL = SwitcherSvc.actionBase + action;
@@ -116,7 +118,11 @@ function playOrQueueSet(event)
         && event.toElement.parentNode.id.indexOf("queue") > -1) {
         queue = true;
     } else {
-	queue = !confirm("End current set now?");
+	if (confirm("End current set now?")) {
+	    queue = false;
+	} else {
+	    return;
+	}
     }
     
     actionURL += id + "&q=" + (queue ? "1" : "0");

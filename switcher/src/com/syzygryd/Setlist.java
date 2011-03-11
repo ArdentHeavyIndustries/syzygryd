@@ -81,7 +81,8 @@ public class Setlist {
 		currentSet = it.next();
 		return currentSet;
 	}
-	
+
+   // XXX i suspect this may be buggy, see the comment in the playprev case in Syzyweb.act()
 	public Set getPrev() {
 		if (!it.hasPrevious()) {
 			it = list.listIterator(list.size()-1);

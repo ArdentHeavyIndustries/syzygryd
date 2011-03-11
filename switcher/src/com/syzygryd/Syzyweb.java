@@ -80,6 +80,7 @@ public class Syzyweb extends NanoHTTPD {
             case playthis:
             case playnext:
             case playprev:
+               // XXX playprev doesn't exactly work.  the first time you choose it, it plays the current set again.  if you choose it a second time, then it really plays the previous set.
                runner.injectAction(shouldQueue, ActionFactory.createAction(a, params));
                return successResponse();
             case liveesc:
