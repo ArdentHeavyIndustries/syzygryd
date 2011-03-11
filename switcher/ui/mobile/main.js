@@ -82,6 +82,25 @@ function doSwitcherAction(event)
 	    return;
 	}
     }
+
+    if (action == "livespace") {
+	if (!confirm("Are you sure you want to send a space to Live?  This will stop playing if it is started, which may cause the switcher to kill Live.")) {
+	    return;
+	}
+    } else if (action == "liveesc") {
+	if (!confirm("Are you sure you want to send ESC to Live?  Do you know what it does?  I don't.")) {
+	    return;
+	}
+    } else if (action == "loadtimeout") {
+	if (!confirm("Are you sure you want to skip the load timeout?  It's okay if the set is really loaded.  But if not, this might cause the switcher to kill Live.")) {
+	    return;
+	}
+    } else if (action == "livequit") {
+	if (!confirm("Are you sure you want to quit Live?  The switcher ought to restart it.")){
+	    return;
+	}
+    }
+    // screenshots don't require confirmation
     
     var actionURL = SwitcherSvc.actionBase + action;
     
