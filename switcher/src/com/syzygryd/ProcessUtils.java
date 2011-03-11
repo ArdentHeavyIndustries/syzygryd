@@ -42,7 +42,7 @@ public class ProcessUtils {
             // Do to the overly OO nature of some of this, we need to create a bogus action.
             Action action = ActionFactory.createAction(Action.ActionType.playnext, null);
             ActionRunner ar = ActionRunner.getInstance();
-            Logger.debug("Created bogus action for stopping: " + ar.actionToString(action));
+            Logger.debug("Created bogus action for stopping: " + ar.actionToShortString(action));
             // And then we're somewhat violating the OO structure by calling this here,
             // but this is the simplest way to share code.
             try {
