@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Properties;
+import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -44,6 +45,8 @@ final String DEFAULT_TOUCHSCREEN      = "true";
 final String DEFAULT_PANEL_INDEX      = "0";
 final String DEFAULT_SEQUENCER_HOST   = "10.10.10.10";
 final String DEFAULT_REQUIRE_SWITCHER = "true";
+final String DEFAULT_TEST_MODE        = "false";
+final String DEFAULT_RANDOM_SEED      = "0";
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -111,6 +114,11 @@ final int OSC_SENDING_PORT = 8000;
 // this is set based on which controller
 color textColor;
 
+boolean testMode = true;
+Random random;
+int width;
+int height;
+
 void setup() {
   // debug("debug test");
   // info("info test");
@@ -128,14 +136,18 @@ void setup() {
   boolean touchscreen = getBooleanProperty("touchscreen");
   info("Touchscreen: " + touchscreen);
   if (touchscreen) {
-    size(1366,768);
+    width = 1366;
+    height = 768;
+    size(width, height);
     // enable anti-aliasing
     // XXX i think this may be irrelevant (anti-aliasing always enabled), if we're using OPENGL
     smooth();
     // hide the mouse cursor
     noCursor();
   } else {
-    size(1280,720);
+    width = 1280;
+    height = 720;
+    size(width, height);
   }
 
   requireSwitcher = getBooleanProperty("requireSwitcher");
@@ -229,6 +241,21 @@ void setup() {
   // OscMessage connect = new OscMessage("/server/connect");
   // debug("Sending OSC message " + connect.addrPattern() + " to " + myRemoteLocation);
   // oscP5.send(connect, myRemoteLocation);
+
+  testMode = getBooleanProperty("testMode");
+  info("Test mode: " + testMode);
+  if (testMode) {
+    long seed;
+    long randomSeed = getLongProperty("randomSeed");
+    if (randomSeed == 0) {
+      seed = System.currentTimeMillis();
+    } else {
+      seed = randomSeed;
+    }
+    info("Seeing random number generator with seed: " + seed);
+    random = new Random(seed);
+    new TestMode().start();
+  }
 
   info("setup done");
 }
@@ -559,7 +586,18 @@ void startOsc() {
 void mousePressed() {
   //debug("mousePressed()");
   if (!setStopped) {
-    Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(mouseX, mouseY);
+    int x;
+    int y;
+    if (testMode) {
+      x = random.nextInt(width);
+      y = random.nextInt(height);
+      //debug("randomly emulating mouse press at (" + x + ", " + y + ")");
+    } else {
+      x = mouseX;
+      y = mouseY;
+    }
+
+    Pressable p = ((DrawableTab) selectedPanel.selectedTab).getButtonFromMouseCoords(x, y);
     if (p != null) {
       p.press();
     }
@@ -615,6 +653,8 @@ void setupProps() {
   defaultProps.setProperty("panelIndex", DEFAULT_PANEL_INDEX);
   defaultProps.setProperty("sequencerHost", DEFAULT_SEQUENCER_HOST);
   defaultProps.setProperty("requireSwitcher", DEFAULT_REQUIRE_SWITCHER);
+  defaultProps.setProperty("testMode", DEFAULT_TEST_MODE);
+  defaultProps.setProperty("randomSeed", DEFAULT_RANDOM_SEED);
 
   props = new Properties(defaultProps);
   info("Loading properties from " + PROPS_FILE);
@@ -645,6 +685,25 @@ int getIntProperty(String key) {
     }
     warn ("Value for property " + key +
           " not an int (" + props.getProperty(key) +
+          "), using default value: " + value);
+  }
+  return value;
+}
+
+long getLongProperty(String key) {
+  long value;
+  try {
+    value = Long.parseLong(props.getProperty(key));
+  } catch (NumberFormatException nfe) {
+    try {
+      value = Long.parseLong(defaultProps.getProperty(key));
+    } catch (NumberFormatException nfe2) {
+      throw new NumberFormatException("Value for property " + key +
+                                      " not an long (" + props.getProperty(key) +
+                                      "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+    }
+    warn ("Value for property " + key +
+          " not an long (" + props.getProperty(key) +
           "), using default value: " + value);
   }
   return value;
