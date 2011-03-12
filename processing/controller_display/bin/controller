@@ -16,6 +16,10 @@ case "$1" in
         echo "Killing window manager desktop panel"
         pkill xfce4-panel
       fi
+      if [ -x /opt/syzygryd/bin/logRoll.pl ] && [ -d /opt/syzygryd/log ]; then
+        echo "Rolling controller logs"
+        /opt/syzygryd/bin/logRoll.pl controller
+      fi
       echo "Starting controller"
       mkdir -p /opt/syzygryd/log
       # a symlink to the logfile in ~ would be useful

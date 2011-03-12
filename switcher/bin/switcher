@@ -25,6 +25,11 @@ do_readlink_f() {
   fi
 }
 
+if [ -x /opt/syzygryd/bin/logRoll.pl ] && [ -d /opt/syzygryd/log ]; then
+  echo "Rolling switcher logs"
+  /opt/syzygryd/bin/logRoll.pl switcher
+fi
+
 script=`do_readlink_f $0`
 path_to_script=`dirname $script`
 switcher_home="${path_to_script}/.."
@@ -32,6 +37,7 @@ switcher_home="${path_to_script}/.."
 
 pushd ${switcher_home} > /dev/null 2>&1
 mkdir -p /opt/syzygryd/log
+echo "Starting switcher"
 java -cp build/switcher.jar com.syzygryd.Switcher /opt/syzygryd/etc/setlist.csv 2>&1 | tee -a /opt/syzygryd/log/switcher.log
 popd > /dev/null 2>&1
 
