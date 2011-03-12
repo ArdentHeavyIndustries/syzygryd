@@ -69,7 +69,7 @@ float roundTo2Places(float v) {
 
 void processOSCFireEvent(OscMessage m) {
 
- debug("FC OSC: " + m.addrPattern());
+  debug("FC OSC: " + m.addrPattern());
   
   if (m.addrPattern().startsWith("/fireMasterArm/makeFire")) {
     fcUIMasterFireArm = m.get(0).floatValue() != 0;
@@ -114,7 +114,16 @@ void processOSCFireEvent(OscMessage m) {
      }
    }
    fcUITornadoFuel = newFuelOn;
-  } 
+  }
+
+  else if (m.addrPattern().startsWith("/fireControl/disableSevenEight")) {
+    FLAME_EFFECTS_78_DISABLE = m.get(0).floatValue() != 0;
+    if (FLAME_EFFECTS_78_DISABLE) {
+      info("Disabling flame effects 7 and 8");
+    } else {
+      info("Enabling flame effects 7 and 8");
+    }
+  }
 }
 
 // Sets a fire control relay to specified state. 
