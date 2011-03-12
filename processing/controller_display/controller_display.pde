@@ -47,6 +47,9 @@ final String DEFAULT_SEQUENCER_HOST   = "10.10.10.10";
 final String DEFAULT_REQUIRE_SWITCHER = "true";
 final String DEFAULT_TEST_MODE        = "false";
 final String DEFAULT_RANDOM_SEED      = "0";
+final String DEFAULT_RANDOM_MAX_SHORT_DELAY_SEC = "5";
+final String DEFAULT_RANDOM_MAX_LONG_DELAY_SEC  = "180";
+final String DEFAULT_FRAC_LONG_DELAY            = "0.02";
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -655,6 +658,9 @@ void setupProps() {
   defaultProps.setProperty("requireSwitcher", DEFAULT_REQUIRE_SWITCHER);
   defaultProps.setProperty("testMode", DEFAULT_TEST_MODE);
   defaultProps.setProperty("randomSeed", DEFAULT_RANDOM_SEED);
+  defaultProps.setProperty("randomMaxShortDelaySec", DEFAULT_RANDOM_MAX_SHORT_DELAY_SEC);
+  defaultProps.setProperty("randomMaxLongDelaySec", DEFAULT_RANDOM_MAX_LONG_DELAY_SEC);
+  defaultProps.setProperty("fracLongDelay", DEFAULT_FRAC_LONG_DELAY);
 
   props = new Properties(defaultProps);
   info("Loading properties from " + PROPS_FILE);
@@ -704,6 +710,25 @@ long getLongProperty(String key) {
     }
     warn ("Value for property " + key +
           " not an long (" + props.getProperty(key) +
+          "), using default value: " + value);
+  }
+  return value;
+}
+
+float getFloatProperty(String key) {
+  float value;
+  try {
+    value = Float.parseFloat(props.getProperty(key));
+  } catch (NumberFormatException nfe) {
+    try {
+      value = Float.parseFloat(defaultProps.getProperty(key));
+    } catch (NumberFormatException nfe2) {
+      throw new NumberFormatException("Value for property " + key +
+                                      " not an float (" + props.getProperty(key) +
+                                      "), but neither is the default value either (" + defaultProps.getProperty(key) + ")");
+    }
+    warn ("Value for property " + key +
+          " not an float (" + props.getProperty(key) +
           "), using default value: " + value);
   }
   return value;
