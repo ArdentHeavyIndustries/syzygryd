@@ -4,6 +4,13 @@ use warnings;
 use strict;
 use English;
 
+# copy this to /opt/syzygryd/bin/logRoll.pl
+# (on both the syzyputer, and all of the controllers)
+
+# usage: logRoll.pl <logBase>
+
+# XXX could have an option to roll all of the logs if no logBase specified
+
 my $LOGDIR = "/opt/syzygryd/log";
 
 sub safeSystem($) {
