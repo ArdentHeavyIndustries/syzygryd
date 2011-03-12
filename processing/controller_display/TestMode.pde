@@ -35,7 +35,7 @@ class TestMode extends Thread {
             } else {
                sleepMs = randomMaxShortDelayMs + random.nextInt(randomMaxLongDelayMs - randomMaxShortDelayMs);
             }
-            debug("waiting " + sleepMs + " ms for next simulated mouse press");
+            //debug("waiting " + sleepMs + " ms for next simulated mouse press");
             Thread.sleep(sleepMs);
          } catch (InterruptedException ie) {
          }
