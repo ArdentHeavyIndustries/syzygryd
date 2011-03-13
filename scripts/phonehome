@@ -7,8 +7,9 @@ while true; do
   PROCESS=`ps -A | grep "syzygryd@209.237.247.224" | grep -v grep`
   #echo $PROCESS
   if [ "$PROCESS" = "" ]; then
-    #echo "Attempting connection over local network."
-    ssh -o ConnectTimeout=8 -o ConnectionAttempts=1 -o TCPKeepAlive=yes -o ServerAliveInterval=5 -R 22210:localhost:22 -R 22211:10.10.10.11:22 -R 22212:10.10.10.12:22 -R 22213:10.10.10.13:22 syzygryd@209.237.247.224
+    WIRELESS_IP=`ifconfig en1 | head -4 | tail -1 | awk '{print $2}'`
+    #echo "Attempting connection over local wireless network: $WIRELESS_IP"
+    ssh -b $WIRELESS_IP -o ConnectTimeout=8 -o ConnectionAttempts=1 -o TCPKeepAlive=yes -o ServerAliveInterval=5 -R 22210:localhost:22 -R 22211:10.10.10.11:22 -R 22212:10.10.10.12:22 -R 22213:10.10.10.13:22 syzygryd@209.237.247.224
     #echo "Local network connection timed out."
   fi
   #echo "Sleeping."
