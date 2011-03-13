@@ -161,7 +161,7 @@ pages = [[
 	"height":.05,
 	"color":"#00FFFF",
 	"min":0, "max":1,
-	"address":"/lightingColor/baseHueSpeed",
+	"address":"/lightColor/baseHueSpeed",
 },
 
 // base hue spread
@@ -185,7 +185,7 @@ pages = [[
 	"height":.05,
 	"color":"#00FFFF",
 	"min":0, "max":1,
-	"address":"/lightingColor/baseHueSpread",
+	"address":"/lightColor/baseHueSpread",
 },
 
 // base hue saturation
@@ -209,7 +209,7 @@ pages = [[
 	"height":.05,
 	"color":"#00FFFF",
 	"min":0, "max":1,
-	"address":"/lightingColor/baseHueSaturation",
+	"address":"/lightColor/baseHueSaturation",
 },
 
 //base hue brightness
@@ -233,7 +233,7 @@ pages = [[
 	"height":.05,
 	"color":"#00FFFF",
 	"min":0, "max":1,
-	"address":"/lightingColor/baseHueBrightness",
+	"address":"/lightColor/baseHueBrightness",
 },
 
 //effect tint xy
@@ -256,7 +256,7 @@ pages = [[
 	"isMomentary":false,
 	"color":"#00FFFF",
 	"stroke":"00FFFF",
-	"address":"/lightingColor/tint",
+	"address":"/lightColor/tint",
 },
 //tint chroma slider
 {
@@ -279,7 +279,7 @@ pages = [[
 	"color":"#307D7E",
 	"stroke":"#00FFFF",
 	"min":0, "max":1,
-	"address":"/lightingColor/chroma",
+	"address":"/lightColor/chroma",
 },
 //tint brightness slider
 {
@@ -302,7 +302,7 @@ pages = [[
 	"color":"#307D7E",
 	"stroke":"#00FFFF",
 	"min":0, "max":1,
-	"address":"/lightingColor/brightness",
+	"address":"/lightColor/brightness",
 },
 
 //Animation Parameters
@@ -327,7 +327,7 @@ pages = [[
 	"height":.04,
 	"color":"#FFFF00",
 	"min":0, "max":1,
-	"address":"/lightingControls/animationSpeed",
+	"address":"/lightControls/animationSpeed",
 },
 //animation size slider
 {
@@ -350,7 +350,7 @@ pages = [[
 	"height":.04,
 	"color":"#FFFF00",
 	"min":0, "max":1,
-	"address":"/lightingControls/animationSize",
+	"address":"/lightControls/animationSize",
 },
 
 //animation jitter slider
@@ -374,7 +374,7 @@ pages = [[
 	"height":.04,
 	"color":"#FFFF00",
 	"min":0, "max":1,
-	"address":"/lightingControls/animationJitter",
+	"address":"/lightControls/animationJitter",
 },
 
 //animation attack slider
@@ -398,7 +398,7 @@ pages = [[
 	"height":.04,
 	"color":"#FFFF00",
 	"min":0, "max":1,
-	"address":"/lightingControls/attack",
+	"address":"/lightControls/attack",
 },
 
 //animation decay slider
@@ -422,7 +422,7 @@ pages = [[
 	"height":.04,
 	"color":"#FFFF00",
 	"min":0, "max":1,
-	"address":"/lightingControls/decay",
+	"address":"/lightControls/decay",
 },
 ]
 
