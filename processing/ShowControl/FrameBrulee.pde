@@ -378,6 +378,8 @@ void sendControllerOSCMsg(String addr, Integer val0, Integer val1, Integer val2)
   }
 }
 
+// Summary of lighting OSC messages
+
 void outputParamsToOSC(FBParams fb) {
     
   sendTouchOSCMsg("/lightControl/changeRate", uiFBParams.changeRate);

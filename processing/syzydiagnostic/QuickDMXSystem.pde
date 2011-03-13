@@ -29,12 +29,22 @@ public class QuickDMXSystem {
    // Go through each device and strike all the channels.
    for (int i = enttecs.size()-1; i >=0; i--) {
     DMX dmx = (DMX) enttecs.get(i);
-    for (int ch=0; ch < MAX_LIGHTING_CHANNEL; ch++) {
+    for (int ch=1; ch < MAX_LIGHTING_CHANNEL; ch++) {
      dmx.setDMXChannel(ch,0);
      println("Striking channel "+str(ch));
     }
    }
    
+  }
+  
+  void quickTestAllFixtures() {
+   for (int i = enttecs.size()-1; i >=0; i--) {
+    DMX dmx = (DMX) enttecs.get(i);
+    for (int ch=1; ch < MAX_LIGHTING_CHANNEL; ch++) {
+     dmx.setDMXChannel(ch,255);
+     println("Striking channel "+str(ch));
+    }
+   } 
   }
   
   public int getSize() {

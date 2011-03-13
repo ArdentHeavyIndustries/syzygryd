@@ -58,35 +58,27 @@ public class DiagServer extends NanoHTTPD {
      dmxs.sendDMX(0,gc,gv);
      dmxs.sendDMX(0,bc,bv);
      } else if (params.getProperty("arm")!=null && params.getProperty("cube")==null) {
+       //Send everything to an arm
+       println("Sending to an entire arm");
+       
        //Let's grab our params
       //Let's pass through the rest of the parameters to an entire arm
-     for (int ch=0; ch < MAX_LIGHTING_CHANNEL; ch++) {
+     for (int ch=1; ch < MAX_LIGHTING_CHANNEL; ch++) {
          dmxs.sendDMX(0,ch,rv);
          dmxs.sendDMX(0,ch,gv);
          dmxs.sendDMX(0,ch,bv);
      }
      } else if (params.getProperty("arm")==null && params.getProperty("cube")==null && params.getProperty("dmx")==null && params.getProperty("firedance")==null) {
    for (int i = dmxs.getSize()-1; i >=0; i--) {
-    for (int ch=0; ch < MAX_LIGHTING_CHANNEL; ch++) {
+    for (int ch=1; ch < MAX_LIGHTING_CHANNEL; ch++) {
      dmxs.sendDMX(i,ch,rv);
      dmxs.sendDMX(i,ch,gv);
      dmxs.sendDMX(i,ch,bv);
+     delay(15);
     }
    }
-     } else if (params.getProperty("dmx")!=null && params.getProperty("value")!=null && params.getProperty("universe")!=null) {
-      int u = int(params.getProperty("universe"));
-      int ch = int(params.getProperty("dmx"));
-      int v = int(params.getProperty("value"));
-       dmxs.sendDMX(u,ch,v);
-     } else if (params.getProperty("firedance")!=null) {
-       println("Fire dance");
-      for (int ch=118; ch < MAX_LIGHTING_CHANNEL; ch++) {
-       dmxs.sendDMX(0,ch,85);
-        delay(int(params.getProperty("delay","50")));
-        dmxs.sendDMX(0,ch,0);
-      }
-     }
-
+ }
+ 
      
      
  return new Response(NanoHTTPD.HTTP_OK, "text/html", "ACK "+actionStr);
