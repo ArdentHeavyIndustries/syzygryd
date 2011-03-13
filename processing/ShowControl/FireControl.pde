@@ -38,6 +38,7 @@ void fireControlInitialize() {
   sendTouchOSCMsg("/fireControl/tornadoFan", fcUITornadoFan);
   sendTouchOSCMsg("/fireControl/tornadoReady", false);
   sendTouchOSCMsg("/fireControl/tornadoFuel", false);
+  sendTouchOSCMsg("/fireControl/disableSevenEight", FLAME_EFFECTS_78_DISABLE);
 
   // These are the flame effect addresses for 7/8 effects
   // We disable all of these if FLAME_EFFECTS_78_DISABLE is set
