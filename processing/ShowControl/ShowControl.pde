@@ -52,6 +52,8 @@ boolean FLAME_EFFECTS_78_DISABLE = false;
 // Use String's here, regardless of the final type.
 // These should be consistent with the commented out lines in the
 // example etc/showcontrol.properties file.
+final String DEFAULT_LOG_LIGHT_EVENTS        = "false";
+final String DEFAULT_LOG_FIRE_EVENTS         = "false";
 final String DEFAULT_SEND_DMX                = "true";
 final String DEFAULT_TEST_MODE               = "false"; // in test mode we output DMX on sequential channels -- see LightingTest
 final String DEFAULT_SYZYVYZ                 = "false";
@@ -62,6 +64,8 @@ final String DEFAULT_ETHERNET_INTERFACE	     = "en0";
 
 // These will be set in setupProps()
 
+boolean LOG_LIGHT_EVENTS;
+boolean LOG_FIRE_EVENTS;
 boolean SEND_DMX; 
 boolean TEST_MODE;                
 boolean SYZYVYZ;
@@ -432,6 +436,8 @@ void setupProps() {
 
   // Configure default values, if not set in the file
   defaultProps = new Properties();
+  defaultProps.setProperty("logLightEvents", DEFAULT_LOG_LIGHT_EVENTS);
+  defaultProps.setProperty("logFireEvents", DEFAULT_LOG_FIRE_EVENTS);
   defaultProps.setProperty("sendDmx", DEFAULT_SEND_DMX);
   defaultProps.setProperty("testMode", DEFAULT_TEST_MODE);
   defaultProps.setProperty("syzyvyz", DEFAULT_SYZYVYZ);
@@ -450,12 +456,16 @@ void setupProps() {
     warn ("Can't load properties file, will use all default values: " + PROPS_FILE);
   }
 
+  LOG_LIGHT_EVENTS = getBooleanProperty("logLightEvents");
+  LOG_FIRE_EVENTS = getBooleanProperty("logFireEvents");
   SEND_DMX = getBooleanProperty("sendDmx");
   TEST_MODE = getBooleanProperty("testMode");
   SYZYVYZ = getBooleanProperty("syzyvyz");
   ASCII_SEQUENCER_DISPLAY = getBooleanProperty("asciiSequencerDisplay");  
   ETHERNET_INTERFACE = getStringProperty("ethernetInterface");
 
+  info("LOG_LIGHT_EVENTS = " + LOG_LIGHT_EVENTS);
+  info("LOG_FIRE_EVENTS = " + LOG_FIRE_EVENTS);
   info("SEND_DMX = " + SEND_DMX);
   info("TEST_MODE = " + TEST_MODE);
   info("SYZYVYZ = " + SYZYVYZ);

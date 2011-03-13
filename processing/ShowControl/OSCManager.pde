@@ -80,9 +80,15 @@ class OSCManager {
       else if (m.addrPattern().startsWith("/lightControl/") || m.addrPattern().startsWith("/lightColor/") || 
                m.addrPattern().startsWith("/lightSettings/") || m.addrPattern().startsWith("/lightPatterns/") || m.addrPattern().startsWith("/manualFire/") || 
                m.addrPattern().startsWith("/arm0/") || m.addrPattern().startsWith("/arm1/") || m.addrPattern().startsWith("/arm2/") ) {
+        if (LOG_LIGHT_EVENTS) {
+          info("OSCLightEvent: " + m.addrPattern());
+        }
         processOSCLightEvent(m);
 
       } else if (m.addrPattern().startsWith("/fireControl/")|| m.addrPattern().startsWith("/fireMasterArm/")) { // send lightControlMessage thru because that's where the master arm button is
+        if (LOG_FIRE_EVENTS) {
+          info("OSCFireEvent: " + m.addrPattern());
+        }
         processOSCFireEvent(m);
 
       } else { 
