@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# copy this to /opt/syzygryd/bin/phonehome.sh on the syzyputer
+# copy this to /opt/syzygryd/bin/phonehome on the syzyputer
 
 while true; do
   #echo "Checking for an existing session."
