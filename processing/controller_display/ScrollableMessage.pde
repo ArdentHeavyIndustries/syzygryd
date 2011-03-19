@@ -19,7 +19,7 @@ class ScrollableMessage {
     textFont(msgFont);
     
     //load the message array and calc the companion array providing the pixel width of each message
-    message = loadStrings("messages.txt");
+    message = loadStrings("messagesBWL.txt");
     messageWidth = new float[message.length];
     msgPtr = new int[message.length];
     for (int i=0; i < message.length; i++) {
