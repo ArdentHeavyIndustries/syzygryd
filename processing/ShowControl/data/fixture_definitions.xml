@@ -219,7 +219,7 @@
   </fixture>
   <fixture dmx_universe="0" profile="cube">
     <channels>
-      <channel address="93" name="red"/>
+      <channel address="112" name="red"/>
       <channel address="111" name="green"/>
       <channel address="95" name="blue"/>
     </channels>
