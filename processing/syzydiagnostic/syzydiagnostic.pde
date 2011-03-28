@@ -68,6 +68,7 @@ void setup() {
     System.err.println("Exception starting web service: " + ioe);
   }
   System.out.println("Diagnostic server running on port 51230");
+  
 }
 
 void draw() {
@@ -75,7 +76,7 @@ void draw() {
 }
 
 void mouseClicked() {
-  dmxs.strikeAllFixtures(); 
+  dmxs.strikeAllFixtures();
 }
 
 /*

@@ -34,10 +34,13 @@ public class DiagServer extends NanoHTTPD {
 
    int endOfAction = uri.indexOf('?');
    endOfAction = (endOfAction > 0 ? endOfAction : uri.length());
-   String actionStr = uri.substring(ACTION_URI_PREFIX.length(), endOfAction);
+   String actionStr = trim(uri.substring(ACTION_URI_PREFIX.length(), endOfAction));
    
-   println(actionStr);
    
+   
+   if (match(actionStr,"lightcube")!=null) {
+   
+     println("lightcube");
         // Now let's map our dmx channel values
      rv = int(map(int(params.getProperty("r","0")),0,100,0,255));
      gv = int(map(int(params.getProperty("g","0")),0,100,0,255));
