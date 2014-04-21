@@ -47,39 +47,40 @@ if args.cube is not None:
 	changeCube(cube, color)
 	exit()
 
-if args.cycle is not None:
-	if args.cycle == "pulsate":
-		up=True
-		while True:
-			for i in range(0,255):
-				for c in range(1,510):
-					mydmx.setChannel(c,i)
-				mydmx.render()
-				sleep(0.01)
-			for i in reversed(range(0,255)):
-				for c in range(1,510):
-					mydmx.setChannel(c,i)
-				mydmx.render()
-				sleep(0.01)
-	elif args.cycle == "random":
-		while True:
-			cube = randrange(1,36)
-			r = (cube*3)-2
-			g = (cube*3)-1
-			b = cube*3
-			mydmx.setChannel(r,randrange(0,255))
-			mydmx.setChannel(g,randrange(0,255))
-			mydmx.setChannel(b,randrange(0,255))
+if args.cycle == "pulsate":
+	up=True
+	while True:
+		for i in range(0,255):
+			for c in range(1,510):
+				mydmx.setChannel(c,i)
 			mydmx.render()
-			sleep(0.1)
-	elif args.cycle == "seizure":
-		while True:
-			for i in range(1,510):
-				mydmx.setChannel(i,randrange(0,255))
+			sleep(0.01)
+		for i in reversed(range(0,255)):
+			for c in range(1,510):
+				mydmx.setChannel(c,i)
 			mydmx.render()
-	else:
-		cubes = range(1, 36)
-		for i in cubes:
-			print "Cube %s" % str(i)
-			changeCube(i,color)
-			sleep(0.1)
+			sleep(0.01)
+elif args.cycle == "random":
+	while True:
+		cube = randrange(1,36)
+		r = (cube*3)-2
+		g = (cube*3)-1
+		b = cube*3
+		mydmx.setChannel(r,randrange(0,255))
+		mydmx.setChannel(g,randrange(0,255))
+		mydmx.setChannel(b,randrange(0,255))
+		mydmx.render()
+		sleep(0.1)
+elif args.cycle == "seizure":
+	while True:
+		for i in range(1,510):
+			mydmx.setChannel(i,randrange(0,255))
+		mydmx.render()
+elif args.cycle == "steady":
+	for c in range(1,510):
+		mydmx.setChannel(c,255)
+	mydmx.render()
+elif args.cycle == None:
+	cubes = range(1, 36)
+	for i in cubes:
+		changeCube(i,color)
